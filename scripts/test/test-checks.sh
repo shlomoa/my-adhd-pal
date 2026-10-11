@@ -73,6 +73,29 @@ fails_with $rc EmptyFunctionBlock; check "TC-S-012 detekt violation fails and na
 rm -f $bad
 gradle detekt; check "TC-S-012 removal is green" 0 $?
 
+# TC-S-012 AGP's variant test source sets (src/testDebug, src/testRelease) are treated like src/test by detekt
+bad=phone/src/testDebug/java/com/shlomoa/myadhdpal/phone/VariantTestNames.kt
+fixture $bad <<'KT'
+package com.shlomoa.myadhdpal.phone
+
+class VariantTestNames {
+    fun `a backticked test name is fine in a test source set`() = Unit
+}
+KT
+gradle detekt; check "TC-S-012 backticked test names in src/testDebug are not flagged" 0 $?
+rm -f $bad
+bad=phone/src/main/java/com/shlomoa/myadhdpal/phone/MainNames.kt
+fixture $bad <<'KT'
+package com.shlomoa.myadhdpal.phone
+
+class MainNames {
+    fun `a backticked name is flagged in main sources`() = Unit
+}
+KT
+gradle detekt; rc=$?
+fails_with $rc FunctionNaming; check "TC-S-012 the same name in src/main is still flagged" 0 $?
+rm -f $bad
+
 # TC-S-013 a new Android lint issue (not in the baseline) fails lint
 bad=phone/src/main/res/values/unused_fixture.xml
 fixture $bad <<'XML'

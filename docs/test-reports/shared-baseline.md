@@ -210,3 +210,7 @@ e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:7:17 
 - Guard: TC-S-011 now includes "committed tree passes spotlessCheck in a fresh clone" (`scripts/test/test-checks.sh`, `CLONE_REF` selects the commit). Red proof: the same steps at 16414ba exit 1; on the fixed tree PASS. A second TC-S-011 case pins the policy: a trailing comma fails `spotlessCheck` on a clean run.
 - `scripts/test/test-checks.sh`: 22 PASS, 0 FAIL.
 - The `Deprecated Gradle features ... incompatible with Gradle 10` line is `Configuration.setVisible` (removal in Gradle 11) emitted during configuration by a plugin, not by our scripts; it does not affect the exit status (CI failed only on Spotless).
+
+## CI follow-ups (red)
+
+Before wiring the lane scripts into the workflow and widening the detekt test exclusions: `scripts/test/test-ci.sh` 6 new FAIL (watch debug-separation step and the `script-tests` job with four scripts), and TC-S-012 `src/testDebug` backticked test name flagged by detekt (FAIL), with the control (same name in `src/main` is flagged) PASS.

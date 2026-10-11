@@ -22,6 +22,13 @@ has '^  build:' "$wf" && has 'run: \./gradlew check assembleDebug' "$wf"; check 
 has '^  external-links:' "$wf" && has 'run: \./gradlew checkExternalLinks' "$wf"; check "TC-S-018 external-links job runs ./gradlew checkExternalLinks" 0 $?
 ! has 'run: .*(markdownlint|remark|ktlint|detekt|spotless)' "$wf"; check "TC-S-018 workflow carries no tool list" 0 $?
 
+# TC-S-018 the lane test scripts run in CI: the watch lane's debug separation script after the build, ours in their own job
+has 'run: wear/src/test/scripts/test-debug-separation.sh' "$wf"; check "TC-S-018 build job runs the watch debug-separation script" 0 $?
+has '^  script-tests:' "$wf"; check "TC-S-018 a script-tests job exists" 0 $?
+for t in test-structure test-pairing test-checks test-ci; do
+  has "scripts/test/$t.sh" "$wf"; check "TC-S-018 script-tests runs $t.sh" 0 $?
+done
+
 # TC-S-019 the external job never blocks: failures are tolerated and turned into a warning annotation
 has 'continue-on-error: true' "$wf" && has '::warning::' "$wf"; check "TC-S-019 external job tolerates failure and warns" 0 $?
 mkdir -p "$root/docs" && printf '# Dead link\n\n[dead](http://127.0.0.1:9/dead)\n' > docs/zz-fixture-external.md; fixtures+=(docs/zz-fixture-external.md)
