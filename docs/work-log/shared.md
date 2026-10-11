@@ -53,3 +53,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: samples red first (do not compile without the libraries), then PASS; `./gradlew --no-build-cache --rerun-tasks check assembleDebug` BUILD SUCCESSFUL; bootstrap tests 22 PASS; fresh-clone check green. Details and the working version set in `docs/test-reports/shared-baseline.md`.
 - **Decision: use Hilt** (with `ksp`, no kapt) for dependency injection (plan.md: Hilt if compatible with AGP 9 / KSP). Hilt 2.60.1 + KSP 2.3.12 + Room 2.8.5 work on AGP 9.4.1 and Kotlin 2.4.21. The Android lane's step 2.7 wires the `@HiltAndroidApp` application and modules; the plugins and dependencies are already in `:phone`.
 - Open items: the two compatibility samples can stay as a toolchain regression test or be removed when 2.1 adds the real Room schema.
+
+## 2026-10-11 - 0b.2a Emulator-pair spike (handed to the user)
+
+- Issue and PR: #23; no PR (throwaway code stays on branch `claude/shared-0b2a-spike`, never merged).
+- Changed: spike code in `:phone` and `:wear` (a `Spike` launcher activity with send/list/clear buttons and a manifest `WearableListenerService` for `/spike` items; plain views, timestamps and process state logged to logcat tag `SPIKE`), and the run checklist `docs/spikes/0b2a-checklist.md` on that branch. Both debug APKs build.
+- Validation: pending. The user runs cases C1-C5 (items cross, deletion sticks, phone listener wakes with its app closed, urgent versus non-urgent delay, disconnect and reconnect) on paired emulators and reports through the coordinator. Maps to TC-S-121 to TC-S-125.
+- Open items: waiting for the user's results; then the results table goes into `docs/protocol.md` (G-SPK1) and, if the listener does not wake or deletion does not stick, the fallback rule (`MessageClient` for urgent alerts only) is applied before milestone 1. Steps 1.1-1.3 and 0b.2b cannot start before G-SPK1.
