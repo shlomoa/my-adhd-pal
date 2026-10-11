@@ -26,13 +26,13 @@ sha="$(sha1sum "$tmp/cmdline.zip" | cut -d' ' -f1)"
 mkdir -p "$tmp/shim"
 cat > "$tmp/shim/curl" <<'SH'
 #!/usr/bin/env bash
-out=""; probe=0
+all="$*"; out=""; probe=0
 while [ "$#" -gt 0 ]; do
   case "$1" in -o) out="$2"; shift;; -w) probe=1;; esac
   shift
 done
 if [ "$probe" = 1 ]; then
-  case "$*" in *"${FAKE_FAIL_MATCH:-@@none@@}"*) printf 429; exit 0;; esac
+  case "$all" in *"${FAKE_FAIL_MATCH:-@@none@@}"*) printf 429; exit 0;; esac
   printf '%s' "${FAKE_CENTRAL_CODE:-200}"; exit 0
 fi
 echo download >> "$FAKE_DOWNLOADS"
