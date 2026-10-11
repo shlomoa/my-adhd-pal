@@ -91,8 +91,8 @@ subprojects {
                     "compileSdk" to android.compileSdk.toString(),
                     "minSdk" to android.defaultConfig.minSdk.toString(),
                     "targetSdk" to android.defaultConfig.targetSdk.toString(),
-                    "signing" to signing,
-                ),
+                    "signing" to signing
+                )
             )
         }
     }
