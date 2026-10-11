@@ -1,4 +1,9 @@
 [versions]
+# S: shared app configuration (applied to both apps by the root build.gradle.kts)
+applicationId = "com.shlomoa.myadhdpal"
+compileSdk = "37"
+minSdk = "30"
+targetSdk = "36"
 agp = "9.4.1"
 kotlin = "2.4.21"
 composeBom = "2026.09.00"

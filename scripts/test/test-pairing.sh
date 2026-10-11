@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 # Shared configuration and pairing check (step 0a.4). Run: scripts/test/test-pairing.sh
-# Negative fixtures edit phone/build.gradle.kts in place and always restore it (git checkout) on exit.
+# Negative fixtures edit phone/build.gradle.kts in place and always restore it from a backup copy on exit.
 set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$root"
 fail=0
 out="$(mktemp)"
+backup="$(mktemp -d)"
+cp wear/build.gradle.kts "$backup/wear.build.gradle.kts"; cp phone/build.gradle.kts "$backup/phone.build.gradle.kts"
 check() { # name expected actual
   if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi
 }
-restore() { git checkout -q -- phone/build.gradle.kts wear/build.gradle.kts; rm -f "$out"; }
+restore() { cp "$backup/phone.build.gradle.kts" phone/build.gradle.kts; cp "$backup/wear.build.gradle.kts" wear/build.gradle.kts; rm -rf "$out" "$backup"; }
 trap restore EXIT
 gradle() { ./gradlew --console=plain -q "$@" >"$out" 2>&1; }
 
@@ -29,7 +31,7 @@ printf '\nandroid { defaultConfig { applicationId = "com.example.other" } }\n' >
 gradle check -x lint -x test; rc=$?
 [ "$rc" -ne 0 ] && ! grep -q "not found" "$out"; check "TC-S-008 changed applicationId makes check fail" 0 $?
 grep -q 'com.example.other' "$out" && grep -q 'com.shlomoa.myadhdpal' "$out" && grep -qi 'applicationId' "$out"; check "TC-S-008 message names both applicationIds" 0 $?
-git checkout -q -- phone/build.gradle.kts
+cp "$backup/phone.build.gradle.kts" phone/build.gradle.kts
 gradle checkPairing; check "TC-S-008 revert is green" 0 $?
 
 # TC-S-009 a differing signing config fails the check
@@ -37,6 +39,6 @@ printf '\nandroid { signingConfigs { create("other") { storeFile = file("other.j
 gradle checkPairing; rc=$?
 [ "$rc" -ne 0 ] && ! grep -q "not found" "$out"; check "TC-S-009 differing signing config makes the check fail" 0 $?
 grep -qi 'signing' "$out"; check "TC-S-009 message mentions the signing config" 0 $?
-git checkout -q -- phone/build.gradle.kts
+cp "$backup/phone.build.gradle.kts" phone/build.gradle.kts
 gradle checkPairing; check "TC-S-009 revert is green" 0 $?
 exit $fail

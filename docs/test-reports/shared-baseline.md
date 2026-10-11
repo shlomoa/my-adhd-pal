@@ -97,3 +97,10 @@ FAIL TC-S-009 differing signing config makes the check fail (expected 0, got 1)
 FAIL TC-S-009 message mentions the signing config (expected 0, got 1)
 FAIL TC-S-009 revert is green (expected 0, got 1)
 ```
+
+## 0a.4 after implementation (green)
+
+- `scripts/test/test-pairing.sh`: 11 PASS, 0 FAIL (TC-S-007 to TC-S-010) with the negative fixtures (changed `applicationId`, differing signing config) failing `check` and the revert green.
+- `./gradlew assembleDebug testDebugUnitTest lintDebug :protocol:test check`: BUILD SUCCESSFUL; `scripts/test/test-structure.sh` still 15 PASS.
+- Test-harness fix: the restore hook first used `git checkout`, which also reverted uncommitted module edits; it now restores from a backup copy.
+- Mechanism: root `build.gradle.kts` configures both apps from the `[versions]` block of `gradle/libs.versions.toml` (single place); `checkPairing` (part of `check`) compares applicationId, SDK levels and signing config of the evaluated apps. A convention plugin in an included `build-logic` build was rejected for now: it compiles with Gradle's embedded Kotlin against AGP 9.4, a metadata-version risk, for no gain at two modules.
