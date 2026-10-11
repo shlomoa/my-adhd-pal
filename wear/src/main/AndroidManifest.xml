@@ -33,5 +33,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- SPIKE 0b.2a (throwaway) -->
+        <activity android:name=".spike.SpikeActivity" android:exported="true" android:label="Spike">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service android:name=".spike.SpikeListenerService" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/spike" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
