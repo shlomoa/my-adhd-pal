@@ -3,6 +3,9 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -15,6 +18,11 @@
         <meta-data
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
+
+        <!-- Notifications are fired locally by this app; bridging the phone's would duplicate them (plan.md section 2). -->
+        <meta-data
+            android:name="com.google.android.wearable.notificationBridgeMode"
+            android:value="NO_BRIDGING" />
 
         <activity
             android:name=".MainActivity"
