@@ -44,3 +44,9 @@ scripts/test/fresh-bootstrap-check.sh: line 10: /home/user/my-adhd-pal/scripts/b
 | TC-S-028 | red |
 | TC-S-029 | red |
 | TC-S-030 | red |
+
+## 0a.8 after implementation (green)
+
+- `scripts/test/test-bootstrap-android.sh`: 20 PASS, 0 FAIL (TC-S-026, 027, 028, 030; TC-S-028 has four cases, including refusal under burst load only).
+- `scripts/test/fresh-bootstrap-check.sh` (TC-S-029, real network, empty SDK dir): bootstrap installed command-line tools, platform-tools, platform 37.0 and build-tools 37.0.0, found Maven Central refusing (429) and wrote the mirror init script, then `./gradlew check` ended `BUILD SUCCESSFUL in 2m 29s`.
+- Two earlier real runs failed, which shaped the probe: a single-request probe answered 200 while Gradle got 429. A parallel burst reproduces the refusal (8 of 24 requests), so the probe is a burst; the offline test for that was written red first.
