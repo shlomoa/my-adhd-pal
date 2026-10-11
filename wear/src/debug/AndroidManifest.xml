@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Debug builds only (docs/conventions.md, Debug code): log sink, log view, injected-message receiver.
+         Only `adb shell`, which holds DUMP, can send to the receiver. -->
+    <application
+        android:name=".debug.DebugApplication"
+        tools:replace="android:name">
+
+        <activity
+            android:name=".debug.DebugLogActivity"
+            android:exported="true"
+            android:taskAffinity="" />
+
+        <receiver
+            android:name=".debug.InjectedMessageReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
+    </application>
+</manifest>
