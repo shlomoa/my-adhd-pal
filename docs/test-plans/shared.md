@@ -114,7 +114,7 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-107 | 2.5 | unit | Repository publishes `/schedule` and `/hello/phone` on start | the fake source records both, with a monotonic schedule version |
 | TC-S-108 | 2.5 | unit | Repository is the single source of truth | UI-facing flows reflect the DAO; the watch's items never edit master state |
 | TC-S-109 | 2.5 | unit | Schedule version is monotonic across restarts | after a restart the next version is greater than the last published |
-| TC-S-110 | 2.5 | unit | Debug action publishes a test schedule | only present in debug builds; absent in release (covered by TC-S-021) |
+| TC-S-110 | 2.5 | unit | Debug action publishes a test schedule | only present in debug builds; absent in release (see the release-has-no-debug cases in part a) |
 
 ## Part c: spikes and verification (manual, user runs; steps 0b.1-0b.3)
 
