@@ -40,6 +40,27 @@ fails_with $rc BadFormat.kt; check "TC-S-011 mis-formatted Kotlin fails spotless
 gradle spotlessApply spotlessCheck; check "TC-S-011 spotlessApply makes it pass" 0 $?
 rm -f $bad
 
+# TC-S-011 the committed tree passes the formatter in a fresh clone. Local state (stale results, untracked or ignored
+# files) once made a developer machine pass while CI failed on trailing commas; a fresh clone of HEAD cannot be fooled.
+clone="$(mktemp -d)"
+git clone -q "$root" "$clone/repo" && git -C "$clone/repo" checkout -q "${CLONE_REF:-HEAD}" && cp local.properties "$clone/repo/" 2>/dev/null
+( cd "$clone/repo" && ./gradlew --console=plain --no-build-cache --rerun-tasks spotlessCheck >"$out" 2>&1 ); check "TC-S-011 committed tree passes spotlessCheck in a fresh clone" 0 $?
+rm -rf "$clone"
+
+# TC-S-011 trailing commas are not allowed (ktlint android_studio style), the same on every machine
+bad=wear/src/main/java/com/shlomoa/myadhdpal/wear/TrailingComma.kt
+fixture $bad <<'KT'
+package com.shlomoa.myadhdpal.wear
+
+fun sum(
+    a: Int,
+    b: Int,
+) = a + b
+KT
+gradle spotlessCheck --rerun-tasks --no-build-cache; rc=$?
+fails_with $rc TrailingComma.kt; check "TC-S-011 a trailing comma fails spotlessCheck even on a clean run" 0 $?
+rm -f $bad
+
 # TC-S-012 detekt violation fails detekt and names the rule
 bad=wear/src/main/java/com/shlomoa/myadhdpal/wear/EmptyBlock.kt
 fixture $bad <<'KT'

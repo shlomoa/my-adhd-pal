@@ -39,9 +39,9 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red first (`docs/test-reports/shared-baseline.md`), then `test-ci.sh` 11 PASS, `test-conventions.sh` 15 PASS, `./gradlew check` green. G0 exit criteria 0a.1-0a.7 all met; the live issue check and the CI job list are evidenced on this PR.
 - Open items: for the user, open *New issue* once to confirm the *Plan step* template renders (TC-S-022). Watch lane: put debug-only code in a `...wear.debug` package (the release check relies on it). detekt 2.0.0-alpha.6 is a pre-release. Next: 0b.1 (Hilt/KSP/Room, G-LIB) and 0b.2a (emulator spike code and run checklist for the user).
 
-## 2026-10-11 - 0a.5 CI fix: stale Spotless result
+## 2026-10-11 - 0a.5 CI fix: formatter result differed between machine and CI
 
 - Issue and PR: #17; PR #77 and #78.
-- Changed: ran the ktlint `android_studio` formatting that a clean run requires (no trailing commas in `MyAdhdPalApp.kt` and `build.gradle.kts`); a note in `docs/conventions.md`.
-- Validation: CI on #77 failed in `spotlessKotlinCheck` while my machine passed, because Spotless reused a result computed before `.editorconfig` set the style. Reproduced by changing the style, fixed, and verified with `./gradlew --no-build-cache --rerun-tasks check assembleDebug` (BUILD SUCCESSFUL) and a fresh clone. Lesson: validate with `--no-build-cache --rerun-tasks` before pushing a tooling change.
-- Open items: none.
+- Changed: formatted the code as ktlint `android_studio` requires (no trailing commas in `MyAdhdPalApp.kt`, `build.gradle.kts`); added a fresh-clone formatter case to `scripts/test/test-checks.sh`; note in `docs/conventions.md`.
+- Validation: CI on #77 failed `:spotlessKotlinCheck` while my working directory had passed. A fresh clone of the failing commit 16414ba fails the same way locally (`--no-build-cache --rerun-tasks`), which pins the divergence on state in my working directory, not on CI. I tried stale caches and `.editorconfig` as a Spotless input; neither explained it, so neither fix was kept. Guard: TC-S-011 "committed tree passes spotlessCheck in a fresh clone" is red at 16414ba and green on the fix; `test-checks.sh` 22 PASS. The Gradle "deprecated features" line is a plugin's `Configuration.setVisible` notice and does not fail builds.
+- Open items: root cause of the earlier local green is unknown (see `docs/test-reports/shared-baseline.md`); the fresh-clone guard makes it harmless.
