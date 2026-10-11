@@ -139,3 +139,21 @@ The PASS rows are existing or vacuous behaviour (lint already ran in `check`; a 
 - `scripts/test/test-checks.sh`: 20 PASS, 0 FAIL (TC-S-011 to TC-S-017): mis-formatted Kotlin fails `spotlessCheck` and is repaired by `spotlessApply`; an `EmptyFunctionBlock` fixture fails `detekt`; an unused-resource fixture fails Android lint (baseline holds only the pre-existing monochrome-icon warning); a broken internal file link and heading, and a `MD018` style violation, fail `lintDocs` naming file and target or rule and line; every fixture removed afterwards leaves `check` green.
 - `./gradlew check --rerun-tasks`: BUILD SUCCESSFUL with `spotlessCheck`, `detekt`, `lintDocs`, `lintDebug` and `checkPairing` in the task graph; `scripts/test/test-structure.sh` 15 PASS, `test-pairing.sh` 11 PASS, `test-bootstrap-android.sh` 21 PASS, `test-scripts.sh` 19 PASS.
 - Compatibility (AGP 9.4.1, Kotlin 2.4.21, Gradle 9.8.1): Spotless 8.10.4 with ktlint 1.8.0 and detekt 2.0.0-alpha.6 (`dev.detekt`) both run. detekt 2 is a pre-release; the stable 1.23.8 cannot type-resolve against the Kotlin 2.4 stdlib, so no stable choice exists yet. Docs: markdownlint-cli2 0.23.3, remark-validate-links 13.1.0 (internal files and headings), markdown-link-check 3.15.0 (external, not in `check`), pinned by `tools/docs/package-lock.json`. lychee was not usable: cloud sessions cannot download release binaries of other GitHub repositories.
+
+## 0a.6 CI (red)
+
+Command: `scripts/test/test-ci.sh` before the external-links job, the warning step and `checkNoDebugInRelease` exist. Exit 1. The PASS rows are behaviour already present (the build job already ran `check assembleDebug`; `scripts/docs-lint.sh external` already fails on a dead link); the FAIL rows are the new work.
+
+```
+PASS TC-S-018 workflow triggers on pull_request
+PASS TC-S-018 build job runs ./gradlew check assembleDebug
+FAIL TC-S-018 external-links job runs ./gradlew checkExternalLinks (expected 0, got 1)
+PASS TC-S-018 workflow carries no tool list
+FAIL TC-S-019 external job tolerates failure and warns (expected 0, got 1)
+PASS TC-S-019 a dead external link makes the external check fail (and only that job)
+PASS TC-S-019 external links are not part of check
+FAIL TC-S-021 checkNoDebugInRelease is part of check (expected 0, got 1)
+FAIL TC-S-021 clean release builds pass (expected 0, got 1)
+FAIL TC-S-020 debug class in release fails and names the class (expected 0, got 1)
+FAIL TC-S-020 removal is green (expected 0, got 1)
+```
