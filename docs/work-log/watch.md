@@ -29,3 +29,19 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   not compile (no dependency, no type). Green: same tests pass; `./gradlew check` BUILD SUCCESSFUL (Spotless, detekt,
   lint, unit tests, pairing, docs checks) covers TC-W-053. `scripts/require-gate.sh G0` exit 0.
 - Open items: none.
+
+## 2026-10-11 - 3.8 Debug source set
+
+- Issue and PR: #49, branch `claude/watch-3.8`
+- Changed: `Logger`/`LogSink` and `ItemIngest` seam in main (no sink in release, so nothing is logged); in
+  `wear/src/debug/` and package `...wear.debug`: `RingBufferLogSink`, `DebugApplication` (installs the sink), `DebugLogActivity`
+  (log view), `InjectedMessageReceiver` (requires `android.permission.DUMP`, so only `adb shell` can send) with
+  `forwardInjected`; debug manifest. Tests: `wear/src/testDebug/` (TC-W-056) and `wear/src/test/scripts/test-debug-separation.sh`
+  (TC-W-054, 055, 057).
+- Validation: red first: `:wear:testDebugUnitTest` did not compile (no debug code) and the script failed TC-W-055
+  "debug APK contains the debug log view". Green: 4 unit tests pass, the script passes 5 of 5 (a deliberate `wear.debug.Leak`
+  class in `src/main` fails `checkNoDebugInRelease` and is named; the real build passes; the release APK and manifest hold no
+  debug class), `./gradlew check` BUILD SUCCESSFUL.
+- Open items: TC-W-056's "one applied schedule" half comes with 3.3 (the schedule handler installed in `ItemIngest`);
+  raw-biometrics checks for TC-W-057/080/081 come with 6.7. The script is not run by CI (`.github/**` and `scripts/**` are S's):
+  S can add it to the workflow. detekt excludes only `src/test`, so `testDebug` needs a `@Suppress("FunctionNaming")`.
