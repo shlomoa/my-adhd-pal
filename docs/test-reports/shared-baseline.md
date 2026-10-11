@@ -79,3 +79,21 @@ TC-S-001 baseline (`./gradlew assembleDebug testDebugUnitTest lintDebug` on unmo
 
 - `scripts/test/test-structure.sh`: 15 PASS, 0 FAIL (TC-S-002 to TC-S-006), including the real build of both apps and `:protocol:test`.
 - `./gradlew assembleDebug testDebugUnitTest lintDebug :protocol:test` (the CI command): BUILD SUCCESSFUL; `wear/build/outputs/apk/debug/wear-debug.apk` and `phone/build/outputs/apk/debug/phone-debug.apk` exist.
+
+## 0a.4 shared configuration and pairing check (red)
+
+Command: `scripts/test/test-pairing.sh` on the 0a.1-0a.3 tree (module scripts still define the values; no `checkPairing` task). Exit 1, 0 PASS, 11 FAIL.
+
+```
+FAIL TC-S-007 pairing check passes with equal applicationId and signing config (expected 0, got 1)
+FAIL TC-S-007 pairing check is part of check (expected 0, got 1)
+FAIL TC-S-010 module scripts define no applicationId or SDK level (expected 0, got 1)
+FAIL TC-S-010 :wear reports the shared values (expected 0, got 1)
+FAIL TC-S-010 :phone reports the shared values (expected 0, got 1)
+FAIL TC-S-008 changed applicationId makes check fail (expected 0, got 1)
+FAIL TC-S-008 message names both applicationIds (expected 0, got 1)
+FAIL TC-S-008 revert is green (expected 0, got 1)
+FAIL TC-S-009 differing signing config makes the check fail (expected 0, got 1)
+FAIL TC-S-009 message mentions the signing config (expected 0, got 1)
+FAIL TC-S-009 revert is green (expected 0, got 1)
+```
