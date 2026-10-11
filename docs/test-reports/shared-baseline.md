@@ -196,3 +196,9 @@ e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:5:17 
 e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:6:17 Unresolved reference 'room'.
 e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:7:17 Unresolved reference 'room'.
 ```
+
+## 0b.1 after implementation (green)
+
+- `./gradlew --no-build-cache --rerun-tasks check assembleDebug`: BUILD SUCCESSFUL (2m 55s) with TC-S-120 in `InjectionSampleTest` (Hilt) and `DaoSampleTest` (Room), 1 test each, both PASS under Robolectric, plus Spotless, detekt, lint, docs and pairing checks.
+- Versions that work together (AGP 9.4.1 built-in Kotlin, Kotlin 2.4.21, Gradle 9.8.1): Hilt 2.60.1 (plugin `com.google.dagger.hilt.android`, `hilt-android`, `hilt-compiler` through `ksp`), KSP 2.3.12 (`com.google.devtools.ksp`), Room 2.8.5 (`room-runtime`, `room-ktx`, `room-compiler` through `ksp`), Robolectric 4.17.
+- Findings: (1) no `kapt` and no `org.jetbrains.kotlin.android` plugin are needed; (2) Robolectric 4.17 on Android 16 needs `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED` for the unit-test JVM and `isIncludeAndroidResources = true`, otherwise it falls back to SDK 23 and fails; (3) Robolectric downloads its Android runtime jar from Maven Central at test time, so the bootstrap mirror script now also sets `robolectric.dependency.repo.url` when Central refuses (TC-S-028, red first); (4) detekt and ktlint run on the new code without changes.

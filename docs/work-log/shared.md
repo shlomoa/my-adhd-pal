@@ -45,3 +45,11 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: ran the ktlint `android_studio` formatting that a clean run requires (no trailing commas in `MyAdhdPalApp.kt` and `build.gradle.kts`); a note in `docs/conventions.md`.
 - Validation: CI on #77 failed in `spotlessKotlinCheck` while my machine passed, because Spotless reused a result computed before `.editorconfig` set the style. Reproduced by changing the style, fixed, and verified with `./gradlew --no-build-cache --rerun-tasks check assembleDebug` (BUILD SUCCESSFUL) and a fresh clone. Lesson: validate with `--no-build-cache --rerun-tasks` before pushing a tooling change.
 - Open items: none.
+
+## 2026-10-11 - 0b.1 Library compatibility (Hilt, KSP, Room)
+
+- Issue and PR: #22; PR linked from the coordinator message.
+- Changed: version catalog (`ksp`, `hilt`, `room`, `robolectric`, `androidx.test:core-ktx`) and plugins applied in `:phone`; compatibility samples `phone/src/test/.../compat/InjectionSampleTest.kt` (Hilt) and `DaoSampleTest.kt` (Room), test sources only so no Android-lane file is touched; `bootstrap-android.sh` also points Robolectric's downloads at the Maven mirror when Central refuses.
+- Validation: samples red first (do not compile without the libraries), then PASS; `./gradlew --no-build-cache --rerun-tasks check assembleDebug` BUILD SUCCESSFUL; bootstrap tests 22 PASS; fresh-clone check green. Details and the working version set in `docs/test-reports/shared-baseline.md`.
+- **Decision: use Hilt** (with `ksp`, no kapt) for dependency injection (plan.md: Hilt if compatible with AGP 9 / KSP). Hilt 2.60.1 + KSP 2.3.12 + Room 2.8.5 work on AGP 9.4.1 and Kotlin 2.4.21. The Android lane's step 2.7 wires the `@HiltAndroidApp` application and modules; the plugins and dependencies are already in `:phone`.
+- Open items: the two compatibility samples can stay as a toolchain regression test or be removed when 2.1 adds the real Room schema.

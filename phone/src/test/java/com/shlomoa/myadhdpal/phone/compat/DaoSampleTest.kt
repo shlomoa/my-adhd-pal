@@ -18,10 +18,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @Entity(tableName = "compat_item")
-data class CompatItem(
-    @PrimaryKey val id: String,
-    val title: String,
-)
+data class CompatItem(@PrimaryKey val id: String, val title: String)
 
 @Dao
 interface CompatDao {
