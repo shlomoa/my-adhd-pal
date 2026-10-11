@@ -121,6 +121,12 @@ beforeSettings { settings ->
         }
     }
 }
+// Robolectric downloads its Android runtime jars from Maven Central at test time; use the mirror too.
+allprojects {
+    tasks.withType(Test).configureEach {
+        systemProperty 'robolectric.dependency.repo.url', mirror
+    }
+}
 GRADLE
 fi
 

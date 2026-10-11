@@ -1,10 +1,18 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
     namespace = "com.shlomoa.myadhdpal.phone"
+    testOptions {
+        unitTests {
+            // Robolectric reads targetSdk from the merged manifest instead of falling back to an old SDK.
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -17,5 +25,21 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.hilt.android.testing)
+    kspTest(libs.hilt.compiler)
+    kspTest(libs.androidx.room.compiler)
+}
+
+// Robolectric 4.17 on Android 16 (SDK 36) needs this package exported to the unit-test JVM (JDK 17+).
+tasks.withType<Test>().configureEach {
+    jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
 }

@@ -185,3 +185,20 @@ FAIL TC-S-025 the shared work log follows the format (expected 0, got 127)
 - `scripts/test/test-ci.sh`: 11 PASS, 0 FAIL (TC-S-018 to TC-S-021): the workflow has a `build` job running `./gradlew check assembleDebug` and a separate `external-links` job (`continue-on-error` plus a `::warning::` step); a dead external link fails `scripts/docs-lint.sh external` but external links are not part of `check`; `checkNoDebugInRelease` (part of `check`) passes on clean release builds and fails, naming the class, for a `...wear.debug.LeakedLogger` fixture.
 - `scripts/test/test-conventions.sh`: 15 PASS, 0 FAIL (TC-S-022 to TC-S-025): issue template, `scripts/check-issues.sh` (duplicate, missing, milestone, lane and Validation plan fixtures; plan.md yields 59 step ids), `scripts/check-work-log.sh` (the shared log passes).
 - `./gradlew check` green. The live issue check (TC-S-023 and TC-S-024 against the repository's real issues) runs in the *Conventions* workflow on this PR. TC-S-022's rendering on GitHub's new-issue page is manual: the user opens *New issue* and sees the *Plan step* template.
+
+## 0b.1 library compatibility (red)
+
+Command: `./gradlew :phone:testDebugUnitTest` with the injection sample and DAO sample tests (TC-S-120) added and no Hilt, KSP, Room or Robolectric dependency. Exit 1:
+
+```
+e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:4:17 Unresolved reference 'room'.
+e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:5:17 Unresolved reference 'room'.
+e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:6:17 Unresolved reference 'room'.
+e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:7:17 Unresolved reference 'room'.
+```
+
+## 0b.1 after implementation (green)
+
+- `./gradlew --no-build-cache --rerun-tasks check assembleDebug`: BUILD SUCCESSFUL (2m 55s) with TC-S-120 in `InjectionSampleTest` (Hilt) and `DaoSampleTest` (Room), 1 test each, both PASS under Robolectric, plus Spotless, detekt, lint, docs and pairing checks.
+- Versions that work together (AGP 9.4.1 built-in Kotlin, Kotlin 2.4.21, Gradle 9.8.1): Hilt 2.60.1 (plugin `com.google.dagger.hilt.android`, `hilt-android`, `hilt-compiler` through `ksp`), KSP 2.3.12 (`com.google.devtools.ksp`), Room 2.8.5 (`room-runtime`, `room-ktx`, `room-compiler` through `ksp`), Robolectric 4.17.
+- Findings: (1) no `kapt` and no `org.jetbrains.kotlin.android` plugin are needed; (2) Robolectric 4.17 on Android 16 needs `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED` for the unit-test JVM and `isIncludeAndroidResources = true`, otherwise it falls back to SDK 23 and fails; (3) Robolectric downloads its Android runtime jar from Maven Central at test time, so the bootstrap mirror script now also sets `robolectric.dependency.repo.url` when Central refuses (TC-S-028, red first); (4) detekt and ktlint run on the new code without changes.

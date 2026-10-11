@@ -76,6 +76,7 @@ init="$tmp/gradle/init.d/maven-central-mirror.gradle"
 run FAKE_CENTRAL_CODE=429; rc=$?
 check "TC-S-028 refusing central still exits 0" 0 $rc
 [ -f "$init" ] && grep -q 'maven-central.storage-download.googleapis.com' "$init"; check "TC-S-028 mirror configured on 429" 0 $?
+grep -q 'robolectric.dependency.repo.url' "$init"; check "TC-S-028 mirror init script also points Robolectric's downloads at the mirror" 0 $?
 run FAKE_CENTRAL_CODE=200 FAKE_FAIL_MATCH=guava; rc=$?
 [ "$rc" -eq 0 ] && [ -f "$init" ]; check "TC-S-028 mirror configured when only one probed artifact is refused" 0 $?
 : > "$tmp/probes.log"
