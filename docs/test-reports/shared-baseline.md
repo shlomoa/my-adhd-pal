@@ -179,3 +179,9 @@ FAIL TC-S-025 an entry without Validation fails (expected 0, got 1)
 FAIL TC-S-025 an entry heading without date and step fails (expected 0, got 1)
 FAIL TC-S-025 the shared work log follows the format (expected 0, got 127)
 ```
+
+## 0a.6-0a.7 after implementation (green)
+
+- `scripts/test/test-ci.sh`: 11 PASS, 0 FAIL (TC-S-018 to TC-S-021): the workflow has a `build` job running `./gradlew check assembleDebug` and a separate `external-links` job (`continue-on-error` plus a `::warning::` step); a dead external link fails `scripts/docs-lint.sh external` but external links are not part of `check`; `checkNoDebugInRelease` (part of `check`) passes on clean release builds and fails, naming the class, for a `...wear.debug.LeakedLogger` fixture.
+- `scripts/test/test-conventions.sh`: 15 PASS, 0 FAIL (TC-S-022 to TC-S-025): issue template, `scripts/check-issues.sh` (duplicate, missing, milestone, lane and Validation plan fixtures; plan.md yields 59 step ids), `scripts/check-work-log.sh` (the shared log passes).
+- `./gradlew check` green. The live issue check (TC-S-023 and TC-S-024 against the repository's real issues) runs in the *Conventions* workflow on this PR. TC-S-022's rendering on GitHub's new-issue page is manual: the user opens *New issue* and sees the *Plan step* template.
