@@ -21,7 +21,7 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 
 ## 2026-10-11 - 3.8 Debug source set
 
-- Issue and PR: 3.8 issue (see PR), branch `claude/watch-3.8`
+- Issue and PR: #49, branch `claude/watch-3.8`
 - Changed: `Logger`/`LogSink` and `ItemIngest` seam in main (no sink in release, so nothing is logged); in
   `wear/src/debug/` and package `...wear.debug`: `RingBufferLogSink`, `DebugApplication` (installs the sink), `DebugLogActivity`
   (log view), `InjectedMessageReceiver` (requires `android.permission.DUMP`, so only `adb shell` can send) with
