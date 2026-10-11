@@ -63,4 +63,9 @@ pr $'Requires: B\nProduces: C' "$tmp/pr/head-c.json"; check "TC-B-014 unmet requ
 pr $'Requires: A\nProduces: B' "$tmp/pr/head-c.json"; check "TC-B-015 flipping a gate not produced fails" 4 $?
 pr $'Requires: A' "$tmp/pr/base.json";                 check "TC-B-016 no flips and no produces pass" 0 $?
 pr 'no markers' "$tmp/pr/base.json";                    check "TC-B-017 missing Requires line fails" 2 $?
+# bootstrap PR: base has no gates.json yet; flipping G-BOOT is allowed only when Produces names it
+pr_nobase() { PR_BODY="$1" BASE_GATES_FILE="$tmp/pr/missing.json" HEAD_GATES_FILE="$tmp/pr/head-a.json" "$scripts/check-pr-gates.sh" >/dev/null 2>&1; }
+jq '(.gates[]|select(.id=="B")|.status)="open"' "$tmp/pr/base.json" > "$tmp/pr/head-a.json"
+pr_nobase $'Requires: none\nProduces: A'; check "TC-B-018 missing base file: gate merged in head must be produced" 0 $?
+pr_nobase $'Requires: none';           check "TC-B-019 missing base file: unproduced merged gate fails" 4 $?
 exit $fail

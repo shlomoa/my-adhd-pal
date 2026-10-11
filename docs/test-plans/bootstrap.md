@@ -22,3 +22,5 @@ Run: `scripts/test/test-scripts.sh` (also the `Gates` CI workflow). Pass criteri
 | TC-B-015 | flipping a gate not produced fails |
 | TC-B-016 | no flips and no produces pass |
 | TC-B-017 | missing Requires line fails |
+| TC-B-018 | missing base file: gate merged in head must be produced |
+| TC-B-019 | missing base file: unproduced merged gate fails |

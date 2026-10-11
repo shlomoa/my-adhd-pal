@@ -75,7 +75,7 @@ unclarity, medium or high ambiguity, a tool incompatible with AGP 9.4 / Kotlin 2
    `scripts/check-pr-gates.sh`, which fails the PR if a required gate is not merged on the base, or if any gate other
    than `Produces` changes status.
 
-The scripts are covered by the 17 cases in [`../test-plans/bootstrap.md`](../test-plans/bootstrap.md).
+The scripts are covered by the 19 cases in [`../test-plans/bootstrap.md`](../test-plans/bootstrap.md).
 
 ### File ownership (avoids merge conflicts)
 
@@ -137,7 +137,7 @@ graph LR
 
 ## Verification of this plan set
 
-- `scripts/test/test-scripts.sh` passes (17 cases, red-first evidence in `docs/test-reports/bootstrap-*.md`).
+- `scripts/test/test-scripts.sh` passes (19 cases, red-first evidence in `docs/test-reports/bootstrap-*.md`).
 - `scripts/require-gate.sh G0` exits 3 on `main` until G0 merges; `scripts/require-gate.sh G-BOOT` exits 0 once this
   PR merges.
 - The `Gates` workflow fails a PR whose body lacks `Requires:` or requires an unmerged gate.

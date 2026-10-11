@@ -1,6 +1,6 @@
 # Bootstrap baseline (red)
 
-Command: `scripts/test/test-scripts.sh` run before the scripts existed (exit 127 = script not found), recorded before implementation. TC-B-013..017 were added with check-pr-gates.sh and were red (127) the same way.
+Command: `scripts/test/test-scripts.sh` run before the scripts existed (exit 127 = script not found), recorded before implementation. TC-B-013..017 were added with check-pr-gates.sh and were red (127) the same way. TC-B-019 was added after the first CI run and was red (got exit 0, expected 4) before the fix: a base without `gates.json` passed only by accident.
 
 ```
 FAIL TC-B-001 merged gate passes (expected exit 0, got 127)

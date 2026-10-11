@@ -2,6 +2,7 @@ name: Gates
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
 
 jobs:
   gates:

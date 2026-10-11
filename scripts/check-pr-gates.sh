@@ -13,11 +13,13 @@ if [ -n "$req" ] && [ "$req" != "none" ]; then
   # shellcheck disable=SC2086
   GATES_FILE="${BASE_GATES_FILE:-}" "$here/require-gate.sh" $req || exit 3
 fi
-if [ -n "${BASE_GATES_FILE:-}" ]; then base_json="$(cat "$BASE_GATES_FILE")"
-else base_json="$(git show "${BASE_REF:-origin/main}:docs/plans/gates.json")"; fi
+# A base without gates.json (the bootstrap PR) counts as "every gate open".
+if [ -n "${BASE_GATES_FILE:-}" ]; then base_json="$(cat "$BASE_GATES_FILE" 2>/dev/null)"
+else base_json="$(git show "${BASE_REF:-origin/main}:docs/plans/gates.json" 2>/dev/null)"; fi
+[ -n "$base_json" ] || base_json='{"gates":[]}'
 head_json="$(cat "${HEAD_GATES_FILE:-docs/plans/gates.json}")"
 changed="$(jq -rn --argjson b "$base_json" --argjson h "$head_json" \
-  '[$h.gates[] as $g | select(($b.gates[] | select(.id == $g.id) | .status) != $g.status) | $g.id] | .[]' 2>/dev/null)"
+  '[$h.gates[] as $g | select((first($b.gates[] | select(.id == $g.id) | .status) // "open") != $g.status) | $g.id] | .[]' 2>/dev/null)"
 for id in $changed; do
   case " $prod " in *" $id "*) ;; *) echo "gate $id changed but is not in Produces" >&2; exit 4;; esac
 done
