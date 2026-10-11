@@ -31,7 +31,10 @@ while [ "$#" -gt 0 ]; do
   case "$1" in -o) out="$2"; shift;; -w) probe=1;; esac
   shift
 done
-if [ "$probe" = 1 ]; then printf '%s' "${FAKE_CENTRAL_CODE:-200}"; exit 0; fi
+if [ "$probe" = 1 ]; then
+  case "$*" in *"${FAKE_FAIL_MATCH:-@@none@@}"*) printf 429; exit 0;; esac
+  printf '%s' "${FAKE_CENTRAL_CODE:-200}"; exit 0
+fi
 echo download >> "$FAKE_DOWNLOADS"
 cp "$FAKE_ZIP" "$out"
 SH
@@ -71,6 +74,8 @@ init="$tmp/gradle/init.d/maven-central-mirror.gradle"
 run FAKE_CENTRAL_CODE=429; rc=$?
 check "TC-S-028 refusing central still exits 0" 0 $rc
 [ -f "$init" ] && grep -q 'maven-central.storage-download.googleapis.com' "$init"; check "TC-S-028 mirror configured on 429" 0 $?
+run FAKE_CENTRAL_CODE=200 FAKE_FAIL_MATCH=guava; rc=$?
+[ "$rc" -eq 0 ] && [ -f "$init" ]; check "TC-S-028 mirror configured when only one probed artifact is refused" 0 $?
 run FAKE_CENTRAL_CODE=200; rc=$?
 [ "$rc" -eq 0 ] && [ ! -e "$init" ]; check "TC-S-028 mirror removed again when central recovers" 0 $?
 
