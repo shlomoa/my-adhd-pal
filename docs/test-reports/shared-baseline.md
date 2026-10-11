@@ -139,3 +139,49 @@ The PASS rows are existing or vacuous behaviour (lint already ran in `check`; a 
 - `scripts/test/test-checks.sh`: 20 PASS, 0 FAIL (TC-S-011 to TC-S-017): mis-formatted Kotlin fails `spotlessCheck` and is repaired by `spotlessApply`; an `EmptyFunctionBlock` fixture fails `detekt`; an unused-resource fixture fails Android lint (baseline holds only the pre-existing monochrome-icon warning); a broken internal file link and heading, and a `MD018` style violation, fail `lintDocs` naming file and target or rule and line; every fixture removed afterwards leaves `check` green.
 - `./gradlew check --rerun-tasks`: BUILD SUCCESSFUL with `spotlessCheck`, `detekt`, `lintDocs`, `lintDebug` and `checkPairing` in the task graph; `scripts/test/test-structure.sh` 15 PASS, `test-pairing.sh` 11 PASS, `test-bootstrap-android.sh` 21 PASS, `test-scripts.sh` 19 PASS.
 - Compatibility (AGP 9.4.1, Kotlin 2.4.21, Gradle 9.8.1): Spotless 8.10.4 with ktlint 1.8.0 and detekt 2.0.0-alpha.6 (`dev.detekt`) both run. detekt 2 is a pre-release; the stable 1.23.8 cannot type-resolve against the Kotlin 2.4 stdlib, so no stable choice exists yet. Docs: markdownlint-cli2 0.23.3, remark-validate-links 13.1.0 (internal files and headings), markdown-link-check 3.15.0 (external, not in `check`), pinned by `tools/docs/package-lock.json`. lychee was not usable: cloud sessions cannot download release binaries of other GitHub repositories.
+
+## 0a.6 CI (red)
+
+Command: `scripts/test/test-ci.sh` before the external-links job, the warning step and `checkNoDebugInRelease` exist. Exit 1. The PASS rows are behaviour already present (the build job already ran `check assembleDebug`; `scripts/docs-lint.sh external` already fails on a dead link); the FAIL rows are the new work.
+
+```
+PASS TC-S-018 workflow triggers on pull_request
+PASS TC-S-018 build job runs ./gradlew check assembleDebug
+FAIL TC-S-018 external-links job runs ./gradlew checkExternalLinks (expected 0, got 1)
+PASS TC-S-018 workflow carries no tool list
+FAIL TC-S-019 external job tolerates failure and warns (expected 0, got 1)
+PASS TC-S-019 a dead external link makes the external check fail (and only that job)
+PASS TC-S-019 external links are not part of check
+FAIL TC-S-021 checkNoDebugInRelease is part of check (expected 0, got 1)
+FAIL TC-S-021 clean release builds pass (expected 0, got 1)
+FAIL TC-S-020 debug class in release fails and names the class (expected 0, got 1)
+FAIL TC-S-020 removal is green (expected 0, got 1)
+```
+
+## 0a.7 conventions (red)
+
+Command: `scripts/test/test-conventions.sh` before the issue template, `scripts/check-issues.sh` and `scripts/check-work-log.sh` exist. Exit 1, 0 PASS, 15 FAIL (script not found = exit 127; template missing).
+
+```
+FAIL TC-S-022 issue template has front matter and a Validation plan section (expected 0, got 1)
+FAIL TC-S-022 template asks what, how and pass criteria (expected 0, got 2)
+FAIL TC-S-023 complete, labelled issues pass (expected 0, got 127)
+FAIL TC-S-023 duplicate issue for a step fails and names the step (expected 0, got 1)
+FAIL TC-S-023 a closed not-planned duplicate is ignored (expected 0, got 127)
+FAIL TC-S-023 missing issue fails and names the step (expected 0, got 1)
+FAIL TC-S-024 missing milestone label fails (expected 0, got 1)
+FAIL TC-S-024 missing lane label fails (expected 0, got 1)
+FAIL TC-S-024 wrong milestone label fails (expected 0, got 1)
+FAIL TC-S-023 an issue not starting with a Validation plan fails (expected 0, got 1)
+FAIL TC-S-023 plan.md yields 59 step ids (expected 0, got 1)
+FAIL TC-S-025 a complete entry passes (expected 0, got 127)
+FAIL TC-S-025 an entry without Validation fails (expected 0, got 1)
+FAIL TC-S-025 an entry heading without date and step fails (expected 0, got 1)
+FAIL TC-S-025 the shared work log follows the format (expected 0, got 127)
+```
+
+## 0a.6-0a.7 after implementation (green)
+
+- `scripts/test/test-ci.sh`: 11 PASS, 0 FAIL (TC-S-018 to TC-S-021): the workflow has a `build` job running `./gradlew check assembleDebug` and a separate `external-links` job (`continue-on-error` plus a `::warning::` step); a dead external link fails `scripts/docs-lint.sh external` but external links are not part of `check`; `checkNoDebugInRelease` (part of `check`) passes on clean release builds and fails, naming the class, for a `...wear.debug.LeakedLogger` fixture.
+- `scripts/test/test-conventions.sh`: 15 PASS, 0 FAIL (TC-S-022 to TC-S-025): issue template, `scripts/check-issues.sh` (duplicate, missing, milestone, lane and Validation plan fixtures; plan.md yields 59 step ids), `scripts/check-work-log.sh` (the shared log passes).
+- `./gradlew check` green. The live issue check (TC-S-023 and TC-S-024 against the repository's real issues) runs in the *Conventions* workflow on this PR. TC-S-022's rendering on GitHub's new-issue page is manual: the user opens *New issue* and sees the *Plan step* template.

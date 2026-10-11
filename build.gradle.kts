@@ -144,3 +144,46 @@ tasks.register<Exec>("checkExternalLinks") {
     commandLine("scripts/docs-lint.sh", "external")
 }
 tasks.named("check") { dependsOn(lintDocs) }
+
+// Release builds contain no debug code. Debug-only code lives in a `debug` package
+// (com.shlomoa.myadhdpal.<module>.debug, sources in src/debug/); no such class may be in a release APK.
+val checkNoDebugInRelease =
+    tasks.register("checkNoDebugInRelease") {
+        group = "verification"
+        description = "Fails when a release APK contains a class from a `debug` package."
+        dependsOn(":wear:assembleRelease", ":phone:assembleRelease")
+        val apks =
+            fileTree(rootDir) {
+                include("wear/build/outputs/apk/release/*.apk", "phone/build/outputs/apk/release/*.apk")
+            }
+        inputs.files(apks)
+        doLast {
+            val debugClass = Regex("Lcom/shlomoa/myadhdpal/[A-Za-z0-9_/]*/debug/[A-Za-z0-9_$]+")
+            val files = apks.files
+            if (files.isEmpty()) throw GradleException("No release APKs found to check")
+            val leaks =
+                files
+                    .flatMap { apk ->
+                        java.util.zip.ZipFile(apk).use { zip ->
+                            zip
+                                .entries()
+                                .asSequence()
+                                .filter { it.name.endsWith(".dex") }
+                                .flatMap { entry ->
+                                    val text = String(zip.getInputStream(entry).readBytes(), Charsets.ISO_8859_1)
+                                    debugClass
+                                        .findAll(
+                                            text
+                                        ).map { "${apk.name}: ${it.value.removePrefix("L").replace('/', '.')}" }
+                                        .toList()
+                                }.toList()
+                        }
+                    }.distinct()
+            if (leaks.isNotEmpty()) {
+                throw GradleException(
+                    "Release builds must contain no debug code, but found:\n" + leaks.joinToString("\n") { " - $it" }
+                )
+            }
+        }
+    }
+tasks.named("check") { dependsOn(checkNoDebugInRelease) }

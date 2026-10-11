@@ -1,0 +1,35 @@
+name: Conventions
+
+on:
+  pull_request:
+    paths:
+      - docs/plan.md
+      - docs/work-log/shared.md
+      - scripts/check-issues.sh
+      - scripts/check-work-log.sh
+      - .github/workflows/conventions.yml
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+  workflow_dispatch:
+
+jobs:
+  conventions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Convention script tests
+        run: scripts/test/test-conventions.sh
+
+      - name: One labelled issue per plan.md step
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list --state all --limit 500 --json number,title,state,stateReason,labels,body > "$RUNNER_TEMP/issues.json"
+          scripts/check-issues.sh "$RUNNER_TEMP/issues.json"
+
+      - name: Work log format
+        run: scripts/check-work-log.sh docs/work-log/shared.md
