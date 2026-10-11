@@ -20,6 +20,10 @@ jobs:
       - name: Check and build
         run: ./gradlew check assembleDebug
 
+      # Needs the debug and release APKs that the step above built.
+      - name: Debug code stays out of release builds
+        run: wear/src/test/scripts/test-debug-separation.sh
+
       - uses: actions/upload-artifact@v4
         with:
           name: apks-debug
@@ -48,3 +52,25 @@ jobs:
       - name: Warn about broken external links
         if: steps.external.outcome == 'failure'
         run: echo "::warning::Some external links in the docs are broken or unreachable (see the Check external links step). This does not block the pull request."
+
+  # The lane test scripts (negative fixtures, fresh-clone formatter check, CI definition) are slow, so they run apart.
+  script-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Structure, pairing, checking tools and CI definition
+        run: |
+          scripts/test/test-structure.sh
+          scripts/test/test-pairing.sh
+          scripts/test/test-checks.sh
+          scripts/test/test-ci.sh
