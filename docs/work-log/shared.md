@@ -38,3 +38,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `build.yml` has a `build` job (`./gradlew check assembleDebug`) and a non-blocking `external-links` job; `checkNoDebugInRelease` in `check` (debug code lives in a `debug` package, see `docs/conventions.md`); the *Plan step* issue template; `scripts/check-issues.sh` and `scripts/check-work-log.sh`; the *Conventions* workflow; `docs/conventions.md`; G0 set to merged.
 - Validation: red first (`docs/test-reports/shared-baseline.md`), then `test-ci.sh` 11 PASS, `test-conventions.sh` 15 PASS, `./gradlew check` green. G0 exit criteria 0a.1-0a.7 all met; the live issue check and the CI job list are evidenced on this PR.
 - Open items: for the user, open *New issue* once to confirm the *Plan step* template renders (TC-S-022). Watch lane: put debug-only code in a `...wear.debug` package (the release check relies on it). detekt 2.0.0-alpha.6 is a pre-release. Next: 0b.1 (Hilt/KSP/Room, G-LIB) and 0b.2a (emulator spike code and run checklist for the user).
+
+## 2026-10-11 - 0a.5 CI fix: stale Spotless result
+
+- Issue and PR: #17; PR #77 and #78.
+- Changed: ran the ktlint `android_studio` formatting that a clean run requires (no trailing commas in `MyAdhdPalApp.kt` and `build.gradle.kts`); a note in `docs/conventions.md`.
+- Validation: CI on #77 failed in `spotlessKotlinCheck` while my machine passed, because Spotless reused a result computed before `.editorconfig` set the style. Reproduced by changing the style, fixed, and verified with `./gradlew --no-build-cache --rerun-tasks check assembleDebug` (BUILD SUCCESSFUL) and a fresh clone. Lesson: validate with `--no-build-cache --rerun-tasks` before pushing a tooling change.
+- Open items: none.

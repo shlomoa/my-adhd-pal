@@ -173,7 +173,7 @@ val checkNoDebugInRelease =
                                     val text = String(zip.getInputStream(entry).readBytes(), Charsets.ISO_8859_1)
                                     debugClass
                                         .findAll(
-                                            text,
+                                            text
                                         ).map { "${apk.name}: ${it.value.removePrefix("L").replace('/', '.')}" }
                                         .toList()
                                 }.toList()
@@ -181,7 +181,7 @@ val checkNoDebugInRelease =
                     }.distinct()
             if (leaks.isNotEmpty()) {
                 throw GradleException(
-                    "Release builds must contain no debug code, but found:\n" + leaks.joinToString("\n") { " - $it" },
+                    "Release builds must contain no debug code, but found:\n" + leaks.joinToString("\n") { " - $it" }
                 )
             }
         }

@@ -31,7 +31,8 @@ Raw biometrics are health data and are never logged in release builds.
 `./gradlew check` is the single entry point and CI calls it: Spotless with ktlint, detekt, Android lint (any new issue
 fails; each module's `lint-baseline.xml` holds the issues that existed before), the unit tests, the pairing check
 (same `applicationId`, SDK levels and signing config in both apps), the documentation checks and the
-release-has-no-debug check. `./gradlew spotlessApply` fixes formatting. External links are checked separately
+release-has-no-debug check. `./gradlew spotlessApply` fixes formatting. Spotless can reuse stale results after `.editorconfig` changes; if CI disagrees with
+your machine, run `./gradlew spotlessApply --rerun-tasks --no-build-cache`. External links are checked separately
 (`./gradlew checkExternalLinks`) in a CI job that never blocks.
 
 Shared configuration (`applicationId`, SDK levels) is defined once: the `[versions]` block of
