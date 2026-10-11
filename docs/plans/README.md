@@ -1,150 +1,153 @@
 # Execution plans: overview, gates and schedule
 
-Status: **approved**. Source of truth for who does what and in what order. Architecture stays in [`../plan.md`](../plan.md). Lane plans: [shared](shared.md), [android](android.md), [watch](watch.md).
+Status: **approved**, aligned to the merged [`../plan.md`](../plan.md) (milestones 0a to 7). That file stays the
+authority for architecture, decisions and step definitions; these files only say **who does which step, in what
+order, and how parallel work is kept safe**. Step ids such as `0a.8` or `3.4` are `plan.md` step ids.
 
-## Context
+Lane plans: [shared and data](shared.md), [Android](android.md), [watch](watch.md).
 
-`docs/plan.md` (merged to `main` in PR #5) fixes the architecture: one Gradle monorepo with `:protocol`
-(pure Kotlin/JVM), `:wear` (rename of today's `:app`) and `:phone`, linked over the Wearable Data Layer. It lists
-milestones 0-5 but does not say who does what, in what order, or how parallel work is kept safe. Today the repo
-holds only the scaffolded `:app` Wear module (`settings.gradle.kts` includes `:app`; CI builds
-`./gradlew assembleDebug testDebugUnitTest lintDebug`), so every lane starts from the same skeleton.
+## Lanes
 
-This document splits the milestones into **three lanes that run in parallel**, each with its own schedule,
-**validation first and last**, and **machine-enforced cross dependencies**: a lane stops at any step whose
-required gates are not merged to `main`.
+| Lane | Owns | plan.md steps |
+|---|---|---|
+| **S** Shared and data | tooling, restructure, spikes, `docs/protocol.md`, `:protocol`, phone data layer | 0a.1-0a.8, 0b.1-0b.3, 1.1-1.8, 2.1-2.5 |
+| **A** Android | phone UI, DI wiring, phone features, Play readiness | 2.6, 2.7, 4.1-4.6, 7.1-7.6 |
+| **W** Watch | everything in `:wear`, tile, biometrics (including the pure-logic evaluator 6.5 in `:protocol`) | 3.1-3.9, 5.1-5.3, 6.1-6.8 |
 
-## Working assumptions (confirm on approval)
+The three lanes run in parallel. Work that a lane cannot start is blocked by a gate (below) and the lane stops.
 
-1. **Lane split** (docs/plan.md does not define "shared and data"):
-   - **Shared/data (S)**: repo tooling and restructure, `docs/protocol.md`, `:protocol`, phone data layer
-     (`phone/.../data/**`: `WatchLinkDataSource` real + fake, Room, DataStore, repositories), CI guardrails.
-   - **Android (A)**: phone app UI/ViewModels (`phone/.../ui/**`), DI wiring, Play readiness.
-   - **Watch (W)**: everything in `:wear` (reminders, haptics, ack/selection, link client, tile, debug set, biometrics).
-2. **Transport** (open in docs/plan.md): work proceeds on the recommended **DataItems only** option; it is
-   recorded in `docs/protocol.md` at gate G1. If the real-watch test (W7) disproves it, a revision gate `G1.1`
-   re-opens G1/G2 (see Risks).
-3. **Phone scope** beyond the plan's "link-state screen": minimal schedule list/editor and prompt/ack history,
-   because the watch needs a schedule source to be testable. Anything more is out of scope here.
-4. Threads open one PR per step as the repo's working rules require; **the user merges gate PRs** (that is the
-   human checkpoint the stop rule waits on).
+## Working assumptions (confirm on review)
 
-## Common rules for all three lanes
+1. The lane split above ("shared and data" is not defined in `plan.md`).
+2. Steps that need a person (emulator pairing in Android Studio, real watch and phone, the 24-hour reminder run,
+   agreeing biometric thresholds) are gates the user closes; the lanes never wait by polling.
+3. Gate PRs are merged by the user. Each `plan.md` step is one GitHub issue (starting with its Validation plan) and one
+   PR that closes it, as `plan.md` section 5 requires.
 
-## Validation first / last (every lane)
+## Validation first and last (every lane)
 
 | | First step (V-first) | Last step (V-last) |
 |---|---|---|
-| Do | Write the **test-case catalogue** `docs/test-plans/<lane>.md` (ids `TC-<S\|A\|W>-nnn`, what / how: unit, CI, manual / pass criteria), generate the test code, run it. | Run the **entire** suite and all CI checks on the merged state; run the manual checklist for the lane. |
-| Evidence | `docs/test-reports/<lane>-baseline.md`: each id **red**, with command, output excerpt and commit SHA. The red commit precedes any implementation commit on the branch. | `docs/test-reports/<lane>-final.md`: each id **green**, counts, zero skipped/ignored tests. |
-| Checked by | `scripts/check-test-cases.sh <lane> baseline` | `scripts/check-test-cases.sh <lane> final`: every catalogue id appears in a test name and in the final report as PASS; fails on `@Ignore`/`@Disabled`. |
+| Do | Write the **test-case catalogue** `docs/test-plans/<lane>.md` (ids `TC-<S\|A\|W>-nnn`: what, how (unit, CI, manual), pass criteria), generate the test code, run it. | Run the **entire** suite and every CI check on merged `main`; run the lane's manual checklist. |
+| Evidence | `docs/test-reports/<lane>-baseline.md`: each id **red**, with command, output excerpt, commit SHA. The red commit precedes any implementation commit. | `docs/test-reports/<lane>-final.md`: each id **PASS**, counts, zero skipped. |
+| Checked by | `scripts/check-test-cases.sh <lane> baseline` | `scripts/check-test-cases.sh <lane> final` (every id in a test and PASS in the report; no `@Ignore`/`@Disabled` in Kotlin/Java tests) |
 
-Test names embed the case id so the catalogue, tests and reports stay one source of truth (DRY). Tests that
-cannot compile before an upstream gate are split: V-first has a docs-only part (**a**, no dependencies) and a
-code part (**b**, needs the contract gate). Red tests live on the thread branch; a step PR is merged only when
-its head is green (never disable or skip a test to get green).
+Test names embed the case id (single source of truth). Tests that cannot compile before an upstream gate are split
+into a docs-only part (**a**, no dependencies) and a code part (**b**, needs the contract gate). Red tests live on
+the thread branch; a step PR merges only when its head is green. Never skip or disable a test to get green.
+Manual and hardware cases are catalogued too and are PASS only when the user reports them in the work log.
 
-## Cross dependencies: gates, documented and enforced
+## Gates: cross dependencies, documented and enforced
 
-A **gate** is a milestone that exists once its PR is merged to `main`. Gates and their dependencies are data in
-**`docs/plans/gates.json`** (`{ id, name, requires[], owner, status: open|merged, pr }`); the PR that completes a
-gate flips only its own gate to `merged`, so `main` shows `merged` only after the merge.
+A **gate** exists once its PR is merged to `main`. Gates and their prerequisites are data in
+[`gates.json`](gates.json). The PR that completes a gate flips only that gate to `merged`.
 
-| Gate | Meaning (exit criteria) | Owner | Requires |
+| Gate | Exit criteria | Owner | Requires |
 |---|---|---|---|
-| **G-BOOT** | Plan docs, `gates.json`, `scripts/require-gate.sh`, `scripts/check-test-cases.sh`, gate CI job merged | orchestrator (S0) | none |
-| **G0** | Skeleton: `:wear` (renamed), `:protocol`, `:phone` build; version catalog; `./gradlew check` runs Spotless/ktlint, detekt, lint, markdownlint + link check; CI updated (`wear/build/...` APK path) | S | G-BOOT |
-| **G1** | Contract: `docs/protocol.md` (envelope, message catalog, state machines, error codes, versioning, **transport = DataItems only**) + compile-only `:protocol` declarations (envelope, message types, `LinkState`, `ErrorCode`, `LinkTransport`) + `WatchLinkDataSource` interface | S | G0 |
-| **G2** | `:protocol` implemented (codec, handshake, idempotency, LWW sync, retry/backoff, state machines) + `FakeTransport` + `FakeWatchLinkDataSource`; unit tests green | S | G1 |
-| **G3** | Phone data layer: Room, DataStore, repositories, real Data Layer `WatchLinkDataSource`; tests green | S | G2, G4 |
-| **G4** | Guardrails: same `applicationId` + signing check across `:wear`/`:phone`; "release contains no debug code" check; "mis-formatted change fails" proof | S | G0 |
-| **G5** | Phone link-state screen + schedule/history screens merged and green | A | G2, G3 |
-| **G6** | Watch link client + reminder engine + ack/selection + connection-state display merged and green | W | G2 |
-| **H1** (human) | Biometric metrics and thresholds agreed; decision doc `docs/plans/biometrics.md` merged | user | none |
-| **H2** (human) | Galaxy Watch6 Classic + phone available; manual test window confirmed (PR flips the gate) | user | none |
+| **G-BOOT** | This plan set, `gates.json`, gate scripts, `Gates` CI workflow | orchestrator | none |
+| **G-ENV** | 0a.8 cloud bootstrap script (Android SDK + Maven fallback); `./gradlew` can run in a fresh cloud session | S | G-BOOT |
+| **G0** | 0a.1-0a.7: baseline, `:wear`/`:protocol`/`:phone` skeletons, shared config + pairing check, Spotless/ktlint, detekt, lint, markdownlint, link check, CI incl. release-has-no-debug, conventions | S | G-ENV |
+| **G-LIB** | 0b.1 decision: Hilt/KSP/Room on AGP 9.4 + Kotlin 2.4 (Hilt or manual DI) recorded | S | G0 |
+| **G-SPK1** | 0b.2a emulator-pair spike results table in `docs/protocol.md` (run by the user in Android Studio) | S + user | G0 |
+| **G-DEC** | 0b.2b real-hardware results, 0b.3 decision (fallback rule applied if needed), transport section updated; protocol locked | S + user | G-SPK1, H2 |
+| **G1** | 1.1-1.3: spec skeleton, constants, models and codec (tested) | S | G-SPK1 |
+| **G2** | 1.4-1.8: compatibility rule, five-state link function, schedule logic, fake transport, diagrams | S | G1, G-DEC |
+| **G3a** | Phone data contract: `WatchLinkDataSource` interface + fake (2.3), repository interfaces + in-memory fakes | S | G2 |
+| **G3** | 2.1-2.5: Room, DataStore, real `WatchLinkDataSource`, background listener service, repositories | S | G3a, G-LIB |
+| **G4** | Phone core: 2.7 DI, 2.6 link-state screen, 4.5 history screen | A | G3a, G-LIB |
+| **G5** | Watch core: 3.1-3.7 (manifest, link client, schedule receive, scheduler, haptics, acks, selections) | W | G2 |
+| **G6** | Phone features: 4.1-4.4 and 4.6 (tasks, schedule builder, settings, prompt publishing, states) | A | G4, G3 |
+| **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded | W + user | G3, G4, G5, H2 |
+| **H1** (human) | 6.2 biometric metrics and thresholds agreed in an issue; decision doc merged | user | none |
+| **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed (PR flips the gate) | user | none |
 
-**Stop rule (enforced twice):**
+### Stop rule (enforced twice)
 
-1. **In the thread**: the first action of every step is `scripts/require-gate.sh <gates the step requires>`. It
-   runs `git fetch origin main`, reads `origin/main:docs/plans/gates.json`, and exits non-zero (printing each
-   blocking gate and its owner) unless every listed gate is `merged`. On non-zero the thread **stops**: it
-   commits its work in progress to its branch, appends `BLOCKED: <step> waits for <gate>` to `docs/work-log.md`,
-   pushes, and ends its turn. It does not poll or sleep. It resumes when the user (or one scheduled check-in)
-   restarts it; the first action is again `require-gate.sh`, then merge `origin/main` into the branch.
-2. **In CI**: every step PR body carries `Requires: G0,G1` and `Produces: G2`. A `gates` CI job runs
-   `require-gate.sh` for the `Requires` list against the base branch and rejects a PR that flips any gate other
-   than its `Produces`. A dependent PR cannot be merged before its dependencies.
+A thread stops at the first step whose requirements are not met, or on `plan.md`'s own stop conditions (context loss,
+unclarity, medium or high ambiguity, a tool incompatible with AGP 9.4 / Kotlin 2.4).
 
-`scripts/require-gate.sh` is itself tested first (S0): open gate -> non-zero, merged -> zero, unknown id -> error.
+1. **In the thread.** The first action of every step is `scripts/require-gate.sh <gates the step requires>`. It
+   fetches `origin/main`, reads `docs/plans/gates.json` there, and exits 3 (printing each blocking gate and its owner)
+   unless every listed gate is `merged`. On non-zero the thread commits its work in progress, appends
+   `BLOCKED: <step> waits for <gate>` to its `docs/work-log.md` entry, pushes, and ends its turn. No polling, no
+   sleeping. It resumes when the user restarts it: `require-gate.sh` again, then merge `origin/main`.
+2. **In CI.** Every step PR body has `Requires: G0,G1` (or `none`) and `Produces: G2`. The `Gates` workflow runs
+   `scripts/check-pr-gates.sh`, which fails the PR if a required gate is not merged on the base, or if any gate other
+   than `Produces` changes status.
 
-## File ownership (avoids merge conflicts)
+The scripts are covered by the 17 cases in [`../test-plans/bootstrap.md`](../test-plans/bootstrap.md).
+
+### File ownership (avoids merge conflicts)
 
 | Owner | Paths |
 |---|---|
-| S | root `build.gradle.kts`, `settings.gradle.kts`, `gradle/**`, `.github/**`, `scripts/**`, `docs/protocol.md`, `protocol/**`, `phone/build.gradle.kts` (until G0), `phone/src/**/data/**` |
-| A | `phone/src/**/ui/**`, `phone/src/main/AndroidManifest.xml`, `phone` DI wiring, `docs/phone.md`, final `README.md` |
-| W | `wear/src/**`, `wear/build.gradle.kts` (after G0), `docs/watch.md` |
-| each | own `docs/test-plans/<lane>.md`, `docs/test-reports/<lane>-*.md`, own section of `docs/work-log.md`; new catalog entries appended in `gradle/libs.versions.toml` under a `# <lane>` comment |
+| S | root `build.gradle.kts`, `settings.gradle.kts`, `gradle/**`, `.github/**`, `scripts/**`, `docs/protocol.md`, `protocol/**`, `phone/build.gradle.kts`, `phone/src/**/data/**` |
+| A | `phone/src/**/ui/**`, `phone/src/main/AndroidManifest.xml`, DI wiring, `docs/phone.md`, final `README.md` |
+| W | `wear/src/**`, `wear/build.gradle.kts` (after G0), `docs/watch.md`, `protocol/src/**/alerts/**` (6.5 only) |
+| each | own `docs/test-plans/<lane>.md`, `docs/test-reports/<lane>-*.md`, own `docs/work-log.md` entries; catalog additions under a `# <lane>` comment in `gradle/libs.versions.toml` |
 
-Before G0, W and A do not touch any build file. Branches: `claude/shared-*`, `claude/android-*`,
-`claude/watch-*`; each thread merges `origin/main` before every step.
+Before G0, A and W touch no build file. Branches: `claude/shared-*`, `claude/android-*`, `claude/watch-*`; each thread
+merges `origin/main` before every step.
 
-## Schedule (waves; lanes run in parallel, `■` = blocked until gate merged)
+## Schedule
 
-| Wave | Shared (S) | Android (A) | Watch (W) |
+Waves are ordering, not calendar time. `■G` = blocked until gate `G` is merged. Within a wave, steps with no unmet
+gate start immediately; a lane with nothing unblocked stops.
+
+| Wave | Shared and data (S) | Android (A) | Watch (W) |
 |---|---|---|---|
-| 0 | **S0** bootstrap -> **G-BOOT** (threads launched after merge) | | |
-| 1 | S1a, S1b | A1a | W1a, W1b |
-| 2 | S2 -> **G0** | ■ waits G0 | ■ waits G0 |
-| 3 | S3 -> **G4**, S4 -> **G1** | A1b ■G1, A2 | W1c ■G1 |
-| 4 | S5 -> **G2** | A2 finishes | W2 |
-| 5 | S6 -> **G3** | A3 ■G2 | W3 ■G2, W4 -> **G6** |
-| 6 | | A4, A5 ■G3 -> **G5** | W5, W6 (G4) |
-| 7 | | A6 ■G6 | W7 ■G5+H2, W8a ■H1 |
-| 8 (last) | S7 V-last | A7 V-last | W9 V-last |
+| 0 | **S0** bootstrap -> G-BOOT (lanes launch after merge) | | |
+| 1 | S1a catalogue; **0a.8** -> G-ENV | A1a catalogue | W1a catalogue; W1b research (3.4, 5.1, 6.1) |
+| 2 | **0a.1-0a.7** -> G0 | ■G0 | ■G0 |
+| 3 | 0b.1 -> G-LIB; 0b.2a (user run) -> G-SPK1 | A2 phone skeleton checks | 3.1 manifest; 3.8 debug set (G0) |
+| 4 | 1.1-1.3 -> G1; 0b.2b (user run, ■H2) -> G-DEC | | W1c red baseline (■G1) |
+| 5 | 1.4-1.8 -> G2 | | |
+| 6 | 2.3 + repository interfaces -> G3a | A1b red baseline (■G3a) | |
+| 7 | 2.1, 2.2, 2.4, 2.5 -> G3 | 2.7, 2.6, 4.5 -> G4 | 3.2-3.7 -> G5 (■G2) |
+| 8 | | 4.1-4.4, 4.6 -> G6 | 3.9 (■G3, G4, G5, H2) -> G7; 5.2-5.3 tile (■G5) |
+| 9 | | 7.x Play readiness (■G6, G7) | 6.2 (H1), 6.3-6.8 (■H1, 3.8, G2) |
+| last | S-final | A-final | W-final |
 
 ```mermaid
 graph LR
-  BOOT[G-BOOT] --> G0 --> G4
-  G0 --> G1 --> G2 --> G3
-  G2 --> G6[G6 watch link]
-  G2 --> G5[G5 phone UI]
-  G3 --> G5
-  G4 --> A6[A6 Play readiness]
-  G6 --> A6
-  G3 --> W7[W7 device test]
-  G5 --> W7
-  H1 --> W8a[W8a biometrics]
-  G4 --> W6[W6 debug set] --> W8a
-  G5 --> S7[S7/A7/W9 final validation]
-  G6 --> S7
+  BOOT[G-BOOT] --> ENV[G-ENV] --> G0
+  G0 --> LIB[G-LIB]
+  G0 --> SPK[G-SPK1] --> G1
+  SPK --> DEC[G-DEC]
+  H2 --> DEC
+  G1 --> G2
+  DEC --> G2
+  G2 --> G3a
+  G3a --> G3
+  LIB --> G3
+  G3a --> G4
+  LIB --> G4
+  G2 --> G5
+  G4 --> G6
+  G3 --> G6
+  G3 --> G7
+  G4 --> G7
+  G5 --> G7
+  H2 --> G7
+  G6 --> PLAY[7.x Play readiness]
+  G7 --> PLAY
+  H1 --> BIO[6.3-6.8 biometrics]
+  G5 --> TILE[5.2-5.3 tile]
 ```
 
-Waves are ordering, not calendar time. Within a wave, steps with no unmet gate start immediately; a thread that
-runs out of unblocked work stops per the stop rule.
+## Verification of this plan set
 
-## Critical files
-
-- Modified by S2: `settings.gradle.kts` (`:app` -> `:wear`, add `:protocol`, `:phone`), `build.gradle.kts`,
-  `gradle/libs.versions.toml` (currently only AGP, Kotlin, Compose BOM, Wear Compose, activity-compose, JUnit),
-  `.github/workflows/build.yml` (APK path `app/...` -> `wear/...`, call `./gradlew check`), `README.md`
-  (single-module wording), `app/` -> `wear/` (keeps `ExampleUnitTest.kt`, `MainActivity.kt`, `MyAdhdPalApp.kt`, `Theme.kt`).
-- New: `docs/plans/{shared,android,watch}.md` and `gates.json`, `scripts/{require-gate,check-test-cases}.sh`,
-  `scripts/verify/**`, `docs/test-plans/**`, `docs/test-reports/**`, `docs/protocol.md`, `protocol/**`, `phone/**`.
-- Reuse: existing version catalog and `wear` build config as the template for `phone/build.gradle.kts`
-  (JDK 21, `compileSdk 37`, `minSdk 30` for wear; phone minSdk to be chosen in S1b).
-
-## Verification (of the plans themselves, at S0)
-
-- `scripts/require-gate.sh G1` exits non-zero on the bootstrap `main`; `scripts/require-gate.sh G-BOOT` exits zero.
-- `scripts/check-test-cases.sh` fails on a catalogue id with no test and on an `@Ignore`d test.
-- CI `gates` job fails a deliberately premature PR (`Requires: G2`), then passes once G2 is `merged`.
-- Dry run: launch the Watch thread before G0 and confirm it stops, logs `BLOCKED`, and pushes without touching build files.
+- `scripts/test/test-scripts.sh` passes (17 cases, red-first evidence in `docs/test-reports/bootstrap-*.md`).
+- `scripts/require-gate.sh G0` exits 3 on `main` until G0 merges; `scripts/require-gate.sh G-BOOT` exits 0 once this
+  PR merges.
+- The `Gates` workflow fails a PR whose body lacks `Requires:` or requires an unmerged gate.
+- Dry run: start the watch thread before G0 and confirm it stops, logs `BLOCKED`, and touches no build file.
 
 ## Risks
 
-- **Transport assumption disproved** by W7: open `G1.1`; S revises protocol.md and `:protocol`; A and W merge `main` and re-run baselines.
-- **Tool compatibility** with AGP 9.4/Kotlin 2.4 (Hilt, KSP, Room, Spotless, detekt): S1b decides before S2 pins versions; fall back to manual DI.
-- **Health Services behaviour** unverified: W1b research and H1 gate before any biometric code.
-- **Human gates (H1, H2, gate PR merges)** can idle a lane; the stop rule makes that visible in `docs/work-log.md`.
-- **Red-first on a shared `main`**: red evidence is a branch artifact; `main` only ever receives green heads.
+- **Spike contradicts the transport decision** (`plan.md` section 3): the fallback rule (`MessageClient` for urgent
+  alerts only) is applied at G-DEC, before G2; A and W re-run their baselines after merging `main`.
+- **Tool incompatibility with AGP 9.4 / Kotlin 2.4** (0a.5, 0b.1): the thread stops and asks (`plan.md` rule).
+- **Human gates** (H1, H2, spike runs, gate PR merges) can idle a lane; `BLOCKED` entries in the work log make it visible.
+- **Cloud sessions without the Android SDK**: G-ENV (0a.8) is the first gate for exactly this reason.
+- **Red-first on a shared `main`**: red evidence is a branch artifact; `main` receives only green heads.

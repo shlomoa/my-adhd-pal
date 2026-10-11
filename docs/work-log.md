@@ -14,6 +14,7 @@
 - Added `scripts/require-gate.sh`, `scripts/check-pr-gates.sh`, `scripts/check-test-cases.sh`, `docs/plans/gates.json` and the `Gates` CI workflow.
 - Validation: script test cases written first and recorded red (`docs/test-reports/bootstrap-baseline.md`), then green (`bootstrap-final.md`).
 - Assumptions to confirm: lane split, transport = DataItems only, minimal phone scope (see plans README).
+- After merging the approved `plan.md` (milestones 0a to 7), the lane plans and `gates.json` were re-mapped to its step ids (16 gates, spikes and human gates included).
 - Gate G-BOOT is set to `merged` in this change; it takes effect on `main` when the change is merged.
 
 ## 2026-10-11 - Section-by-section review of the merged plan
