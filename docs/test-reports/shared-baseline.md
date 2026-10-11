@@ -214,3 +214,8 @@ e: phone/src/test/java/com/shlomoa/myadhdpal/phone/compat/DaoSampleTest.kt:7:17 
 ## CI follow-ups (red)
 
 Before wiring the lane scripts into the workflow and widening the detekt test exclusions: `scripts/test/test-ci.sh` 6 new FAIL (watch debug-separation step and the `script-tests` job with four scripts), and TC-S-012 `src/testDebug` backticked test name flagged by detekt (FAIL), with the control (same name in `src/main` is flagged) PASS.
+
+## CI follow-ups (green)
+
+- `scripts/test/test-ci.sh` all PASS (the workflow runs the Watch debug-separation script after the build and a `script-tests` job with the four lane scripts); `bash` run of the new TC-S-012 cases: `src/testDebug` backticked test names are not flagged, the same name in `src/main` still is.
+- CI-faithful dry run in a fresh clone with `--no-build-cache`: `check assembleDebug`, `wear/src/test/scripts/test-debug-separation.sh`, `test-structure.sh`, `test-pairing.sh`, `test-checks.sh`, `test-ci.sh`, all exit 0.

@@ -53,3 +53,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: samples red first (do not compile without the libraries), then PASS; `./gradlew --no-build-cache --rerun-tasks check assembleDebug` BUILD SUCCESSFUL; bootstrap tests 22 PASS; fresh-clone check green. Details and the working version set in `docs/test-reports/shared-baseline.md`.
 - **Decision: use Hilt** (with `ksp`, no kapt) for dependency injection (plan.md: Hilt if compatible with AGP 9 / KSP). Hilt 2.60.1 + KSP 2.3.12 + Room 2.8.5 work on AGP 9.4.1 and Kotlin 2.4.21. The Android lane's step 2.7 wires the `@HiltAndroidApp` application and modules; the plugins and dependencies are already in `:phone`.
 - Open items: the two compatibility samples can stay as a toolchain regression test or be removed when 2.1 adds the real Room schema.
+
+## 2026-10-12 - CI follow-ups: regression guard, Watch script in CI, detekt test source sets
+
+- Issue and PR: none (follow-up to #77, #78 and Watch lane #80); PR linked from the coordinator message.
+- Changed: the Spotless fresh-clone regression guard (`a213784`, which had missed `main`); the Watch lane's `wear/src/test/scripts/test-debug-separation.sh` now runs in the build job; a `script-tests` job runs `test-structure.sh`, `test-pairing.sh`, `test-checks.sh` and `test-ci.sh` (they were not in CI before); `config/detekt/detekt.yml` gives the 15 rules that skip test sources by default their own default excludes plus `src/testDebug`, `src/testRelease` and `src/testFixtures`, so the Watch lane can drop its `@Suppress("FunctionNaming")`.
+- Validation: tests red first (6 workflow cases and the `src/testDebug` detekt case), then green; fresh-clone dry run of the whole CI sequence green.
+- Open items: Watch lane to remove the suppression after this merges.
