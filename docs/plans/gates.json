@@ -1,0 +1,20 @@
+{
+  "gates": [
+    {"id": "G-BOOT", "name": "plan set, gate scripts and Gates workflow", "owner": "orchestrator", "requires": [], "status": "merged", "pr": 7},
+    {"id": "G-ENV", "name": "0a.8 cloud bootstrap script", "owner": "S", "requires": ["G-BOOT"], "status": "open", "pr": null},
+    {"id": "G0", "name": "0a.1-0a.7 restructure, skeletons, checks, CI, conventions", "owner": "S", "requires": ["G-ENV"], "status": "open", "pr": null},
+    {"id": "G-LIB", "name": "0b.1 Hilt/KSP/Room compatibility decision", "owner": "S", "requires": ["G0"], "status": "open", "pr": null},
+    {"id": "G-SPK1", "name": "0b.2a emulator-pair spike results", "owner": "S+user", "requires": ["G0"], "status": "open", "pr": null},
+    {"id": "G-DEC", "name": "0b.2b hardware spike and 0b.3 transport decision", "owner": "S+user", "requires": ["G-SPK1", "H2"], "status": "open", "pr": null},
+    {"id": "G1", "name": "1.1-1.3 spec skeleton, constants, models, codec", "owner": "S", "requires": ["G-SPK1"], "status": "open", "pr": null},
+    {"id": "G2", "name": "1.4-1.8 compatibility, link states, schedule logic, fake transport", "owner": "S", "requires": ["G1", "G-DEC"], "status": "open", "pr": null},
+    {"id": "G3a", "name": "phone data contract: WatchLinkDataSource, repository interfaces, fakes", "owner": "S", "requires": ["G2"], "status": "open", "pr": null},
+    {"id": "G3", "name": "2.1-2.5 phone data layer", "owner": "S", "requires": ["G3a", "G-LIB"], "status": "open", "pr": null},
+    {"id": "G4", "name": "phone core: DI, link-state screen, history", "owner": "A", "requires": ["G3a", "G-LIB"], "status": "open", "pr": null},
+    {"id": "G5", "name": "watch core 3.1-3.7", "owner": "W", "requires": ["G2"], "status": "open", "pr": null},
+    {"id": "G6", "name": "phone features 4.1-4.4, 4.6", "owner": "A", "requires": ["G4", "G3"], "status": "open", "pr": null},
+    {"id": "G7", "name": "3.9 end-to-end round trip", "owner": "W+user", "requires": ["G3", "G4", "G5", "H2"], "status": "open", "pr": null},
+    {"id": "H1", "name": "biometric metrics and thresholds agreed (human)", "owner": "user", "requires": [], "status": "open", "pr": null},
+    {"id": "H2", "name": "Galaxy Watch6 Classic + Galaxy A55 5G available (human)", "owner": "user", "requires": [], "status": "open", "pr": null}
+  ]
+}

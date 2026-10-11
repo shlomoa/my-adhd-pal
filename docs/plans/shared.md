@@ -1,0 +1,18 @@
+# Lane S: Shared and data level
+
+Overview, gates, stop rule and ownership: [README](README.md). Step ids are from [`../plan.md`](../plan.md).
+
+| Step | Work | Validation (test first) | Requires | Produces |
+|---|---|---|---|---|
+| **S0** | Bootstrap by the orchestrator: plan set, `gates.json`, gate scripts, `Gates` workflow | script tests written first, red, then green (`bootstrap-*.md`) | none | G-BOOT |
+| **S1a** | Catalogue `docs/test-plans/shared.md` (`TC-S-*`): tooling negative fixtures (mis-formatted Kotlin, detekt violation, broken internal link, mismatched `applicationId`, debug class in release), protocol cases (path builders/parsers, round-trip, unknown fields tolerated, size limit, major-version mismatch -> Incompatible, five-state link table, schedule next-reminder/snooze with fixed clock, fake-transport buffering), data cases (DAO, DataStore, repository, listener idempotent by id and delete-after-store) | docs only | G-BOOT | none |
+| **0a.8** | Cloud bootstrap script (Android SDK 37.0, build-tools 37.0.0, platform-tools; Maven Central mirror only if `repo.maven.apache.org` refuses) | in a fresh cloud session the script then `./gradlew check` is green; recorded | G-BOOT | **G-ENV** |
+| **0a.1-0a.7** | Baseline; `git mv app wear` and module includes; skeletons; shared config + pairing check; Spotless/ktlint, detekt, lint, markdownlint, link check; CI (`check assembleDebug`, docs lint, non-blocking external links, release-has-no-debug); conventions (issue template, labels, issues for later steps) | per `plan.md`: negative fixtures (bad format, broken link, changed `applicationId`) written and shown failing first, then passing; CI green | G-ENV, S1a | **G0** |
+| **0b.1** | Hilt/KSP/Room compatibility spike in `:phone`; decide Hilt or manual DI | injection sample and DAO test build in CI; decision in work log | G0 | **G-LIB** |
+| **0b.2a** | Throwaway spike code on a spike branch, run by the user on a paired Wear OS + phone emulator; results table committed to `docs/protocol.md` | items cross pairing, listener wakes with app closed, deletion works, reconnect; failures apply the fallback rule before milestone 1 | G0 | **G-SPK1** |
+| **1.1-1.3** | Spec skeleton, constants (paths, keys, version), models and kotlinx.serialization codec | doc lint; unit tests; round-trip, unknown fields, size limit | G-SPK1 | **G1** |
+| **0b.2b, 0b.3** | Same spike on Galaxy Watch6 Classic + Galaxy A55 5G (delay targets agreed first); decide and record, apply fallback rule if needed, discard spike code | results table with versions and battery settings; decision in work log | G-SPK1, H2 | **G-DEC** |
+| **1.4-1.8** | Compatibility rule, five-state link function, schedule logic, fake transport, Mermaid diagrams | table-driven and fixed-clock tests; fake buffering tests; doc lint | G1, G-DEC | **G2** |
+| **2.3 (contract)** | `WatchLinkDataSource` interface + fake, repository interfaces + in-memory fakes | tests with the fakes red, then green | G2 | **G3a** |
+| **2.1, 2.2, 2.4, 2.5** | Room schema + migration policy, DataStore settings, real `WatchLinkDataSource`, background listener service (idempotent, delete after store), repositories publishing `/schedule` and `/hello/phone` + debug test-schedule action | DAO, settings, listener and repository tests red -> green; manual with the phone app closed | G3a, G-LIB | **G3** |
+| **S-final (V-last)** | On merged `main`: `./gradlew check assembleDebug assembleRelease`, docs lint, all `TC-S-*` PASS, final report; confirm `:wear` and `:phone` compile against the final protocol | `shared-final.md` via `check-test-cases.sh shared final` | G3, G4, G5, G6, G7 | none |
