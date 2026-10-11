@@ -1,0 +1,11 @@
+{
+  "name": "my-adhd-pal-docs-tools",
+  "private": true,
+  "description": "Pinned documentation checks, run through scripts/docs-lint.sh (called by ./gradlew check).",
+  "devDependencies": {
+    "markdown-link-check": "3.15.0",
+    "markdownlint-cli2": "0.23.3",
+    "remark-cli": "12.0.1",
+    "remark-validate-links": "13.1.0"
+  }
+}
