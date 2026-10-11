@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ADHD Pal</string>
+    <string name="home_greeting">Hi! I\'m your ADHD pal.</string>
+    <string name="home_subtitle">Features coming soon.</string>
+</resources>
