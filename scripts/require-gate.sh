@@ -21,4 +21,4 @@ for id in "$@"; do
     blocked=1
   fi
 done
-[ "$blocked" -eq 0 ] || { echo "STOP: commit WIP, log BLOCKED in docs/work-log.md, push, end the turn." >&2; exit 3; }
+[ "$blocked" -eq 0 ] || { echo "STOP: commit WIP, log BLOCKED in your lane work log (docs/work-log/<lane>.md), push, end the turn." >&2; exit 3; }

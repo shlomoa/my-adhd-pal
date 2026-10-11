@@ -69,7 +69,7 @@ unclarity, medium or high ambiguity, a tool incompatible with AGP 9.4 / Kotlin 2
 1. **In the thread.** The first action of every step is `scripts/require-gate.sh <gates the step requires>`. It
    fetches `origin/main`, reads `docs/plans/gates.json` there, and exits 3 (printing each blocking gate and its owner)
    unless every listed gate is `merged`. On non-zero the thread commits its work in progress, appends
-   `BLOCKED: <step> waits for <gate>` to its `docs/work-log.md` entry, pushes, and ends its turn. No polling, no
+   `BLOCKED: <step> waits for <gate>` to its lane work log entry (`docs/work-log/<lane>.md`), pushes, and ends its turn. No polling, no
    sleeping. It resumes when the user restarts it: `require-gate.sh` again, then merge `origin/main`.
 2. **In CI.** Every step PR body has `Requires: G0,G1` (or `none`) and `Produces: G2`. The `Gates` workflow runs
    `scripts/check-pr-gates.sh`, which fails the PR if a required gate is not merged on the base, or if any gate other
@@ -84,7 +84,7 @@ The scripts are covered by the 19 cases in [`../test-plans/bootstrap.md`](../tes
 | S | root `build.gradle.kts`, `settings.gradle.kts`, `gradle/**`, `.github/**`, `scripts/**`, `docs/protocol.md`, `protocol/**`, `phone/build.gradle.kts`, `phone/src/**/data/**` |
 | A | `phone/src/**/ui/**`, `phone/src/main/AndroidManifest.xml`, DI wiring, `docs/phone.md`, final `README.md` |
 | W | `wear/src/**`, `wear/build.gradle.kts` (after G0), `docs/watch.md`, `protocol/src/**/alerts/**` (6.5 only) |
-| each | own `docs/test-plans/<lane>.md`, `docs/test-reports/<lane>-*.md`, own `docs/work-log.md` entries; catalog additions under a `# <lane>` comment in `gradle/libs.versions.toml` |
+| each | own `docs/test-plans/<lane>.md`, `docs/test-reports/<lane>-*.md`, own `docs/work-log/<lane>.md`; catalog additions under a `# <lane>` comment in `gradle/libs.versions.toml` |
 
 Before G0, A and W touch no build file. Branches: `claude/shared-*`, `claude/android-*`, `claude/watch-*`; each thread
 merges `origin/main` before every step.
