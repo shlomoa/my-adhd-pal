@@ -15,6 +15,9 @@ jobs:
       - name: Script tests
         run: scripts/test/test-scripts.sh
 
+      - name: Bootstrap script tests (offline)
+        run: scripts/test/test-bootstrap-android.sh
+
       - name: Required gates are merged and only Produces gates change
         env:
           PR_BODY: ${{ github.event.pull_request.body }}

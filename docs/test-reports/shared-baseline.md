@@ -1,7 +1,7 @@
 # Shared lane baseline (red)
 
 Evidence that the tests for step 0a.8 (cloud bootstrap script) fail before `scripts/bootstrap-android.sh` exists.
-Commit of the run: the commit that adds these tests, before the implementation commit.
+Red commit: 1fad4a2 (tests only, no implementation).
 
 ## 0a.8 cloud bootstrap script
 
