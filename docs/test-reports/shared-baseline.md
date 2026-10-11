@@ -219,3 +219,8 @@ Before wiring the lane scripts into the workflow and widening the detekt test ex
 
 - `scripts/test/test-ci.sh` all PASS (the workflow runs the Watch debug-separation script after the build and a `script-tests` job with the four lane scripts); `bash` run of the new TC-S-012 cases: `src/testDebug` backticked test names are not flagged, the same name in `src/main` still is.
 - CI-faithful dry run in a fresh clone with `--no-build-cache`: `check assembleDebug`, `wear/src/test/scripts/test-debug-separation.sh`, `test-structure.sh`, `test-pairing.sh`, `test-checks.sh`, `test-ci.sh`, all exit 0.
+
+## CI follow-ups: script-tests job red on its first CI run
+
+- Red: in a fresh clone, `test-structure.sh` then `test-pairing.sh` (the CI job's order, `-Dorg.gradle.caching=false`) gives `FAIL TC-S-008 changed applicationId makes check fail`, as on CI. Cause: the guard `! grep -q "not found"` meant to catch a missing Gradle task also matched Android lint's notice "...listed in the baseline file but not found in the project; perhaps they have been fixed?", which prints only when lint actually executes (clean runner), not from cache.
+- Fix: the guard now matches Gradle's missing-task message (`Task '...' not found`), the same intent without the false match; failing cases print the last 25 lines of the command output; the four scripts are separate CI steps so one failure no longer hides the others (the job's single multi-line step had stopped after `test-pairing.sh`, so `test-checks.sh` and `test-ci.sh` had not run on CI).

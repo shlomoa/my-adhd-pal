@@ -8,7 +8,10 @@ fail=0
 out="$(mktemp)"
 fixtures=()
 check() { # name expected actual
-  if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi
+  if [ "$2" = "$3" ]; then echo "PASS $1"; else
+    echo "FAIL $1 (expected $2, got $3)"; fail=1
+    [ -s "$out" ] && { echo "  --- last output of the previous command:"; tail -n 25 "$out" | sed 's/^/  | /'; }
+  fi
 }
 cleanup() { for f in "${fixtures[@]:-}"; do [ -z "$f" ] || rm -f "$f"; done; rm -f "$out"; }
 trap cleanup EXIT
