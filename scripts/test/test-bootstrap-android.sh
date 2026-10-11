@@ -32,6 +32,8 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 if [ "$probe" = 1 ]; then
+  echo probe >> "$FAKE_PROBES"
+  if [ -n "${FAKE_FAIL_AFTER:-}" ] && [ "$(wc -l < "$FAKE_PROBES")" -gt "$FAKE_FAIL_AFTER" ]; then printf 429; exit 0; fi
   case "$all" in *"${FAKE_FAIL_MATCH:-@@none@@}"*) printf 429; exit 0;; esac
   printf '%s' "${FAKE_CENTRAL_CODE:-200}"; exit 0
 fi
@@ -43,7 +45,7 @@ chmod +x "$tmp/shim/curl"
 run() { # extra env assignments are passed as arguments
   env PATH="$tmp/shim:$PATH" ANDROID_HOME="$tmp/sdk" GRADLE_USER_HOME="$tmp/gradle" \
     BOOTSTRAP_PROJECT_DIR="$tmp/project" CMDLINE_TOOLS_URL="http://fake/cmdline.zip" CMDLINE_TOOLS_SHA1="$sha" \
-    FAKE_ZIP="$tmp/cmdline.zip" FAKE_SDK_LOG="$tmp/sdk.log" FAKE_DOWNLOADS="$tmp/downloads.log" \
+    FAKE_ZIP="$tmp/cmdline.zip" FAKE_SDK_LOG="$tmp/sdk.log" FAKE_DOWNLOADS="$tmp/downloads.log" FAKE_PROBES="$tmp/probes.log" \
     "$@" "$script" >"$tmp/out.log" 2>&1
 }
 mkdir -p "$tmp/project"
@@ -76,6 +78,10 @@ check "TC-S-028 refusing central still exits 0" 0 $rc
 [ -f "$init" ] && grep -q 'maven-central.storage-download.googleapis.com' "$init"; check "TC-S-028 mirror configured on 429" 0 $?
 run FAKE_CENTRAL_CODE=200 FAKE_FAIL_MATCH=guava; rc=$?
 [ "$rc" -eq 0 ] && [ -f "$init" ]; check "TC-S-028 mirror configured when only one probed artifact is refused" 0 $?
+: > "$tmp/probes.log"
+run FAKE_CENTRAL_CODE=200 FAKE_FAIL_AFTER=5; rc=$?
+[ "$rc" -eq 0 ] && [ -f "$init" ]; check "TC-S-028 mirror configured when Central refuses only under burst load" 0 $?
+: > "$tmp/probes.log"
 run FAKE_CENTRAL_CODE=200; rc=$?
 [ "$rc" -eq 0 ] && [ ! -e "$init" ]; check "TC-S-028 mirror removed again when central recovers" 0 $?
 

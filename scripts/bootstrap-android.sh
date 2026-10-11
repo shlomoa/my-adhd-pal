@@ -13,14 +13,16 @@
 #
 # Environment overrides (used by the tests): ANDROID_HOME (default ~/Android/Sdk), GRADLE_USER_HOME
 # (default ~/.gradle), BOOTSTRAP_PROJECT_DIR (default: repo root), CMDLINE_TOOLS_URL, CMDLINE_TOOLS_SHA1,
-# MAVEN_PROBE_URLS (space-separated).
+# MAVEN_PROBE_PATHS (space-separated, relative to Maven Central).
 set -euo pipefail
 
 CMDLINE_TOOLS_URL="${CMDLINE_TOOLS_URL:-https://dl.google.com/android/repository/commandlinetools-linux-16111833_latest.zip}"
 CMDLINE_TOOLS_SHA1="${CMDLINE_TOOLS_SHA1:-e025545c62a8e64c7559119566a569fb1dec5f60}"
-# Central's rate limiting is intermittent (one artifact answered 200 while Gradle got 429 on another), so probe
-# several artifacts the build needs: any answer other than 200 counts as a refusal.
-MAVEN_PROBE_URLS="${MAVEN_PROBE_URLS:-https://repo.maven.apache.org/maven2/junit/junit/4.13.2/junit-4.13.2.pom https://repo.maven.apache.org/maven2/com/google/guava/guava/33.4.0-jre/guava-33.4.0-jre.pom https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.4.21/kotlin-stdlib-2.4.21.pom}"
+# Central's rate limiting depends on load: single requests answered 200 while Gradle's parallel downloads got 429.
+# So probe with a short parallel burst (two rounds) of artifacts the build needs; any answer other than 200 counts
+# as a refusal.
+MAVEN_BASE_URL="https://repo.maven.apache.org/maven2"
+MAVEN_PROBE_PATHS="${MAVEN_PROBE_PATHS:-junit/junit/4.13.2/junit-4.13.2.pom com/google/guava/guava/33.4.0-jre/guava-33.4.0-jre.pom org/jetbrains/kotlin/kotlin-stdlib/2.4.21/kotlin-stdlib-2.4.21.pom org/jetbrains/kotlin/kotlin-reflect/2.4.10/kotlin-reflect-2.4.10.pom org/jetbrains/kotlin/kotlin-util-klib-metadata/2.4.21/kotlin-util-klib-metadata-2.4.21.pom com/google/code/gson/gson/2.11.0/gson-2.11.0.pom org/ow2/asm/asm/9.7/asm-9.7.pom org/jetbrains/annotations/13.0/annotations-13.0.pom}"
 MAVEN_MIRROR_URL="https://maven-central.storage-download.googleapis.com/maven2/"
 PLATFORM_PACKAGE="platforms;android-37.0"
 BUILD_TOOLS_PACKAGE="build-tools;37.0.0"
@@ -84,11 +86,21 @@ fi
 # 4. Maven Central mirror, only when Central refuses requests
 init_dir="$gradle_home/init.d"
 init_script="$init_dir/maven-central-mirror.gradle"
+probe_dir="$(mktemp -d)"
+for round in 1 2; do
+  i=0
+  for path in $MAVEN_PROBE_PATHS; do
+    i=$((i + 1))
+    (curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$MAVEN_BASE_URL/$path" > "$probe_dir/$round-$i" 2>/dev/null || true) &
+  done
+  wait
+done
 status=200
-for url in $MAVEN_PROBE_URLS; do
-  code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$url" || true)"
+for f in "$probe_dir"/*; do
+  code="$(cat "$f")"
   [ "$code" = "200" ] || { status="${code:-no response}"; break; }
 done
+rm -rf "$probe_dir"
 if [ "$status" = "200" ]; then
   if [ -e "$init_script" ]; then rm -f "$init_script"; log "Maven Central answers 200; removed the mirror init script"; fi
   log "Maven Central answers 200; no mirror needed"
