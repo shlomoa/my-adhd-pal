@@ -1,0 +1,11 @@
+{
+  "globs": ["README.md", "docs/**/*.md"],
+  "ignores": ["**/node_modules/**", "**/build/**"],
+  "config": {
+    "default": true,
+    // line length, table pipe alignment and code-fence language are style choices the lane docs do not share
+    "MD013": false,
+    "MD040": false,
+    "MD060": false
+  }
+}

@@ -5,36 +5,6 @@ plugins {
 
 android {
     namespace = "com.shlomoa.myadhdpal.wear"
-    compileSdk = 37
-
-    defaultConfig {
-        applicationId = "com.shlomoa.myadhdpal"
-        minSdk = 30
-        targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        }
-    }
-
-    buildFeatures {
-        compose = true
-    }
 }
 
 dependencies {

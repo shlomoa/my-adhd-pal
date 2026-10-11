@@ -79,3 +79,63 @@ TC-S-001 baseline (`./gradlew assembleDebug testDebugUnitTest lintDebug` on unmo
 
 - `scripts/test/test-structure.sh`: 15 PASS, 0 FAIL (TC-S-002 to TC-S-006), including the real build of both apps and `:protocol:test`.
 - `./gradlew assembleDebug testDebugUnitTest lintDebug :protocol:test` (the CI command): BUILD SUCCESSFUL; `wear/build/outputs/apk/debug/wear-debug.apk` and `phone/build/outputs/apk/debug/phone-debug.apk` exist.
+
+## 0a.4 shared configuration and pairing check (red)
+
+Command: `scripts/test/test-pairing.sh` on the 0a.1-0a.3 tree (module scripts still define the values; no `checkPairing` task). Exit 1, 0 PASS, 11 FAIL.
+
+```
+FAIL TC-S-007 pairing check passes with equal applicationId and signing config (expected 0, got 1)
+FAIL TC-S-007 pairing check is part of check (expected 0, got 1)
+FAIL TC-S-010 module scripts define no applicationId or SDK level (expected 0, got 1)
+FAIL TC-S-010 :wear reports the shared values (expected 0, got 1)
+FAIL TC-S-010 :phone reports the shared values (expected 0, got 1)
+FAIL TC-S-008 changed applicationId makes check fail (expected 0, got 1)
+FAIL TC-S-008 message names both applicationIds (expected 0, got 1)
+FAIL TC-S-008 revert is green (expected 0, got 1)
+FAIL TC-S-009 differing signing config makes the check fail (expected 0, got 1)
+FAIL TC-S-009 message mentions the signing config (expected 0, got 1)
+FAIL TC-S-009 revert is green (expected 0, got 1)
+```
+
+## 0a.4 after implementation (green)
+
+- `scripts/test/test-pairing.sh`: 11 PASS, 0 FAIL (TC-S-007 to TC-S-010) with the negative fixtures (changed `applicationId`, differing signing config) failing `check` and the revert green.
+- `./gradlew assembleDebug testDebugUnitTest lintDebug :protocol:test check`: BUILD SUCCESSFUL; `scripts/test/test-structure.sh` still 15 PASS.
+- Test-harness fix: the restore hook first used `git checkout`, which also reverted uncommitted module edits; it now restores from a backup copy.
+- Mechanism: root `build.gradle.kts` configures both apps from the `[versions]` block of `gradle/libs.versions.toml` (single place); `checkPairing` (part of `check`) compares applicationId, SDK levels and signing config of the evaluated apps. A convention plugin in an included `build-logic` build was rejected for now: it compiles with Gradle's embedded Kotlin against AGP 9.4, a metadata-version risk, for no gain at two modules.
+
+## 0a.5 checking tools (red)
+
+Command: `scripts/test/test-checks.sh` before any tool is configured. Exit 1.
+
+```
+FAIL TC-S-016 check includes spotlessCheck (expected 0, got 1)
+FAIL TC-S-016 check includes detekt (expected 0, got 1)
+PASS TC-S-016 check includes lintDebug
+FAIL TC-S-016 check includes lintDocs (expected 0, got 1)
+PASS TC-S-016 workflows name no lint tool
+PASS TC-S-017 check is green on the scaffold
+FAIL TC-S-017 :spotlessCheck ran as part of check (expected 0, got 1)
+FAIL TC-S-017 :detekt ran as part of check (expected 0, got 1)
+FAIL TC-S-017 :lintDocs ran as part of check (expected 0, got 1)
+PASS TC-S-017 :phone:lintDebug ran as part of check
+FAIL TC-S-011 mis-formatted Kotlin fails spotlessCheck and names the file (expected 0, got 1)
+FAIL TC-S-011 spotlessApply makes it pass (expected 0, got 1)
+FAIL TC-S-012 detekt violation fails and names the rule (expected 0, got 1)
+FAIL TC-S-012 removal is green (expected 0, got 1)
+FAIL TC-S-013 new lint issue fails lint and names the check (expected 0, got 1)
+PASS TC-S-013 removal is green
+FAIL TC-S-014 broken internal link fails and names file and target (expected 0, got 1)
+FAIL TC-S-014 fix is green (expected 0, got 1)
+FAIL TC-S-015 markdownlint violation fails and names rule and line (expected 0, got 1)
+FAIL TC-S-015 fix is green (expected 0, got 1)
+```
+
+The PASS rows are existing or vacuous behaviour (lint already ran in `check`; a fixture-free revert is trivially green); the rows that matter are the FAILs.
+
+## 0a.5 after implementation (green)
+
+- `scripts/test/test-checks.sh`: 20 PASS, 0 FAIL (TC-S-011 to TC-S-017): mis-formatted Kotlin fails `spotlessCheck` and is repaired by `spotlessApply`; an `EmptyFunctionBlock` fixture fails `detekt`; an unused-resource fixture fails Android lint (baseline holds only the pre-existing monochrome-icon warning); a broken internal file link and heading, and a `MD018` style violation, fail `lintDocs` naming file and target or rule and line; every fixture removed afterwards leaves `check` green.
+- `./gradlew check --rerun-tasks`: BUILD SUCCESSFUL with `spotlessCheck`, `detekt`, `lintDocs`, `lintDebug` and `checkPairing` in the task graph; `scripts/test/test-structure.sh` 15 PASS, `test-pairing.sh` 11 PASS, `test-bootstrap-android.sh` 21 PASS, `test-scripts.sh` 19 PASS.
+- Compatibility (AGP 9.4.1, Kotlin 2.4.21, Gradle 9.8.1): Spotless 8.10.4 with ktlint 1.8.0 and detekt 2.0.0-alpha.6 (`dev.detekt`) both run. detekt 2 is a pre-release; the stable 1.23.8 cannot type-resolve against the Kotlin 2.4 stdlib, so no stable choice exists yet. Docs: markdownlint-cli2 0.23.3, remark-validate-links 13.1.0 (internal files and headings), markdown-link-check 3.15.0 (external, not in `check`), pinned by `tools/docs/package-lock.json`. lychee was not usable: cloud sessions cannot download release binaries of other GitHub repositories.
