@@ -157,3 +157,25 @@ FAIL TC-S-021 clean release builds pass (expected 0, got 1)
 FAIL TC-S-020 debug class in release fails and names the class (expected 0, got 1)
 FAIL TC-S-020 removal is green (expected 0, got 1)
 ```
+
+## 0a.7 conventions (red)
+
+Command: `scripts/test/test-conventions.sh` before the issue template, `scripts/check-issues.sh` and `scripts/check-work-log.sh` exist. Exit 1, 0 PASS, 15 FAIL (script not found = exit 127; template missing).
+
+```
+FAIL TC-S-022 issue template has front matter and a Validation plan section (expected 0, got 1)
+FAIL TC-S-022 template asks what, how and pass criteria (expected 0, got 2)
+FAIL TC-S-023 complete, labelled issues pass (expected 0, got 127)
+FAIL TC-S-023 duplicate issue for a step fails and names the step (expected 0, got 1)
+FAIL TC-S-023 a closed not-planned duplicate is ignored (expected 0, got 127)
+FAIL TC-S-023 missing issue fails and names the step (expected 0, got 1)
+FAIL TC-S-024 missing milestone label fails (expected 0, got 1)
+FAIL TC-S-024 missing lane label fails (expected 0, got 1)
+FAIL TC-S-024 wrong milestone label fails (expected 0, got 1)
+FAIL TC-S-023 an issue not starting with a Validation plan fails (expected 0, got 1)
+FAIL TC-S-023 plan.md yields 59 step ids (expected 0, got 1)
+FAIL TC-S-025 a complete entry passes (expected 0, got 127)
+FAIL TC-S-025 an entry without Validation fails (expected 0, got 1)
+FAIL TC-S-025 an entry heading without date and step fails (expected 0, got 1)
+FAIL TC-S-025 the shared work log follows the format (expected 0, got 127)
+```
