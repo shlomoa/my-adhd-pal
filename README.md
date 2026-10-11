@@ -7,7 +7,7 @@ My ADHD companion: a Wear OS project custom designed to help me manage my ADHD.
 - Kotlin + Jetpack Compose for Wear OS (Wear Compose Material 3)
 - Single `:app` module, standalone watch app (no paired phone needed)
 - `minSdk 30` (Wear OS 3+), `targetSdk 36`, `compileSdk 37`
-- Gradle 9.8 (wrapper), Android Gradle Plugin 9.4, JDK 17+
+- Gradle 9.8 (wrapper), Android Gradle Plugin 9.4, JDK 21
 
 ## Target test device
 
