@@ -50,3 +50,27 @@ scripts/test/fresh-bootstrap-check.sh: line 10: /home/user/my-adhd-pal/scripts/b
 - `scripts/test/test-bootstrap-android.sh`: 20 PASS, 0 FAIL (TC-S-026, 027, 028, 030; TC-S-028 has four cases, including refusal under burst load only).
 - `scripts/test/fresh-bootstrap-check.sh` (TC-S-029, real network, empty SDK dir): bootstrap installed command-line tools, platform-tools, platform 37.0 and build-tools 37.0.0, found Maven Central refusing (429) and wrote the mirror init script, then `./gradlew check` ended `BUILD SUCCESSFUL in 2m 29s`.
 - Two earlier real runs failed, which shaped the probe: a single-request probe answered 200 while Gradle got 429. A parallel burst reproduces the refusal (8 of 24 requests), so the probe is a burst; the offline test for that was written red first.
+
+## 0a.1-0a.3 restructure and skeletons (red)
+
+Command: `scripts/test/test-structure.sh` on `main` (still single-module `:app`). Exit 1, 0 PASS, 15 FAIL.
+
+```
+FAIL TC-S-002 app renamed to wear (expected 0, got 1)
+FAIL TC-S-002 settings include :wear :protocol :phone (expected 0, got 1)
+FAIL TC-S-002 settings no longer include :app (expected 0, got 1)
+FAIL TC-S-002 CI uploads the wear debug APK (expected 0, got 1)
+FAIL TC-S-002 no stale app/ references in CI and README (expected 0, got 1)
+FAIL TC-S-002 README names the wear module (expected 0, got 1)
+FAIL TC-S-003 wear allowBackup off (expected 0, got 2)
+FAIL TC-S-003 phone allowBackup off (expected 0, got 2)
+FAIL TC-S-004 wear namespace (expected 0, got 2)
+FAIL TC-S-004 phone namespace (expected 0, got 2)
+FAIL TC-S-005 protocol applies no Android plugin (expected 0, got 2)
+FAIL TC-S-005 protocol sources import nothing from Android (expected 0, got 1)
+FAIL TC-S-006 wear and phone build, protocol tests run (expected 0, got 1)
+FAIL TC-S-002 wear debug APK exists (expected 0, got 2)
+FAIL TC-S-006 phone debug APK exists (expected 0, got 2)
+```
+
+TC-S-001 baseline (`./gradlew assembleDebug testDebugUnitTest lintDebug` on unmodified `main`) was green: BUILD SUCCESSFUL in 1m 20s, debug APK built, lint clean.
