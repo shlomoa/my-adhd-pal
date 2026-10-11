@@ -1,0 +1,21 @@
+name: Gates
+
+on:
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Script tests
+        run: scripts/test/test-scripts.sh
+
+      - name: Required gates are merged and only Produces gates change
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_REF: origin/${{ github.base_ref }}
+        run: scripts/check-pr-gates.sh

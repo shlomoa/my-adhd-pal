@@ -1,0 +1,100 @@
+{
+  "gates": [
+    {
+      "id": "G-BOOT",
+      "name": "plan docs, gate scripts and gate CI job",
+      "owner": "orchestrator",
+      "requires": [],
+      "status": "merged",
+      "pr": null
+    },
+    {
+      "id": "G0",
+      "name": "skeleton: :wear/:protocol/:phone, catalog, check task, CI",
+      "owner": "S",
+      "requires": [
+        "G-BOOT"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G1",
+      "name": "contract: protocol.md + compile-only :protocol + WatchLinkDataSource interface",
+      "owner": "S",
+      "requires": [
+        "G0"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G2",
+      "name": ":protocol implemented + FakeTransport + FakeWatchLinkDataSource",
+      "owner": "S",
+      "requires": [
+        "G1"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G3",
+      "name": "phone data layer: Room, DataStore, repositories, real link",
+      "owner": "S",
+      "requires": [
+        "G2",
+        "G4"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G4",
+      "name": "guardrails: applicationId/signing and release-no-debug checks",
+      "owner": "S",
+      "requires": [
+        "G0"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G5",
+      "name": "phone link-state, schedule and history screens",
+      "owner": "A",
+      "requires": [
+        "G2",
+        "G3"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G6",
+      "name": "watch link client, reminder engine, ack/selection, connection state",
+      "owner": "W",
+      "requires": [
+        "G2"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "H1",
+      "name": "biometric metrics and thresholds agreed (human)",
+      "owner": "user",
+      "requires": [],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "H2",
+      "name": "Galaxy Watch6 Classic + phone available for manual test (human)",
+      "owner": "user",
+      "requires": [],
+      "status": "open",
+      "pr": null
+    }
+  ]
+}

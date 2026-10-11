@@ -1,0 +1,21 @@
+# Bootstrap final (green)
+
+Command: `scripts/test/test-scripts.sh`; 17 cases, 0 skipped.
+
+TC-B-001 PASS
+TC-B-002 PASS
+TC-B-003 PASS
+TC-B-004 PASS
+TC-B-005 PASS
+TC-B-006 PASS
+TC-B-007 PASS
+TC-B-008 PASS
+TC-B-009 PASS
+TC-B-010 PASS
+TC-B-011 PASS
+TC-B-012 PASS
+TC-B-013 PASS
+TC-B-014 PASS
+TC-B-015 PASS
+TC-B-016 PASS
+TC-B-017 PASS
