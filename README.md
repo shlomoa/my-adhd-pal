@@ -5,7 +5,7 @@ My ADHD companion: a Wear OS project custom designed to help me manage my ADHD.
 ## Stack
 
 - Kotlin + Jetpack Compose for Wear OS (Wear Compose Material 3)
-- Single `:app` module, standalone watch app (no paired phone needed)
+- Modules: `:wear` (standalone watch app), `:phone` (phone app) and `:protocol` (pure Kotlin/JVM watch-phone protocol); see [`docs/plan.md`](docs/plan.md)
 - `minSdk 30` (Wear OS 3+), `targetSdk 36`, `compileSdk 37`
 - Gradle 9.8 (wrapper), Android Gradle Plugin 9.4, JDK 21
 
@@ -20,7 +20,7 @@ echo "sdk.dir=/path/to/Android/sdk" > local.properties   # needs platform androi
 ./gradlew assembleDebug testDebugUnitTest lintDebug
 ```
 
-The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
+The debug APKs are written to `wear/build/outputs/apk/debug/` and `phone/build/outputs/apk/debug/`. For a fresh Linux/cloud machine, run `scripts/bootstrap-android.sh` first (installs the Android SDK pieces).
 
 ## Run on the Galaxy Watch6 Classic
 

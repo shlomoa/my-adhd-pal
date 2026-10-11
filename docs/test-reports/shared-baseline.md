@@ -74,3 +74,8 @@ FAIL TC-S-006 phone debug APK exists (expected 0, got 2)
 ```
 
 TC-S-001 baseline (`./gradlew assembleDebug testDebugUnitTest lintDebug` on unmodified `main`) was green: BUILD SUCCESSFUL in 1m 20s, debug APK built, lint clean.
+
+## 0a.1-0a.3 after implementation (green)
+
+- `scripts/test/test-structure.sh`: 15 PASS, 0 FAIL (TC-S-002 to TC-S-006), including the real build of both apps and `:protocol:test`.
+- `./gradlew assembleDebug testDebugUnitTest lintDebug :protocol:test` (the CI command): BUILD SUCCESSFUL; `wear/build/outputs/apk/debug/wear-debug.apk` and `phone/build/outputs/apk/debug/phone-debug.apk` exist.

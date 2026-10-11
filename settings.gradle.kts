@@ -21,4 +21,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "my-adhd-pal"
-include(":app")
+include(":wear")
+include(":protocol")
+include(":phone")
