@@ -77,7 +77,10 @@ installation on your machine ... matching: {languageVersion=21 ...}*.
 
    In Android Studio choose **Open** and select the `my-adhd-pal` folder. If you cloned it earlier, stay on whichever
    branch is checked out: sections 3 to 5 do not depend on the branch.
-5. Open **File > Settings > Build, Execution, Deployment > Build Tools > Gradle**. Set **Gradle JDK** to the Temurin
+5. Optional (it only affects syncs and builds started inside Android Studio; the spike builds from the terminal in
+   step 9 and section 6, and Device Manager does not use Gradle, so you can skip this step if the field is blank or
+   locked). Make sure the project is open (not the Welcome screen) and no sync or indexing is running, then open
+   **File > Settings > Build, Execution, Deployment > Build Tools > Gradle**. Set **Gradle JDK** to the Temurin
    21 entry. If it is not listed, choose **Add JDK from disk** and select the install folder, usually
    `C:\Program Files\Eclipse Adoptium\jdk-21...`. Click OK.
 6. If Android Studio offers to install missing SDK pieces (the project needs **Android SDK platform 37**), accept.
