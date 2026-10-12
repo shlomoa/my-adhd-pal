@@ -8,7 +8,10 @@ fail=0
 out="$(mktemp)"
 fixtures=()
 check() { # name expected actual
-  if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi
+  if [ "$2" = "$3" ]; then echo "PASS $1"; else
+    echo "FAIL $1 (expected $2, got $3)"; fail=1
+    [ -s "$out" ] && { echo "  --- last output of the previous command:"; tail -n 25 "$out" | sed 's/^/  | /'; }
+  fi
 }
 cleanup() { for f in "${fixtures[@]:-}"; do [ -z "$f" ] || rm -f "$f"; done; rm -f "$out"; }
 trap cleanup EXIT
@@ -40,6 +43,27 @@ fails_with $rc BadFormat.kt; check "TC-S-011 mis-formatted Kotlin fails spotless
 gradle spotlessApply spotlessCheck; check "TC-S-011 spotlessApply makes it pass" 0 $?
 rm -f $bad
 
+# TC-S-011 the committed tree passes the formatter in a fresh clone. Local state (stale results, untracked or ignored
+# files) once made a developer machine pass while CI failed on trailing commas; a fresh clone of HEAD cannot be fooled.
+clone="$(mktemp -d)"
+git clone -q "$root" "$clone/repo" && git -C "$clone/repo" checkout -q "${CLONE_REF:-HEAD}" && cp local.properties "$clone/repo/" 2>/dev/null
+( cd "$clone/repo" && ./gradlew --console=plain --no-build-cache --rerun-tasks spotlessCheck >"$out" 2>&1 ); check "TC-S-011 committed tree passes spotlessCheck in a fresh clone" 0 $?
+rm -rf "$clone"
+
+# TC-S-011 trailing commas are not allowed (ktlint android_studio style), the same on every machine
+bad=wear/src/main/java/com/shlomoa/myadhdpal/wear/TrailingComma.kt
+fixture $bad <<'KT'
+package com.shlomoa.myadhdpal.wear
+
+fun sum(
+    a: Int,
+    b: Int,
+) = a + b
+KT
+gradle spotlessCheck --rerun-tasks --no-build-cache; rc=$?
+fails_with $rc TrailingComma.kt; check "TC-S-011 a trailing comma fails spotlessCheck even on a clean run" 0 $?
+rm -f $bad
+
 # TC-S-012 detekt violation fails detekt and names the rule
 bad=wear/src/main/java/com/shlomoa/myadhdpal/wear/EmptyBlock.kt
 fixture $bad <<'KT'
@@ -51,6 +75,29 @@ gradle detekt; rc=$?
 fails_with $rc EmptyFunctionBlock; check "TC-S-012 detekt violation fails and names the rule" 0 $?
 rm -f $bad
 gradle detekt; check "TC-S-012 removal is green" 0 $?
+
+# TC-S-012 AGP's variant test source sets (src/testDebug, src/testRelease) are treated like src/test by detekt
+bad=phone/src/testDebug/java/com/shlomoa/myadhdpal/phone/VariantTestNames.kt
+fixture $bad <<'KT'
+package com.shlomoa.myadhdpal.phone
+
+class VariantTestNames {
+    fun `a backticked test name is fine in a test source set`() = Unit
+}
+KT
+gradle detekt; check "TC-S-012 backticked test names in src/testDebug are not flagged" 0 $?
+rm -f $bad
+bad=phone/src/main/java/com/shlomoa/myadhdpal/phone/MainNames.kt
+fixture $bad <<'KT'
+package com.shlomoa.myadhdpal.phone
+
+class MainNames {
+    fun `a backticked name is flagged in main sources`() = Unit
+}
+KT
+gradle detekt; rc=$?
+fails_with $rc FunctionNaming; check "TC-S-012 the same name in src/main is still flagged" 0 $?
+rm -f $bad
 
 # TC-S-013 a new Android lint issue (not in the baseline) fails lint
 bad=phone/src/main/res/values/unused_fixture.xml

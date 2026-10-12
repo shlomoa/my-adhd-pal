@@ -1,4 +1,41 @@
 # Overrides on top of detekt's default config (buildUponDefaultConfig = true).
+# Rules that skip test sources by default also skip AGP's variant test source sets (src/testDebug, src/testRelease)
+# and test fixtures: each rule keeps its own default excludes plus those three. Identical lists share a YAML anchor.
+comments:
+  KDocReferencesNonPublicProperty:
+    excludes: &testSources1 ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/testDebug/**', '**/testRelease/**', '**/testFixtures/**']
+  UndocumentedPublicClass:
+    excludes: *testSources1
+  UndocumentedPublicFunction:
+    excludes: *testSources1
+  UndocumentedPublicProperty:
+    excludes: *testSources1
+complexity:
+  StringLiteralDuplication:
+    excludes: *testSources1
+  TooManyFunctions:
+    excludes: *testSources1
+exceptions:
+  InstanceOfCheckForException:
+    excludes: *testSources1
+  ThrowingExceptionsWithoutMessageOrCause:
+    excludes: *testSources1
+  TooGenericExceptionCaught:
+    excludes: *testSources1
 naming:
   FunctionNaming:
     ignoreAnnotated: ['Composable']
+    excludes: *testSources1
+performance:
+  ForEachOnRange:
+    excludes: *testSources1
+  SpreadOperator:
+    excludes: *testSources1
+potential-bugs:
+  LateinitUsage:
+    excludes: *testSources1
+  UnsafeCallOnNullableType:
+    excludes: *testSources1
+style:
+  MagicNumber:
+    excludes: &testSources2 ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts', '**/testDebug/**', '**/testRelease/**', '**/testFixtures/**']

@@ -9,7 +9,10 @@ out="$(mktemp)"
 backup="$(mktemp -d)"
 cp wear/build.gradle.kts "$backup/wear.build.gradle.kts"; cp phone/build.gradle.kts "$backup/phone.build.gradle.kts"
 check() { # name expected actual
-  if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi
+  if [ "$2" = "$3" ]; then echo "PASS $1"; else
+    echo "FAIL $1 (expected $2, got $3)"; fail=1
+    [ -s "$out" ] && { echo "  --- last output of the previous command:"; tail -n 25 "$out" | sed 's/^/  | /'; }
+  fi
 }
 restore() { cp "$backup/phone.build.gradle.kts" phone/build.gradle.kts; cp "$backup/wear.build.gradle.kts" wear/build.gradle.kts; rm -rf "$out" "$backup"; }
 trap restore EXIT
@@ -29,7 +32,7 @@ done
 # TC-S-008 a changed applicationId fails check and names both ids
 printf '\nandroid { defaultConfig { applicationId = "com.example.other" } }\n' >> phone/build.gradle.kts
 gradle check -x lint -x test; rc=$?
-[ "$rc" -ne 0 ] && ! grep -q "not found" "$out"; check "TC-S-008 changed applicationId makes check fail" 0 $?
+[ "$rc" -ne 0 ] && ! grep -qE "Task '[^']+' not found" "$out"; check "TC-S-008 changed applicationId makes check fail" 0 $?
 grep -q 'com.example.other' "$out" && grep -q 'com.shlomoa.myadhdpal' "$out" && grep -qi 'applicationId' "$out"; check "TC-S-008 message names both applicationIds" 0 $?
 cp "$backup/phone.build.gradle.kts" phone/build.gradle.kts
 gradle checkPairing; check "TC-S-008 revert is green" 0 $?
@@ -37,7 +40,7 @@ gradle checkPairing; check "TC-S-008 revert is green" 0 $?
 # TC-S-009 a differing signing config fails the check
 printf '\nandroid { signingConfigs { create("other") { storeFile = file("other.jks") } }\n  buildTypes { release { signingConfig = signingConfigs.getByName("other") } } }\n' >> phone/build.gradle.kts
 gradle checkPairing; rc=$?
-[ "$rc" -ne 0 ] && ! grep -q "not found" "$out"; check "TC-S-009 differing signing config makes the check fail" 0 $?
+[ "$rc" -ne 0 ] && ! grep -qE "Task '[^']+' not found" "$out"; check "TC-S-009 differing signing config makes the check fail" 0 $?
 grep -qi 'signing' "$out"; check "TC-S-009 message mentions the signing config" 0 $?
 cp "$backup/phone.build.gradle.kts" phone/build.gradle.kts
 gradle checkPairing; check "TC-S-009 revert is green" 0 $?
