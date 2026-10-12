@@ -65,10 +65,28 @@ installation on your machine ... matching: {languageVersion=21 ...}*.
 
    `java -version` must report version 21. To see which `java` is being used, run `Get-Command java` (or
    `where.exe java`; plain `where java` prints nothing in PowerShell because `where` is an alias for
-   `Where-Object`). If `java -version` already reports 21 without these two lines, Java is on your `PATH` already and
-   you can skip to step 4. Setting the variables by hand lasts only for this PowerShell window. To make it permanent,
-   open *Edit the system environment variables > Environment Variables*, add a user variable `JAVA_HOME` with the
-   folder path, and add `%JAVA_HOME%\bin` to the user `Path`. Open a new PowerShell afterwards and check again.
+   `Where-Object`).
+
+   **`JAVA_HOME` matters more than `PATH`.** `.\gradlew.bat` uses `JAVA_HOME` first and `PATH` only when
+   `JAVA_HOME` is not set. If another JDK is installed (for example `C:\Program Files\Java\jdk-23`) and `JAVA_HOME`
+   points at it, `java -version` can report 21 while Gradle runs on the other JDK, and Android Studio warns
+   *Multiple Gradle daemons might be spawned because the Gradle JDK and JAVA_HOME locations are different*. Check:
+
+   ```powershell
+   echo $env:JAVA_HOME
+   ```
+
+   It must be the Temurin 21 folder. The two lines above fix this for the current PowerShell window only. To make it
+   permanent, open *Edit the system environment variables > Environment Variables*:
+
+   - If `JAVA_HOME` is a **user** variable, edit it to the Temurin 21 folder.
+   - If it is a **system** variable (changing it needs administrator rights), leave it and add a **user** variable
+     named `JAVA_HOME` with the Temurin 21 folder: a user variable overrides the system variable of the same name.
+   - Make sure `%JAVA_HOME%\bin` is in the user `Path` (or that the Temurin `bin` folder comes before any other JDK).
+
+   Then close all PowerShell windows, restart Android Studio, and check in a new PowerShell: `echo $env:JAVA_HOME`
+   shows the Temurin folder and `.\gradlew.bat --version` (run in the repository folder, step 4) shows
+   `JVM: 21`.
 4. Clone and open the repository:
 
    ```powershell
@@ -271,6 +289,7 @@ discarded once the results are recorded in the protocol document.
 |---|---|
 | Sync fails: *Cannot find a Java installation ... languageVersion=21 ... Toolchain download repositories have not been configured* | No JDK 21 found. Install Temurin 21 and set Gradle JDK (section 3, steps 1 and 5). |
 | `java -version` is not 21, or `java` is not found | Set `JAVA_HOME` and `Path` by hand (section 3, step 3). The installer does not always do it. |
+| Android Studio warns *Multiple Gradle daemons might be spawned because the Gradle JDK and JAVA_HOME locations are different* | `JAVA_HOME` points at another JDK (such as JDK 23) while Studio uses Temurin 21. Set `JAVA_HOME` to the Temurin 21 folder (section 3, step 3), restart PowerShell and Android Studio. |
 | `.\gradlew.bat` says *JAVA_HOME is not set and no java command could be found* | Same fix: section 3, step 3, in the PowerShell window you are using. |
 | `adb` is not recognized | Add the SDK `platform-tools` folder to `PATH` for this window (section 6.1, step 3). |
 | Emulator is very slow or refuses to start | Virtualization is off. Section 2. |
