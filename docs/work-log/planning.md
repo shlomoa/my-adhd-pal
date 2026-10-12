@@ -47,3 +47,10 @@ Entries by the planning threads and the orchestrator session. Index and entry fo
 - Changed: added `docs/dev-setup-windows.md` (JDK 21, hardware acceleration, emulator creation and pairing, spike build, install and the five cases, logs, troubleshooting) and a README link. Written after the user's first attempt on Windows 11 failed with "Cannot find a Java installation ... languageVersion=21". Corrected after the user reported that the Temurin installer offers no JAVA_HOME or PATH option: the guide now finds the install folder and sets both by hand.
 - Validation: `scripts/docs-lint.sh markdown` and `links` green; not yet followed end to end on Windows. The guide is updated from each report until the user has the build, the emulators and the spike running.
 - Open items: results of spike 0b.2a (G-SPK1) still to come from the user.
+
+## 2026-10-12 - Windows guide: JAVA_HOME must match the Gradle JDK
+
+- Issue and PR: none (coordinator documentation); PR linked from the session.
+- Changed: `docs/dev-setup-windows.md` now explains that `.\gradlew.bat` uses `JAVA_HOME` before `PATH`, how to set a user `JAVA_HOME` that overrides a system one, and the "Multiple Gradle daemons" warning. Found because the user's `JAVA_HOME` pointed at JDK 23 while `java -version` reported Temurin 21.
+- Validation: `scripts/docs-lint.sh markdown` and `links` green.
+- Open items: still waiting for the user's `.\gradlew.bat :protocol:test` result, then the emulators and the spike.
