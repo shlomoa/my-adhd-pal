@@ -63,7 +63,10 @@ installation on your machine ... matching: {languageVersion=21 ...}*.
    java -version
    ```
 
-   `java -version` must report version 21. That change lasts only for this PowerShell window. To make it permanent,
+   `java -version` must report version 21. To see which `java` is being used, run `Get-Command java` (or
+   `where.exe java`; plain `where java` prints nothing in PowerShell because `where` is an alias for
+   `Where-Object`). If `java -version` already reports 21 without these two lines, Java is on your `PATH` already and
+   you can skip to step 4. Setting the variables by hand lasts only for this PowerShell window. To make it permanent,
    open *Edit the system environment variables > Environment Variables*, add a user variable `JAVA_HOME` with the
    folder path, and add `%JAVA_HOME%\bin` to the user `Path`. Open a new PowerShell afterwards and check again.
 4. Clone and open the repository:
