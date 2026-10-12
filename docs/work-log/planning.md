@@ -54,3 +54,10 @@ Entries by the planning threads and the orchestrator session. Index and entry fo
 - Changed: `docs/dev-setup-windows.md` now explains that `.\gradlew.bat` uses `JAVA_HOME` before `PATH`, how to set a user `JAVA_HOME` that overrides a system one, and the "Multiple Gradle daemons" warning. Found because the user's `JAVA_HOME` pointed at JDK 23 while `java -version` reported Temurin 21.
 - Validation: `scripts/docs-lint.sh markdown` and `links` green.
 - Open items: still waiting for the user's `.\gradlew.bat :protocol:test` result, then the emulators and the spike.
+
+## 2026-10-12 - Windows guide: companion app is Google Pixel Watch
+
+- Issue and PR: none (coordinator documentation); PR linked from the session.
+- Changed: `docs/dev-setup-windows.md` section 5 now describes the pairing assistant's first page (install the *Google Pixel Watch* companion app on the phone emulator from the Play Store, sign in, scroll for further steps), after the user's screenshot showed the app is no longer called *Wear OS by Google*.
+- Validation: `scripts/docs-lint.sh markdown` and `links` green. The user's Java 21 setup was confirmed working (`.\gradlew.bat :protocol:test` BUILD SUCCESSFUL on Temurin 21).
+- Open items: finish pairing, then run the spike cases and report.

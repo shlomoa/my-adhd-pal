@@ -132,10 +132,17 @@ You can do this even while the Gradle sync is failing: Device Manager does not u
 1. In Device Manager open the menu (three dots) of the **phone** row and choose **Pair Wearable** (in some Android
    Studio versions it is a button on the row, or under **View > Tool Windows > Device Manager**).
 2. In the assistant select the watch emulator.
-3. The phone emulator needs the **Wear OS** companion app set up and signed in with your Google account. You may
-   have to open the Play Store on the phone emulator, sign in, and update the *Wear OS* app and *Google Play
-   services*. Follow the assistant to the end.
-4. Success: the Wear OS app on the phone shows the watch as connected.
+3. The first page of the assistant is **Install Wear OS Companion Application**: *Google Pixel Watch is not installed on
+   the companion device*. The companion app is called **Google Pixel Watch** (formerly *Wear OS by Google*) and is
+   installed on the **phone emulator**, not on your PC:
+   1. Click **Open Google Pixel Watch in Play Store**. The Play Store opens inside the phone emulator window.
+   2. If the Play Store asks you to sign in, sign in with your Google account (a throwaway account is fine) and accept
+      any terms. This is the only place the account is needed.
+   3. On the **Google Pixel Watch** page tap **Install** (or **Update** if it offers that) and wait for it to finish.
+   4. Back in the assistant, scroll down or enlarge the window: it has more steps below the first screen. When it says
+      the install is done, **Next** becomes active. Click it and follow the remaining pages to the end. You may be
+      asked to update *Google Play services* on the phone emulator as well.
+4. Success: the Google Pixel Watch app on the phone shows the watch as connected.
 5. If pairing does not complete, restart both emulators and run the assistant again. Wear OS emulators are
    sensitive here. Report the step and, if you can, a screenshot.
 
@@ -251,7 +258,7 @@ spike.
    note the result.
 3. Start the watch emulator again. Without opening the Spike app on the watch, wait up to 3 minutes. Expect `RECV`
    for both items with a large `delayMs`, and `DELETE-OK` for the DEL one.
-4. Note whether the devices reconnected by themselves or needed a step (reopening the Wear OS app, the Pair Wearable
+4. Note whether the devices reconnected by themselves or needed a step (reopening the Google Pixel Watch app, the Pair Wearable
    assistant, an adb command).
 5. Swap roles: stop the **phone** emulator, send from the watch, start the phone and do not open its app. Expect
    `SERVICE-CREATED` and `RECV ... fg=false`.
