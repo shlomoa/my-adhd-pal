@@ -1,5 +1,6 @@
 package com.shlomoa.myadhdpal.wear.spike
 
+import android.os.SystemClock
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
@@ -29,11 +30,25 @@ class SpikeListenerService : WearableListenerService() {
             val recvTs = System.currentTimeMillis()
             val sentTs = map.getLong("sentTs")
             Spike.log(this, "RECV path=$path from=$from sentTs=$sentTs recvTs=$recvTs delayMs=${recvTs - sentTs}")
-            if (map.getString("kind") == "del") {
-                Wearable.getDataClient(this).deleteDataItems(event.dataItem.uri)
-                    .addOnSuccessListener { Spike.log(this, "DELETE-OK path=$path count=$it") }
-                    .addOnFailureListener { Spike.log(this, "DELETE-FAILED path=$path error=$it") }
+            when (map.getString("kind")) {
+                "del" -> delete(event.dataItem.uri, path)
+                "ping" -> {
+                    // Reply with a pong that echoes the pinger's elapsed-realtime, then consume the ping.
+                    Spike.pong(this, map.getString("id").orEmpty(), map.getBoolean("urgent"), map.getLong("pingElapsed"))
+                    delete(event.dataItem.uri, path)
+                }
+                "pong" -> {
+                    val rtt = SystemClock.elapsedRealtime() - map.getLong("pingElapsed")
+                    Spike.log(this, "RTT id=${map.getString("id")} urgent=${map.getBoolean("urgent")} rttMs=$rtt")
+                    delete(event.dataItem.uri, path)
+                }
             }
         }
+    }
+
+    private fun delete(uri: android.net.Uri, path: String) {
+        Wearable.getDataClient(this).deleteDataItems(uri)
+            .addOnSuccessListener { Spike.log(this, "DELETE-OK path=$path count=$it") }
+            .addOnFailureListener { Spike.log(this, "DELETE-FAILED path=$path error=$it") }
     }
 }
