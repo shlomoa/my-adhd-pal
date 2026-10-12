@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# Simulated adb for testing scripts/spike/run-0b2a.ps1 without emulators. State lives in $FAKE_DIR.
+# Failure injection: FAKE_FAIL=delete | stoppedwake | norecover (comma separated).
+set -u
+D="${FAKE_DIR:?FAKE_DIR must point at the simulation state folder}"
+serial=""
+if [ "${1:-}" = "-s" ]; then serial="$2"; shift 2; fi
+cmd="${1:-}"; shift || true
+role_of() { case "$1" in emulator-5554) echo phone;; *) echo watch;; esac; }
+peer_of() { case "$1" in emulator-5554) echo emulator-5556;; *) echo emulator-5554;; esac; }
+state_of() { cat "$D/$1.state" 2>/dev/null || echo dead; }
+set_state() { echo "$2" > "$D/$1.state"; }
+online() { [ -e "$D/$1.online" ]; }
+fails() { case ",${FAKE_FAIL:-}," in *",$1,"*) return 0;; esac; return 1; }
+log() { # serial message
+  local st up fg; st="$(state_of "$1")"; up=90000; fg=false
+  [ "$st" = dead ] && up=300
+  [ "$st" = fg ] && fg=true
+  echo "role=$(role_of "$1") pid=1234 processUptimeMs=$up fg=$fg $2" >> "$D/$1.log"
+}
+next_id() { local n; n=$(( $(cat "$D/counter" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$D/counter"; printf 'item%04d' "$n"; }
+deliver() { # dst src kind id urgent
+  local dst="$1" src="$2" kind="$3" id="$4" urgent="$5"
+  if ! online "$dst"; then echo "$dst|$src|$kind|$id|$urgent" >> "$D/pending"; return; fi
+  if [ "$(state_of "$dst")" = dead ]; then
+    if [ -e "$D/$dst.stopped" ] && fails stoppedwake; then echo "$dst|$src|$kind|$id|$urgent" >> "$D/pending"; return; fi
+    log "$dst" SERVICE-CREATED; set_state "$dst" bg
+  fi
+  log "$dst" "RECV path=/spike/$kind/$id from=$(role_of "$src") sentTs=1 recvTs=2 delayMs=$(( RANDOM % 60 - 25 ))"
+  case "$kind" in
+    del)
+      if fails delete; then :; else
+        log "$dst" "DELETE-OK path=/spike/del/$id count=1"
+        log "$src" "EVENT-DELETED path=/spike/del/$id host=x"
+        grep -v "/spike/del/$id" "$D/items" > "$D/items.tmp" 2>/dev/null; mv "$D/items.tmp" "$D/items" 2>/dev/null; true
+      fi;;
+    keep) echo "wear://node/spike/keep/$id" >> "$D/items";;
+    ping)
+      log "$dst" "PONG path=/spike/pong/$id urgent=$urgent"
+      log "$dst" "PONG-OK path=/spike/pong/$id"
+      deliver "$src" "$dst" pong "$id" "$urgent";;
+    pong)
+      log "$dst" "RTT id=$id urgent=$urgent rttMs=$(( 100 + RANDOM % 80 ))"
+      log "$dst" "DELETE-OK path=/spike/pong/$id count=1";;
+  esac
+}
+deliver_pending() { # serial just came online / was started
+  [ -s "$D/pending" ] || return 0
+  local keep; keep="$(mktemp)"
+  while IFS='|' read -r dst src kind id urgent; do
+    if [ "$dst" = "$1" ]; then
+      fails norecover && { echo "$dst|$src|$kind|$id|$urgent" >> "$keep"; continue; }
+      deliver "$dst" "$src" "$kind" "$id" "$urgent"
+    else echo "$dst|$src|$kind|$id|$urgent" >> "$keep"; fi
+  done < "$D/pending"
+  mv "$keep" "$D/pending"
+}
+case "$cmd" in
+  devices)
+    echo "List of devices attached"
+    for s in emulator-5554 emulator-5556; do online "$s" && printf '%s\tdevice\n' "$s"; done;;
+  logcat)
+    case "$1" in
+      -c) : > "$D/$serial.log";;
+      -d) i=0; while IFS= read -r l; do printf '10-12 12:00:%02d.000  1234  1234 I SPIKE   : %s\n' $((i % 60)) "$l"; i=$((i+1)); done < "$D/$serial.log" 2>/dev/null;;
+    esac;;
+  emu)
+    case "$1" in
+      kill) rm -f "$D/$serial.online"; set_state "$serial" dead; : > "$D/$serial.log"; echo "OK: killing emulator, bye bye";;
+      avd) [ "$2" = name ] && printf '%s\r\nOK\r\n' "AVD_$(role_of "$serial")";;
+    esac;;
+  shell)
+    sub="$1"; shift
+    case "$sub" in
+      getprop)
+        case "$1" in
+          ro.build.version.sdk) echo 36;;
+          ro.product.name) [ "$(role_of "$serial")" = phone ] && echo sdk_gphone16k_x86_64 || echo sdk_gwear_x86_64;;
+          ro.boot.qemu.avd_name) echo "AVD_$(role_of "$serial")";;
+          sys.boot_completed) echo 1;;
+        esac;;
+      pm) echo "package:com.shlomoa.myadhdpal";;
+      pidof) [ "$(state_of "$serial")" != dead ] && echo 1234;;
+      input) [ "$(state_of "$serial")" = fg ] && set_state "$serial" bg;;
+      am)
+        a="$1"; shift
+        case "$a" in
+          start) rm -f "$D/$serial.stopped"; set_state "$serial" fg; log "$serial" ACTIVITY-RESUMED; echo "Starting: Intent"; deliver_pending "$serial";;
+          kill) [ "$(state_of "$serial")" = bg ] && set_state "$serial" dead;;
+          force-stop) set_state "$serial" dead; touch "$D/$serial.stopped";;
+          broadcast)
+            action=""; kind=del; urgent=true
+            while [ $# -gt 0 ]; do
+              case "$1" in
+                -a) action="${2##*.}"; shift 2;;
+                --es) [ "$2" = kind ] && kind="$3"; shift 3;;
+                --ez) [ "$2" = urgent ] && urgent="$3"; shift 3;;
+                *) shift;;
+              esac
+            done
+            [ "$(state_of "$serial")" = dead ] && set_state "$serial" bg
+            log "$serial" "COMMAND action=$action kind=$kind urgent=$urgent"
+            peer="$(peer_of "$serial")"
+            case "$action" in
+              SEND) id="$(next_id)"; log "$serial" "SEND path=/spike/$kind/$id urgent=$urgent"; log "$serial" "SEND-OK path=/spike/$kind/$id (putDataItem completed locally)"
+                    deliver "$peer" "$serial" "$kind" "$id" "$urgent";;
+              PING) id="$(next_id)"; log "$serial" "PING path=/spike/ping/$id urgent=$urgent"; log "$serial" "PING-OK path=/spike/ping/$id (putDataItem completed locally)"
+                    deliver "$peer" "$serial" ping "$id" "$urgent";;
+              LIST_ITEMS) log "$serial" "ITEMS count=$(wc -l < "$D/items" 2>/dev/null || echo 0) $(tr '\n' ' ' < "$D/items" 2>/dev/null)";;
+              LIST_NODES) n=0; online "$peer" && n=1; log "$serial" "NODES count=$n $( [ $n = 1 ] && echo "peer(nearby=true)")";;
+            esac
+            echo "Broadcast completed: result=0";;
+        esac;;
+    esac;;
+  wait-for-device) :;;
+  __boot) deliver_pending "$serial";;
+esac
+exit 0
