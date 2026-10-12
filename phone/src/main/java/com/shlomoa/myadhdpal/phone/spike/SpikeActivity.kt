@@ -2,6 +2,7 @@ package com.shlomoa.myadhdpal.phone.spike
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.WindowInsets
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -26,7 +27,17 @@ class SpikeActivity : Activity() {
         button("Refresh log") { }
         button("Clear log") { Spike.clearLog(this) }
         column.addView(logView)
-        setContentView(ScrollView(this).apply { addView(column) })
+        setContentView(
+            ScrollView(this).apply {
+                addView(column)
+                // targetSdk 36 draws edge-to-edge: keep the buttons clear of the status bar, navigation bar and cutout.
+                setOnApplyWindowInsetsListener { view, insets ->
+                    val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+                    view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+                    insets
+                }
+            },
+        )
     }
 
     override fun onResume() {

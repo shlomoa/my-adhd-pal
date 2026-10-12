@@ -2,6 +2,7 @@ package com.shlomoa.myadhdpal.wear.spike
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.WindowInsets
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -26,7 +27,21 @@ class SpikeActivity : Activity() {
         button("Refresh log") { }
         button("Clear log") { Spike.clearLog(this) }
         column.addView(logView)
-        setContentView(ScrollView(this).apply { addView(column) })
+        setContentView(
+            ScrollView(this).apply {
+                addView(column)
+                // Edge-to-edge on targetSdk 36 plus a round screen: inset for the system bars, and on a round display
+                // add side and top/bottom padding so the first and last buttons can be scrolled into the visible area.
+                val round = resources.configuration.isScreenRound
+                val extraV = if (round) (resources.displayMetrics.heightPixels * 0.18f).toInt() else 0
+                val extraH = if (round) (resources.displayMetrics.widthPixels * 0.10f).toInt() else 0
+                setOnApplyWindowInsetsListener { view, insets ->
+                    val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+                    view.setPadding(bars.left + extraH, bars.top + extraV, bars.right + extraH, bars.bottom + extraV)
+                    insets
+                }
+            },
+        )
     }
 
     override fun onResume() {
