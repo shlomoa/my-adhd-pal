@@ -31,24 +31,38 @@ class SpikeListenerService : WearableListenerService() {
             val sentTs = map.getLong("sentTs")
             Spike.log(this, "RECV path=$path from=$from sentTs=$sentTs recvTs=$recvTs delayMs=${recvTs - sentTs}")
             when (map.getString("kind")) {
-                "del" -> delete(event.dataItem.uri, path)
+                "del" -> {
+                    val delayMs = map.getLong("deleteDelayMs")
+                    if (delayMs > 0) {
+                        // Deletion is time-stamped; deleting some seconds later separates "delete lost to clock skew" from other causes.
+                        Spike.log(this, "DELETE-SCHEDULED path=$path afterMs=$delayMs")
+                        val uri = event.dataItem.uri
+                        val appContext = applicationContext
+                        Thread {
+                            Thread.sleep(delayMs)
+                            delete(appContext, uri, path)
+                        }.start()
+                    } else {
+                        delete(applicationContext, event.dataItem.uri, path)
+                    }
+                }
                 "ping" -> {
                     // Reply with a pong that echoes the pinger's elapsed-realtime, then consume the ping.
                     Spike.pong(this, map.getString("id").orEmpty(), map.getBoolean("urgent"), map.getLong("pingElapsed"))
-                    delete(event.dataItem.uri, path)
+                    delete(applicationContext, event.dataItem.uri, path)
                 }
                 "pong" -> {
                     val rtt = SystemClock.elapsedRealtime() - map.getLong("pingElapsed")
                     Spike.log(this, "RTT id=${map.getString("id")} urgent=${map.getBoolean("urgent")} rttMs=$rtt")
-                    delete(event.dataItem.uri, path)
+                    delete(applicationContext, event.dataItem.uri, path)
                 }
             }
         }
     }
 
-    private fun delete(uri: android.net.Uri, path: String) {
-        Wearable.getDataClient(this).deleteDataItems(uri)
-            .addOnSuccessListener { Spike.log(this, "DELETE-OK path=$path count=$it") }
-            .addOnFailureListener { Spike.log(this, "DELETE-FAILED path=$path error=$it") }
+    private fun delete(context: android.content.Context, uri: android.net.Uri, path: String) {
+        Wearable.getDataClient(context).deleteDataItems(uri)
+            .addOnSuccessListener { Spike.log(context, "DELETE-OK path=$path count=$it") }
+            .addOnFailureListener { Spike.log(context, "DELETE-FAILED path=$path error=$it") }
     }
 }

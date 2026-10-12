@@ -15,7 +15,13 @@ class SpikeCommandReceiver : BroadcastReceiver() {
         val urgent = intent.getBooleanExtra("urgent", true)
         Spike.log(context, "COMMAND action=${intent.action} kind=${intent.getStringExtra("kind")} urgent=$urgent")
         when (intent.action) {
-            Spike.ACTION_SEND -> Spike.send(context, intent.getStringExtra("kind") ?: "del", urgent, done)
+            Spike.ACTION_SEND -> Spike.send(
+                context,
+                intent.getStringExtra("kind") ?: "del",
+                urgent,
+                done,
+                intent.getStringExtra("delayMs")?.toLongOrNull() ?: 0L,
+            )
             Spike.ACTION_PING -> Spike.ping(context, urgent, done)
             Spike.ACTION_LIST_ITEMS -> Spike.listItems(context, done)
             Spike.ACTION_LIST_NODES -> Spike.listNodes(context, done)

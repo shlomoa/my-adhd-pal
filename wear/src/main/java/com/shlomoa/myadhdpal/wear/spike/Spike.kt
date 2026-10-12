@@ -38,7 +38,7 @@ object Spike {
     fun clearLog(context: Context) = synchronized(lock) { File(context.filesDir, "spike.log").delete() }
 
     /** kind "del": the receiver deletes the item after reading it. kind "keep": the receiver leaves it. */
-    fun send(context: Context, kind: String, urgent: Boolean, onDone: () -> Unit = {}) {
+    fun send(context: Context, kind: String, urgent: Boolean, onDone: () -> Unit = {}, deleteDelayMs: Long = 0) {
         val id = UUID.randomUUID().toString()
         val path = "/spike/$kind/$id"
         val request = PutDataMapRequest.create(path).apply {
@@ -46,6 +46,7 @@ object Spike {
             dataMap.putString("id", id)
             dataMap.putString("kind", kind)
             dataMap.putLong("sentTs", System.currentTimeMillis())
+            dataMap.putLong("deleteDelayMs", deleteDelayMs)
         }.asPutDataRequest()
         if (urgent) request.setUrgent()
         log(context, "SEND path=$path urgent=$urgent")
