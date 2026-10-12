@@ -135,7 +135,7 @@ function Wait-NewSpike {
     param([string]$Serial, [string]$Pattern, [int]$Before, [int]$TimeoutSec)
     $deadline = (Get-Date).AddSeconds($TimeoutSec)
     while ($true) {
-        $found = Get-SpikeMatches $Serial $Pattern
+        $found = @(Get-SpikeMatches $Serial $Pattern)
         if ($found.Count -gt $Before) { return $found[$Before] }
         if ((Get-Date) -ge $deadline) { return $null }
         Sleep-Poll
@@ -163,7 +163,7 @@ function Send-Item {
     # Sends a DEL/KEEP item from $Serial; returns the item id (read back from the sender's own log), or $null.
     param([string]$Serial, [string]$Kind, [bool]$Urgent, [int]$DeleteDelayMs = 0)
     $pattern = "SEND path=/spike/{0}/(\S+) urgent" -f $Kind
-    $before = (Get-SpikeMatches $Serial $pattern).Count
+    $before = @(Get-SpikeMatches $Serial $pattern).Count
     $extras = @{ kind = $Kind; urgent = $Urgent }
     if ($DeleteDelayMs -gt 0) { $extras['delayMs'] = $DeleteDelayMs }
     Send-Command $Serial 'SEND' $extras
@@ -176,7 +176,7 @@ function Send-Item {
 function Get-ItemsLine {
     # Asks $Serial to list its data items and returns the new ITEMS line.
     param([string]$Serial)
-    $before = (Get-SpikeMatches $Serial 'ITEMS count=').Count
+    $before = @(Get-SpikeMatches $Serial 'ITEMS count=').Count
     Send-Command $Serial 'LIST_ITEMS'
     return (Wait-NewSpike $Serial 'ITEMS count=' $before 20)
 }
@@ -390,7 +390,7 @@ foreach ($group in $groups) {
         [void]$group.Ids.Add($id)
         if (-not (Wait-Spike $group.Leg.To ("RECV path=/spike/del/{0} from=" -f $id) $WaitSec)) { $group.Problems += "$id not received"; continue }
         $deleteWait = $WaitSec + [int]($group.Mode.Delay / 1000)
-        if (-not (Wait-Spike $group.Leg.To ("DELETE-OK path=/spike/del/{0}" -f $id) $deleteWait)) { $group.Problems += "$id: receiver never logged DELETE-OK" }
+        if (-not (Wait-Spike $group.Leg.To ("DELETE-OK path=/spike/del/{0}" -f $id) $deleteWait)) { $group.Problems += "${id}: receiver never logged DELETE-OK" }
     }
 }
 Write-Info "C1b: waiting ${DeletionSettleSec}s for deletions to settle, then listing items on both devices"
@@ -406,7 +406,7 @@ foreach ($group in $groups) {
     foreach ($id in $group.Ids) {
         if ($senderItems -and $senderItems -match [regex]::Escape($id)) { $leftSender++ }
         if ($receiverItems -and $receiverItems -match [regex]::Escape($id)) { $leftReceiver++ }
-        if ((Get-SpikeMatches $group.Leg.From ("EVENT-DELETED path=/spike/del/{0}" -f $id)).Count -gt 0) { $senderEvents++ }
+        if (@(Get-SpikeMatches $group.Leg.From ("EVENT-DELETED path=/spike/del/{0}" -f $id)).Count -gt 0) { $senderEvents++ }
     }
     $rows += ("{0}: {1} items, still listed on the writer {2}, on the deleter {3}, writer saw EVENT-DELETED for {4}" -f $group.Name, $group.Ids.Count, $leftSender, $leftReceiver, $senderEvents)
     if ($leftSender -gt 0 -or $leftReceiver -gt 0) { $c1bFail += ("{0}: {1} item(s) still listed on the writer and {2} on the deleter after {3}s" -f $group.Name, $leftSender, $leftReceiver, $DeletionSettleSec) }
@@ -448,7 +448,7 @@ function Test-ClosedApp {
     if ($How -eq 'kill') { Invoke-Adb $Phone @('shell', 'am', 'kill', $Package) | Out-Null }
     else { Invoke-Adb $Phone @('shell', 'am', 'force-stop', $Package) | Out-Null }
     Sleep-Settle 3
-    $pids = Get-ProcessIds $Phone
+    $pids = @(Get-ProcessIds $Phone)
     if ($pids.Count -gt 0) {
         Set-Result $Case 'NOT RUN' "the phone app process is still running after '$How' (pid $($pids -join ','))"
         return
@@ -566,7 +566,7 @@ if ($SkipC5 -or -not $Results.Contains('C5-phone-away') -or $Results['C5-phone-a
 function Invoke-Ping {
     param([string]$From, [bool]$Urgent, [int]$TimeoutSec)
     $pingPattern = 'PING path=/spike/ping/(\S+) urgent='
-    $before = (Get-SpikeMatches $From $pingPattern).Count
+    $before = @(Get-SpikeMatches $From $pingPattern).Count
     Send-Command $From 'PING' @{ urgent = $Urgent }
     $sent = Wait-NewSpike $From $pingPattern $before 15
     if (-not $sent -or $sent -notmatch 'PING path=/spike/ping/(\S+) urgent=') { return $null }

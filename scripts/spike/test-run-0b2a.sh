@@ -9,6 +9,10 @@ fail=0
 export GIT_AUTHOR_NAME=spike-test GIT_AUTHOR_EMAIL=spike-test@invalid GIT_COMMITTER_NAME=spike-test GIT_COMMITTER_EMAIL=spike-test@invalid
 check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi; }
 
+# The runner must at least parse (a bad "$var:" in a string once made it fail before doing anything).
+SPIKE_FILE="$here/run-0b2a.ps1" "$PWSH" -NoProfile -Command '$e=$null; [System.Management.Automation.Language.Parser]::ParseFile($env:SPIKE_FILE,[ref]$null,[ref]$e) | Out-Null; if ($e) { $e | ForEach-Object { $_.ToString() }; exit 1 }' >/tmp/spike-parse.txt 2>&1
+check "run-0b2a.ps1 parses without errors" 0 $?
+
 # run NAME FAKE_FAIL [extra script args]   -> sets $rc, $tmp (repo in $tmp/repo, origin in $tmp/origin.git)
 run() {
   local fakefail="$2"; shift 2
@@ -24,7 +28,7 @@ run() {
   git -C "$tmp/repo" remote add origin "${ORIGIN_URL:-$tmp/origin.git}"
   echo "uncommitted work" > "$tmp/repo/docs/base.md"      # must survive untouched
   FAKE_DIR="$tmp/state" FAKE_FAIL="$fakefail" PATH="$tmp/repo/scripts/spike/fake:$PATH" \
-    "$PWSH" -NoProfile -File "$tmp/repo/scripts/spike/run-0b2a.ps1" -SkipBuild -EmulatorExe "$tmp/repo/scripts/spike/fake/emulator" \
+    timeout "${RUN_TIMEOUT:-300}" "$PWSH" -NoProfile -File "$tmp/repo/scripts/spike/run-0b2a.ps1" -SkipBuild -EmulatorExe "$tmp/repo/scripts/spike/fake/emulator" \
       -PollSec 0.1 -SettleScale 0 -WaitSec 3 -NonUrgentWaitSec 3 -BootTimeoutSec 10 -ReconnectTimeoutSec 4 \
       -DeletionSettleSec 0 -DelayedDeleteMs 2000 "$@" > "$tmp/stdout" 2>&1
   rc=$?
@@ -48,7 +52,8 @@ has "PUSHED results branch: spike-results/0b2a-" ; check "the branch name is pri
 files="$(git -C "$tmp/origin.git" diff-tree --no-commit-id --name-only -r "$b" 2>/dev/null)"
 [ -n "$files" ] && ! echo "$files" | grep -qv '^docs/spikes/results/0b2a-'; check "the commit contains ONLY the results folder" 0 $?
 echo "$files" | grep -q 'results.txt' && echo "$files" | grep -q 'phone-C3b.log' && echo "$files" | grep -q 'watch-C1b.log'; check "results table and raw per-case logs are in the commit" 0 $?
-! git -C "$tmp/origin.git" grep -q -e '@example.com' -e 'abc123secret' "$b" -- 2>/dev/null; check "e-mail addresses and tokens are stripped from the published files" 0 $?
+! git -C "$tmp/origin.git" grep -q -e '@example.com' -e 'abc123secret' "$b" -- docs/spikes/results 2>/dev/null; check "e-mail addresses and tokens are stripped from the published results" 0 $?
+git -C "$tmp/origin.git" grep -q -e '<redacted-email>' "$b" -- docs/spikes/results 2>/dev/null; check "the redaction markers are present (the leak was injected and caught)" 0 $?
 [ "$(git -C "$tmp/repo" branch --show-current)" = main ]; check "the working branch is unchanged" 0 $?
 [ "$(cat "$tmp/repo/docs/base.md")" = "uncommitted work" ] && [ -z "$(git -C "$tmp/repo" status --porcelain --untracked-files=no | grep -v 'docs/base.md')" ]; check "uncommitted files are untouched" 0 $?
 [ -z "$(git -C "$tmp/repo" worktree list | grep -v "$tmp/repo ")" ]; check "the temporary worktree is removed" 0 $?
