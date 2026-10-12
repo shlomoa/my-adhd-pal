@@ -61,3 +61,10 @@ Entries by the planning threads and the orchestrator session. Index and entry fo
 - Changed: `docs/dev-setup-windows.md` section 5 now describes the pairing assistant's first page (install the *Google Pixel Watch* companion app on the phone emulator from the Play Store, sign in, scroll for further steps), after the user's screenshot showed the app is no longer called *Wear OS by Google*.
 - Validation: `scripts/docs-lint.sh markdown` and `links` green. The user's Java 21 setup was confirmed working (`.\gradlew.bat :protocol:test` BUILD SUCCESSFUL on Temurin 21).
 - Open items: finish pairing, then run the spike cases and report.
+
+## 2026-10-12 - Windows guide: verify the spike checkout
+
+- Issue and PR: none (coordinator documentation); PR linked from the session.
+- Changed: `docs/dev-setup-windows.md` section 6.1 no longer promises a Gradle sync prompt after `git checkout` (the user saw none) and adds two commands that confirm the spike branch is checked out.
+- Validation: `scripts/docs-lint.sh markdown` and `links` green.
+- Open items: confirm pairing succeeded, then build and install the spike apps and run the cases.

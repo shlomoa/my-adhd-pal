@@ -163,7 +163,15 @@ deleted once deleted.
    git checkout claude/shared-0b2a-spike
    ```
 
-   Android Studio asks to sync Gradle again: choose yes.
+   Android Studio may offer to sync Gradle again (say yes) or may not ask at all; the build below runs from the
+   terminal and does not depend on it. Check that the checkout worked:
+
+   ```powershell
+   git branch --show-current
+   Test-Path phone\src\main\java\com\shlomoa\myadhdpal\phone\spike\SpikeActivity.kt
+   ```
+
+   The first command prints `claude/shared-0b2a-spike` and the second prints `True`.
 2. Build both apps:
 
    ```powershell
