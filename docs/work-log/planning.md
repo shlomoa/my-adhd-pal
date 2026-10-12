@@ -40,3 +40,10 @@ Entries by the planning threads and the orchestrator session. Index and entry fo
 - Why: three parallel sessions appending to one file already conflicted once when merging `main`.
 - Validation: relative links under `docs/` resolve (ad hoc check before and after); `scripts/test/test-scripts.sh` 19/19 pass.
 - Open items: none.
+
+## 2026-10-12 - Windows setup guide for the 0b.2a spike
+
+- Issue and PR: none (coordinator documentation); PR linked from the session.
+- Changed: added `docs/dev-setup-windows.md` (JDK 21, hardware acceleration, emulator creation and pairing, spike build, install and the five cases, logs, troubleshooting) and a README link. Written after the user's first attempt on Windows 11 failed with "Cannot find a Java installation ... languageVersion=21".
+- Validation: `scripts/docs-lint.sh markdown` and `links` green; not yet followed end to end on Windows. The guide is updated from each report until the user has the build, the emulators and the spike running.
+- Open items: results of spike 0b.2a (G-SPK1) still to come from the user.
