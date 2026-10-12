@@ -22,6 +22,10 @@ echo "sdk.dir=/path/to/Android/sdk" > local.properties   # needs platform androi
 
 The debug APKs are written to `wear/build/outputs/apk/debug/` and `phone/build/outputs/apk/debug/`. For a fresh Linux/cloud machine, run `scripts/bootstrap-android.sh` first (installs the Android SDK pieces).
 
+## Windows setup
+
+JDK 21, emulators and the Data Layer spike on Windows 11: [`docs/dev-setup-windows.md`](docs/dev-setup-windows.md).
+
 ## Run on the Galaxy Watch6 Classic
 
 1. On the watch: Settings > About watch > Software information, tap *Software version* 7 times to enable Developer options.
