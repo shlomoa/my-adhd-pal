@@ -45,3 +45,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Open items: TC-W-056's "one applied schedule" half comes with 3.3 (the schedule handler installed in `ItemIngest`);
   raw-biometrics checks for TC-W-057/080/081 come with 6.7. The script is not run by CI (`.github/**` and `scripts/**` are S's):
   S can add it to the workflow. detekt excludes only `src/test`, so `testDebug` needs a `@Suppress("FunctionNaming")`.
+
+## 2026-10-12 - 3.8 follow-up: drop the detekt suppression
+
+- Issue and PR: #49 (follow-up), branch `claude/watch-drop-suppress`
+- Changed: removed `@Suppress("FunctionNaming")` from `DebugLoggingTest`, since the detekt config now skips `src/testDebug`.
+- Validation: `scripts/require-gate.sh G0` exit 0; `./gradlew check` BUILD SUCCESSFUL locally.
+- Open items: none.

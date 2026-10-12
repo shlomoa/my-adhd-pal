@@ -8,8 +8,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-// detekt only excludes src/test by default; test names embed the case id in backticks.
-@Suppress("FunctionNaming")
 class DebugLoggingTest {
     @After
     fun reset() {
