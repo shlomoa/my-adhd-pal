@@ -81,7 +81,8 @@ installation on your machine ... matching: {languageVersion=21 ...}*.
    step 9 and section 6, and Device Manager does not use Gradle, so you can skip this step if the field is blank or
    locked). Make sure the project is open (not the Welcome screen) and no sync or indexing is running, then open
    **File > Settings > Build, Execution, Deployment > Build Tools > Gradle**. Set **Gradle JDK** to the Temurin
-   21 entry. If it is not listed, choose **Add JDK from disk** and select the install folder, usually
+   21 entry. If the field shows nothing, close the Settings dialog and open it again: Android Studio sometimes
+   displays the field blank until the dialog is reopened. If it is not listed, choose **Add JDK from disk** and select the install folder, usually
    `C:\Program Files\Eclipse Adoptium\jdk-21...`. Click OK.
 6. If Android Studio offers to install missing SDK pieces (the project needs **Android SDK platform 37**), accept.
    You can also install it in **Tools > SDK Manager > SDK Platforms**.
