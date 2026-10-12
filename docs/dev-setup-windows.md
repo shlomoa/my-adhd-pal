@@ -44,16 +44,29 @@ installation on your machine ... matching: {languageVersion=21 ...}*.
    winget install EclipseAdoptium.Temurin.21.JDK
    ```
 
-   If `winget` is not available, download the **Temurin 21 JDK** `.msi` from adoptium.net and enable the options that
-   set `JAVA_HOME` and add Java to `PATH`.
-2. Close PowerShell, open a new one, and check:
+   `winget` installs without asking anything. If it is not available, download the **Temurin 21 JDK** `.msi` from
+   adoptium.net and run it with the defaults. Do not count on the installer setting `JAVA_HOME` or `PATH` for you:
+   step 2 checks, and step 3 sets them by hand if they are missing.
+2. Find the install folder. In PowerShell:
 
    ```powershell
+   Get-ChildItem "C:\Program Files\Eclipse Adoptium"
+   ```
+
+   There is a folder such as `jdk-21.0.5.11-hotspot`. Use its full path below as `JDK21`. (If the folder does not
+   exist, look under `C:\Program Files\Java` or `C:\Program Files\Microsoft` and tell me what you find.)
+3. Make Java 21 available to the command line:
+
+   ```powershell
+   $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-21.0.5.11-hotspot"   # use your folder
+   $env:Path = "$env:JAVA_HOME\bin;$env:Path"
    java -version
    ```
 
-   It must report version 21. `where java` shows where it is installed.
-3. Clone and open the repository:
+   `java -version` must report version 21. That change lasts only for this PowerShell window. To make it permanent,
+   open *Edit the system environment variables > Environment Variables*, add a user variable `JAVA_HOME` with the
+   folder path, and add `%JAVA_HOME%\bin` to the user `Path`. Open a new PowerShell afterwards and check again.
+4. Clone and open the repository:
 
    ```powershell
    git clone https://github.com/shlomoa/my-adhd-pal.git
@@ -61,15 +74,15 @@ installation on your machine ... matching: {languageVersion=21 ...}*.
 
    In Android Studio choose **Open** and select the `my-adhd-pal` folder. If you cloned it earlier, stay on whichever
    branch is checked out: sections 3 to 5 do not depend on the branch.
-4. Open **File > Settings > Build, Execution, Deployment > Build Tools > Gradle**. Set **Gradle JDK** to the Temurin
+5. Open **File > Settings > Build, Execution, Deployment > Build Tools > Gradle**. Set **Gradle JDK** to the Temurin
    21 entry. If it is not listed, choose **Add JDK from disk** and select the install folder, usually
    `C:\Program Files\Eclipse Adoptium\jdk-21...`. Click OK.
-5. If Android Studio offers to install missing SDK pieces (the project needs **Android SDK platform 37**), accept.
+6. If Android Studio offers to install missing SDK pieces (the project needs **Android SDK platform 37**), accept.
    You can also install it in **Tools > SDK Manager > SDK Platforms**.
-6. Run **File > Sync Project with Gradle Files**.
-7. If the sync still reports no matching Java installation, open the **Terminal** tab, run `.\gradlew.bat --stop`,
+7. Run **File > Sync Project with Gradle Files**.
+8. If the sync still reports no matching Java installation, open the **Terminal** tab, run `.\gradlew.bat --stop`,
    restart Android Studio and sync again.
-8. Check the setup in the Terminal tab:
+9. Check the setup in the Terminal tab:
 
    ```powershell
    .\gradlew.bat :protocol:test
@@ -249,8 +262,9 @@ discarded once the results are recorded in the protocol document.
 
 | Symptom | Cause and fix |
 |---|---|
-| Sync fails: *Cannot find a Java installation ... languageVersion=21 ... Toolchain download repositories have not been configured* | No JDK 21 found. Install Temurin 21 and set Gradle JDK (section 3). |
-| `java -version` is not 21 in the terminal | Open a new PowerShell after the install; check `where java`; make sure the Temurin entry is first in `PATH`. |
+| Sync fails: *Cannot find a Java installation ... languageVersion=21 ... Toolchain download repositories have not been configured* | No JDK 21 found. Install Temurin 21 and set Gradle JDK (section 3, steps 1 and 5). |
+| `java -version` is not 21, or `java` is not found | Set `JAVA_HOME` and `Path` by hand (section 3, step 3). The installer does not always do it. |
+| `.\gradlew.bat` says *JAVA_HOME is not set and no java command could be found* | Same fix: section 3, step 3, in the PowerShell window you are using. |
 | `adb` is not recognized | Add the SDK `platform-tools` folder to `PATH` for this window (section 6.1, step 3). |
 | Emulator is very slow or refuses to start | Virtualization is off. Section 2. |
 | No Spike icon on the emulators | You built a branch other than `claude/shared-0b2a-spike`. Check out the spike branch, rebuild, reinstall. |
