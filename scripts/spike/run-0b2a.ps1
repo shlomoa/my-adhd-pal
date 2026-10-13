@@ -71,6 +71,9 @@ $Optional = @('C4')
 $script:CaseTag = 'setup'
 $script:Components = @{}
 $script:Role = @{}
+# Serials of emulators that are stopped on purpose (C5). adb calls with -s <serial> to a dead emulator can block, so
+# nothing is sent to them while they are away.
+$script:Away = @()
 
 function Sleep-Settle([double]$Seconds) { Start-Sleep -Milliseconds ([int]($Seconds * $SettleScale * 1000)) }
 function Sleep-Poll { Start-Sleep -Milliseconds ([int]($PollSec * 1000)) }
@@ -144,6 +147,7 @@ function Get-SpikeLog {
 
 function Save-CaseLogs {
     foreach ($serial in @($Phone, $Watch)) {
+        if ($script:Away -contains $serial) { continue }
         $name = "{0}-{1}.log" -f $Role[$serial], $script:CaseTag
         $lines = @(Get-SpikeLog $serial | ForEach-Object { Remove-Sensitive $_ })
         $lines | Out-File -Encoding utf8 -FilePath (Join-Path $OutDir $name)
@@ -151,7 +155,10 @@ function Save-CaseLogs {
 }
 
 function Clear-Logs {
-    foreach ($serial in @($Phone, $Watch)) { Invoke-Adb $serial @('logcat', '-c') | Out-Null }
+    foreach ($serial in @($Phone, $Watch)) {
+        if ($script:Away -contains $serial) { continue }
+        Invoke-Adb $serial @('logcat', '-c') | Out-Null
+    }
 }
 
 function Wait-Spike {
@@ -523,7 +530,7 @@ Wake-Apps
 # ---------------------------------------------------------------------------------------------------------------------
 # C5 disconnect and reconnect: stop one emulator, send from the other, restart it, do nothing else
 # ---------------------------------------------------------------------------------------------------------------------
-function Test-Away {
+function Test-AwayCore {
     param([string]$Case, [string]$AwaySerial, [string]$SenderSerial, [string]$AvdGiven)
     $script:CaseTag = $Case
     $exe = Resolve-EmulatorExe
@@ -535,6 +542,7 @@ function Test-Away {
     Invoke-Adb $AwaySerial @('emu', 'kill') ([math]::Min(15, $AdbTimeoutSec)) | Out-Null
     Write-Info "$Case : waiting for $AwaySerial to go offline (up to 90s)"
     if (-not (Wait-DeviceGone $AwaySerial 90)) { Set-Result $Case 'NOT RUN' "$AwaySerial did not go offline after 'adb emu kill'"; return }
+    $script:Away = @($AwaySerial)
     Clear-Logs
     $ids = @{}
     foreach ($kind in @('del', 'keep')) {
@@ -555,6 +563,7 @@ function Test-Away {
         Sleep-Poll
     }
     if (-not $up) { Set-Result $Case 'FAIL' "$AwaySerial did not finish booting within ${BootTimeoutSec}s"; return }
+    $script:Away = @()
     $bootedAt = Get-Date
     Write-Info "$Case : booted; waiting up to ${ReconnectTimeoutSec}s for the items (the script does nothing else)"
     $recvDel = Wait-Spike $AwaySerial ("RECV path=/spike/del/{0} from=" -f $ids['del']) $ReconnectTimeoutSec
@@ -573,6 +582,10 @@ function Test-Away {
     } else {
         Set-Result $Case 'FAIL' "no item arrived within ${ReconnectTimeoutSec}s after boot; the link did not recover on its own"
     }
+}
+function Test-Away {
+    param([string]$Case, [string]$AwaySerial, [string]$SenderSerial, [string]$AvdGiven)
+    try { Test-AwayCore $Case $AwaySerial $SenderSerial $AvdGiven } finally { $script:Away = @() }
 }
 if ($SkipC5) {
     Set-Result 'C5-watch-away' 'NOT RUN' '-SkipC5'

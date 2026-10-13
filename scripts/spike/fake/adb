@@ -73,6 +73,11 @@ deliver_pending() { # serial just came online / was started; works on a snapshot
   done < "$snap"
   rm -f "$snap"
 }
+# Real adb blocks on a dead emulator serial. Record every such call so tests can assert the runner makes none.
+if [ -n "$serial" ] && [ "$cmd" != "__boot" ] && ! online "$serial"; then
+  echo "$serial $cmd $*" >> "$D/offline-calls"
+  sleep 20; echo "error: device '$serial' not found" >&2; exit 1
+fi
 case "$cmd" in
   devices)
     echo "List of devices attached"

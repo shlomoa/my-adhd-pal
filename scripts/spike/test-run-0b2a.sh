@@ -45,6 +45,7 @@ has 'clock skew watch-minus-phone -1[0-9]{3} ms' ; check "report: clock skew mea
 has '^C2 PASS' ; check "report: C2 PASS (C2a and C2b)" 0 $?
 has 'C3 swipe-away \(am kill\) PASS, force-stop PASS' ; check "report: C3 both variants PASS" 0 $?
 has 'C5 watch-away PASS .*phone-away PASS' ; check "report: C5 both directions PASS" 0 $?
+[ ! -s "$tmp/state/offline-calls" ]; check "the runner never calls adb -s <serial> on an emulator that is away (those calls hang)" 0 $?
 has '^C4 \(optional, not gating\) PASS.*median' ; check "report: C4 round trips with medians" 0 $?
 has 'sdk_gphone16k_x86_64 API 36' ; check "report: image name and API level" 0 $?
 b="$(branch)"; [ -n "$b" ] && [ "${b#spike-results/0b2a-}" != "$b" ]; check "results branch spike-results/0b2a-<timestamp> was pushed" 0 $?
