@@ -7,6 +7,7 @@
 #   stoppedwake  a force-stopped app is not woken by the Data Layer
 #   norecover    queued items are never delivered after a restart
 #   nopong       pings are never answered (C4 fails)
+#   emuhang      'adb emu kill' kills the emulator but the client never returns (seen on real emulators)
 # FAKE_LEAK=1 adds a log line with an e-mail address and a token, to prove they are stripped from published results.
 set -u
 D="${FAKE_DIR:?FAKE_DIR must point at the simulation state folder}"
@@ -84,7 +85,7 @@ case "$cmd" in
     esac;;
   emu)
     case "$1" in
-      kill) rm -f "$D/$serial.online"; set_state "$serial" dead; : > "$D/$serial.log"; echo "OK: killing emulator, bye bye";;
+      kill) rm -f "$D/$serial.online"; set_state "$serial" dead; : > "$D/$serial.log"; echo "OK: killing emulator, bye bye"; fails emuhang && sleep 20;;
       avd) [ "$2" = name ] && printf '%s\r\nOK\r\n' "AVD_$(role_of "$serial")";;
     esac;;
   shell)

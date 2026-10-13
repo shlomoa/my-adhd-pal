@@ -41,6 +41,8 @@ param(
     [int]$DeletionRepeats = 3,
     [int]$DeletionSettleSec = 45,
     [int]$DelayedDeleteMs = 6000,
+    # Hard limit for every adb client call; a client that does not return is killed (adb emu kill hangs once the emulator dies).
+    [int]$AdbTimeoutSec = 30,
     [double]$PollSec = 2,
     # Scales the fixed settle delays (1 = real emulators; tests use 0).
     [double]$SettleScale = 1,
@@ -81,14 +83,53 @@ function Remove-Sensitive([string]$Text) {
     return $t
 }
 
+$AdbCommand = Get-Command adb -ErrorAction SilentlyContinue
+if (-not $AdbCommand) { throw 'adb was not found on PATH.' }
+$script:AdbPath = $AdbCommand.Source
+$script:AdbExit = 0
+$script:AdbTimedOut = $false
+
+function ConvertTo-ArgString([string[]]$Items) {
+    $parts = foreach ($a in $Items) {
+        if ($a -match '[\s"]') { '"' + ($a -replace '"', '\"') + '"' } else { $a }
+    }
+    return ($parts -join ' ')
+}
+
+# Runs one adb client with a hard timeout. A client that does not return is killed (only that client) and
+# $script:AdbTimedOut is set; whatever it printed so far is returned. Output lines are returned without empty lines.
 function Invoke-Adb {
-    param([string]$Serial, [string[]]$AdbArgs)
+    param([string]$Serial, [string[]]$AdbArgs, [int]$TimeoutSec = 0)
+    if ($TimeoutSec -le 0) { $TimeoutSec = $AdbTimeoutSec }
     $all = @()
     if ($Serial) { $all += @('-s', $Serial) }
     $all += $AdbArgs
-    $out = & adb @all 2>&1
-    $script:AdbExit = $LASTEXITCODE
-    return @($out | ForEach-Object { ("$_").TrimEnd("`r", "`n") })
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $script:AdbPath
+    $psi.Arguments = ConvertTo-ArgString $all
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.CreateNoWindow = $true
+    $proc = [System.Diagnostics.Process]::Start($psi)
+    $outTask = $proc.StandardOutput.ReadToEndAsync()
+    $errTask = $proc.StandardError.ReadToEndAsync()
+    $script:AdbTimedOut = $false
+    if ($proc.WaitForExit($TimeoutSec * 1000)) {
+        $script:AdbExit = $proc.ExitCode
+    } else {
+        $script:AdbTimedOut = $true
+        $script:AdbExit = -1
+        Write-Info ("adb call timed out after ${TimeoutSec}s, killing that adb client: adb " + $psi.Arguments)
+        try { $proc.Kill() } catch { Write-Verbose "kill failed: $_" }
+        [void]$proc.WaitForExit(2000)
+    }
+    $text = ''
+    foreach ($task in @($outTask, $errTask)) {
+        # a child that inherited the pipe could keep it open, so never wait for end-of-stream indefinitely
+        if ($task.Wait(2000)) { $text += $task.Result + "`n" }
+    }
+    return @($text -split "`r?`n" | Where-Object { $_ -ne '' })
 }
 
 function Get-SpikeLog {
@@ -307,13 +348,13 @@ if (-not $SkipBuild) {
     try {
         $gradle = Join-Path $RepoRoot 'gradlew.bat'
         if (-not (Test-Path $gradle)) { $gradle = Join-Path $RepoRoot 'gradlew' }
-        & $gradle ':phone:assembleDebug' ':wear:assembleDebug' 2>&1 | ForEach-Object { Write-Verbose "$_" }
+        & $gradle ':phone:assembleDebug' ':wear:assembleDebug' 2>&1 | ForEach-Object { if ("$_" -match '^(> Task|> Configure|BUILD|FAILURE|e: )') { Write-Host "  gradle: $_" } }
         if ($LASTEXITCODE -ne 0) { throw "Gradle build failed (exit $LASTEXITCODE). Run it by hand to see the errors." }
     } finally { Pop-Location }
     $apks = @{ $Phone = 'phone/build/outputs/apk/debug/phone-debug.apk'; $Watch = 'wear/build/outputs/apk/debug/wear-debug.apk' }
     foreach ($serial in @($Phone, $Watch)) {
         $apk = Join-Path $RepoRoot $apks[$serial]
-        $out = Invoke-Adb $serial @('install', '-r', $apk)
+        $out = Invoke-Adb $serial @('install', '-r', $apk) 240
         if (($out -join ' ') -notmatch 'Success') { throw "Installing $apk on $serial failed: $($out -join ' ')" }
         Write-Info "Installed $($apks[$serial]) on $serial"
     }
@@ -491,7 +532,8 @@ function Test-Away {
     if (-not $avd) { Set-Result $Case 'NOT RUN' "cannot read the AVD name of $AwaySerial (pass -PhoneAvd / -WatchAvd)"; return }
     $port = ($AwaySerial -replace '^emulator-', '')
     Write-Info "$Case : stopping $($Role[$AwaySerial]) emulator ($avd)"
-    Invoke-Adb $AwaySerial @('emu', 'kill') | Out-Null
+    Invoke-Adb $AwaySerial @('emu', 'kill') ([math]::Min(15, $AdbTimeoutSec)) | Out-Null
+    Write-Info "$Case : waiting for $AwaySerial to go offline (up to 90s)"
     if (-not (Wait-DeviceGone $AwaySerial 90)) { Set-Result $Case 'NOT RUN' "$AwaySerial did not go offline after 'adb emu kill'"; return }
     Clear-Logs
     $ids = @{}
@@ -504,6 +546,7 @@ function Test-Away {
     Write-Info "$Case : sent while away; sender reports: $nodes"
     Write-Info "$Case : starting $($Role[$AwaySerial]) emulator again (normal boot)"
     Start-Process -FilePath $exe -ArgumentList @('-avd', $avd, '-port', $port) | Out-Null
+    Write-Info "$Case : waiting for $AwaySerial to boot (up to ${BootTimeoutSec}s)"
     $bootDeadline = (Get-Date).AddSeconds($BootTimeoutSec)
     $up = $false
     while ((Get-Date) -lt $bootDeadline) {

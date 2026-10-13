@@ -74,6 +74,13 @@ has 'arrived only after the app was opened' ; check "report: says it arrived onl
 run no-recover "norecover"; check "link does not recover after restart: exit 1" 1 $rc
 has 'C5 watch-away FAIL' ; check "report: C5 watch-away FAIL" 0 $?
 
+# adb emu kill never returns (real-run bug): the runner must time that client out and carry on
+start=$SECONDS
+run emu-hang "emuhang" -AdbTimeoutSec 3; check "adb emu kill hangs: the run still completes and passes (exit 0)" 0 $rc
+has 'adb call timed out after 3s' ; check "the hung adb client is reported and killed" 0 $?
+has 'C5 watch-away PASS .*phone-away PASS' ; check "C5 both directions still PASS after the hung client was killed" 0 $?
+[ $(( SECONDS - start )) -lt 100 ]; check "and it does not wait for the hung client (bounded run time)" 0 $?
+
 run c4-optional "nopong"; check "C4 failure is not gating: exit 0" 0 $rc
 has '^C4 \(optional, not gating\) FAIL' ; check "report: C4 FAIL is shown" 0 $?
 
