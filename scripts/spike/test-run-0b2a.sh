@@ -59,6 +59,20 @@ git -C "$tmp/origin.git" grep -q -e '<redacted-email>' "$b" -- docs/spikes/resul
 [ "$(cat "$tmp/repo/docs/base.md")" = "uncommitted work" ] && [ -z "$(git -C "$tmp/repo" status --porcelain --untracked-files=no | grep -v 'docs/base.md')" ]; check "uncommitted files are untouched" 0 $?
 [ -z "$(git -C "$tmp/repo" worktree list | grep -v "$tmp/repo ")" ]; check "the temporary worktree is removed" 0 $?
 
+# --- -OnlyCases: just C5 and C2b (the comma list arrives as ONE string through pwsh -File); C2b makes its own items
+run only-c5-c2b "" -OnlyCases C5,C2b; check "-OnlyCases C5,C2b: exit 0" 0 $rc
+has 'C2b: creating the DEL and KEEP items it needs' ; check "-OnlyCases: C2b creates the DEL and KEEP items itself" 0 $?
+has 'C5 watch-away PASS .*phone-away PASS' ; check "-OnlyCases: C5 both directions PASS" 0 $?
+has 'C2b: PASS' ; check "-OnlyCases: C2b PASS using its own items" 0 $?
+has '^C1 NOT SELECTED' ; check "-OnlyCases: unselected cases are reported NOT SELECTED" 0 $?
+b="$(branch)"; [ "${b#spike-results/0b2a-}" != "$b" ] && [ "${b%-C5-C2b}" != "$b" ]; check "-OnlyCases: the results branch name ends with the selected cases (-C5-C2b)" 0 $?
+git -C "$tmp/origin.git" diff-tree --no-commit-id --name-only -r "$b" 2>/dev/null | grep -q 'phone-C2prep.log'; check "-OnlyCases: the commit contains the preparation logs" 0 $?
+run only-c3 "" -OnlyCases C3; check "-OnlyCases C3: exit 0" 0 $rc
+! has 'stopping (phone|watch) emulator' ; check "-OnlyCases C3: no emulator is stopped (C5 not run)" 0 $?
+has 'C5 watch-away NOT SELECTED' ; check "-OnlyCases C3: C5 is reported NOT SELECTED" 0 $?
+run only-bad "" -OnlyCases C9; [ "$rc" -ne 0 ]; check "-OnlyCases with an unknown case: non-zero exit" 0 $?
+has "Unknown case 'C9'" ; check "-OnlyCases: the unknown case is named" 0 $?
+
 # --- deletion asymmetry is detected and named
 run asym "asym"; check "asymmetric deletion: exit 1" 1 $rc
 has '^C1b deletion symmetry FAIL' ; check "report: C1b FAIL" 0 $?

@@ -15,6 +15,9 @@
   reappear after the reconnect; C3 phone listener wakes with the app closed (kill, force-stop); C5 stop one emulator,
   send, restart it, both directions; C4 (optional, not gating) urgent versus non-urgent round trips on one clock.
 
+  -OnlyCases C5,C2b runs just those cases (C2b creates its own DEL and KEEP items) and publishes under a distinct
+  branch name spike-results/0b2a-<timestamp>-C5-C2b.
+
   Exit code: 0 all gating cases PASS, 1 at least one gating case FAILED, 2 no FAIL but a gating case was NOT RUN.
 
 .EXAMPLE
@@ -49,7 +52,9 @@ param(
     [switch]$SkipBuild,
     [switch]$SkipC4,
     [switch]$SkipC5,
-    [switch]$SkipPush
+    [switch]$SkipPush,
+    # Run only these cases, e.g. -OnlyCases C5,C2b. Names: C1, C1b, C2a, C2b, C3, C4, C5. Others are reported NOT SELECTED.
+    [string[]]$OnlyCases = @()
 )
 
 Set-StrictMode -Version 2
@@ -62,7 +67,13 @@ $Stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $RepoRoot = ((& git -C $PSScriptRoot rev-parse --show-toplevel 2>$null) -join '').Trim()
 if (-not $RepoRoot) { throw 'This script must run from a checkout of the repository (git rev-parse failed).' }
 if (-not $ResultsRoot) { $ResultsRoot = Join-Path $RepoRoot 'docs/spikes/results' }
+# `powershell -File run-0b2a.ps1 -OnlyCases C5,C2b` passes the list as ONE string, so split on commas ourselves.
+$OnlyCases = @($OnlyCases | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+$ValidCases = @('C1', 'C1b', 'C2a', 'C2b', 'C3', 'C4', 'C5')
+foreach ($name in $OnlyCases) { if ($ValidCases -notcontains $name) { throw "Unknown case '$name' in -OnlyCases. Valid: $($ValidCases -join ', ')" } }
 $RunName = "0b2a-$Stamp"
+if ($OnlyCases.Count -gt 0) { $RunName = "0b2a-$Stamp-" + ($OnlyCases -join '-') }
+function Test-Selected([string]$Name) { return ($OnlyCases.Count -eq 0 -or $OnlyCases -contains $Name) }
 $OutDir = Join-Path $ResultsRoot $RunName
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
@@ -402,6 +413,7 @@ $KeepId = $null
 # ---------------------------------------------------------------------------------------------------------------------
 # C1 items cross the pairing in both directions; DEL items are deleted and the deletion reaches the sender
 # ---------------------------------------------------------------------------------------------------------------------
+if (Test-Selected 'C1') {
 $script:CaseTag = 'C1'
 Clear-Logs
 $c1 = @{}
@@ -419,10 +431,12 @@ foreach ($leg in @(@{ From = $Watch; To = $Phone; Name = 'watch->phone' }, @{ Fr
 Save-CaseLogs
 $delays = "delayMs watch->phone {0} / phone->watch {1} (clock-skew contaminated, NOT delivery delays)" -f $c1['watch->phone'], $c1['phone->watch']
 if ($c1Fail.Count -eq 0) { Set-Result 'C1' 'PASS' $delays } else { Set-Result 'C1' 'FAIL' (($c1Fail -join '; ') + '; ' + $delays) }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # C1b deletion symmetry: both directions, immediate and delayed deletes, repeated; settle; list on both sides
 # ---------------------------------------------------------------------------------------------------------------------
+if (Test-Selected 'C1b') {
 $script:CaseTag = 'C1b'
 Clear-Logs
 $groups = @()
@@ -465,10 +479,12 @@ Save-CaseLogs
 $skewText = 'not measured'; if ($null -ne $SkewMs) { $skewText = "$SkewMs ms" }
 $c1bText = "clock skew watch-minus-phone $skewText | " + ($rows -join ' | ')
 if ($c1bFail.Count -eq 0) { Set-Result 'C1b' 'PASS' $c1bText } else { Set-Result 'C1b' 'FAIL' (($c1bFail -join '; ') + ' | ' + $c1bText) }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # C2a a KEEP item stays on both devices (C2b, after the reconnect in C5, checks the DEL items did not reappear)
 # ---------------------------------------------------------------------------------------------------------------------
+if (Test-Selected 'C2a') {
 $script:CaseTag = 'C2a'
 Clear-Logs
 $KeepId = Send-Item $Watch 'keep' $true
@@ -484,10 +500,12 @@ else {
 }
 Save-CaseLogs
 if ($c2Fail.Count -eq 0) { Set-Result 'C2a' 'PASS' 'KEEP item listed on both devices' } else { Set-Result 'C2a' 'FAIL' ($c2Fail -join '; ') }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # C3 the phone's listener wakes with its app closed (a: background process killed, b: force-stopped)
 # ---------------------------------------------------------------------------------------------------------------------
+if (Test-Selected 'C3') {
 function Test-ClosedApp {
     param([string]$Case, [string]$How)
     $script:CaseTag = $Case
@@ -526,10 +544,32 @@ Test-ClosedApp 'C3a' 'kill'
 Wake-Apps
 Test-ClosedApp 'C3b' 'force-stop'
 Wake-Apps
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # C5 disconnect and reconnect: stop one emulator, send from the other, restart it, do nothing else
 # ---------------------------------------------------------------------------------------------------------------------
+# C2b needs a DEL item that was deleted and a KEEP item that exist BEFORE the reconnect; create them here when the cases
+# that normally create them (C1, C2a) did not run in this invocation.
+if ((Test-Selected 'C2b') -and ($DelIds.Count -eq 0 -or -not $KeepId)) {
+    $script:CaseTag = 'C2prep'
+    Write-Info 'C2b: creating the DEL and KEEP items it needs before the reconnect'
+    Clear-Logs
+    if ($DelIds.Count -eq 0) {
+        $prepDel = Send-Item $Watch 'del' $true
+        if ($prepDel) {
+            [void]$DelIds.Add($prepDel)
+            [void](Wait-Spike $Phone ("DELETE-OK path=/spike/del/{0}" -f $prepDel) $WaitSec)
+        }
+    }
+    if (-not $KeepId) {
+        $KeepId = Send-Item $Watch 'keep' $true
+        if ($KeepId) { [void](Wait-Spike $Phone ("RECV path=/spike/keep/{0} from=" -f $KeepId) $WaitSec) }
+    }
+    Save-CaseLogs
+}
+
+if (Test-Selected 'C5') {
 function Test-AwayCore {
     param([string]$Case, [string]$AwaySerial, [string]$SenderSerial, [string]$AvdGiven)
     $script:CaseTag = $Case
@@ -595,10 +635,12 @@ if ($SkipC5) {
     Sleep-Settle 5
     Test-Away 'C5-phone-away' $Phone $Watch $PhoneAvd
 }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # C2b after the reconnect: the DEL items must not reappear, the KEEP item must still be there
 # ---------------------------------------------------------------------------------------------------------------------
+if (Test-Selected 'C2b') {
 $script:CaseTag = 'C2b'
 if ($SkipC5 -or -not $Results.Contains('C5-phone-away') -or $Results['C5-phone-away'].Status -eq 'NOT RUN') {
     Set-Result 'C2b' 'NOT RUN' 'needs the reconnect from C5'
@@ -615,10 +657,12 @@ if ($SkipC5 -or -not $Results.Contains('C5-phone-away') -or $Results['C5-phone-a
     Save-CaseLogs
     if ($c2bFail.Count -eq 0) { Set-Result 'C2b' 'PASS' 'DEL items did not reappear; the KEEP item is still stored on both devices' } else { Set-Result 'C2b' 'FAIL' ($c2bFail -join '; ') }
 }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # C4 (optional, not gating) urgent versus non-urgent: round trips on the sender's own clock
 # ---------------------------------------------------------------------------------------------------------------------
+if (Test-Selected 'C4') {
 function Invoke-Ping {
     param([string]$From, [bool]$Urgent, [int]$TimeoutSec)
     $pingPattern = 'PING path=/spike/ping/(\S+) urgent='
@@ -667,14 +711,19 @@ if ($SkipC4) {
     $c4Text = 'round trips on the sender clock: ' + ($parts -join ' | ')
     if ($c4Fail.Count -eq 0) { Set-Result 'C4' 'PASS' $c4Text } else { Set-Result 'C4' 'FAIL' (($c4Fail -join '; ') + '; ' + $c4Text) }
 }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Report (shape of docs/dev-setup-windows.md 6.4)
 # ---------------------------------------------------------------------------------------------------------------------
-function Get-Status([string]$Case) { if ($Results.Contains($Case)) { return $Results[$Case].Status } else { return 'NOT RUN' } }
+function Get-Status([string]$Case) {
+    if ($Results.Contains($Case)) { return $Results[$Case].Status }
+    if ($OnlyCases.Count -gt 0) { return 'NOT SELECTED' }
+    return 'NOT RUN'
+}
 function Get-Detail([string]$Case) { if ($Results.Contains($Case)) { return $Results[$Case].Detail } else { return '' } }
 $c2Status = 'PASS'
-foreach ($c in @('C2a', 'C2b')) { if ((Get-Status $c) -eq 'FAIL') { $c2Status = 'FAIL' } elseif ((Get-Status $c) -eq 'NOT RUN' -and $c2Status -eq 'PASS') { $c2Status = 'PARTIAL (' + $c + ' not run)' } }
+foreach ($c in @('C2a', 'C2b')) { if ((Get-Status $c) -eq 'FAIL') { $c2Status = 'FAIL' } elseif (((Get-Status $c) -eq 'NOT RUN' -or (Get-Status $c) -eq 'NOT SELECTED') -and $c2Status -eq 'PASS') { $c2Status = 'PARTIAL (' + $c + ' not run)' } }
 $os = [System.Environment]::OSVersion.VersionString
 $report = @()
 $report += "Spike 0b.2a results $Stamp (commit $((& git -C $RepoRoot rev-parse --short HEAD 2>$null) -join ''))"
