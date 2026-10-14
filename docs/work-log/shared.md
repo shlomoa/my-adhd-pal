@@ -74,3 +74,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/protocol.md` gains the item catalog, item format (keys, bodies, limits), versioning policy and the five link states; `:protocol` gets `Paths` (builders and parser, ids are lower-case canonical UUIDs), `ItemKeys`, `Protocol` (major 1, version `1.0`), `Limits`, the models (`Schedule`, `Prompt`, `Acknowledgement`, `Selection`, `Alert`, `Hello`, `BiometricSamples`) that validate their limits on construction, and `Codec` (kotlinx.serialization 1.11.0 with the serialization compiler plugin; `decode` never throws and returns `DecodeResult.Failure` for unknown paths, bad bodies and out-of-limit content); `scripts/test/test-protocol-spec.sh` (TC-S-040, TC-S-041) runs in the `script-tests` CI job.
 - Validation: tests written first and red (`shared-baseline.md`); then `:protocol:test` green (TC-S-042..055) and the spec script green; doc lint green.
 - Open items: 1.4 to 1.8 (compatibility, link state, schedule logic, fake transport, diagrams) need G-DEC; the Watch and Android adapters (`DataMap` to `Envelope`) are their lanes' work.
+
+## 2026-10-14 - 1.6 Schedule logic
+
+- Issue and PR: #32; PR linked from the coordinator message.
+- Changed: `ScheduleLogic` in `:protocol` (`nextReminder`, `nextCheckpoint`, `snooze`, `shouldApply`) with `ReminderOccurrence`, `CheckpointOccurrence`, `SnoozeResult`, `SnoozeDenial`; a "Schedule logic" section in `docs/protocol.md` (strictly-after rule, selected days, daylight-saving and time-zone rules, snooze cap and expiry, newer-version rule).
+- Validation: TC-S-067..071 written first and red (`shared-baseline.md`), then green with a fixed clock, including a spring-forward day, a fall-back day and a time-zone change; `./gradlew check` and doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.7 and 1.8a.

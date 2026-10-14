@@ -67,6 +67,23 @@ compatible; a receiver ignores fields and paths it does not know. A change that 
 the major version. A receiver ignores items whose major version it does not support and shows Incompatible. There is no
 negotiation, request or reply. The compatibility function is added in step 1.4.
 
+## Schedule logic
+
+Pure functions in `:protocol` (`ScheduleLogic`), given the current instant and a time zone, so tests use a fixed clock.
+
+- **Next reminder / next checkpoint:** the first occurrence strictly after now. Reminder times are wall-clock times in the
+  device's time zone on the selected days (1 = Monday to 7 = Sunday); checkpoints repeat every day. With no reminders
+  (or checkpoints) there is none. Ties go to the earlier list entry. A checkpoint after the last one of the day is the
+  first one after midnight.
+- **Daylight-saving change:** a time in the skipped hour of a spring-forward day fires at the first valid time after the
+  gap (02:30 becomes 03:30); a time in the repeated hour of a fall-back day fires once, at its first occurrence. A
+  time-zone change recomputes the next occurrence on the new wall clock.
+- **Snooze:** moves the reminder to now plus `snooze.minutes`, counting snoozes used for this occurrence. It is denied at
+  the cap (`snoozeCount` has reached `snooze.maxCount`; 0 turns snoozing off) and, when the occurrence expires, if the
+  new time would be at or after the expiry. The cap is reported first.
+- **Newer version:** a schedule applies only if its `version` is greater than the one in use (or none is in use); equal and
+  older versions are ignored.
+
 ## Link states
 
 The phone shows one of five states for the watch link. The function that derives it from the connected nodes, the app

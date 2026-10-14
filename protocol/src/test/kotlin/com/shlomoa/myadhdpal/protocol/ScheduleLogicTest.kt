@@ -17,7 +17,9 @@ class ScheduleLogicTest {
 
     private fun at(zone: ZoneId, text: String): Instant = LocalDateTime.parse(text).atZone(zone).toInstant()
 
-    private fun local(instant: Instant?, zone: ZoneId): String? = instant?.let { ZonedDateTime.ofInstant(it, zone).toLocalDateTime().toString() }
+    private fun local(instant: Instant?, zone: ZoneId): String? = instant?.let {
+        ZonedDateTime.ofInstant(it, zone).toLocalDateTime().toString()
+    }
 
     private fun schedule(
         reminders: List<Reminder> = emptyList(),
@@ -31,10 +33,19 @@ class ScheduleLogicTest {
     @Test
     fun `TC-S-067 next reminder is the first one strictly after now`() {
         val s = schedule(listOf(reminder("a", 8 * 60, weekdays), reminder("b", 20 * 60, weekdays)))
-        assertEquals("2026-10-12T08:00", local(ScheduleLogic.nextReminder(s, at(utc, "2026-10-12T07:00:00"), utc)?.at, utc))
-        assertEquals("2026-10-12T20:00", local(ScheduleLogic.nextReminder(s, at(utc, "2026-10-12T08:00:00"), utc)?.at, utc))
+        assertEquals(
+            "2026-10-12T08:00",
+            local(ScheduleLogic.nextReminder(s, at(utc, "2026-10-12T07:00:00"), utc)?.at, utc)
+        )
+        assertEquals(
+            "2026-10-12T20:00",
+            local(ScheduleLogic.nextReminder(s, at(utc, "2026-10-12T08:00:00"), utc)?.at, utc)
+        )
         assertEquals("b", ScheduleLogic.nextReminder(s, at(utc, "2026-10-12T08:00:00"), utc)?.reminder?.id)
-        assertEquals("2026-10-13T08:00", local(ScheduleLogic.nextReminder(s, at(utc, "2026-10-12T20:00:00"), utc)?.at, utc))
+        assertEquals(
+            "2026-10-13T08:00",
+            local(ScheduleLogic.nextReminder(s, at(utc, "2026-10-12T20:00:00"), utc)?.at, utc)
+        )
     }
 
     @Test
@@ -45,9 +56,15 @@ class ScheduleLogicTest {
             assertEquals(now, "2026-10-19T08:00", local(ScheduleLogic.nextReminder(s, at(utc, now), utc)?.at, utc))
         }
         val sundayOnly = schedule(listOf(reminder("s", 9 * 60, listOf(7))))
-        assertEquals("2026-10-18T09:00", local(ScheduleLogic.nextReminder(sundayOnly, at(utc, "2026-10-12T10:00:00"), utc)?.at, utc))
+        assertEquals(
+            "2026-10-18T09:00",
+            local(ScheduleLogic.nextReminder(sundayOnly, at(utc, "2026-10-12T10:00:00"), utc)?.at, utc)
+        )
         // exactly a week ahead
-        assertEquals("2026-10-25T09:00", local(ScheduleLogic.nextReminder(sundayOnly, at(utc, "2026-10-18T09:00:00"), utc)?.at, utc))
+        assertEquals(
+            "2026-10-25T09:00",
+            local(ScheduleLogic.nextReminder(sundayOnly, at(utc, "2026-10-18T09:00:00"), utc)?.at, utc)
+        )
     }
 
     @Test
@@ -62,10 +79,26 @@ class ScheduleLogicTest {
 
     @Test
     fun `TC-S-068 next checkpoint inside the day and across midnight`() {
-        val s = schedule(checkpoints = listOf(Checkpoint("c1", "Midday", 12 * 60), Checkpoint("c2", "Late", 23 * 60 + 30), Checkpoint("c3", "Early", 30)))
-        assertEquals("2026-10-12T00:30", local(ScheduleLogic.nextCheckpoint(s, at(utc, "2026-10-12T00:00:00"), utc)?.at, utc))
-        assertEquals("2026-10-12T12:00", local(ScheduleLogic.nextCheckpoint(s, at(utc, "2026-10-12T00:30:00"), utc)?.at, utc))
-        assertEquals("2026-10-12T23:30", local(ScheduleLogic.nextCheckpoint(s, at(utc, "2026-10-12T12:00:00"), utc)?.at, utc))
+        val s =
+            schedule(
+                checkpoints = listOf(
+                    Checkpoint("c1", "Midday", 12 * 60),
+                    Checkpoint("c2", "Late", 23 * 60 + 30),
+                    Checkpoint("c3", "Early", 30)
+                )
+            )
+        assertEquals(
+            "2026-10-12T00:30",
+            local(ScheduleLogic.nextCheckpoint(s, at(utc, "2026-10-12T00:00:00"), utc)?.at, utc)
+        )
+        assertEquals(
+            "2026-10-12T12:00",
+            local(ScheduleLogic.nextCheckpoint(s, at(utc, "2026-10-12T00:30:00"), utc)?.at, utc)
+        )
+        assertEquals(
+            "2026-10-12T23:30",
+            local(ScheduleLogic.nextCheckpoint(s, at(utc, "2026-10-12T12:00:00"), utc)?.at, utc)
+        )
         // after the last one of the day, the next is the first one after midnight
         val across = ScheduleLogic.nextCheckpoint(s, at(utc, "2026-10-12T23:45:00"), utc)
         assertEquals("2026-10-13T00:30", local(across?.at, utc))
@@ -99,11 +132,23 @@ class ScheduleLogicTest {
     fun `TC-S-069 a snooze that would end at or after the expiry is denied`() {
         val now = Instant.parse("2026-10-12T08:00:00Z")
         val settings = SnoozeSettings(10, 3)
-        assertEquals(SnoozeResult.Until(now.plusSeconds(600), 1), ScheduleLogic.snooze(settings, 0, now, now.plusSeconds(601)))
-        assertEquals(SnoozeResult.Denied(SnoozeDenial.PAST_EXPIRY), ScheduleLogic.snooze(settings, 0, now, now.plusSeconds(600)))
-        assertEquals(SnoozeResult.Denied(SnoozeDenial.PAST_EXPIRY), ScheduleLogic.snooze(settings, 0, now, now.minusSeconds(1)))
+        assertEquals(
+            SnoozeResult.Until(now.plusSeconds(600), 1),
+            ScheduleLogic.snooze(settings, 0, now, now.plusSeconds(601))
+        )
+        assertEquals(
+            SnoozeResult.Denied(SnoozeDenial.PAST_EXPIRY),
+            ScheduleLogic.snooze(settings, 0, now, now.plusSeconds(600))
+        )
+        assertEquals(
+            SnoozeResult.Denied(SnoozeDenial.PAST_EXPIRY),
+            ScheduleLogic.snooze(settings, 0, now, now.minusSeconds(1))
+        )
         // at the cap AND past expiry: the cap is reported first
-        assertEquals(SnoozeResult.Denied(SnoozeDenial.AT_CAP), ScheduleLogic.snooze(settings, 3, now, now.minusSeconds(1)))
+        assertEquals(
+            SnoozeResult.Denied(SnoozeDenial.AT_CAP),
+            ScheduleLogic.snooze(settings, 3, now, now.minusSeconds(1))
+        )
     }
 
     @Test
@@ -117,7 +162,10 @@ class ScheduleLogicTest {
         val after = ScheduleLogic.nextReminder(s, before!!.at, newYork)
         assertEquals("2026-03-09T02:30", local(after?.at, newYork))
         // one day before, a normal day
-        assertEquals("2026-03-07T02:30", local(ScheduleLogic.nextReminder(s, at(newYork, "2026-03-07T00:00:00"), newYork)?.at, newYork))
+        assertEquals(
+            "2026-03-07T02:30",
+            local(ScheduleLogic.nextReminder(s, at(newYork, "2026-03-07T00:00:00"), newYork)?.at, newYork)
+        )
     }
 
     @Test
@@ -136,7 +184,8 @@ class ScheduleLogicTest {
     fun `TC-S-070 a time-zone change recomputes the next reminder on the wall clock`() {
         val s = schedule(listOf(reminder("a", 8 * 60)))
         val now = Instant.parse("2026-06-01T12:00:00Z")
-        // 12:00 UTC is 08:00 in New York (EDT) -> next 08:00 is tomorrow; in Tokyo it is 21:00 -> next 08:00 is tomorrow morning
+        // 12:00 UTC is 08:00 in New York (EDT), so the next 08:00 is tomorrow;
+        // in Tokyo it is 21:00, so the next 08:00 is tomorrow morning
         assertEquals(Instant.parse("2026-06-02T12:00:00Z"), ScheduleLogic.nextReminder(s, now, newYork)?.at)
         assertEquals(Instant.parse("2026-06-01T23:00:00Z"), ScheduleLogic.nextReminder(s, now, tokyo)?.at)
     }
