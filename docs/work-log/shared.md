@@ -89,6 +89,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: TC-S-067..071 written first and red (`shared-baseline.md`), then green with a fixed clock, including a spring-forward day, a fall-back day and a time-zone change; `./gradlew check` and doc lint green.
 - Open items: none for this step; gate G2a is flipped by the last of 1.7 and 1.8a.
 
+## 2026-10-14 - 1.4 Compatibility rule
+
+- Issue and PR: #30; PR linked from the coordinator message.
+- Changed: `Compatibility` (`ofMajor`, `ofHello`), `ProtocolVersion.parse` and `Codec.decodeIfCompatible` in `:protocol`; the versioning policy in `docs/protocol.md` states the rule and the accepted version text (`major.minor[.patch]`, 1 to 4 digits per part).
+- Validation: TC-S-056..059 written first and red (`shared-baseline.md`), then green with `./gradlew check`; doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.6, 1.7, 1.8a.
+
 ## 2026-10-14 - G2 split into G2a and G2b
 
 - Issue and PR: refs #30-#34 (steps 1.4-1.8); PR linked from the coordinator message.
