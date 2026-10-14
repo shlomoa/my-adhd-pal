@@ -97,8 +97,8 @@
       "requires": [
         "G2a"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 104
     },
     {
       "id": "G3",
