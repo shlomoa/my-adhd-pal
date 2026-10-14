@@ -28,7 +28,7 @@ has '^  external-links:' "$wf" && has 'run: \./gradlew checkExternalLinks' "$wf"
 # TC-S-018 the lane test scripts run in CI: the watch lane's debug separation script after the build, ours in their own job
 has 'run: wear/src/test/scripts/test-debug-separation.sh' "$wf"; check "TC-S-018 build job runs the watch debug-separation script" 0 $?
 has '^  script-tests:' "$wf"; check "TC-S-018 a script-tests job exists" 0 $?
-for t in test-structure test-pairing test-checks test-ci test-protocol-spec; do
+for t in test-structure test-pairing test-checks test-ci test-protocol-spec test-gates; do
   has "scripts/test/$t.sh" "$wf"; check "TC-S-018 script-tests runs $t.sh" 0 $?
 done
 

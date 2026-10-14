@@ -86,3 +86,7 @@ jobs:
       - name: Protocol spec and constants
         if: ${{ !cancelled() }}
         run: scripts/test/test-protocol-spec.sh
+
+      - name: Gate graph
+        if: ${{ !cancelled() }}
+        run: scripts/test/test-gates.sh
