@@ -163,3 +163,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   `adb shell am broadcast -n com.shlomoa.myadhdpal/.wear.debug.FireReminderReceiver`, tap Snooze (the notification closes and the
   reminder returns after the snooze minutes of the schedule), tap Start 2 min (after two minutes a calm haptic), tap Done and Dismiss
   (the notification closes). Acknowledgements reach the phone only once the real transport exists (G2b), so the phone side is TC-W-090.
+
+## 2026-10-14 - 5.1 Research the current tile API
+
+- Issue and PR: #51, branch `claude/watch-5.1`
+- Changed: `docs/research/watch.md` section 2 updated with the current artifact versions from Google Maven (tiles 1.6.2,
+  protolayout 1.4.2, including `protolayout-material3`), `Material3TileService`, the update mechanisms, tap handling and a
+  recommendation for 5.2 and 5.3.
+- Validation: docs only; sources cited, unverified points marked; `scripts/docs-lint.sh markdown` 0 issues.
+- Open items: whether work in `onTileRequest()` may outlive the response, the `tiles-testing` API and a clean build of
+  `protolayout-material3` under AGP 9.4 and Kotlin 2.4 are settled by the first compile in 5.2 (a build failure there is a
+  "stop and ask" case).
