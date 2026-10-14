@@ -166,7 +166,7 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 
 ## 2026-10-14 - G5 Watch core flip
 
-- Issue and PR: gate G5 (3.1 to 3.7), flip PR below
+- Issue and PR: gate G5 (3.1 to 3.7), PR #112
 - Changed: `docs/plans/gates.json` marks G5 merged. Steps 3.1 (#79), 3.2 (#101), 3.3 (#102), 3.4 logic (#103) and Android part (#108),
   3.5 (#106), 3.6 (#109), 3.7 (#107) and 3.8 (#80) are merged.
 - Validation: each step has its red commit and green `./gradlew check` in its own PR. These manual checks are NOT yet run by the user and
