@@ -123,4 +123,3 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   Start 2 min and Dismiss, and does each tap close it? (3) Does the app ask for the notification permission on first launch?
   The effects of the actions (snooze, 2-minute timer, acknowledgement) are 3.6, which waits for a protocol decision (an
   acknowledgement cannot name its reminder).
-
