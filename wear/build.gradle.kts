@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.play.services.wearable)
+    implementation(libs.androidx.fragment)
     implementation(project(":protocol"))
 
     debugImplementation(libs.androidx.compose.ui.tooling)

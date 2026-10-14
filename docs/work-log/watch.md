@@ -107,3 +107,20 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   receivers and the manifest permissions. They need the choice between `USE_EXACT_ALARM` and `SCHEDULE_EXACT_ALARM` on Wear OS
   (`docs/research/watch.md`, section 1), which I asked the coordinator to settle with the user. TC-W-025 (24-hour run) and
   TC-W-026 (reboot) are manual and wait for those parts.
+
+## 2026-10-14 - 3.5 Haptics and notifications (Android part)
+
+- Issue and PR: #46 (part), branch `claude/watch-3.5` (stacked on `claude/watch-3.4`, PR #103)
+- Changed: `ReminderChannel`, `HapticPlayer` (the catalogue on the vibrator), `ReminderNotifier` (notification with the four actions
+  and a haptic, nothing is shown when notifications are off), `ReminderActionReceiver` (for now it only closes the notification),
+  four action icons, the `POST_NOTIFICATIONS` runtime request in `MainActivity`, and the debug-only `FireReminderReceiver` to show a
+  reminder and play a haptic with `adb`. `androidx.fragment` 1.9.1 is pinned because `play-services-wearable` pulls in 1.1.0, which
+  fails lint `InvalidFragmentVersionForActivityResult`.
+- Validation: red commit `095725f`, then green: `./gradlew check` BUILD SUCCESSFUL; the debug-separation script passes 5 of 5.
+- Open items for the user (TC-W-033, TC-W-034), with a debug build on the watch: (1) run
+  `adb shell am broadcast -n com.shlomoa.myadhdpal/.wear.debug.FireReminderReceiver --es haptic TICK`, then WARNING, then
+  CALM_BREATH: are the three haptics distinguishable? (2) With the screen off, does the notification appear with Done, Snooze,
+  Start 2 min and Dismiss, and does each tap close it? (3) Does the app ask for the notification permission on first launch?
+  The effects of the actions (snooze, 2-minute timer, acknowledgement) are 3.6, which waits for a protocol decision (an
+  acknowledgement cannot name its reminder).
+
