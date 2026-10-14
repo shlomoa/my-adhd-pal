@@ -82,7 +82,7 @@ unclarity, medium or high ambiguity, a tool incompatible with AGP 9.4 / Kotlin 2
    unless every listed gate is `merged`. On non-zero the thread commits its work in progress, appends
    `BLOCKED: <step> waits for <gate>` to its lane work log entry (`docs/work-log/<lane>.md`), pushes, and ends its turn. No polling, no
    sleeping. It resumes when the user restarts it: `require-gate.sh` again, then merge `origin/main`.
-2. **In CI.** Every step PR body has `Requires: G0,G1` (or `none`) and `Produces: G2`. The `Gates` workflow runs
+2. **In CI.** Every step PR body has `Requires: G0,G1` (or `none`) and `Produces: G2a`. The `Gates` workflow runs
    `scripts/check-pr-gates.sh`, which fails the PR if a required gate is not merged on the base, or if any gate other
    than `Produces` changes status.
 
