@@ -26,7 +26,8 @@ class FakeTransportTest {
         }
     }
 
-    private fun env(index: Int, body: String = "b$index") = Envelope(Protocol.MAJOR_VERSION, ids[index], index.toLong(), body)
+    private fun env(index: Int, body: String = "b$index") =
+        Envelope(Protocol.MAJOR_VERSION, ids[index], index.toLong(), body)
 
     private fun connected(): Triple<FakeLink, Recorder, Recorder> {
         val link = FakeLink()
@@ -48,9 +49,10 @@ class FakeTransportTest {
         link.watch.put(Paths.ack(ids[1]), env(1, "ack"))
         assertEquals(listOf("put ${Paths.prompt(ids[1])} b1", "put ${Paths.prompt(ids[2])} b2"), watch.events)
         assertEquals(listOf("put ${Paths.ack(ids[1])} ack"), phone.events)
-        assertEquals(listOf(Paths.prompt(ids[1]), Paths.prompt(ids[2])), link.watch.paths())
-        // the writer keeps its own copy
-        assertEquals(listOf(Paths.prompt(ids[1]), Paths.prompt(ids[2])), link.phone.paths().sorted())
+        // each node stores its own writes and the other node's
+        val all = setOf(Paths.prompt(ids[1]), Paths.prompt(ids[2]), Paths.ack(ids[1]))
+        assertEquals(all, link.watch.paths().toSet())
+        assertEquals(all, link.phone.paths().toSet())
     }
 
     @Test
@@ -103,7 +105,7 @@ class FakeTransportTest {
     }
 
     @Test
-    fun `TC-S-075 a delete while disconnected reaches the peer on reconnect, and an undelivered item is never delivered`() {
+    fun `TC-S-075 a delete while disconnected reaches the peer on reconnect and an undelivered item never arrives`() {
         val (link, _, watch) = connected()
         link.connect(nearby = true)
         link.phone.put(Paths.prompt(ids[1]), env(1))
@@ -152,7 +154,13 @@ class FakeTransportTest {
         link.setState(LinkState.NO_WATCH_APP)
         link.setState(LinkState.INCOMPATIBLE)
         link.disconnect()
-        val expected = listOf(LinkState.NEARBY, LinkState.RELAYED, LinkState.NO_WATCH_APP, LinkState.INCOMPATIBLE, LinkState.AWAY)
+        val expected = listOf(
+            LinkState.NEARBY,
+            LinkState.RELAYED,
+            LinkState.NO_WATCH_APP,
+            LinkState.INCOMPATIBLE,
+            LinkState.AWAY
+        )
         assertEquals(expected, phone.states)
         assertEquals(expected, watch.states)
         assertEquals(LinkState.AWAY, link.watch.linkState)
