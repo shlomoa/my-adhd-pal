@@ -113,6 +113,17 @@ e: wear/src/test/.../reminder/ReminderActionHandlerTest.kt:40:9 Unresolved refer
 e: wear/src/test/.../reminder/ReminderActionHandlerTest.kt:66:38 Too many arguments for 'fun snooze(reminderId: String, snoozeCount: Int): SnoozeResult'.
 ```
 
+## Step 5.2: tile (TC-W-060 to TC-W-063; `wear/src/test/.../tile/TileModelTest.kt`)
+
+The tile libraries were added first and compile under AGP 9.4 and Kotlin 2.4 (the stop-and-ask check from the 5.1 research).
+The layout needs an Android `Context` and cannot run in a JVM unit test, so the tile is split: `tileModel(...)` (tested here) decides
+what is shown and the service only draws it (TC-W-066, manual). Red commit: `75ff287` (test only). Command:
+`./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../tile/TileModelTest.kt:29:21 Unresolved reference 'tileModel'.
+```
+
 ## Not yet written (later steps)
 
-Cases for the tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).
+Cases for the tile update triggers (TC-W-064, TC-W-065) and biometrics (TC-W-077 to TC-W-083).

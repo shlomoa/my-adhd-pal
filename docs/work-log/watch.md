@@ -186,3 +186,19 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   Also not done: the real Data Layer transport (step 1.5, G2b), so TC-W-008, 015, 045 and the phone side of acknowledgements wait.
 - Open items: none besides the above.
 - BLOCKED: 5.2 waits for G5 (merging this PR)
+
+## 2026-10-14 - 5.2 Tile
+
+- Issue and PR: #52, branch `claude/watch-5.2`
+- Changed: the tile libraries (tiles 1.6.2, protolayout and protolayout-material3 1.4.2, tiles-testing for tests) in the `# W`
+  catalogue entries; `ReminderTileService` (a `Material3TileService`: next reminder with its time, a Start 2 min edge button, the
+  link state and last sync), `TileModel`/`tileModel(...)` (what is shown, as data), `TileActionActivity` (exported because a tile can
+  only open an exported activity; it validates its extras and only acts on a reminder in the schedule), a placeholder tile preview,
+  and `nextDue(...)`, which the scheduler and the tile now share so that both agree on what is due next.
+- Validation: the libraries compile under AGP 9.4 and Kotlin 2.4 (the stop-and-ask check passes). Red commit `75ff287`, then green:
+  `./gradlew check` BUILD SUCCESSFUL, 6 tile model tests pass; the debug-separation script passes 5 of 5.
+- Open items for the user (TC-W-066, needs a build on the watch): add the tile (swipe to the end of the tile carousel, add
+  "Reminders"); does it show the next reminder with its time, the link state and the last sync, and does Start 2 min start the
+  two minutes (a calm haptic after two minutes)? Choice to confirm: the tile's primary action is Start 2 min for the shown reminder
+  (not Done), because Done on a reminder that has not fired yet would need the scheduler to skip that occurrence. The tile preview is
+  a placeholder drawing, to be replaced by a screenshot. The tile is not refreshed by events yet: that is 5.3.

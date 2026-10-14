@@ -56,6 +56,30 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name=".tile.ReminderTileService"
+            android:description="@string/tile_description"
+            android:exported="true"
+            android:label="@string/tile_label"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter>
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="androidx.wear.tiles.PREVIEW"
+                android:resource="@drawable/tile_preview" />
+        </service>
+
+        <!-- Started by the tile button, which can only open an exported activity; it validates its input. -->
+        <activity
+            android:name=".tile.TileActionActivity"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:exported="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

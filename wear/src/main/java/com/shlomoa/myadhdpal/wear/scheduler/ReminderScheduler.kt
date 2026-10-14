@@ -100,23 +100,14 @@ class ReminderScheduler(
     }
 
     private fun computeAndSet(): SchedulerStatus {
-        val current = schedule()
-        val nextScheduled = current?.let { ScheduleLogic.nextReminder(it, now(), zone) }
-        val knownIds = current?.reminders?.map { it.id }?.toSet().orEmpty()
-        val nextSnooze = snoozes.load().filterKeys { it in knownIds }.minByOrNull { it.value.dueAt }
-        val useSnooze = nextSnooze != null && (nextScheduled == null || nextSnooze.value.dueAt <= nextScheduled.at)
-        val target = if (useSnooze) {
-            nextSnooze!!.let { it.value.dueAt to it.key }
-        } else {
-            nextScheduled?.let { it.at to it.reminder.id }
-        }
-        if (target == null) {
+        val due = nextDue(schedule(), snoozes.load(), now(), zone)
+        if (due == null) {
             alarms.cancel()
             return SchedulerStatus.Idle
         }
         val exact = alarms.canScheduleExact()
-        alarms.set(target.first, target.second, exact)
-        return SchedulerStatus.Armed(target.first, target.second, exact)
+        alarms.set(due.at, due.reminder.id, exact)
+        return SchedulerStatus.Armed(due.at, due.reminder.id, exact)
     }
 
     private companion object {
