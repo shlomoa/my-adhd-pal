@@ -39,8 +39,9 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-020 | 3.4 | unit | The next alarm time is the earliest future reminder (fixed clock) | equals expected instant |
 | TC-W-021 | 3.4 | unit | A new schedule cancels stale alarms and sets the new ones | fake alarm manager holds only the new set |
 | TC-W-022 | 3.4 | unit | After a boot event the alarms are rebuilt from storage | fake alarm manager holds the expected set |
-| TC-W-023 | 3.4 | unit | When the exact-alarm permission is missing the scheduler reports it and does not crash | permission-missing state exposed |
+| TC-W-023 | 3.4 | unit | When exact alarms are not allowed the scheduler still sets an inexact alarm and reports that it is inexact | status says inexact, alarm set with exact false |
 | TC-W-024 | 3.4 | unit | A snoozed reminder reschedules to snooze end and persists | alarm at snooze end, stored |
+| TC-W-027 | 3.4 | unit | The manifest declares `USE_EXACT_ALARM`, `SCHEDULE_EXACT_ALARM` up to API 32 and `RECEIVE_BOOT_COMPLETED`, and registers the alarm and boot receivers | merged-source manifest check |
 | TC-W-025 | 3.4 | manual | 24-hour run, screen off, phone away: every reminder fires within 1 minute | user reports a table of scheduled vs fired time, max delta at most 60 s |
 | TC-W-026 | 3.4 | manual | Reminders still fire after a watch reboot | user reports the post-reboot reminder fired in time |
 
