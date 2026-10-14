@@ -25,6 +25,8 @@ androidxTestCore = "1.7.0"
 
 # W: watch
 playServicesWearable = "20.0.1"
+# play-services pulls in androidx.fragment 1.1.0, too old for the ActivityResult API (lint InvalidFragmentVersionForActivityResult)
+fragment = "1.9.1"
 
 [libraries]
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -45,6 +47,7 @@ androidx-test-core = { group = "androidx.test", name = "core-ktx", version.ref =
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 # W
+androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 
 [plugins]

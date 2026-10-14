@@ -24,6 +24,10 @@
             android:name="com.google.android.wearable.notificationBridgeMode"
             android:value="NO_BRIDGING" />
 
+        <receiver
+            android:name=".reminder.ReminderActionReceiver"
+            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

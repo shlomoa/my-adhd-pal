@@ -68,7 +68,18 @@ e: wear/src/test/.../scheduler/InMemorySnoozeStore.kt:3:29 Unresolved reference 
 
 TC-W-025 (24-hour run) and TC-W-026 (reboot) are manual and wait for the Android parts of 3.4 (see the work log).
 
+## Step 3.5, Android part: notification channel (TC-W-032; `wear/src/test/.../reminder/ReminderChannelTest.kt`)
+
+Red commit: `095725f` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../reminder/ReminderChannelTest.kt:11:35 Unresolved reference 'ReminderChannel'.
+e: wear/src/test/.../reminder/ReminderChannelTest.kt:13:31 Unresolved reference 'channel_reminders'.
+```
+
+TC-W-033 and TC-W-034 are manual (the user's checklist is in the work log).
+
 ## Not yet written (later steps)
 
-Cases for 3.5 to 3.6 (TC-W-032 to TC-W-038), 3.7 selections (TC-W-040, 041, 044, 045), the tile (TC-W-060 to TC-W-066) and
-biometrics (TC-W-077 to TC-W-083).
+Cases for 3.6 (TC-W-035 to TC-W-038), 3.7 selections (TC-W-040, 041, 044, 045), the tile (TC-W-060 to TC-W-066) and biometrics
+(TC-W-077 to TC-W-083).
