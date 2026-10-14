@@ -53,3 +53,30 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 | Alert cooldown | 600 s | 60 to 86400 s |
 | Snooze | 10 minutes, at most 3 | minutes 1 to 240, count 0 to 10 (the protocol limits) |
 | Reminder cadence | 60 minutes | 5 to 1440 minutes |
+
+## Database (step 2.1)
+
+Room database `AppDatabase` in `phone/.../data/db/`, file `my-adhd-pal.db`, with four tables:
+
+| Table | Columns | Notes |
+|---|---|---|
+| `tasks` | `id`, `title`, `position` | listed by `position` (creation order) |
+| `reminders` | `id`, `taskId`, `minuteOfDay`, `days` | foreign key to `tasks` with `ON DELETE CASCADE`, listed by time of day |
+| `prompts` | `id`, `title` | the prompts the phone published, so a selection can show the prompt's title |
+| `history` | `id`, `type`, `at`, and the per-type columns | one row per event from the watch; `id` is the primary key, so storing the same item twice leaves one row |
+
+`RoomTaskRepository` and `RoomHistoryRepository` implement the repository interfaces and pass the same abstract contract
+tests as the in-memory fakes. `AppDatabase.create(context)` builds the database; wiring it into the dependency graph is
+the Android lane's step 2.7. The settings, schedule, prompt and link-status repositories follow in steps 2.2 and 2.5.
+
+### Migration policy
+
+- The schema is exported to `phone/schemas/<database class>/<version>.json` by the Room Gradle plugin and **committed**;
+  a schema change without its new JSON file fails review, and `SchemaTest` (TC-S-097) fails when a version file is missing.
+- Every version bump adds exactly one `Migration(from, to)` to `AppDatabase.MIGRATIONS` (in order) and a migration test that
+  opens the old schema with `MigrationTestHelper`, migrates it and checks the data; `SchemaTest` fails when a step has no
+  migration.
+- Migrations are **never destructive**: no `fallbackToDestructiveMigration`, no dropping a table that holds user data
+  (tasks, reminders, history). A column that must change is added next to the old one, copied, and only dropped in a
+  later version once the copy is verified.
+- Version 1 has no migration; `MIGRATIONS` is empty.
