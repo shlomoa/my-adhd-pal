@@ -151,3 +151,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `DataStoreSettingsRepository` and `SettingsValidator` (shared with the in-memory fake) in `phone/.../data/`; dependency `androidx.datastore:datastore-preferences` 1.2.1 (catalog entries under the S block); `docs/data-layer.md` documents the storage and the fallbacks.
 - Validation: TC-S-098 and TC-S-099 written first and red (`shared-baseline.md`), then green, together with the abstract `SettingsRepositoryContract` (TC-S-092) against a real DataStore file: documented defaults, a value survives closing and reopening the store, out-of-range values are rejected without a write, a damaged file falls back to the defaults; `./gradlew check` green.
 - Open items: none for this step. 2.4 and 2.5 wait for G2b; the schedule version store (monotonic across restarts) is part of 2.5.
+
+## 2026-10-14 - 2.1 Room schema, DAOs and migration policy
+
+- Issue and PR: step 2.1 issue; PR linked from the coordinator message. 2.1 was BLOCKED on G3a (#111) until the coordinator merged it, then started.
+- Changed: `phone/.../data/db/`: `AppDatabase` (version 1, `exportSchema`), entities `TaskEntity`, `ReminderEntity` (cascade delete), `PromptEntity`, `HistoryEntity` (id is the primary key), DAOs, `RoomTaskRepository` and `RoomHistoryRepository`; the Room Gradle plugin (`androidx.room`, catalog entry) exports the schema to `phone/schemas/`, committed (`1.json`); `docs/data-layer.md` documents the tables and the migration policy (committed schema, one migration per step, never destructive).
+- Validation: TC-S-093..097 and TC-S-092 for Room written first and red (`shared-baseline.md`), then green: the DAO tests, the abstract contract tests for tasks and history run against Room on Robolectric, the schema and policy checks; `./gradlew check` green. The Room Gradle plugin works with AGP 9.4.1 and Kotlin 2.4.21.
+- Open items: 2.2 (DataStore settings) next; the schedule, prompt and link-status repositories come in 2.5 (G2b); the Android lane wires `AppDatabase.create` in 2.7. No migration test yet because the schema is at version 1.
