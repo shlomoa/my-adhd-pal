@@ -81,3 +81,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: a "Diagrams" section in `docs/protocol.md` with four Mermaid diagrams (schedule sync, prompt/acknowledgement/selection, hello and version check, prompt state machine); TC-S-077 structure checks in `scripts/test/test-protocol-spec.sh` (Mermaid block of the right type under each heading, balanced alt/loop/end, start and end of the state machine, no semicolon in a Mermaid line).
 - Validation: checks written first and red (`shared-baseline.md`), then green; all four diagrams were also rendered with `@mermaid-js/mermaid-cli` 11.4.2 and Chromium (a semicolon in a message broke the first draft and is now guarded); doc lint green. TC-S-078 (rendered view on the PR) is the manual check for the reviewer.
 - Open items: the link-state machine and the alert flow are 1.8b (G2b). Gate G2a is not flipped here: it needs 1.4, 1.6, 1.7 and 1.8a all merged, so a separate small PR flips it.
+
+## 2026-10-14 - G2 split into G2a and G2b
+
+- Issue and PR: refs #30-#34 (steps 1.4-1.8); PR linked from the coordinator message.
+- Changed: `gates.json`, `docs/plans/README.md` (table, schedule, graph, risks, a "Why G2 is split" paragraph), `docs/plans/shared.md`, `docs/plans/watch.md` and the catalogue headings. G2a = 1.4, 1.6, 1.7, 1.8a (requires G1); G2b = 1.5, 1.8b (requires G2a, G-DEC). G3a requires G2a; G5 requires G2a; G3 requires G2b; the watch's 3.2-3.7 require G2a and its 6.3-6.8 require G2b. New `scripts/test/test-gates.sh` (TC-S-143) checks the whole graph and runs in the `script-tests` job.
+- Validation: TC-S-143 red first on `main` (7 FAIL, recorded in `shared-baseline.md`), then green; doc lint and link check green; `test-scripts.sh` (gate scripts) green.
+- Open items: no gate flipped. Steps 1.4, 1.6, 1.7, 1.8a start now; 1.5 and 1.8b wait for G-DEC.
