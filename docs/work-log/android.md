@@ -37,3 +37,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `ui/ListState` (shared list states), `ui/link/LinkStateViewModel` (+ `LinkStateUiState`, `LastSync`), stateless `LinkStateScreen` and its strings. It also brings in the A1b test support (`TestSupport.kt`, `ManualCases.kt`) and the baseline report.
 - Validation: `LinkStateViewModelTest` (TC-A-001 to TC-A-008) red first (does not compile, `docs/test-reports/android-baseline.md`), then 8 of 8 PASS; `./gradlew check assembleDebug` green. A first run failed 6 of 8 because the test built the ViewModel in a field initializer, before `MainDispatcherRule` installed the test dispatcher; the test now creates it lazily. The other A1b test files on `claude/android-A1b` have the same pattern and are fixed when their step lands.
 - Open items: the screen is not wired into `MainActivity` yet: the real `LinkStatusRepository` binding comes with the data layer (2.5, G3), and a `@HiltViewModel` without a binding would break the graph, so the annotation is added then. Manual TC-A-009 (A55 with the Watch6 Classic: Nearby, Relayed, Away) waits for the user once the screen is wired.
+
+## 2026-10-14 - 4.5 History screen
+
+- Issue and PR: #67; PR linked from the coordinator message. Stacked on the 2.6 branch (#116): it reuses `ListState` and the test support, so merge #116 first.
+- Changed: `ui/history/HistoryViewModel` (+ `HistoryUiState`: filter and `ListState`, retry), stateless `HistoryScreen` with type filter chips and the empty, loading and error states, strings. Completes G4 together with 2.7 (#83) and 2.6 (#116).
+- Validation: `HistoryViewModelTest` (TC-A-045 to 051, 054, 056) red first (does not compile), now 9 of 9 PASS; `./gradlew check assembleDebug` green.
+- Open items: not wired into `MainActivity` until the data layer binds `HistoryRepository` (G3); then the manual TC-A-052 (history stored with the app closed) can run. The Selected row shows the prompt title only if the repository fills it (data layer, lane S).

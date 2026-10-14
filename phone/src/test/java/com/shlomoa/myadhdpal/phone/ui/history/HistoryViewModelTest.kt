@@ -27,6 +27,7 @@ class HistoryViewModelTest {
     val main = MainDispatcherRule()
 
     private val repo = InMemoryHistoryRepository()
+
     // Lazy: created after [main] has installed the test dispatcher.
     private val vm by lazy { HistoryViewModel(repo) }
 
