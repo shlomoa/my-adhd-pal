@@ -45,6 +45,7 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-029 | 0a.8 | script | Fresh state then `./gradlew check` | green |
 | TC-S-030 | 0a.8 | script | Script failure paths | a missing prerequisite (no `curl` or `unzip`) or an interrupted download exits non-zero with a clear message |
 | TC-S-143 | G2 split | script | Gate graph is consistent and G2 is split | `scripts/test/test-gates.sh`: unique ids, existing requirements, no cycle, README table equals `gates.json`, lane plans name existing gates; G2a requires G1 only, G2b requires G2a and G-DEC, G3a and G5 require G2a, G3 requires G2b |
+| TC-S-144 | issue 113 | unit | Compose UI tests run on the JVM | a `createComposeRule()` test finds and clicks a node under Robolectric in `:phone:testDebugUnitTest`; `./gradlew check` stays green |
 
 ## Part b: protocol (milestone 1, `:protocol`; needs G-SPK1 for 1.1-1.3; G1 for 1.4, 1.6, 1.7 and 1.8a (gate G2a); G2a and G-DEC for 1.5 and 1.8b (gate G2b))
 
