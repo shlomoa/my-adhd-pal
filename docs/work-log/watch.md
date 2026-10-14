@@ -66,3 +66,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   change it.
 - Open items: TC-W-042 (prompt expiry) needs a decision with the Shared lane on `expiresAt` (a receiver never computes a delay from
   the two clocks). W1c-b (link state, schedule logic, transport cases) waits for G2a.
+
+## 2026-10-14 - W1c-b and 3.2-3.7 wait for G2a
+
+- Issue and PR: #92, #93
+- Changed: nothing.
+- Validation: n/a.
+- Open items: BLOCKED: W1c-b waits for G2a
