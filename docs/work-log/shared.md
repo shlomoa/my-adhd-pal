@@ -123,3 +123,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: gate G2a set to merged in `docs/plans/gates.json`; the status paragraph of `docs/protocol.md` lists what is done. Nothing else.
 - Validation: `scripts/test/test-gates.sh` (TC-S-143) and `scripts/check-pr-gates.sh` against the base; doc lint green.
 - Open items: G3a (2.3) starts now; G2b (1.5, 1.8b) waits for G-DEC.
+
+## 2026-10-14 - Amendment of G1: Acknowledgement reminderId and occurrenceAt (protocol 1.1)
+
+- Issue and PR: found by the Watch lane in 3.6 (coordinator decision); PR linked from the coordinator message.
+- Changed: `Acknowledgement` gets the optional `reminderId` (1 to 32 characters, validated like the other keys) and `occurrenceAt` (not negative); `Protocol.VERSION` 1.0 to 1.1 (major stays 1, compatibility is by major only); the codec no longer writes absent optional fields (`explicitNulls = false`), so a 1.0 reader sees the body it knows; `docs/protocol.md` (Item format table, version history, ack diagram) updated. An amendment of G1's contents: no path or key changes, no gate flipped.
+- Validation: tests written first and red (`shared-baseline.md`), then green: round trip with and without the fields, a 1.0 body still decodes, absent fields are not written, invalid values are dropped, the version constant; `./gradlew :protocol:test detekt` green, doc lint green.
+- Open items: the phone's `HistoryEntry.Acknowledged` (PR for 2.3) should carry `reminderId` and `occurrenceAt`; the Watch lane sends them from 3.6.

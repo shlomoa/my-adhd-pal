@@ -1,6 +1,6 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.0; steps 1.1 to 1.4, 1.6, 1.7 and 1.8a are done, gate G2a). This file is the single source of
+Status: **skeleton** (protocol 1.1; steps 1.1 to 1.4, 1.6, 1.7 and 1.8a are done, gate G2a). This file is the single source of
 truth; the constants, models, codec, compatibility rule, schedule logic and transport abstraction in `:protocol` follow
 it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b,
 gate G2b) wait for the hardware spike. The transport verification below comes first in time and changes the cleanup rule.
@@ -51,7 +51,7 @@ Bodies (field names are the JSON keys):
 |---|---|
 | `Schedule` | `version` (long, monotonic), `reminders` (`id`, `title`, `minuteOfDay` 0-1439, `days` 1-7 with 1 = Monday), `checkpoints` (`id`, `label`, `minuteOfDay`), `snooze` (`minutes`, `maxCount`), `alerts` (`thresholds` of `metric`, `direction`, `value`; `cooldownSeconds`) |
 | `Prompt` | `title`, `options` (1 to 6 of `key`, `label`; keys unique), `expiresAt` (optional) |
-| `Acknowledgement` | `action` (`DONE`, `SNOOZE`, `START_2_MIN`, `DISMISS`), `at` |
+| `Acknowledgement` | `action` (`DONE`, `SNOOZE`, `START_2_MIN`, `DISMISS`), `at`, optional `reminderId` (the `Reminder.id` it answers, 1 to 32 characters), optional `occurrenceAt` (epoch milliseconds on the watch clock of the scheduled fire time it answers, not negative; protocol 1.1) |
 | `Selection` | `key` (an option key of the prompt with the same id), `at` |
 | `Alert` | `metric` (`HEART_RATE`), `value`, `threshold`, `at` |
 | `Hello` | `side` (`PHONE`, `WATCH`), `protocolVersion` (for example `1.0`), `appVersion` |
@@ -72,6 +72,12 @@ item and in the `Hello` body. Additive changes (a new optional field, a new item
 compatible; a receiver ignores fields and paths it does not know. A change that removes or reinterprets a field raises
 the major version. A receiver ignores items whose major version it does not support and shows Incompatible. There is no
 negotiation, request or reply.
+
+Version history: **1.0** is the first version. **1.1** adds the optional `reminderId` and `occurrenceAt` to
+`Acknowledgement`, so the phone can tell which reminder (and which occurrence of it) an acknowledgement answers; the
+path id of `/ack/<id>` stays a fresh UUID per acknowledgement. Absent optional fields are not written, so a 1.0 body
+without them still decodes and a 1.1 body is read by a 1.0 receiver, which ignores the extra fields. This is a minor
+bump: paths, keys and the other models are unchanged.
 
 The rule is `Compatibility` in `:protocol`. `Compatibility.ofMajor(v)` is Compatible only when `v` equals
 `Protocol.MAJOR_VERSION`. `Compatibility.ofHello(text)` parses the hello's `protocolVersion` (`major.minor`, optionally
@@ -163,9 +169,9 @@ sequenceDiagram
     W->>W: validate, show, haptic
     alt user taps Snooze
         W->>W: apply the snooze at once (cap and expiry rules)
-        W->>D: put /ack/id action SNOOZE (urgent)
+        W->>D: put /ack/id action SNOOZE with reminderId and occurrenceAt (urgent)
     else user taps Done or Dismiss or Start 2 min
-        W->>D: put /ack/id with the action (urgent)
+        W->>D: put /ack/id with the action, reminderId and occurrenceAt (urgent)
     else user picks an option
         W->>D: put /selection/id with the key (urgent)
     end

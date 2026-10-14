@@ -22,6 +22,8 @@ object Codec {
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
+        // absent optional fields are not written, so a 1.0 reader sees the body it knows
+        explicitNulls = false
     }
 
     fun encode(id: String, timestamp: Long, message: Message): Envelope =

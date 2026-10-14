@@ -101,7 +101,10 @@ class CodecTest {
             assertTrue("body $body -> $decoded", decoded is DecodeResult.Failure)
         }
         val atLimit = "r".repeat(Limits.MAX_KEY_LENGTH)
-        val ok = Codec.decode(Paths.ack(id), Envelope(Protocol.MAJOR_VERSION, id, ts, """{"action":"DONE","at":1,"reminderId":"$atLimit"}"""))
+        val ok = Codec.decode(
+            Paths.ack(id),
+            Envelope(Protocol.MAJOR_VERSION, id, ts, """{"action":"DONE","at":1,"reminderId":"$atLimit"}""")
+        )
         assertTrue(ok is DecodeResult.Ok)
     }
 
