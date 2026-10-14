@@ -51,3 +51,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/gates.json`: G4 to `merged`, `pr` 117 (the PR that completed it).
 - Validation: `scripts/check-pr-gates.sh` with `Requires: G3a,G-LIB` and `Produces: G4`; the Gates workflow enforces it.
 - Open items: 4.1 to 4.4 wait for G3; 4.6 and G6 follow them.
+
+## 2026-10-14 - 4.6 (part 1) Accessibility tests for the existing screens
+
+- Issue and PR: part of #68 (4.6); the PR references it and does not close it. 4.6 is complete only with the screens of 4.1 to 4.4.
+- Changed: `ui/AccessibilityTest` (Compose UI test under Robolectric) covering TC-A-058 (every actionable node has a label) and TC-A-059 (every touch target at least 48 dp) for the link-state screen and the history screen in its content, filtered-empty and failed states. `ManualCases.kt` no longer lists the two ids. Each screen added by 4.1 to 4.4 joins the `screens` map.
+- Validation: 2 of 2 PASS; `./gradlew check assembleDebug` green. Not red first, and I say so: the screens were already built with text labels and Material's minimum touch target, so the tests pass once they measure correctly. The only red was a test bug while writing them: TC-A-059 first measured the drawn size (36 px for a `FilterChip`) instead of `touchBoundsInRoot`, which is the 48 dp touch area Material provides.
+- Open items: manual TC-A-060 (large font and TalkBack) and TC-A-061 (contrast, dark theme) wait for the user once the screens are wired in; the empty/error/loading states (TC-A-053 to 057) for tasks and the schedule arrive with their screens. `scripts/check-test-cases.sh android baseline` still lists those ids as without a test because their tests sit on `claude/android-A1b` until their step lands.
