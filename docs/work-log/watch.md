@@ -95,3 +95,16 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red commit `9993415` (unresolved references), then green: `./gradlew check` BUILD SUCCESSFUL, 11 schedule tests pass.
 - Open items: the Android listener service that feeds `ScheduleReceiver` from the Data Layer is part of the real transport, which
   needs the link-state function (1.5, G2b). TC-W-015 (manual) waits for it.
+
+## 2026-10-14 - 3.4 Local scheduler (logic part)
+
+- Issue and PR: #45 (part), branch `claude/watch-3.4` (stacked on `claude/watch-3.3`, PR #102)
+- Changed: `ReminderScheduler` (one exact alarm for the earliest of the next scheduled reminder and the pending snoozes;
+  `rearm` is the only place that sets alarms; `snooze`, `clearSnooze`, `onAlarm`), `AlarmPort` seam, `SnoozeStore` with
+  `FileSnoozeStore`. Uses `ScheduleLogic.nextReminder` and `ScheduleLogic.snooze` from `:protocol`.
+- Validation: red commit `dceb6f0` (unresolved references), then green: `./gradlew check` BUILD SUCCESSFUL, 10 scheduler tests pass.
+- Open items: the Android parts of 3.4 are not started: the `AlarmManager` implementation of `AlarmPort`, the boot and alarm
+  receivers and the manifest permissions. They need the choice between `USE_EXACT_ALARM` and `SCHEDULE_EXACT_ALARM` on Wear OS
+  (`docs/research/watch.md`, section 1), which I asked the coordinator to settle with the user. TC-W-025 (24-hour run) and
+  TC-W-026 (reboot) are manual and wait for those parts.
+
