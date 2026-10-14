@@ -21,7 +21,15 @@ class CompatibilityTest {
 
     @Test
     fun `TC-S-057 a higher or lower major version is Incompatible and the item is ignored`() {
-        for (major in listOf(Protocol.MAJOR_VERSION + 1, Protocol.MAJOR_VERSION - 1, 0, -1, 99, Int.MAX_VALUE, Int.MIN_VALUE)) {
+        for (major in listOf(
+            Protocol.MAJOR_VERSION + 1,
+            Protocol.MAJOR_VERSION - 1,
+            0,
+            -1,
+            99,
+            Int.MAX_VALUE,
+            Int.MIN_VALUE
+        )) {
             assertTrue("major $major", Compatibility.ofMajor(major) is Compatibility.Incompatible)
             val decoded = Codec.decodeIfCompatible(Paths.selection(id), envelope(major))
             assertTrue("major $major -> $decoded", decoded is DecodeResult.Failure)
