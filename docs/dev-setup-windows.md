@@ -298,10 +298,49 @@ Anything unexpected (copy the SPIKE log lines):
 Switch back with `git checkout main` (and `git stash pop` if you stashed). The spike branch stays unmerged; its code is
 discarded once the results are recorded in the protocol document.
 
+### 6.6 Running a spike from a script instead of buttons
+
+The tap-through run above was replaced by a script. `scripts/spike/run-0b2a.ps1` (emulators, on the throwaway branch
+`claude/shared-0b2a-spike-rtt`) and `scripts/spike/run-0b2b.ps1` (hardware, [`spikes/0b2b-plan.md`](spikes/0b2b-plan.md))
+build, install, drive the cases with `adb`, and push the results as a branch named `spike-results/<run>-<timestamp>`,
+so nothing needs pasting back. Rules that cost time on the first runs:
+
+1. **Keep the PC awake.** A sleeping laptop breaks every `adb` call. Plug in, then run
+   `powercfg /change standby-timeout-ac 0` (undo with `powercfg /change standby-timeout-ac 30`).
+2. **Do not click inside the script window.** In Windows consoles a click selects text (QuickEdit mode) and pauses
+   the script until you press Enter or Esc. A script that has stopped for no reason is often this.
+3. **Start emulators from PowerShell, not Device Manager.** Device Manager can show greyed **Run** buttons for
+   emulators that are already running or half started. Use
+   `& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd <name> -port <port>` (ports 5554 and 5556 give the
+   serials `emulator-5554` and `emulator-5556`), one PowerShell window per emulator.
+4. **Put `adb` on `PATH` permanently** (otherwise every new window needs the `$env:Path` line):
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable('Path', $env:Path + ";$env:LOCALAPPDATA\Android\Sdk\platform-tools", 'User')
+   ```
+
+   Open a new PowerShell window afterwards.
+5. **Work from the repository folder.** The scripts use relative paths (`scripts\spike\...`, `phone\build\...`).
+6. **A FAIL line in the script output is a result, not an error.** The run stopped only if the window shows an
+   exception or the prompt is back. The last lines say which results were published.
+7. **Ignore Android Studio while a script runs.** Its logcat view and the *keeps stopping* dialog of the Google
+   Pixel Watch companion app are noise unless the script reports a problem. Do not use Studio's Run buttons.
+8. **Timing differs per case.** A case that waits for a disconnect to be noticed can take 1 to 4 minutes; lines such
+   as `waiting ... up to 180 s` mean the script is waiting, not stuck. The script prints a timestamp on every line.
+9. **Delay numbers on two emulators are skewed.** The emulator clocks differ by about 1.5 s, so `delayMs` from one
+   device to the other is unreliable; use the round-trip times measured on one clock.
+
 ## 7. Troubleshooting
 
 | Symptom | Cause and fix |
 |---|---|
+| A script stops with *adb call timed out* or *app is not installed* after the laptop slept | The `adb` server lost the devices. Restart the emulators from PowerShell (section 6.6, rule 3), check `adb devices -l`, and run again with `-SkipBuild` (add `-OnlyCases` for the cases that did not finish). |
+| A script is stuck at *stopping watch emulator* or on one `adb` line | An `adb` client is waiting on a device that went away. In a second window run `Get-CimInstance Win32_Process -Filter "Name='adb.exe'"`, then `Stop-Process -Id <ProcessId> -Force` for the stuck client. |
+| The script window stopped moving and nothing is wrong | A click paused the console (section 6.6, rule 2). Press Enter. |
+| The pairing assistant spins after sign-in | Close the Google Pixel Watch app on the phone emulator, open it again, and check that both emulators run before continuing. |
+| Spike app does not start after `adb install` | A freshly installed app is *stopped*. Start it directly: `adb -s <serial> shell am start -n com.shlomoa.myadhdpal/.<activity>` (the Spike activity name is printed by the script), or tap it once. |
+| Buttons or text sit under the system bars | The spike branch was built before the inset fix. Run `git pull` on the spike branch and rebuild. |
+| Android Studio shows an IDE exception pop-up | Not a build failure. Use the terminal build; report it only if `.\gradlew.bat` itself fails. |
 | Sync fails: *Cannot find a Java installation ... languageVersion=21 ... Toolchain download repositories have not been configured* | No JDK 21 found. Install Temurin 21 and set Gradle JDK (section 3, steps 1 and 5). |
 | `java -version` is not 21, or `java` is not found | Set `JAVA_HOME` and `Path` by hand (section 3, step 3). The installer does not always do it. |
 | Android Studio warns *Multiple Gradle daemons might be spawned because the Gradle JDK and JAVA_HOME locations are different* | `JAVA_HOME` points at another JDK (such as JDK 23) while Studio uses Temurin 21. Set `JAVA_HOME` to the Temurin 21 folder (section 3, step 3), restart PowerShell and Android Studio. |

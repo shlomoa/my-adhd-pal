@@ -68,3 +68,10 @@ Entries by the planning threads and the orchestrator session. Index and entry fo
 - Changed: `docs/dev-setup-windows.md` section 6.1 no longer promises a Gradle sync prompt after `git checkout` (the user saw none) and adds two commands that confirm the spike branch is checked out.
 - Validation: `scripts/docs-lint.sh markdown` and `links` green.
 - Open items: confirm pairing succeeded, then build and install the spike apps and run the cases.
+
+## 2026-10-14 - Windows guide: scripted spike runs and recovery
+
+- Issue and PR: none (coordinator documentation); PR linked from the session.
+- Changed: `docs/dev-setup-windows.md` has a new section 6.6 (running a spike from a script: keep the PC awake, console click pauses, starting emulators from PowerShell, permanent `adb` path, results are published as a branch, FAIL lines are results, delay numbers are skewed on emulators) and seven new troubleshooting rows (adb timeouts after sleep, stuck `adb` client, paused console, pairing spinner, direct `am start`, window insets, IDE exception pop-up). All from the user's runs of spike 0b.2a.
+- Validation: `scripts/docs-lint.sh` markdown and links green; not yet followed on a second machine.
+- Open items: update again from the first hardware run (0b.2b).
