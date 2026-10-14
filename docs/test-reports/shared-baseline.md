@@ -265,3 +265,7 @@ Red commit: tests only (`ConstantsTest` expects `Protocol.VERSION` 1.1; `CodecTe
 ## 2.1 Room schema, DAOs and migration policy (red)
 
 Red commit: tests only (`DaoTest`, `RoomRepositoriesTest` running the existing abstract contract tests against Room, `SchemaTest`; TC-S-093..097 and TC-S-092 for the Room repositories), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'AppDatabase'`, `'TaskEntity'`, `'RoomTaskRepository'`, ...
+
+## Compose UI-test dependencies (issue 113, red)
+
+Red commit: `ComposeUiTestSampleTest` only (TC-S-144), before the dependencies exist. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'test'` for `androidx.compose.ui.test`.
