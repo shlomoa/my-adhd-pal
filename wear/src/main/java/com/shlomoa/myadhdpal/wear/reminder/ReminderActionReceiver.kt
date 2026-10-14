@@ -4,12 +4,11 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.shlomoa.myadhdpal.wear.WatchApplication
 import com.shlomoa.myadhdpal.wear.log.Logger
+import java.time.Instant
 
-/**
- * Receives a tap on one of the notification actions. For now it only closes the notification; the effects (snooze
- * locally and report it, start the 2-minute timer, acknowledge to the phone) are step 3.6.
- */
+/** Receives a tap on one of the notification actions and hands it to the [ReminderActionHandler]. */
 class ReminderActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.getStringExtra(EXTRA_ACTION)?.let { name ->
@@ -19,12 +18,21 @@ class ReminderActionReceiver : BroadcastReceiver() {
             }
         }
         val reminderId = intent.getStringExtra(EXTRA_REMINDER_ID)
-        if (action == null || reminderId == null) {
-            Logger.w(TAG, "action intent without action or reminder id")
+        val occurrenceAt = intent.getLongExtra(EXTRA_OCCURRENCE_AT, NO_TIME)
+        if (action == null || reminderId == null || occurrenceAt == NO_TIME) {
+            Logger.w(TAG, "action intent without action, reminder id or occurrence time")
             return
         }
-        Logger.d(TAG, "action ${action.name} for a reminder")
-        context.getSystemService(NotificationManager::class.java).cancel(ReminderNotifier.notificationId(reminderId))
+        val graph = (context.applicationContext as WatchApplication).graph
+        val snoozeCount = intent.getIntExtra(EXTRA_SNOOZE_COUNT, 0)
+        val outcome = graph.actionHandler.handle(action, reminderId, snoozeCount, Instant.ofEpochMilli(occurrenceAt))
+        if (outcome is ActionOutcome.SnoozeDenied) {
+            graph.haptics.play(Haptic.WARNING)
+        } else {
+            context.getSystemService(
+                NotificationManager::class.java
+            ).cancel(ReminderNotifier.notificationId(reminderId))
+        }
     }
 
     companion object {
@@ -32,12 +40,20 @@ class ReminderActionReceiver : BroadcastReceiver() {
         private const val EXTRA_ACTION = "reminder_action"
         private const val EXTRA_REMINDER_ID = "reminder_id"
         private const val EXTRA_SNOOZE_COUNT = "snooze_count"
+        private const val EXTRA_OCCURRENCE_AT = "occurrence_at"
+        private const val NO_TIME = -1L
 
-        fun intent(context: Context, action: ReminderAction, reminderId: String, snoozeCount: Int): Intent =
-            Intent(context, ReminderActionReceiver::class.java)
-                .setAction("com.shlomoa.myadhdpal.wear.REMINDER_${action.name}")
-                .putExtra(EXTRA_ACTION, action.name)
-                .putExtra(EXTRA_REMINDER_ID, reminderId)
-                .putExtra(EXTRA_SNOOZE_COUNT, snoozeCount)
+        fun intent(
+            context: Context,
+            action: ReminderAction,
+            reminderId: String,
+            snoozeCount: Int,
+            occurrenceAt: Instant
+        ): Intent = Intent(context, ReminderActionReceiver::class.java)
+            .setAction("com.shlomoa.myadhdpal.wear.REMINDER_${action.name}")
+            .putExtra(EXTRA_ACTION, action.name)
+            .putExtra(EXTRA_REMINDER_ID, reminderId)
+            .putExtra(EXTRA_SNOOZE_COUNT, snoozeCount)
+            .putExtra(EXTRA_OCCURRENCE_AT, occurrenceAt.toEpochMilli())
     }
 }
