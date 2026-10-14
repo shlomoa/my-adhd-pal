@@ -39,6 +39,12 @@ Every item has four keys:
 `Envelope` type. Times inside a body (`at`, `expiresAt`) are epoch milliseconds on the clock of the node that wrote the
 item. The two clocks differ (the emulator spike measured about 1.5 s), so a receiver never computes a delay from them.
 
+**Prompt expiry.** `Prompt.expiresAt` is an absolute epoch-millisecond time on the phone's clock. The phone stays the
+authority and deletes an expired prompt when it can (writer-owns-cleanup rule). The watch additionally hides and ignores a
+prompt once its own clock is at or past `expiresAt`, and never shows an already-expired prompt that it receives late. This
+is not a delay measurement: expiry is on a scale of minutes, and the clocks of real, NTP-synced devices differ by far less
+than the 1.5 s seen between the emulators, so a prompt may be shown or hidden a few seconds early or late.
+
 Bodies (field names are the JSON keys):
 
 | Model | Fields |
