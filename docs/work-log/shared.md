@@ -151,3 +151,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `phone/.../data/db/`: `AppDatabase` (version 1, `exportSchema`), entities `TaskEntity`, `ReminderEntity` (cascade delete), `PromptEntity`, `HistoryEntity` (id is the primary key), DAOs, `RoomTaskRepository` and `RoomHistoryRepository`; the Room Gradle plugin (`androidx.room`, catalog entry) exports the schema to `phone/schemas/`, committed (`1.json`); `docs/data-layer.md` documents the tables and the migration policy (committed schema, one migration per step, never destructive).
 - Validation: TC-S-093..097 and TC-S-092 for Room written first and red (`shared-baseline.md`), then green: the DAO tests, the abstract contract tests for tasks and history run against Room on Robolectric, the schema and policy checks; `./gradlew check` green. The Room Gradle plugin works with AGP 9.4.1 and Kotlin 2.4.21.
 - Open items: 2.2 (DataStore settings) next; the schedule, prompt and link-status repositories come in 2.5 (G2b); the Android lane wires `AppDatabase.create` in 2.7. No migration test yet because the schema is at version 1.
+
+## 2026-10-14 - Compose UI-test dependencies for `:phone` (issue #113)
+
+- Issue and PR: #113 (request from the Android lane, needed by TC-A-058 and TC-A-059 in step 4.6); PR linked from the coordinator message.
+- Changed: `androidx.compose.ui:ui-test-junit4` as `testImplementation` (under the Compose BOM) and `ui-test-manifest` as `debugImplementation` in `phone/build.gradle.kts`, with catalog entries in `gradle/libs.versions.toml` (versions come from the existing BOM); a sample `ComposeUiTestSampleTest` in `phone/src/test/.../compat/` (TC-S-144).
+- Validation: the sample test was written first and red (`shared-baseline.md`), then green in `:phone:testDebugUnitTest` under Robolectric on AGP 9.4.1 and Kotlin 2.4.21; `./gradlew check` green.
+- Open items: none; lane A writes TC-A-058 and TC-A-059 in step 4.6.
