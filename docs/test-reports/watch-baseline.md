@@ -68,7 +68,40 @@ e: wear/src/test/.../scheduler/InMemorySnoozeStore.kt:3:29 Unresolved reference 
 
 TC-W-025 (24-hour run) and TC-W-026 (reboot) are manual and wait for the Android parts of 3.4 (see the work log).
 
+## Step 3.5, Android part: notification channel (TC-W-032; `wear/src/test/.../reminder/ReminderChannelTest.kt`)
+
+Red commit: `095725f` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../reminder/ReminderChannelTest.kt:11:35 Unresolved reference 'ReminderChannel'.
+e: wear/src/test/.../reminder/ReminderChannelTest.kt:13:31 Unresolved reference 'channel_reminders'.
+```
+
+TC-W-033 and TC-W-034 are manual (the user's checklist is in the work log).
+
+## Step 3.7: prompt inbox and selections (TC-W-040 to TC-W-044; `wear/src/test/.../prompt/PromptInboxTest.kt`)
+
+Red commit: `b62df3f` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../prompt/PromptInboxTest.kt:24:27 Unresolved reference 'PromptInbox'.
+```
+
+TC-W-045 (prompt from the phone on the watch) is manual and waits for the real transport (1.5, G2b).
+
+## Step 3.4, Android part: inexact fallback and manifest (TC-W-023 changed, TC-W-027; `wear/src/test/.../scheduler/`, `ManifestTest.kt`)
+
+Decision (coordinator, 2026-10-14): with no exact-alarm permission the scheduler sets an inexact alarm and reports it, instead of
+setting nothing. TC-W-023 was rewritten to that behaviour. Red commit: `0dc5da4` (tests only). Command:
+`./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../scheduler/FakeAlarmPort.kt:6:1 Class 'FakeAlarmPort' is not abstract and does not implement abstract member:
+e: wear/src/test/.../scheduler/ReminderSchedulerTest.kt:74:57 No parameter with name 'exact' found.
+```
+
+TC-W-025 (24-hour run) and TC-W-026 (reboot) are manual (checklist in the work log).
+
 ## Not yet written (later steps)
 
-Cases for 3.5 to 3.6 (TC-W-032 to TC-W-038), 3.7 selections (TC-W-040, 041, 044, 045), the tile (TC-W-060 to TC-W-066) and
-biometrics (TC-W-077 to TC-W-083).
+Cases for 3.6 (TC-W-035 to TC-W-038, waiting for #105), the tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).

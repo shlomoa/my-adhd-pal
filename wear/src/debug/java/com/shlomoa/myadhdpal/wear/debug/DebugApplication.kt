@@ -1,13 +1,13 @@
 package com.shlomoa.myadhdpal.wear.debug
 
-import android.app.Application
 import android.util.Log
+import com.shlomoa.myadhdpal.wear.WatchApplication
 import com.shlomoa.myadhdpal.wear.log.LogLevel
 import com.shlomoa.myadhdpal.wear.log.LogSink
 import com.shlomoa.myadhdpal.wear.log.Logger
 
 /** Installs the debug log sink; registered only by the debug manifest. */
-class DebugApplication : Application() {
+class DebugApplication : WatchApplication() {
     override fun onCreate() {
         super.onCreate()
         Logger.sink = DebugLog.sink

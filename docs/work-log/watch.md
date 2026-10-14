@@ -108,6 +108,46 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   (`docs/research/watch.md`, section 1), which I asked the coordinator to settle with the user. TC-W-025 (24-hour run) and
   TC-W-026 (reboot) are manual and wait for those parts.
 
+## 2026-10-14 - 3.5 Haptics and notifications (Android part)
+
+- Issue and PR: #46 (part), branch `claude/watch-3.5` (stacked on `claude/watch-3.4`, PR #103)
+- Changed: `ReminderChannel`, `HapticPlayer` (the catalogue on the vibrator), `ReminderNotifier` (notification with the four actions
+  and a haptic, nothing is shown when notifications are off), `ReminderActionReceiver` (for now it only closes the notification),
+  four action icons, the `POST_NOTIFICATIONS` runtime request in `MainActivity`, and the debug-only `FireReminderReceiver` to show a
+  reminder and play a haptic with `adb`. `androidx.fragment` 1.9.1 is pinned because `play-services-wearable` pulls in 1.1.0, which
+  fails lint `InvalidFragmentVersionForActivityResult`.
+- Validation: red commit `095725f`, then green: `./gradlew check` BUILD SUCCESSFUL; the debug-separation script passes 5 of 5.
+- Open items for the user (TC-W-033, TC-W-034), with a debug build on the watch: (1) run
+  `adb shell am broadcast -n com.shlomoa.myadhdpal/.wear.debug.FireReminderReceiver --es haptic TICK`, then WARNING, then
+  CALM_BREATH: are the three haptics distinguishable? (2) With the screen off, does the notification appear with Done, Snooze,
+  Start 2 min and Dismiss, and does each tap close it? (3) Does the app ask for the notification permission on first launch?
+  The effects of the actions (snooze, 2-minute timer, acknowledgement) are 3.6, which waits for a protocol decision (an
+  acknowledgement cannot name its reminder).
+
+## 2026-10-14 - 3.7 Selections
+
+- Issue and PR: #48, branch `claude/watch-3.7` (stacked on `claude/watch-3.5`, PR #106)
+- Changed: `PromptInbox` (the pending prompts are derived from the items on the node: valid, supported, not expired on the watch
+  clock, no `/selection/<id>` of the watch's own yet; `choose` sends `/selection/<id>` with the prompt's id, the key and the watch
+  time; the watch never deletes `/prompt`) and the `SelectionScreen` composable (one button per option).
+- Validation: red commit `b62df3f` (unresolved `PromptInbox`), then green: `./gradlew check` BUILD SUCCESSFUL, 10 new tests pass.
+- Open items: the screen and the inbox are not yet wired to a real transport (1.5, G2b); TC-W-045 (manual) waits for it.
+
+## 2026-10-14 - 3.4 Local scheduler (Android part)
+
+- Issue and PR: #45, branch `claude/watch-3.4-android` (stacked on `claude/watch-3.7`, PR #107)
+- Changed: `AndroidAlarmPort` (`setExactAndAllowWhileIdle`, or `setAndAllowWhileIdle` when exact alarms are not allowed),
+  `AlarmReceiver` (shows the fired reminder, arms the next alarm), `BootReceiver` (re-arms after boot, time or zone change, app
+  update and exact-alarm permission change; other actions are ignored), `WatchApplication` with a hand-wired `AppGraph`, the
+  manifest permissions (`USE_EXACT_ALARM`, `SCHEDULE_EXACT_ALARM` up to API 32, `RECEIVE_BOOT_COMPLETED`) and receivers, a
+  home-screen warning when the alarm is inexact. `SchedulerStatus.PermissionMissing` became `Armed(exact = false)` (TC-W-023
+  rewritten); `docs/research/watch.md` records the decision and that it is revisited at milestone 7. New case TC-W-027.
+- Validation: red commit `0dc5da4`, then green: `./gradlew check` BUILD SUCCESSFUL; the debug-separation script passes 5 of 5.
+- Open items for the user (TC-W-025, TC-W-026), on a debug build on the watch, with the watch not connected to the phone: (1) after
+  a first schedule exists on the watch (the debug injected-message receiver can deliver one once step 3.2 to 3.3 are wired to the real
+  transport, G2b), leave the screen off for 24 hours: does every reminder fire within 1 minute of its time? Write down the scheduled
+  and the actual time of each. (2) Restart the watch: does the next reminder still fire on time?
+
 ## 2026-10-14 - 5.1 Research the current tile API
 
 - Issue and PR: #51, branch `claude/watch-5.1`

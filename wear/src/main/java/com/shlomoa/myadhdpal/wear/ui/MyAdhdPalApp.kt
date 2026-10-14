@@ -18,16 +18,16 @@ import com.shlomoa.myadhdpal.wear.R
 import com.shlomoa.myadhdpal.wear.ui.theme.MyAdhdPalTheme
 
 @Composable
-fun MyAdhdPalApp() {
+fun MyAdhdPalApp(inexactAlarms: Boolean = false) {
     MyAdhdPalTheme {
         AppScaffold {
-            HomeScreen()
+            HomeScreen(inexactAlarms)
         }
     }
 }
 
 @Composable
-private fun HomeScreen() {
+private fun HomeScreen(inexactAlarms: Boolean) {
     val listState = rememberScalingLazyListState()
     ScreenScaffold(scrollState = listState) {
         ScalingLazyColumn(
@@ -49,6 +49,16 @@ private fun HomeScreen() {
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center
                 )
+            }
+            if (inexactAlarms) {
+                item {
+                    Text(
+                        text = stringResource(R.string.exact_alarm_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

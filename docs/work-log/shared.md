@@ -124,6 +124,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `scripts/test/test-gates.sh` (TC-S-143) and `scripts/check-pr-gates.sh` against the base; doc lint green.
 - Open items: G3a (2.3) starts now; G2b (1.5, 1.8b) waits for G-DEC.
 
+## 2026-10-14 - 2.3 Phone data contract (G3a)
+
+- Issue and PR: #37; PR linked from the coordinator message.
+- Changed: `WatchLinkDataSource`, `WatchEvent`, `PublishResult`, the repository interfaces (`TaskRepository`, `HistoryRepository`, `SettingsRepository`, `ScheduleRepository` with `ScheduleVersionStore`, `PromptRepository`, `LinkStatusRepository`), their models, `ScheduleBuilder`, `SettingsDefaults`/`SettingsLimits` in `phone/.../data/`; `FakeWatchLinkDataSource` and in-memory repositories plus abstract contract tests in the `:phone` test sources; `:phone` now depends on `:protocol` and kotlinx-coroutines (catalog entries `kotlinxCoroutines`); `docs/data-layer.md` documents the contract.
+- Validation: TC-S-090..092 written first and red (`shared-baseline.md`), then green; `./gradlew check` green.
+- Open items: 2.1 and 2.2 can start (Room, DataStore) and must pass the same contract tests; 2.4 and 2.5 also need G2b. The Android lane may now write its ViewModel tests against these fakes (A1b).
+
 ## 2026-10-14 - Amendment of G1: Acknowledgement reminderId and occurrenceAt (protocol 1.1)
 
 - Issue and PR: found by the Watch lane in 3.6 (coordinator decision); PR linked from the coordinator message.
