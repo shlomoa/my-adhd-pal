@@ -30,9 +30,16 @@ with the pure schedule logic from `:protocol` (1.6), and set one exact alarm for
 boot receiver and every schedule update call the same re-arm function, so there is one place that sets alarms. One
 alarm at a time keeps the logic testable with a fixed clock.
 
+**Decision (coordinator, 2026-10-14, reversible, one manifest line; the user has not answered):** declare `USE_EXACT_ALARM`
+(granted with the install from API 33, no settings step on the watch; the Galaxy Watch6 Classic runs Wear OS 5, API 34) and
+`SCHEDULE_EXACT_ALARM` with `android:maxSdkVersion="32"` for API 31 and 32. When `canScheduleExactAlarms()` is false the
+scheduler sets an inexact alarm and the home screen shows a warning. The Play policy limits `USE_EXACT_ALARM` to alarm and
+calendar-type apps, so the choice is revisited at milestone 7 (Play readiness) and the user is told then; if Play declines it, the
+fallback is `SCHEDULE_EXACT_ALARM` with a settings prompt.
+
 Open questions:
 
-1. **Which permission on Wear OS?** Whether `USE_EXACT_ALARM` is acceptable for a reminder app under the Play policy,
+1. **Which permission on Wear OS?** (decided provisionally, see above) Whether `USE_EXACT_ALARM` is acceptable for a reminder app under the Play policy,
    or `SCHEDULE_EXACT_ALARM` with a settings prompt on the watch, is **unverified**: no Wear OS specific documentation
    was found. Decide in 3.4 after checking the Play policy text and testing on the watch (user, with H2).
 2. **Samsung One UI Watch battery management** may restrict background apps beyond stock Wear OS: **unverified**,

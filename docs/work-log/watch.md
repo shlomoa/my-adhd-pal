@@ -132,3 +132,18 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   time; the watch never deletes `/prompt`) and the `SelectionScreen` composable (one button per option).
 - Validation: red commit `b62df3f` (unresolved `PromptInbox`), then green: `./gradlew check` BUILD SUCCESSFUL, 10 new tests pass.
 - Open items: the screen and the inbox are not yet wired to a real transport (1.5, G2b); TC-W-045 (manual) waits for it.
+
+## 2026-10-14 - 3.4 Local scheduler (Android part)
+
+- Issue and PR: #45, branch `claude/watch-3.4-android` (stacked on `claude/watch-3.7`, PR #107)
+- Changed: `AndroidAlarmPort` (`setExactAndAllowWhileIdle`, or `setAndAllowWhileIdle` when exact alarms are not allowed),
+  `AlarmReceiver` (shows the fired reminder, arms the next alarm), `BootReceiver` (re-arms after boot, time or zone change, app
+  update and exact-alarm permission change; other actions are ignored), `WatchApplication` with a hand-wired `AppGraph`, the
+  manifest permissions (`USE_EXACT_ALARM`, `SCHEDULE_EXACT_ALARM` up to API 32, `RECEIVE_BOOT_COMPLETED`) and receivers, a
+  home-screen warning when the alarm is inexact. `SchedulerStatus.PermissionMissing` became `Armed(exact = false)` (TC-W-023
+  rewritten); `docs/research/watch.md` records the decision and that it is revisited at milestone 7. New case TC-W-027.
+- Validation: red commit `0dc5da4`, then green: `./gradlew check` BUILD SUCCESSFUL; the debug-separation script passes 5 of 5.
+- Open items for the user (TC-W-025, TC-W-026), on a debug build on the watch, with the watch not connected to the phone: (1) after
+  a first schedule exists on the watch (the debug injected-message receiver can deliver one once step 3.2 to 3.3 are wired to the real
+  transport, G2b), leave the screen off for 24 hours: does every reminder fire within 1 minute of its time? Write down the scheduled
+  and the actual time of each. (2) Restart the watch: does the next reminder still fire on time?

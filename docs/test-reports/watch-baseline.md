@@ -89,7 +89,19 @@ e: wear/src/test/.../prompt/PromptInboxTest.kt:24:27 Unresolved reference 'Promp
 
 TC-W-045 (prompt from the phone on the watch) is manual and waits for the real transport (1.5, G2b).
 
+## Step 3.4, Android part: inexact fallback and manifest (TC-W-023 changed, TC-W-027; `wear/src/test/.../scheduler/`, `ManifestTest.kt`)
+
+Decision (coordinator, 2026-10-14): with no exact-alarm permission the scheduler sets an inexact alarm and reports it, instead of
+setting nothing. TC-W-023 was rewritten to that behaviour. Red commit: `0dc5da4` (tests only). Command:
+`./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../scheduler/FakeAlarmPort.kt:6:1 Class 'FakeAlarmPort' is not abstract and does not implement abstract member:
+e: wear/src/test/.../scheduler/ReminderSchedulerTest.kt:74:57 No parameter with name 'exact' found.
+```
+
+TC-W-025 (24-hour run) and TC-W-026 (reboot) are manual (checklist in the work log).
+
 ## Not yet written (later steps)
 
-Cases for 3.6 (TC-W-035 to TC-W-038, waiting for the acknowledgement decision), the tile (TC-W-060 to TC-W-066) and biometrics
-(TC-W-077 to TC-W-083).
+Cases for 3.6 (TC-W-035 to TC-W-038, waiting for #105), the tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).
