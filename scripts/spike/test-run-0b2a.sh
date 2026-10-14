@@ -61,7 +61,7 @@ git -C "$tmp/origin.git" grep -q -e '<redacted-email>' "$b" -- docs/spikes/resul
 
 # --- readiness gate: a timed-out adb call is never reported as "not installed"
 run slow-start "slowstart" -AdbTimeoutSec 2 -OnlyCases C1; check "emulator slow to respond: retried, then the run goes on (exit 0)" 0 $rc
-has 'is not ready \(state: unresponsive\)' ; check "the retry is announced" 0 $?
+has 'emulator-5556 did not answer \(attempt 1 of 3\)' ; check "the retry is announced" 0 $?
 ! has 'not installed' ; check "a timeout is not reported as 'not installed'" 0 $?
 has '^C1 PASS' ; check "the cases run once the emulator answers" 0 $?
 run dead-watch "deadwatch" -AdbTimeoutSec 2 -OnlyCases C1; check "emulator that never responds: exit 2" 2 $rc
