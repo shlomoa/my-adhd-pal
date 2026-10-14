@@ -231,3 +231,7 @@ Red commit: tests only (`PathsTest`, `ConstantsTest`, `CodecTest` in `:protocol`
 
 - `./gradlew :protocol:test`: BUILD FAILED at `:protocol:compileTestKotlin`, `Unresolved reference 'Message'` (and the other protocol types: `Paths`, `Codec`, `Schedule`, ...). TC-S-042..055 cannot run.
 - `scripts/test/test-protocol-spec.sh` (TC-S-040, TC-S-041): exit 1, 7 FAIL, 0 PASS (no `Item catalog`, `Item format`, `Versioning policy` or `Link states` section in `docs/protocol.md`, no `Paths.kt`).
+
+## 1.8a transport-neutral diagrams (red)
+
+Red commit: the TC-S-077 structure checks in `scripts/test/test-protocol-spec.sh` only, before the `## Diagrams` section exists in `docs/protocol.md`: exit 1, 9 FAIL (each of the four diagrams missing as a Mermaid block of the right type, and the prompt state machine without a start and an end); the balanced-block checks pass trivially on empty input.

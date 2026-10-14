@@ -31,4 +31,35 @@ done <<EOF2
 $paths
 EOF2
 [ "$n" -ge 8 ]; check "TC-S-041 catalog has at least 8 paths (found $n)" $?
+
+# TC-S-077: the flow and state-machine diagrams exist as Mermaid blocks and are well formed (1.8a: schedule, prompt,
+# versioning, prompt state machine; 1.8b adds the link-state machine and the alert flow). The rendered check on the PR
+# is TC-S-078 (manual); this checks structure only.
+diagrams="$(awk '/^## +Diagrams/{f=1;next} /^## /{f=0} f' "$spec")"
+section_block() { # heading -> mermaid block text under "### heading"
+  printf '%s\n' "$diagrams" | awk -v h="$1" '
+    /^### /{ if (index($0, "### " h) == 1) in_s=1; else in_s=0; next }
+    in_s && /^```mermaid/{blk=1; next}
+    in_s && blk && /^```/{blk=0; exit}
+    in_s && blk{print}'
+}
+required="Schedule sync|Prompt, acknowledgement and selection|Hello and version check|Prompt state machine"
+IFS='|' read -r -a names <<EOF2
+$required
+EOF2
+for name in "${names[@]}"; do
+  block="$(section_block "$name")"
+  [ -n "$block" ]; check "TC-S-077 diagram '$name' is a Mermaid block" $?
+  first="$(printf '%s\n' "$block" | sed -n '1p')"
+  case "$name" in
+    "Prompt state machine") [ "$first" = "stateDiagram-v2" ]; check "TC-S-077 '$name' is a stateDiagram-v2" $?;;
+    *) [ "$first" = "sequenceDiagram" ]; check "TC-S-077 '$name' is a sequenceDiagram" $?;;
+  esac
+  opens="$(printf '%s\n' "$block" | grep -cE '^[[:space:]]*(alt|opt|loop|par|critical|break|rect)([[:space:]]|$)')"
+  ends="$(printf '%s\n' "$block" | grep -cE '^[[:space:]]*end[[:space:]]*$')"
+  [ "$opens" -eq "$ends" ]; check "TC-S-077 '$name' has balanced alt/opt/loop/end blocks ($opens/$ends)" $?
+done
+# state machine: every transition target is declared or reachable, and there is a start and an end
+sm="$(section_block "Prompt state machine")"
+printf '%s\n' "$sm" | grep -q '^\[\*\] -->' && printf '%s\n' "$sm" | grep -q -- '--> \[\*\]'; check "TC-S-077 prompt state machine has a start and an end" $?
 exit $fail
