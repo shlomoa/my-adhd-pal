@@ -68,6 +68,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: manual and scripted runs by the user on real emulators (TC-S-121 to TC-S-125): items cross both ways, listener wakes with the app closed after a kill and after a force-stop, a KEEP item stays, the watch-away reconnect recovers on its own; a quick delete by the watch of a phone-written item is lost on the phone (writer-owns-cleanup rule). Not run on emulators: C5 phone away, C2b, C4; deferred to 0b.2b on the real devices (laptop sleep and the first runner's hang, not protocol failures). Doc lint and link check green. The spike runner was exercised 62 times against a simulated adb (`scripts/spike/test-run-0b2a.sh` on `claude/shared-0b2a-spike-rtt`).
 - Open items: transport stays DataItems only, final at G-DEC after 0b.2b; the runner on `claude/shared-0b2a-spike-rtt` is reused there (with `-OnlyCases`). Steps 1.1-1.3 (G1) can start once this merges; 0b.2b also needs H2.
 
+## 2026-10-14 - 0b.2b Real-hardware spike plan and runner
+
+- Issue and PR: #24; PR linked from the coordinator message.
+- Changed: `docs/spikes/0b2b-plan.md` (decisions needed, what the user does versus what the script does, setup for the A55 over USB and the watch over Wi-Fi debugging with the expected output of each step, the one command, a nine-item checklist, exit codes, what is not verified). The runner `scripts/spike/run-0b2b.ps1`, its simulated adb with hardware-style serials (`scripts/spike/fake-hw/adb`) and `scripts/spike/test-run-0b2b.sh` (65 checks) are on the throwaway branch `claude/shared-0b2b-spike` (never merged); no emulator or restart calls, per-call adb timeouts, a readiness gate that names the device and the fix, link states produced with `svc` on the phone, Doze and standby buckets forced with `dumpsys`/`am`, radios always restored (`-RestorePhone` after a crash), results pushed as `spike-results/0b2b-<timestamp>`.
+- Validation: `test-run-0b2b.sh` 65 PASS on PowerShell 7 against the simulation (flow, readiness failures, radios that adb cannot switch, unobservable Relayed and Away, target misses, Doze, restore, redaction of serials and IP addresses, exit codes); doc lint green. Not run on the real devices or on Windows PowerShell 5.1; the plan lists what stays unverified.
+- Open items: the user agrees the delay targets (proposal in the plan), then does the setup and runs the command; 0b.3 and G-DEC follow the results.
+
 ## 2026-10-14 - 1.1-1.3 Spec skeleton, constants, models and codec (G1)
 
 - Issue and PR: #27, #28, #29; PR linked from the coordinator message.
