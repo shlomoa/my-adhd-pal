@@ -1,6 +1,7 @@
 package com.shlomoa.myadhdpal.wear.reminder
 
 import com.shlomoa.myadhdpal.protocol.AckAction
+import com.shlomoa.myadhdpal.wear.R
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -31,12 +32,14 @@ class ReminderUiSpecTest {
             listOf(AckAction.DONE, AckAction.SNOOZE, AckAction.START_2_MIN, AckAction.DISMISS),
             ReminderAction.entries.map { it.ack }
         )
+        assertEquals(
+            listOf(R.string.action_done, R.string.action_snooze, R.string.action_start_2_min, R.string.action_dismiss),
+            ReminderAction.entries.map { it.labelRes }
+        )
         val strings = File("src/main/res/values/strings.xml").readText()
-        val labels = ReminderAction.entries.map { it.labelResName }
-        assertEquals(listOf("action_done", "action_snooze", "action_start_2_min", "action_dismiss"), labels)
-        val expected = listOf("Done", "Snooze", "Start 2 min", "Dismiss")
-        labels.zip(expected).forEach { (name, text) ->
-            assertEquals(true, Regex("""<string name="$name">$text</string>""").containsMatchIn(strings))
-        }
+        listOf("action_done" to "Done", "action_snooze" to "Snooze", "action_start_2_min" to "Start 2 min", "action_dismiss" to "Dismiss")
+            .forEach { (name, text) ->
+                assertEquals(true, Regex("""<string name="$name">$text</string>""").containsMatchIn(strings))
+            }
     }
 }
