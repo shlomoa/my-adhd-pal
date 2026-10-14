@@ -1,8 +1,8 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.0, steps 1.1 to 1.3). This file is the single source of truth; the constants, models
-and codec in `:protocol` follow it, and unit tests keep them equal. The compatibility function, the link-state function,
-the schedule logic, the fake transport and the diagrams are added in steps 1.4 to 1.8. The transport verification below
+Status: **skeleton** (protocol 1.0, steps 1.1 to 1.4). This file is the single source of truth; the constants, models,
+codec and compatibility rule in `:protocol` follow it, and unit tests keep them equal. The schedule logic, the fake
+transport, the link-state function and the diagrams are added in steps 1.5 to 1.8. The transport verification below
 comes first in time and changes the cleanup rule.
 
 ## Item catalog
@@ -65,7 +65,14 @@ kept.
 item and in the `Hello` body. Additive changes (a new optional field, a new item path) raise the minor version and stay
 compatible; a receiver ignores fields and paths it does not know. A change that removes or reinterprets a field raises
 the major version. A receiver ignores items whose major version it does not support and shows Incompatible. There is no
-negotiation, request or reply. The compatibility function is added in step 1.4.
+negotiation, request or reply.
+
+The rule is `Compatibility` in `:protocol`. `Compatibility.ofMajor(v)` is Compatible only when `v` equals
+`Protocol.MAJOR_VERSION`. `Compatibility.ofHello(text)` parses the hello's `protocolVersion` (`major.minor`, optionally
+`.patch`, each part 1 to 4 digits; anything else, a missing value and a very long number included, is malformed) and
+applies the same rule; a missing or malformed version is Incompatible and never throws. `Codec.decodeIfCompatible`
+returns a failure, so the item is ignored, when the envelope's major version is not supported; minor and patch
+differences are accepted.
 
 ## Link states
 

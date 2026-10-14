@@ -82,6 +82,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: tests written first and red (`shared-baseline.md`); then `:protocol:test` green (TC-S-042..055) and the spec script green; doc lint green.
 - Open items: 1.4 to 1.8 (compatibility, link state, schedule logic, fake transport, diagrams) need G-DEC; the Watch and Android adapters (`DataMap` to `Envelope`) are their lanes' work.
 
+## 2026-10-14 - 1.4 Compatibility rule
+
+- Issue and PR: #30; PR linked from the coordinator message.
+- Changed: `Compatibility` (`ofMajor`, `ofHello`), `ProtocolVersion.parse` and `Codec.decodeIfCompatible` in `:protocol`; the versioning policy in `docs/protocol.md` states the rule and the accepted version text (`major.minor[.patch]`, 1 to 4 digits per part).
+- Validation: TC-S-056..059 written first and red (`shared-baseline.md`), then green with `./gradlew check`; doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.6, 1.7, 1.8a.
+
 ## 2026-10-14 - G2 split into G2a and G2b
 
 - Issue and PR: refs #30-#34 (steps 1.4-1.8); PR linked from the coordinator message.

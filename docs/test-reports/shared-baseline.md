@@ -232,6 +232,10 @@ Red commit: tests only (`PathsTest`, `ConstantsTest`, `CodecTest` in `:protocol`
 - `./gradlew :protocol:test`: BUILD FAILED at `:protocol:compileTestKotlin`, `Unresolved reference 'Message'` (and the other protocol types: `Paths`, `Codec`, `Schedule`, ...). TC-S-042..055 cannot run.
 - `scripts/test/test-protocol-spec.sh` (TC-S-040, TC-S-041): exit 1, 7 FAIL, 0 PASS (no `Item catalog`, `Item format`, `Versioning policy` or `Link states` section in `docs/protocol.md`, no `Paths.kt`).
 
+## 1.4 compatibility rule (red)
+
+Red commit: `CompatibilityTest` only (TC-S-056..059), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'Compatibility'` and `'decodeIfCompatible'`.
+
 ## G2 split into G2a and G2b (red)
 
 Red commit: `scripts/test/test-gates.sh` only (TC-S-143, new), before `gates.json`, the plans and the README change.

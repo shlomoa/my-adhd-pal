@@ -37,7 +37,14 @@ object Codec {
         is BiometricSamples -> json.encodeToString(BiometricSamples.serializer(), message)
     }
 
-    /** Decodes the body of the item stored at [path]. The major version is checked separately (step 1.4). */
+    /** Like [decode], but an item whose major version is not supported is ignored ([DecodeResult.Failure]). */
+    fun decodeIfCompatible(path: String, envelope: Envelope): DecodeResult {
+        val compatibility = Compatibility.ofMajor(envelope.version)
+        if (compatibility is Compatibility.Incompatible) return DecodeResult.Failure(compatibility.reason)
+        return decode(path, envelope)
+    }
+
+    /** Decodes the body of the item stored at [path]. The major version is checked by [decodeIfCompatible]. */
     fun decode(path: String, envelope: Envelope): DecodeResult {
         val kind = Paths.parse(path) ?: return DecodeResult.Failure("unknown path")
         val serializer: KSerializer<out Message> = when (kind) {
