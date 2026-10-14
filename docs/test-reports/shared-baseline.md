@@ -262,6 +262,10 @@ Red commit: tests only (`FakeWatchLinkDataSourceTest`, the repository contract c
 
 Red commit: tests only (`ConstantsTest` expects `Protocol.VERSION` 1.1; `CodecTest` cases for `Acknowledgement.reminderId` and `occurrenceAt`: round trip with and without, a 1.0 body still decodes, absent fields are not written, blank, over-long and negative values are invalid). `./gradlew :protocol:test`: compilation fails, `No parameter with name 'reminderId' found`.
 
+## 2.2 DataStore settings (red)
+
+Red commit: `DataStoreSettingsRepositoryTest` only (TC-S-098, TC-S-099 and the abstract `SettingsRepositoryContract` of TC-S-092 against a DataStore), no implementation and no dependency. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'datastore'` and `'DataStoreSettingsRepository'`.
+
 ## 2.1 Room schema, DAOs and migration policy (red)
 
 Red commit: tests only (`DaoTest`, `RoomRepositoriesTest` running the existing abstract contract tests against Room, `SchemaTest`; TC-S-093..097 and TC-S-092 for the Room repositories), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'AppDatabase'`, `'TaskEntity'`, `'RoomTaskRepository'`, ...

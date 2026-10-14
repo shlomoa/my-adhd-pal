@@ -84,6 +84,18 @@ object SettingsDefaults {
     )
 }
 
+/** The one place that decides whether settings are acceptable; every [SettingsRepository] uses it. */
+object SettingsValidator {
+    fun validate(settings: AppSettings): Set<SettingsError> = buildSet {
+        if (settings.thresholds.size > SettingsLimits.MAX_THRESHOLDS) add(SettingsError.TOO_MANY_THRESHOLDS)
+        if (settings.thresholds.any { it.value !in SettingsLimits.THRESHOLD_VALUE }) {
+            add(SettingsError.THRESHOLD_OUT_OF_RANGE)
+        }
+        if (settings.cooldownSeconds !in SettingsLimits.COOLDOWN_SECONDS) add(SettingsError.COOLDOWN_OUT_OF_RANGE)
+        if (settings.cadenceMinutes !in SettingsLimits.CADENCE_MINUTES) add(SettingsError.CADENCE_OUT_OF_RANGE)
+    }
+}
+
 enum class SettingsError { THRESHOLD_OUT_OF_RANGE, TOO_MANY_THRESHOLDS, COOLDOWN_OUT_OF_RANGE, CADENCE_OUT_OF_RANGE }
 
 sealed interface SettingsResult {

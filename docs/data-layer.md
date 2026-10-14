@@ -54,6 +54,16 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 | Snooze | 10 minutes, at most 3 | minutes 1 to 240, count 0 to 10 (the protocol limits) |
 | Reminder cadence | 60 minutes | 5 to 1440 minutes |
 
+## Settings storage (step 2.2)
+
+`DataStoreSettingsRepository` (`phone/.../data/datastore/`) stores `AppSettings` in Preferences DataStore (keys `thresholds` as a
+JSON list, `cooldown_seconds`, `snooze_minutes`, `snooze_max_count`, `cadence_minutes`). `SettingsValidator` is the one place
+that decides whether settings are acceptable (the ranges in the table above); the repository validates before it writes and
+returns `Invalid(errors)` without writing. A missing value takes the default of `SettingsDefaults`, and an unreadable file
+or value (including a damaged settings file) also falls back to the defaults instead of crashing. The repository takes a
+`DataStore<Preferences>`; creating the file and the scope is the dependency graph's job (the Android lane's step 2.7). It
+passes the same abstract `SettingsRepositoryContract` as the in-memory fake.
+
 ## Database (step 2.1)
 
 Room database `AppDatabase` in `phone/.../data/db/`, file `my-adhd-pal.db`, with four tables:

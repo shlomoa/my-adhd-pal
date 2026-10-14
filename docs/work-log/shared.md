@@ -145,6 +145,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `scripts/test/test-gates.sh` (TC-S-143), `scripts/check-pr-gates.sh` against the base, doc lint.
 - Open items: 2.1 (Room) and 2.2 (DataStore) start against the contract tests; 2.4 and 2.5 wait for G2b.
 
+## 2026-10-14 - 2.2 DataStore settings
+
+- Issue and PR: step 2.2 issue; PR linked from the coordinator message.
+- Changed: `DataStoreSettingsRepository` and `SettingsValidator` (shared with the in-memory fake) in `phone/.../data/`; dependency `androidx.datastore:datastore-preferences` 1.2.1 (catalog entries under the S block); `docs/data-layer.md` documents the storage and the fallbacks.
+- Validation: TC-S-098 and TC-S-099 written first and red (`shared-baseline.md`), then green, together with the abstract `SettingsRepositoryContract` (TC-S-092) against a real DataStore file: documented defaults, a value survives closing and reopening the store, out-of-range values are rejected without a write, a damaged file falls back to the defaults; `./gradlew check` green.
+- Open items: none for this step. 2.4 and 2.5 wait for G2b; the schedule version store (monotonic across restarts) is part of 2.5.
+
 ## 2026-10-14 - 2.1 Room schema, DAOs and migration policy
 
 - Issue and PR: step 2.1 issue; PR linked from the coordinator message. 2.1 was BLOCKED on G3a (#111) until the coordinator merged it, then started.
