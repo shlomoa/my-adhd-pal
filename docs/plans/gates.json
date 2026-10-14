@@ -130,8 +130,8 @@
       "requires": [
         "G2a"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 112
     },
     {
       "id": "G6",
