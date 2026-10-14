@@ -21,7 +21,9 @@ class LinkStateViewModelTest {
 
     // An item delivered while linked sets the last sync to this time: 90 seconds before "now".
     private val source = FakeWatchLinkDataSource { FIXED_CLOCK.instant().minusSeconds(90) }
-    private val vm = LinkStateViewModel(InMemoryLinkStatusRepository(source), FIXED_CLOCK)
+
+    // Lazy: the ViewModel must be created after [main] has installed the test dispatcher.
+    private val vm by lazy { LinkStateViewModel(InMemoryLinkStatusRepository(source), FIXED_CLOCK) }
 
     @Test
     fun `TC-A-001 Nearby is shown`() {
