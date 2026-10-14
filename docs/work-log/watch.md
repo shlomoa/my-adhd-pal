@@ -147,3 +147,19 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   a first schedule exists on the watch (the debug injected-message receiver can deliver one once step 3.2 to 3.3 are wired to the real
   transport, G2b), leave the screen off for 24 hours: does every reminder fire within 1 minute of its time? Write down the scheduled
   and the actual time of each. (2) Restart the watch: does the next reminder still fire on time?
+
+## 2026-10-14 - 3.6 Acknowledgements
+
+- Issue and PR: #47, branch `claude/watch-3.6` (stacked on `claude/watch-3.4-android`, PR #108)
+- Changed: `ReminderActionHandler` (the local effect first: Snooze moves the alarm, Start 2 min starts a 2-minute timer, Done and
+  Dismiss end a pending snooze; then a fresh-UUID `/ack/<id>` with action, time, `reminderId` and `occurrenceAt`; a snooze beyond the
+  cap is refused and sends nothing; the same action on the same notification twice sends one ack; without a transport the local
+  effect still happens and the missing ack is logged), `TimerPort` with `AndroidTimerPort` and `TimerReceiver` (a calm haptic when the
+  two minutes are over, my choice to be confirmed by the user), `ReminderActionReceiver` wired to the handler. `SnoozeEntry` and
+  `FiredReminder` carry the scheduled `occurrenceAt` (also after several snoozes). `AppGraph.transport` stays empty until the Data Layer
+  wiring (1.5, G2b) sets it; the watch never deletes its own acks (the phone does after storing).
+- Validation: red commit `3cc8a13`, then green: `./gradlew check` BUILD SUCCESSFUL, 8 new tests pass.
+- Open items for the user (TC-W-034, now complete with the actions): on a debug build, fire a reminder with
+  `adb shell am broadcast -n com.shlomoa.myadhdpal/.wear.debug.FireReminderReceiver`, tap Snooze (the notification closes and the
+  reminder returns after the snooze minutes of the schedule), tap Start 2 min (after two minutes a calm haptic), tap Done and Dismiss
+  (the notification closes). Acknowledgements reach the phone only once the real transport exists (G2b), so the phone side is TC-W-090.

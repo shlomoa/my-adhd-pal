@@ -20,8 +20,11 @@ interface AlarmPort {
     fun cancel()
 }
 
-/** A snoozed reminder: when it is due again and how many snoozes the occurrence has used. */
-data class SnoozeEntry(val dueAt: Instant, val count: Int)
+/**
+ * A snoozed reminder: when it is due again, how many snoozes the occurrence has used and the scheduled time of that
+ * occurrence (which acknowledgements report, also after several snoozes).
+ */
+data class SnoozeEntry(val dueAt: Instant, val count: Int, val occurrenceAt: Instant)
 
 /** Keeps pending snoozes so that they survive a restart or reboot. */
 interface SnoozeStore {
@@ -38,7 +41,8 @@ sealed interface SchedulerStatus {
     data class Armed(val at: Instant, val reminderId: String, val exact: Boolean = true) : SchedulerStatus
 }
 
-data class FiredReminder(val reminder: Reminder, val snoozeCount: Int)
+/** A reminder that is due: [occurrenceAt] is the scheduled time of its occurrence, not of a later snooze. */
+data class FiredReminder(val reminder: Reminder, val snoozeCount: Int, val occurrenceAt: Instant)
 
 /**
  * Keeps one exact alarm set for the earliest of the next scheduled reminder and the pending snoozes. [rearm] is the
@@ -62,14 +66,14 @@ class ReminderScheduler(
     }
 
     /**
-     * Snoozes [reminderId] (whose current occurrence has used [snoozeCount] snoozes), persists the new due time and
-     * re-arms. A denied snooze changes nothing.
+     * Snoozes [reminderId] (whose occurrence scheduled for [occurrenceAt] has used [snoozeCount] snoozes), persists the
+     * new due time and re-arms. A denied snooze changes nothing.
      */
-    fun snooze(reminderId: String, snoozeCount: Int): SnoozeResult {
+    fun snooze(reminderId: String, snoozeCount: Int, occurrenceAt: Instant): SnoozeResult {
         val settings = schedule()?.snooze ?: return SnoozeResult.Denied(SnoozeDenial.AT_CAP)
         val result = ScheduleLogic.snooze(settings, snoozeCount, now(), expiresAt = null)
         if (result is SnoozeResult.Until) {
-            snoozes.save(snoozes.load() + (reminderId to SnoozeEntry(result.at, result.snoozeCount)))
+            snoozes.save(snoozes.load() + (reminderId to SnoozeEntry(result.at, result.snoozeCount, occurrenceAt)))
             rearm()
         }
         return result
@@ -92,7 +96,7 @@ class ReminderScheduler(
         val reminder = schedule()?.reminders?.firstOrNull { it.id == reminderId }
         if (reminder == null) Logger.w(TAG, "alarm for a reminder that is no longer scheduled")
         rearm()
-        return reminder?.let { FiredReminder(it, snoozed?.count ?: 0) }
+        return reminder?.let { FiredReminder(it, snoozed?.count ?: 0, snoozed?.occurrenceAt ?: at) }
     }
 
     private fun computeAndSet(): SchedulerStatus {

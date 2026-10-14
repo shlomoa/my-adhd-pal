@@ -41,6 +41,10 @@
             android:exported="false" />
 
         <receiver
+            android:name=".reminder.TimerReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".scheduler.BootReceiver"
             android:exported="true">
             <intent-filter>

@@ -27,7 +27,13 @@ class ReminderNotifier(private val context: Context) {
     }
 
     private fun action(action: ReminderAction, fired: FiredReminder): Notification.Action {
-        val intent = ReminderActionReceiver.intent(context, action, fired.reminder.id, fired.snoozeCount)
+        val intent = ReminderActionReceiver.intent(
+            context,
+            action,
+            fired.reminder.id,
+            fired.snoozeCount,
+            fired.occurrenceAt
+        )
         val pending = PendingIntent.getBroadcast(
             context,
             "${fired.reminder.id}/${action.name}".hashCode(),

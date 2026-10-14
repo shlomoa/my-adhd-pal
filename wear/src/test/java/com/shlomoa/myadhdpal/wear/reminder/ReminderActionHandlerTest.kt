@@ -47,16 +47,14 @@ class ReminderActionHandlerTest {
     @Test
     fun `TC-W-035 Done and Dismiss send an ack with the action, the time, the reminder and the occurrence`() {
         link.connect(nearby = true)
+        val doneAt = now
         handler().handle(ReminderAction.DONE, "water", snoozeCount = 0, occurrenceAt = occurrence)
         now = now.plusSeconds(60)
         handler().handle(ReminderAction.DISMISS, "water", snoozeCount = 0, occurrenceAt = occurrence.plusSeconds(1))
-        assertEquals(
-            listOf(
-                Acknowledgement(AckAction.DONE, Instant.parse("2026-10-14T08:30:05Z").toEpochMilli(), "water", occurrence.toEpochMilli()),
-                Acknowledgement(AckAction.DISMISS, now.toEpochMilli(), "water", occurrence.plusSeconds(1).toEpochMilli())
-            ),
-            acksOnPhone()
-        )
+        val first = Acknowledgement(AckAction.DONE, doneAt.toEpochMilli(), "water", occurrence.toEpochMilli())
+        val second =
+            Acknowledgement(AckAction.DISMISS, now.toEpochMilli(), "water", occurrence.plusSeconds(1).toEpochMilli())
+        assertEquals(listOf(first, second), acksOnPhone())
         assertEquals(2, link.phone.items().count { Paths.parse(it.path) is ItemPath.Ack })
     }
 
@@ -70,7 +68,7 @@ class ReminderActionHandlerTest {
     }
 
     @Test
-    fun `TC-W-036 snooze moves the alarm on the watch before the ack is sent, and the ack reaches the phone on reconnect`() {
+    fun `TC-W-036 snooze moves the alarm before the ack is sent and the ack arrives on reconnect`() {
         var alarmWhenSent: FakeAlarmPort.Alarm? = null
         val spy = object : LinkTransport by link.watch {
             override fun put(path: String, envelope: Envelope) {

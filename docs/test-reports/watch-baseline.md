@@ -102,6 +102,17 @@ e: wear/src/test/.../scheduler/ReminderSchedulerTest.kt:74:57 No parameter with 
 
 TC-W-025 (24-hour run) and TC-W-026 (reboot) are manual (checklist in the work log).
 
+## Step 3.6: acknowledgements (TC-W-035 to TC-W-038, TC-W-020 occurrence; `wear/src/test/.../reminder/ReminderActionHandlerTest.kt`)
+
+Protocol 1.1 (PR #105) added `reminderId` and `occurrenceAt` to `Acknowledgement`. Red commit: `3cc8a13` (tests only).
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../reminder/FakeTimerPort.kt:3:23 Unresolved reference 'TimerPort'.
+e: wear/src/test/.../reminder/ReminderActionHandlerTest.kt:40:9 Unresolved reference 'ReminderActionHandler'.
+e: wear/src/test/.../reminder/ReminderActionHandlerTest.kt:66:38 Too many arguments for 'fun snooze(reminderId: String, snoozeCount: Int): SnoozeResult'.
+```
+
 ## Not yet written (later steps)
 
-Cases for 3.6 (TC-W-035 to TC-W-038, waiting for #105), the tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).
+Cases for the tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).
