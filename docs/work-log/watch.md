@@ -95,4 +95,3 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red commit `9993415` (unresolved references), then green: `./gradlew check` BUILD SUCCESSFUL, 11 schedule tests pass.
 - Open items: the Android listener service that feeds `ScheduleReceiver` from the Data Layer is part of the real transport, which
   needs the link-state function (1.5, G2b). TC-W-015 (manual) waits for it.
-
