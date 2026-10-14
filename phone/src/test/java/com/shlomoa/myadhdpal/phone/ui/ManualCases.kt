@@ -24,11 +24,4 @@ object ManualCases {
 
     /** Documents reviewed by the user (7.4 to 7.6). */
     val docs = listOf("TC-A-067", "TC-A-068", "TC-A-069")
-
-    /**
-     * Compose UI tests of accessibility labels and touch targets, written in step 4.6 against the real screens. They
-     * need `androidx.compose.ui:ui-test-junit4` and `ui-test-manifest`, which `phone/build.gradle.kts` (lane S) does
-     * not have yet; see the issue labelled lane S.
-     */
-    val composeUi = listOf("TC-A-058", "TC-A-059")
 }
