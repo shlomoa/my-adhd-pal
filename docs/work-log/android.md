@@ -44,3 +44,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `ui/history/HistoryViewModel` (+ `HistoryUiState`: filter and `ListState`, retry), stateless `HistoryScreen` with type filter chips and the empty, loading and error states, strings. Completes G4 together with 2.7 (#83) and 2.6 (#116).
 - Validation: `HistoryViewModelTest` (TC-A-045 to 051, 054, 056) red first (does not compile), now 9 of 9 PASS; `./gradlew check assembleDebug` green.
 - Open items: not wired into `MainActivity` until the data layer binds `HistoryRepository` (G3); then the manual TC-A-052 (history stored with the app closed) can run. The Selected row shows the prompt title only if the repository fills it (data layer, lane S).
+
+## 2026-10-14 - G4 flip
+
+- Issue and PR: gate flip after #83 (2.7), #116 (2.6) and #117 (4.5) merged.
+- Changed: `docs/plans/gates.json`: G4 to `merged`, `pr` 117 (the PR that completed it).
+- Validation: `scripts/check-pr-gates.sh` with `Requires: G3a,G-LIB` and `Produces: G4`; the Gates workflow enforces it.
+- Open items: 4.1 to 4.4 wait for G3; 4.6 and G6 follow them.
