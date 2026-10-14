@@ -44,8 +44,9 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-028 | 0a.8 | script | Maven mirror fallback only on refusal | the mirror is configured only when `repo.maven.apache.org` refuses requests, and not when it answers 200 |
 | TC-S-029 | 0a.8 | script | Fresh state then `./gradlew check` | green |
 | TC-S-030 | 0a.8 | script | Script failure paths | a missing prerequisite (no `curl` or `unzip`) or an interrupted download exits non-zero with a clear message |
+| TC-S-143 | G2 split | script | Gate graph is consistent and G2 is split | `scripts/test/test-gates.sh`: unique ids, existing requirements, no cycle, README table equals `gates.json`, lane plans name existing gates; G2a requires G1 only, G2b requires G2a and G-DEC, G3a and G5 require G2a, G3 requires G2b |
 
-## Part b: protocol (milestone 1, `:protocol`; needs G-SPK1 for 1.1-1.3, G1 and G-DEC for 1.4-1.8)
+## Part b: protocol (milestone 1, `:protocol`; needs G-SPK1 for 1.1-1.3; G1 for 1.4, 1.6, 1.7 and 1.8a (gate G2a); G2a and G-DEC for 1.5 and 1.8b (gate G2b))
 
 | Id | Step | Kind | Case | Pass criteria |
 |---|---|---|---|---|
@@ -90,7 +91,7 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-078 | 1.8 | manual | Diagrams render | the PR's rendered view shows every diagram without error |
 | TC-S-079 | 1.8 | script | Diagram states match code | every link state in the diagram is a member of the `LinkState` type |
 
-## Part b: phone data layer (milestone 2; 2.3 needs G2, the rest need G3a and G-LIB)
+## Part b: phone data layer (milestone 2; 2.3 needs G2a, 2.1 and 2.2 need G3a and G-LIB, 2.4 and 2.5 also need G2b)
 
 | Id | Step | Kind | Case | Pass criteria |
 |---|---|---|---|---|

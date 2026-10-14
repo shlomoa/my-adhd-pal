@@ -70,11 +70,21 @@
       "pr": 90
     },
     {
-      "id": "G2",
-      "name": "1.4-1.8 compatibility, link states, schedule logic, fake transport",
+      "id": "G2a",
+      "name": "1.4, 1.6, 1.7, 1.8a compatibility, schedule logic, LinkTransport + LinkState + fake transport, transport-neutral diagrams",
       "owner": "S",
       "requires": [
-        "G1",
+        "G1"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G2b",
+      "name": "1.5, 1.8b link-state function, link-state and alert diagrams (need the hardware observations)",
+      "owner": "S",
+      "requires": [
+        "G2a",
         "G-DEC"
       ],
       "status": "open",
@@ -85,7 +95,7 @@
       "name": "phone data contract: WatchLinkDataSource, repository interfaces, fakes",
       "owner": "S",
       "requires": [
-        "G2"
+        "G2a"
       ],
       "status": "open",
       "pr": null
@@ -96,7 +106,8 @@
       "owner": "S",
       "requires": [
         "G3a",
-        "G-LIB"
+        "G-LIB",
+        "G2b"
       ],
       "status": "open",
       "pr": null
@@ -117,7 +128,7 @@
       "name": "watch core 3.1-3.7",
       "owner": "W",
       "requires": [
-        "G2"
+        "G2a"
       ],
       "status": "open",
       "pr": null

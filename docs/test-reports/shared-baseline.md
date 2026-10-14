@@ -235,3 +235,9 @@ Red commit: tests only (`PathsTest`, `ConstantsTest`, `CodecTest` in `:protocol`
 ## 1.6 schedule logic (red)
 
 Red commit: `ScheduleLogicTest` only (TC-S-067..071), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'ScheduleLogic'`, `'SnoozeResult'`, `'SnoozeDenial'`.
+
+## G2 split into G2a and G2b (red)
+
+Red commit: `scripts/test/test-gates.sh` only (TC-S-143, new), before `gates.json`, the plans and the README change.
+
+- `scripts/test/test-gates.sh` on the current `main`: exit 1, 7 FAIL, with the generic graph checks (unique ids, existing requirements, no cycle, README table equals `gates.json`, lane plans name existing gates) PASS. The FAILs are the split itself: `G2 is replaced by G2a and G2b`, `G2a requires G1 only (got '')`, `G2b requires G2a and G-DEC (got '')`, `G3a requires G2a (got 'G2')`, `G3 ... requires G3a, G-LIB and G2b (got 'G-LIB,G3a')`, `G5 requires G2a (got 'G2')`.
