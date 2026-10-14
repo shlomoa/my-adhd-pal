@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import com.shlomoa.myadhdpal.wear.scheduler.SchedulerStatus
 import com.shlomoa.myadhdpal.wear.ui.MyAdhdPalApp
 
 class MainActivity : ComponentActivity() {
@@ -16,7 +17,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestNotificationPermissionIfNeeded()
-        setContent { MyAdhdPalApp() }
+        val status = (application as WatchApplication).graph.scheduler.rearm()
+        val inexact = status is SchedulerStatus.Armed && !status.exact
+        setContent { MyAdhdPalApp(inexactAlarms = inexact) }
     }
 
     /** Reminders are notifications; from Wear OS 4 (API 33) the user has to allow them. */

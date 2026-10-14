@@ -14,4 +14,5 @@
     <string name="last_sync">Last sync %1$s</string>
     <string name="never_synced">Not synced yet</string>
     <string name="channel_reminders">Reminders</string>
+    <string name="exact_alarm_warning">Reminders may be late: allow alarms in settings</string>
 </resources>

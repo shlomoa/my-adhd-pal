@@ -68,12 +68,14 @@ class ReminderSchedulerTest {
     }
 
     @Test
-    fun `TC-W-023 without the exact-alarm permission nothing is set and the status says so`() {
+    fun `TC-W-023 without exact alarms an inexact alarm is still set and the status says so`() {
         alarms.canSchedule = false
-        assertEquals(SchedulerStatus.PermissionMissing, scheduler().rearm())
-        assertNull(alarms.alarm)
+        val at = Instant.parse("2026-10-14T08:30:00Z")
+        assertEquals(SchedulerStatus.Armed(at, "water", exact = false), scheduler().rearm())
+        assertEquals(FakeAlarmPort.Alarm(at, "water", exact = false), alarms.alarm)
         alarms.canSchedule = true
-        assertEquals(SchedulerStatus.Armed(Instant.parse("2026-10-14T08:30:00Z"), "water"), scheduler().rearm())
+        assertEquals(SchedulerStatus.Armed(at, "water", exact = true), scheduler().rearm())
+        assertEquals(FakeAlarmPort.Alarm(at, "water", exact = true), alarms.alarm)
     }
 
     @Test

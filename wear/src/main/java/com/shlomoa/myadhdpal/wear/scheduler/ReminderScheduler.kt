@@ -11,11 +11,11 @@ import java.time.ZoneId
 
 /** The platform alarm for this app: one exact alarm at a time, carrying the id of the reminder it is for. */
 interface AlarmPort {
-    /** False when the app may not set exact alarms (the permission is missing or was revoked). */
+    /** False when the app may not set exact alarms (the permission was not granted or was revoked). */
     fun canScheduleExact(): Boolean
 
-    /** Sets the alarm for [reminderId] at [at], replacing the previous one. */
-    fun set(at: Instant, reminderId: String)
+    /** Sets the alarm for [reminderId] at [at], replacing the previous one. Inexact alarms may fire late. */
+    fun set(at: Instant, reminderId: String, exact: Boolean)
 
     fun cancel()
 }
@@ -34,10 +34,8 @@ sealed interface SchedulerStatus {
     /** Nothing to remind about. */
     data object Idle : SchedulerStatus
 
-    data class Armed(val at: Instant, val reminderId: String) : SchedulerStatus
-
-    /** Exact alarms are not allowed; reminders cannot fire until the permission is granted. */
-    data object PermissionMissing : SchedulerStatus
+    /** An alarm is set; with [exact] false it is inexact because exact alarms are not allowed, so it may fire late. */
+    data class Armed(val at: Instant, val reminderId: String, val exact: Boolean = true) : SchedulerStatus
 }
 
 data class FiredReminder(val reminder: Reminder, val snoozeCount: Int)
@@ -104,15 +102,17 @@ class ReminderScheduler(
         val nextSnooze = snoozes.load().filterKeys { it in knownIds }.minByOrNull { it.value.dueAt }
         val useSnooze = nextSnooze != null && (nextScheduled == null || nextSnooze.value.dueAt <= nextScheduled.at)
         val target = if (useSnooze) {
-            SchedulerStatus.Armed(nextSnooze!!.value.dueAt, nextSnooze.key)
+            nextSnooze!!.let { it.value.dueAt to it.key }
         } else {
-            nextScheduled?.let { SchedulerStatus.Armed(it.at, it.reminder.id) }
+            nextScheduled?.let { it.at to it.reminder.id }
         }
-        return when {
-            target == null -> SchedulerStatus.Idle.also { alarms.cancel() }
-            !alarms.canScheduleExact() -> SchedulerStatus.PermissionMissing.also { alarms.cancel() }
-            else -> target.also { alarms.set(it.at, it.reminderId) }
+        if (target == null) {
+            alarms.cancel()
+            return SchedulerStatus.Idle
         }
+        val exact = alarms.canScheduleExact()
+        alarms.set(target.first, target.second, exact)
+        return SchedulerStatus.Armed(target.first, target.second, exact)
     }
 
     private companion object {
