@@ -39,6 +39,12 @@ Every item has four keys:
 `Envelope` type. Times inside a body (`at`, `expiresAt`) are epoch milliseconds on the clock of the node that wrote the
 item. The two clocks differ (the emulator spike measured about 1.5 s), so a receiver never computes a delay from them.
 
+**Prompt expiry.** `Prompt.expiresAt` is an absolute epoch-millisecond time on the phone's clock. The phone stays the
+authority and deletes an expired prompt when it can (writer-owns-cleanup rule). The watch additionally hides and ignores a
+prompt once its own clock is at or past `expiresAt`, and never shows an already-expired prompt that it receives late. This
+is not a delay measurement: expiry is on a scale of minutes, and the clocks of real, NTP-synced devices differ by far less
+than the 1.5 s seen between the emulators, so a prompt may be shown or hidden a few seconds early or late.
+
 Bodies (field names are the JSON keys):
 
 | Model | Fields |
@@ -120,6 +126,92 @@ capability and the hello versions is added in step 1.5; the states are fixed now
 | Away | no watch is connected |
 | No watch app | a watch is paired, but without the app capability |
 | Incompatible | the watch's hello has an unsupported major version, or is missing or malformed |
+
+## Diagrams
+
+The flows below are the same under the DataItems-only transport and under a `MessageClient` fallback for urgent alerts,
+because both are written against `LinkTransport`. The link-state machine and the alert flow are added with the link-state
+function (step 1.5), after the hardware spike.
+
+### Schedule sync
+
+```mermaid
+sequenceDiagram
+    participant P as Phone (master)
+    participant D as Data Layer
+    participant W as Watch
+    P->>D: put /schedule (version n, thresholds, cooldown)
+    Note over P,D: urgent only if the next 30 minutes change
+    D-->>W: item changed (when the link allows, queued while Away)
+    alt n is greater than the stored version
+        W->>W: apply, store locally, recompute next reminder
+    else n is equal or older
+        W->>W: ignore
+    end
+    Note over W: thresholds and cooldown are evaluated on the watch
+```
+
+### Prompt, acknowledgement and selection
+
+```mermaid
+sequenceDiagram
+    participant P as Phone
+    participant D as Data Layer
+    participant W as Watch
+    P->>D: put /prompt/id (urgent, optional expiry)
+    D-->>W: item changed
+    W->>W: validate, show, haptic
+    alt user taps Snooze
+        W->>W: apply the snooze at once (cap and expiry rules)
+        W->>D: put /ack/id action SNOOZE (urgent)
+    else user taps Done or Dismiss or Start 2 min
+        W->>D: put /ack/id with the action (urgent)
+    else user picks an option
+        W->>D: put /selection/id with the key (urgent)
+    end
+    D-->>P: item changed
+    P->>P: store once (idempotent by id), record in history
+    P->>D: delete /prompt/id (the phone removes its own prompt)
+    P->>D: delete /ack/id or /selection/id (after storing)
+    loop prompt expires unanswered
+        P->>D: delete /prompt/id at the expiry time
+    end
+```
+
+### Hello and version check
+
+```mermaid
+sequenceDiagram
+    participant P as Phone
+    participant W as Watch
+    P->>W: put /hello/phone (protocol version, app version) at start
+    W->>P: put /hello/watch (protocol version, app version) at start
+    alt major version equal
+        P->>P: Compatible, link state from the nodes
+        W->>W: Compatible, link state from the nodes
+    else major version different, missing or malformed
+        P->>P: ignore items from the watch, link state Incompatible
+        W->>W: ignore items from the phone, show Incompatible
+    end
+    Note over P,W: no request and no reply, each side overwrites its hello at start
+```
+
+### Prompt state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Published: phone puts /prompt/id
+    Published --> Shown: watch receives it
+    Published --> Expired: expiry reached before it arrives
+    Shown --> Snoozed: user snoozes (within the cap)
+    Snoozed --> Shown: snooze time passed
+    Snoozed --> Expired: next time at or after expiry
+    Shown --> Answered: ack or selection put
+    Shown --> Expired: expiry reached
+    Answered --> Removed: phone stores the answer and deletes the prompt
+    Expired --> Removed: phone deletes the prompt
+    Removed --> [*]
+```
 
 ## Transport verification: spike 0b.2a (paired emulators)
 

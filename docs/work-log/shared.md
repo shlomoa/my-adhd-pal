@@ -82,6 +82,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: tests written first and red (`shared-baseline.md`); then `:protocol:test` green (TC-S-042..055) and the spec script green; doc lint green.
 - Open items: 1.4 to 1.8 (compatibility, link state, schedule logic, fake transport, diagrams) need G-DEC; the Watch and Android adapters (`DataMap` to `Envelope`) are their lanes' work.
 
+## 2026-10-14 - 1.8a Transport-neutral diagrams
+
+- Issue and PR: #34 (1.8; 1.8b follows with G2b, so the issue stays open); PR linked from the coordinator message.
+- Changed: a "Diagrams" section in `docs/protocol.md` with four Mermaid diagrams (schedule sync, prompt/acknowledgement/selection, hello and version check, prompt state machine); TC-S-077 structure checks in `scripts/test/test-protocol-spec.sh` (Mermaid block of the right type under each heading, balanced alt/loop/end, start and end of the state machine, no semicolon in a Mermaid line).
+- Validation: checks written first and red (`shared-baseline.md`), then green; all four diagrams were also rendered with `@mermaid-js/mermaid-cli` 11.4.2 and Chromium (a semicolon in a message broke the first draft and is now guarded); doc lint green. TC-S-078 (rendered view on the PR) is the manual check for the reviewer. Also added the prompt-expiry clause decided by the coordinator (absolute phone-clock time, the watch hides an expired prompt on its own clock, a few seconds of tolerance).
+- Open items: the link-state machine and the alert flow are 1.8b (G2b). Gate G2a is not flipped here: it needs 1.4, 1.6, 1.7 and 1.8a all merged, so a separate small PR flips it.
+
 ## 2026-10-14 - 1.7 LinkTransport and fake transport
 
 - Issue and PR: #33; PR linked from the coordinator message.
