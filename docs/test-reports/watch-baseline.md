@@ -57,7 +57,18 @@ e: wear/src/test/.../schedule/FileScheduleStoreTest.kt:32:40 Unresolved referenc
 
 TC-W-015 (schedule from the phone on the watch) is manual and waits for the real transport (1.5, G2b).
 
+## Step 3.4, logic part: reminder scheduler (TC-W-020 to TC-W-024; `wear/src/test/.../scheduler/`)
+
+Red commit: `dceb6f0` (tests only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../scheduler/FakeAlarmPort.kt:6:56 Unresolved reference 'AlarmPort'.
+e: wear/src/test/.../scheduler/InMemorySnoozeStore.kt:3:29 Unresolved reference 'SnoozeStore'.
+```
+
+TC-W-025 (24-hour run) and TC-W-026 (reboot) are manual and wait for the Android parts of 3.4 (see the work log).
+
 ## Not yet written (later steps)
 
-Cases for 3.4 scheduler (TC-W-020 to TC-W-026), 3.5 to 3.6 (TC-W-032 to TC-W-038), 3.7 selections (TC-W-040, 041, 044, 045), the
-tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).
+Cases for 3.5 to 3.6 (TC-W-032 to TC-W-038), 3.7 selections (TC-W-040, 041, 044, 045), the tile (TC-W-060 to TC-W-066) and
+biometrics (TC-W-077 to TC-W-083).
