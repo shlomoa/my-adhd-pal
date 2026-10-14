@@ -163,3 +163,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   `adb shell am broadcast -n com.shlomoa.myadhdpal/.wear.debug.FireReminderReceiver`, tap Snooze (the notification closes and the
   reminder returns after the snooze minutes of the schedule), tap Start 2 min (after two minutes a calm haptic), tap Done and Dismiss
   (the notification closes). Acknowledgements reach the phone only once the real transport exists (G2b), so the phone side is TC-W-090.
+
+## 2026-10-14 - G5 Watch core flip
+
+- Issue and PR: gate G5 (3.1 to 3.7), flip PR below
+- Changed: `docs/plans/gates.json` marks G5 merged. Steps 3.1 (#79), 3.2 (#101), 3.3 (#102), 3.4 logic (#103) and Android part (#108),
+  3.5 (#106), 3.6 (#109), 3.7 (#107) and 3.8 (#80) are merged.
+- Validation: each step has its red commit and green `./gradlew check` in its own PR. These manual checks are NOT yet run by the user and
+  are pending in the user's hardware session: TC-W-025 and TC-W-026 (24-hour reminder run, reboot), TC-W-033 and TC-W-034 (haptic feel,
+  notification and its actions). They must be reported by the user before W-final and G7, and nothing may claim them verified until then.
+  Also not done: the real Data Layer transport (step 1.5, G2b), so TC-W-008, 015, 045 and the phone side of acknowledgements wait.
+- Open items: none besides the above.
