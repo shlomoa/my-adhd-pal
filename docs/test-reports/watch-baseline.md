@@ -35,6 +35,18 @@ Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
 e: wear/src/test/.../reminder/PromptExpiryTest.kt:20:36 Unresolved reference 'isExpiredAt' on receiver of type 'Prompt'.
 ```
 
-## Not yet written (W1c-b, after G2a)
+## Step 3.2: link client (TC-W-001 to TC-W-007, `wear/src/test/.../link/LinkClientTest.kt`)
 
-All other cases that touch the link state, the schedule logic or the transport.
+Each step after G2a records its red evidence here, in its own PR (the red commit precedes the implementation commit in the PR).
+Red commit: `2f97a7c` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../link/LinkClientTest.kt:30:9 Unresolved reference 'LinkClient'.
+```
+
+TC-W-008 (home screen on the watch) is manual and waits for the real transport (step 1.5, G2b).
+
+## Not yet written (later steps)
+
+Cases for 3.3 schedule receive (TC-W-010 to TC-W-015), 3.4 scheduler (TC-W-020 to TC-W-026), 3.5 to 3.6 (TC-W-032 to TC-W-038), 3.7
+selections (TC-W-040, 041, 044, 045), the tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).

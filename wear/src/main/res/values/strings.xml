@@ -7,4 +7,10 @@
     <string name="action_snooze">Snooze</string>
     <string name="action_start_2_min">Start 2 min</string>
     <string name="action_dismiss">Dismiss</string>
+    <string name="link_nearby">Phone nearby</string>
+    <string name="link_relayed">Phone via internet</string>
+    <string name="link_away">Phone away</string>
+    <string name="link_incompatible">Update the app</string>
+    <string name="last_sync">Last sync %1$s</string>
+    <string name="never_synced">Not synced yet</string>
 </resources>
