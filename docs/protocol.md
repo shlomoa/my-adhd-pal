@@ -91,6 +91,23 @@ Pure functions in `:protocol` (`ScheduleLogic`), given the current instant and a
 - **Newer version:** a schedule applies only if its `version` is greater than the one in use (or none is in use); equal and
   older versions are ignored.
 
+## Transport abstraction
+
+`:protocol` defines `LinkTransport`, the one interface the apps use to reach the other node: `put(path, envelope)`,
+`delete(path)`, `items()`, `setListener(...)` and the read-only `linkState` (one of the five states below). The real
+implementations wrap the Wearable Data Layer in `:wear` and `:phone` and compute `linkState` with the link-state function;
+tests use `FakeLink` (two `FakeNode`s), which behaves like DataItems:
+
+- a write is stored on the writer at once, and delivered to the other node when the link is Nearby, Relayed or
+  Incompatible; while the link is Away or there is No watch app it is queued and delivered in order on reconnect;
+- a newer item at the same path replaces the older one, also in the queue (the other node sees only the newest);
+- a deletion reaches the other node the same way; an item deleted before it was delivered is never delivered, and a
+  deleted item is not redelivered after a reconnect;
+- repeated disconnects and reconnects give no duplicates and no loss; state changes call `onLinkStateChanged` on both nodes.
+
+If the hardware spike requires `MessageClient` for urgent alerts, it is added behind this interface; no path, key or model
+changes.
+
 ## Link states
 
 The phone shows one of five states for the watch link. The function that derives it from the connected nodes, the app
