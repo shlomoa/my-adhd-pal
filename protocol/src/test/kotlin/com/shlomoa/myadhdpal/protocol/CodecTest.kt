@@ -63,6 +63,52 @@ class CodecTest {
     }
 
     @Test
+    fun `TC-S-048 acknowledgement round trip with the reminder it answers and the occurrence time`() {
+        val ack = Acknowledgement(AckAction.SNOOZE, at = ts - 5, reminderId = "r1", occurrenceAt = ts - 60_000)
+        assertEquals(ack, roundTrip(ack).message)
+        val onlyReminder = Acknowledgement(AckAction.DONE, at = ts, reminderId = "r1")
+        assertEquals(onlyReminder, roundTrip(onlyReminder).message)
+        assertEquals(null, (roundTrip(Acknowledgement(AckAction.DONE, ts)).message as Acknowledgement).reminderId)
+    }
+
+    @Test
+    fun `TC-S-048 an acknowledgement without the new fields (protocol 1_0) still decodes`() {
+        val body = """{"action":"DONE","at":42}"""
+        val decoded = Codec.decode(Paths.ack(id), Envelope(Protocol.MAJOR_VERSION, id, ts, body))
+        assertEquals(DecodeResult.Ok(Item(id, ts, Acknowledgement(AckAction.DONE, 42))), decoded)
+    }
+
+    @Test
+    fun `TC-S-048 absent optional fields are not written, so a 1_0 reader sees the old body`() {
+        val body = Codec.encodeBody(Acknowledgement(AckAction.DONE, 42))
+        assertEquals("""{"action":"DONE","at":42}""", body)
+        val full = Codec.encodeBody(Acknowledgement(AckAction.DONE, 42, "r1", 41))
+        assertEquals("""{"action":"DONE","at":42,"reminderId":"r1","occurrenceAt":41}""", full)
+    }
+
+    @Test
+    fun `TC-S-053 an acknowledgement with a blank or too long reminder id or a negative occurrence is invalid`() {
+        val tooLong = "r".repeat(Limits.MAX_KEY_LENGTH + 1)
+        val bodies = listOf(
+            """{"action":"DONE","at":1,"reminderId":""}""",
+            """{"action":"DONE","at":1,"reminderId":"  "}""",
+            """{"action":"DONE","at":1,"reminderId":"$tooLong"}""",
+            """{"action":"DONE","at":1,"occurrenceAt":-1}""",
+            """{"action":"DONE","at":1,"reminderId":5}"""
+        )
+        for (body in bodies) {
+            val decoded = Codec.decode(Paths.ack(id), Envelope(Protocol.MAJOR_VERSION, id, ts, body))
+            assertTrue("body $body -> $decoded", decoded is DecodeResult.Failure)
+        }
+        val atLimit = "r".repeat(Limits.MAX_KEY_LENGTH)
+        val ok = Codec.decode(
+            Paths.ack(id),
+            Envelope(Protocol.MAJOR_VERSION, id, ts, """{"action":"DONE","at":1,"reminderId":"$atLimit"}""")
+        )
+        assertTrue(ok is DecodeResult.Ok)
+    }
+
+    @Test
     fun `TC-S-049 selection round trip keeps the chosen key and time`() {
         val selection = Selection("calm", at = ts - 1)
         assertEquals(selection, roundTrip(selection).message)
