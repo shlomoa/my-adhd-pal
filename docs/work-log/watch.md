@@ -174,3 +174,4 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   notification and its actions). They must be reported by the user before W-final and G7, and nothing may claim them verified until then.
   Also not done: the real Data Layer transport (step 1.5, G2b), so TC-W-008, 015, 045 and the phone side of acknowledgements wait.
 - Open items: none besides the above.
+- BLOCKED: 5.2 waits for G5 (merging this PR)
