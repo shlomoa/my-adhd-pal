@@ -16,3 +16,18 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `@HiltAndroidApp` `MyAdhdPalApp` (registered in the manifest), `@AndroidEntryPoint` `MainActivity`, `di/ClockModule` (the one source of `java.time.Clock`). Tests in `phone/src/test/.../di/DiGraphTest.kt`.
 - Validation: tests first, red in `docs/test-reports/android-baseline.md` (commit 648ec9a); then TC-A-010 and TC-A-012 PASS and `./gradlew check assembleDebug` green after `scripts/bootstrap-android.sh`. TC-A-011 is the green CI build.
 - Open items: the data layer does not exist yet (G3a), so the production graph binds only the clock. The Shared lane adds data-source bindings under `data/`; TC-A-012 is extended to those when they land. A stale KSP output made `lintAnalyzeDebugUnitTest` fail once after a failed build; `./gradlew :phone:clean` fixed it. Next: A1b, 2.6 and 4.5 wait for G3a.
+
+## 2026-10-14 - A1b Red baseline for ViewModel/UI-state tests
+
+- Issue and PR: none yet (2.7 merged as #83).
+- Changed: nothing; `scripts/require-gate.sh G3a G-ENV` exited 3.
+- Validation: n/a. The tests are written against the phone data contract (`WatchLinkDataSource`, repository interfaces and fakes), which G3a delivers; G1 alone provides only `:protocol` models.
+- Open items: the coordinator message suggested G1 unblocks A1b, but `docs/plans/android.md` lists G3a and G-ENV as its requirements; I followed the lane file.
+
+
+## 2026-10-14 - A1b Red baseline for ViewModel/UI-state tests
+
+- Issue and PR: no PR by design (see Validation); thread branch `claude/android-A1b`. Resumed after G3a merged.
+- Changed: ViewModel and UI-state tests for TC-A-001..008, 013..029, 031..037, 039..043, 045..051, 053..057 under `phone/src/test/.../ui/`, written against the G3a contract (`docs/data-layer.md`) and its fakes; `ManualCases.kt` lists the manual, CI, docs and Compose-UI ids so `scripts/check-test-cases.sh android baseline` sees every id.
+- Validation: `./gradlew :phone:testDebugUnitTest` fails to compile with 67 errors, all "Unresolved reference" to the not-yet-written ViewModels and UI states (`ListState`, `LinkStateViewModel`, `TaskListViewModel`, ...). Details in `docs/test-reports/android-baseline.md`. `scripts/check-test-cases.sh android baseline` exits 0. Red commit precedes any implementation. A step PR merges only when green, so each step (2.6, 4.5, 4.1-4.4, 4.6) takes over its own test files from this branch together with its implementation.
+- Open items: TC-A-058 and TC-A-059 (Compose accessibility tests) need `androidx.compose.ui:ui-test-junit4` and `ui-test-manifest` in `phone/build.gradle.kts`, which the Shared lane owns; an issue labelled lane S asks for them before step 4.6.
