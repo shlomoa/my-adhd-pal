@@ -62,7 +62,10 @@ class DataStoreSettingsRepositoryTest : SettingsRepositoryContract() {
     @Test
     fun `TC-S-099 a written value is still there after the store is closed and opened again`() = runTest {
         val changed = SettingsDefaults.settings.copy(
-            thresholds = listOf(Threshold(Metric.HEART_RATE, Direction.ABOVE, 140.5), Threshold(Metric.HEART_RATE, Direction.BELOW, 40.0)),
+            thresholds = listOf(
+                Threshold(Metric.HEART_RATE, Direction.ABOVE, 140.5),
+                Threshold(Metric.HEART_RATE, Direction.BELOW, 40.0)
+            ),
             cooldownSeconds = 900,
             snooze = SnoozeSettings(minutes = 5, maxCount = 2),
             cadenceMinutes = 30

@@ -18,6 +18,7 @@ import com.shlomoa.myadhdpal.phone.data.SettingsError
 import com.shlomoa.myadhdpal.phone.data.SettingsLimits
 import com.shlomoa.myadhdpal.phone.data.SettingsRepository
 import com.shlomoa.myadhdpal.phone.data.SettingsResult
+import com.shlomoa.myadhdpal.phone.data.SettingsValidator
 import com.shlomoa.myadhdpal.phone.data.StoreResult
 import com.shlomoa.myadhdpal.phone.data.Task
 import com.shlomoa.myadhdpal.phone.data.TaskReminder
@@ -120,17 +121,7 @@ class InMemorySettingsRepository : SettingsRepository {
     override val settings: Flow<AppSettings> = state
 
     override suspend fun update(settings: AppSettings): SettingsResult {
-        val errors = buildSet {
-            if (settings.thresholds.size > SettingsLimits.MAX_THRESHOLDS) add(SettingsError.TOO_MANY_THRESHOLDS)
-            if (settings.thresholds.any {
-                    it.value !in SettingsLimits.THRESHOLD_VALUE
-                }
-            ) {
-                add(SettingsError.THRESHOLD_OUT_OF_RANGE)
-            }
-            if (settings.cooldownSeconds !in SettingsLimits.COOLDOWN_SECONDS) add(SettingsError.COOLDOWN_OUT_OF_RANGE)
-            if (settings.cadenceMinutes !in SettingsLimits.CADENCE_MINUTES) add(SettingsError.CADENCE_OUT_OF_RANGE)
-        }
+        val errors = SettingsValidator.validate(settings)
         if (errors.isNotEmpty()) return SettingsResult.Invalid(errors)
         state.value = settings
         return SettingsResult.Saved
