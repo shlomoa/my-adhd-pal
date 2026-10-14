@@ -137,7 +137,9 @@ class CodecTest {
             reminders = (1..Limits.MAX_REMINDERS).map {
                 Reminder("r$it", "t".repeat(Limits.MAX_TEXT_LENGTH), 1439, listOf(1, 2, 3, 4, 5, 6, 7))
             },
-            checkpoints = (1..Limits.MAX_CHECKPOINTS).map { Checkpoint("c$it", "l".repeat(Limits.MAX_TEXT_LENGTH), 1439) },
+            checkpoints = (1..Limits.MAX_CHECKPOINTS).map {
+                Checkpoint("c$it", "l".repeat(Limits.MAX_TEXT_LENGTH), 1439)
+            },
             snooze = SnoozeSettings(Limits.MAX_SNOOZE_MINUTES, Limits.MAX_SNOOZE_COUNT),
             alerts = AlertSettings(
                 (1..Limits.MAX_THRESHOLDS).map { Threshold(Metric.HEART_RATE, Direction.ABOVE, 199.99) },
@@ -146,7 +148,9 @@ class CodecTest {
         )
         val prompt = Prompt(
             "p".repeat(Limits.MAX_TEXT_LENGTH),
-            (1..Limits.MAX_OPTIONS).map { PromptOption("k".repeat(Limits.MAX_KEY_LENGTH), "l".repeat(Limits.MAX_TEXT_LENGTH)) },
+            (1..Limits.MAX_OPTIONS).map {
+                PromptOption("$it".padEnd(Limits.MAX_KEY_LENGTH, 'k'), "l".repeat(Limits.MAX_TEXT_LENGTH))
+            },
             Long.MAX_VALUE
         )
         // Asserted bound: 40 KB, less than half of the 100 KB DataItem limit.
@@ -154,7 +158,10 @@ class CodecTest {
             val envelope = Codec.encode(id, ts, message)
             val size = envelope.body.toByteArray().size + envelope.id.length + 64
             assertTrue("size $size", size < 40 * 1024)
-            assertEquals(Item(id, ts, message), (Codec.decode(Paths.pathFor(id, message), envelope) as DecodeResult.Ok).item)
+            assertEquals(
+                Item(id, ts, message),
+                (Codec.decode(Paths.pathFor(id, message), envelope) as DecodeResult.Ok).item
+            )
         }
     }
 
@@ -165,7 +172,10 @@ class CodecTest {
         assertEquals(id, envelope.id)
         assertEquals(ts, envelope.timestamp)
         assertTrue(envelope.body.startsWith("{") && envelope.body.endsWith("}"))
-        assertEquals(listOf("v", "id", "ts", "body"), listOf(ItemKeys.VERSION, ItemKeys.ID, ItemKeys.TIMESTAMP, ItemKeys.BODY))
+        assertEquals(
+            listOf("v", "id", "ts", "body"),
+            listOf(ItemKeys.VERSION, ItemKeys.ID, ItemKeys.TIMESTAMP, ItemKeys.BODY)
+        )
     }
 
     @Test
@@ -173,7 +183,12 @@ class CodecTest {
         val main = File("src/main")
         assertTrue("run from the module directory: ${File(".").absolutePath}", main.isDirectory)
         val offenders = main.walkTopDown().filter { it.isFile && it.extension == "kt" }
-            .filter { file -> file.readLines().any { it.startsWith("import") && (it.contains("DataMap") || it.contains("android.") || it.contains("com.google.android")) } }
+            .filter { file ->
+                file.readLines().any {
+                    it.startsWith("import") &&
+                        (it.contains("DataMap") || it.contains("android.") || it.contains("com.google.android"))
+                }
+            }
             .toList()
         assertFalse("offenders: $offenders", offenders.isNotEmpty())
     }
