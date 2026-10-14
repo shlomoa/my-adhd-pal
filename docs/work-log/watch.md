@@ -107,3 +107,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   receivers and the manifest permissions. They need the choice between `USE_EXACT_ALARM` and `SCHEDULE_EXACT_ALARM` on Wear OS
   (`docs/research/watch.md`, section 1), which I asked the coordinator to settle with the user. TC-W-025 (24-hour run) and
   TC-W-026 (reboot) are manual and wait for those parts.
+
+## 2026-10-14 - 5.1 Research the current tile API
+
+- Issue and PR: #51, branch `claude/watch-5.1`
+- Changed: `docs/research/watch.md` section 2 updated with the current artifact versions from Google Maven (tiles 1.6.2,
+  protolayout 1.4.2, including `protolayout-material3`), `Material3TileService`, the update mechanisms, tap handling and a
+  recommendation for 5.2 and 5.3.
+- Validation: docs only; sources cited, unverified points marked; `scripts/docs-lint.sh markdown` 0 issues.
+- Open items: whether work in `onTileRequest()` may outlive the response, the `tiles-testing` API and a clean build of
+  `protolayout-material3` under AGP 9.4 and Kotlin 2.4 are settled by the first compile in 5.2 (a build failure there is a
+  "stop and ask" case).
