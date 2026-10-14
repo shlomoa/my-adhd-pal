@@ -68,9 +68,79 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: manual and scripted runs by the user on real emulators (TC-S-121 to TC-S-125): items cross both ways, listener wakes with the app closed after a kill and after a force-stop, a KEEP item stays, the watch-away reconnect recovers on its own; a quick delete by the watch of a phone-written item is lost on the phone (writer-owns-cleanup rule). Not run on emulators: C5 phone away, C2b, C4; deferred to 0b.2b on the real devices (laptop sleep and the first runner's hang, not protocol failures). Doc lint and link check green. The spike runner was exercised 62 times against a simulated adb (`scripts/spike/test-run-0b2a.sh` on `claude/shared-0b2a-spike-rtt`).
 - Open items: transport stays DataItems only, final at G-DEC after 0b.2b; the runner on `claude/shared-0b2a-spike-rtt` is reused there (with `-OnlyCases`). Steps 1.1-1.3 (G1) can start once this merges; 0b.2b also needs H2.
 
+## 2026-10-14 - 0b.2b Real-hardware spike plan and runner
+
+- Issue and PR: #24; PR linked from the coordinator message.
+- Changed: `docs/spikes/0b2b-plan.md` (decisions needed, what the user does versus what the script does, setup for the A55 over USB and the watch over Wi-Fi debugging with the expected output of each step, the one command, a nine-item checklist, exit codes, what is not verified). The runner `scripts/spike/run-0b2b.ps1`, its simulated adb with hardware-style serials (`scripts/spike/fake-hw/adb`) and `scripts/spike/test-run-0b2b.sh` (65 checks) are on the throwaway branch `claude/shared-0b2b-spike` (never merged); no emulator or restart calls, per-call adb timeouts, a readiness gate that names the device and the fix, link states produced with `svc` on the phone, Doze and standby buckets forced with `dumpsys`/`am`, radios always restored (`-RestorePhone` after a crash), results pushed as `spike-results/0b2b-<timestamp>`.
+- Validation: `test-run-0b2b.sh` 65 PASS on PowerShell 7 against the simulation (flow, readiness failures, radios that adb cannot switch, unobservable Relayed and Away, target misses, Doze, restore, redaction of serials and IP addresses, exit codes); doc lint green. Not run on the real devices or on Windows PowerShell 5.1; the plan lists what stays unverified.
+- Open items: the user agrees the delay targets (proposal in the plan), then does the setup and runs the command; 0b.3 and G-DEC follow the results.
+
 ## 2026-10-14 - 1.1-1.3 Spec skeleton, constants, models and codec (G1)
 
 - Issue and PR: #27, #28, #29; PR linked from the coordinator message.
 - Changed: `docs/protocol.md` gains the item catalog, item format (keys, bodies, limits), versioning policy and the five link states; `:protocol` gets `Paths` (builders and parser, ids are lower-case canonical UUIDs), `ItemKeys`, `Protocol` (major 1, version `1.0`), `Limits`, the models (`Schedule`, `Prompt`, `Acknowledgement`, `Selection`, `Alert`, `Hello`, `BiometricSamples`) that validate their limits on construction, and `Codec` (kotlinx.serialization 1.11.0 with the serialization compiler plugin; `decode` never throws and returns `DecodeResult.Failure` for unknown paths, bad bodies and out-of-limit content); `scripts/test/test-protocol-spec.sh` (TC-S-040, TC-S-041) runs in the `script-tests` CI job.
 - Validation: tests written first and red (`shared-baseline.md`); then `:protocol:test` green (TC-S-042..055) and the spec script green; doc lint green.
 - Open items: 1.4 to 1.8 (compatibility, link state, schedule logic, fake transport, diagrams) need G-DEC; the Watch and Android adapters (`DataMap` to `Envelope`) are their lanes' work.
+
+## 2026-10-14 - 1.8a Transport-neutral diagrams
+
+- Issue and PR: #34 (1.8; 1.8b follows with G2b, so the issue stays open); PR linked from the coordinator message.
+- Changed: a "Diagrams" section in `docs/protocol.md` with four Mermaid diagrams (schedule sync, prompt/acknowledgement/selection, hello and version check, prompt state machine); TC-S-077 structure checks in `scripts/test/test-protocol-spec.sh` (Mermaid block of the right type under each heading, balanced alt/loop/end, start and end of the state machine, no semicolon in a Mermaid line).
+- Validation: checks written first and red (`shared-baseline.md`), then green; all four diagrams were also rendered with `@mermaid-js/mermaid-cli` 11.4.2 and Chromium (a semicolon in a message broke the first draft and is now guarded); doc lint green. TC-S-078 (rendered view on the PR) is the manual check for the reviewer. Also added the prompt-expiry clause decided by the coordinator (absolute phone-clock time, the watch hides an expired prompt on its own clock, a few seconds of tolerance).
+- Open items: the link-state machine and the alert flow are 1.8b (G2b). Gate G2a is not flipped here: it needs 1.4, 1.6, 1.7 and 1.8a all merged, so a separate small PR flips it.
+
+## 2026-10-14 - 1.7 LinkTransport and fake transport
+
+- Issue and PR: #33; PR linked from the coordinator message.
+- Changed: `LinkState` (five members), `StoredItem`, `TransportListener` and `LinkTransport` in `:protocol`; `FakeLink` and `FakeNode` in `protocol.fake` (test double with DataItem buffering semantics, deterministic and synchronous); a "Transport abstraction" section in `docs/protocol.md`.
+- Validation: TC-S-072..076 written first and red (`shared-baseline.md`), then green (delivery in order, buffering while away, replacement at the same path, deletion not redelivered, repeated disconnect and reconnect without duplicates or loss), plus link-state notification and no-watch-app cases; `./gradlew check` and doc lint green. One expectation in my own test (a node also stores its own writes) was corrected after the red run.
+- Open items: the listener-based interface has no coroutines, so the app lanes bridge it to Flow with `callbackFlow`; gate G2a is flipped by 1.8a (the last of the G2a steps).
+
+## 2026-10-14 - 1.6 Schedule logic
+
+- Issue and PR: #32; PR linked from the coordinator message.
+- Changed: `ScheduleLogic` in `:protocol` (`nextReminder`, `nextCheckpoint`, `snooze`, `shouldApply`) with `ReminderOccurrence`, `CheckpointOccurrence`, `SnoozeResult`, `SnoozeDenial`; a "Schedule logic" section in `docs/protocol.md` (strictly-after rule, selected days, daylight-saving and time-zone rules, snooze cap and expiry, newer-version rule).
+- Validation: TC-S-067..071 written first and red (`shared-baseline.md`), then green with a fixed clock, including a spring-forward day, a fall-back day and a time-zone change; `./gradlew check` and doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.7 and 1.8a.
+
+## 2026-10-14 - 1.4 Compatibility rule
+
+- Issue and PR: #30; PR linked from the coordinator message.
+- Changed: `Compatibility` (`ofMajor`, `ofHello`), `ProtocolVersion.parse` and `Codec.decodeIfCompatible` in `:protocol`; the versioning policy in `docs/protocol.md` states the rule and the accepted version text (`major.minor[.patch]`, 1 to 4 digits per part).
+- Validation: TC-S-056..059 written first and red (`shared-baseline.md`), then green with `./gradlew check`; doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.6, 1.7, 1.8a.
+
+## 2026-10-14 - G2 split into G2a and G2b
+
+- Issue and PR: refs #30-#34 (steps 1.4-1.8); PR linked from the coordinator message.
+- Changed: `gates.json`, `docs/plans/README.md` (table, schedule, graph, risks, a "Why G2 is split" paragraph), `docs/plans/shared.md`, `docs/plans/watch.md` and the catalogue headings. G2a = 1.4, 1.6, 1.7, 1.8a (requires G1); G2b = 1.5, 1.8b (requires G2a, G-DEC). G3a requires G2a; G5 requires G2a; G3 requires G2b; the watch's 3.2-3.7 require G2a and its 6.3-6.8 require G2b. New `scripts/test/test-gates.sh` (TC-S-143) checks the whole graph and runs in the `script-tests` job.
+- Validation: TC-S-143 red first on `main` (7 FAIL, recorded in `shared-baseline.md`), then green; doc lint and link check green; `test-scripts.sh` (gate scripts) green.
+- Open items: no gate flipped. Steps 1.4, 1.6, 1.7, 1.8a start now; 1.5 and 1.8b wait for G-DEC.
+
+## 2026-10-14 - G2a gate: 1.4, 1.6, 1.7, 1.8a merged
+
+- Issue and PR: #30, #32, #33 closed by their PRs (#96, #97, #98); 1.8a is #99 (#34 stays open for 1.8b); flip PR linked from the coordinator message.
+- Changed: gate G2a set to merged in `docs/plans/gates.json`; the status paragraph of `docs/protocol.md` lists what is done. Nothing else.
+- Validation: `scripts/test/test-gates.sh` (TC-S-143) and `scripts/check-pr-gates.sh` against the base; doc lint green.
+- Open items: G3a (2.3) starts now; G2b (1.5, 1.8b) waits for G-DEC.
+
+## 2026-10-14 - 2.3 Phone data contract (G3a)
+
+- Issue and PR: #37; PR linked from the coordinator message.
+- Changed: `WatchLinkDataSource`, `WatchEvent`, `PublishResult`, the repository interfaces (`TaskRepository`, `HistoryRepository`, `SettingsRepository`, `ScheduleRepository` with `ScheduleVersionStore`, `PromptRepository`, `LinkStatusRepository`), their models, `ScheduleBuilder`, `SettingsDefaults`/`SettingsLimits` in `phone/.../data/`; `FakeWatchLinkDataSource` and in-memory repositories plus abstract contract tests in the `:phone` test sources; `:phone` now depends on `:protocol` and kotlinx-coroutines (catalog entries `kotlinxCoroutines`); `docs/data-layer.md` documents the contract.
+- Validation: TC-S-090..092 written first and red (`shared-baseline.md`), then green; `./gradlew check` green.
+- Open items: 2.1 and 2.2 can start (Room, DataStore) and must pass the same contract tests; 2.4 and 2.5 also need G2b. The Android lane may now write its ViewModel tests against these fakes (A1b).
+
+## 2026-10-14 - Amendment of G1: Acknowledgement reminderId and occurrenceAt (protocol 1.1)
+
+- Issue and PR: found by the Watch lane in 3.6 (coordinator decision); PR linked from the coordinator message.
+- Changed: `Acknowledgement` gets the optional `reminderId` (1 to 32 characters, validated like the other keys) and `occurrenceAt` (not negative); `Protocol.VERSION` 1.0 to 1.1 (major stays 1, compatibility is by major only); the codec no longer writes absent optional fields (`explicitNulls = false`), so a 1.0 reader sees the body it knows; `docs/protocol.md` (Item format table, version history, ack diagram) updated. An amendment of G1's contents: no path or key changes, no gate flipped.
+- Validation: tests written first and red (`shared-baseline.md`), then green: round trip with and without the fields, a 1.0 body still decodes, absent fields are not written, invalid values are dropped, the version constant; `./gradlew :protocol:test detekt` green, doc lint green.
+- Open items: the phone's `HistoryEntry.Acknowledged` (PR for 2.3) should carry `reminderId` and `occurrenceAt`; the Watch lane sends them from 3.6.
+
+## 2026-10-14 - G3a gate: 2.3 merged
+
+- Issue and PR: #37 closed by the 2.3 PR (#104); flip PR linked from the coordinator message.
+- Changed: gate G3a set to merged in `docs/plans/gates.json` (`pr` 104). Nothing else.
+- Validation: `scripts/test/test-gates.sh` (TC-S-143), `scripts/check-pr-gates.sh` against the base, doc lint.
+- Open items: 2.1 (Room) and 2.2 (DataStore) start against the contract tests; 2.4 and 2.5 wait for G2b.

@@ -231,3 +231,33 @@ Red commit: tests only (`PathsTest`, `ConstantsTest`, `CodecTest` in `:protocol`
 
 - `./gradlew :protocol:test`: BUILD FAILED at `:protocol:compileTestKotlin`, `Unresolved reference 'Message'` (and the other protocol types: `Paths`, `Codec`, `Schedule`, ...). TC-S-042..055 cannot run.
 - `scripts/test/test-protocol-spec.sh` (TC-S-040, TC-S-041): exit 1, 7 FAIL, 0 PASS (no `Item catalog`, `Item format`, `Versioning policy` or `Link states` section in `docs/protocol.md`, no `Paths.kt`).
+
+## 1.8a transport-neutral diagrams (red)
+
+Red commit: the TC-S-077 structure checks in `scripts/test/test-protocol-spec.sh` only, before the `## Diagrams` section exists in `docs/protocol.md`: exit 1, 9 FAIL (each of the four diagrams missing as a Mermaid block of the right type, and the prompt state machine without a start and an end); the balanced-block checks pass trivially on empty input.
+
+## 1.7 LinkTransport and fake transport (red)
+
+Red commit: `FakeTransportTest` only (TC-S-072..076), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'fake'`, `'TransportListener'`, `'StoredItem'`, `'LinkState'`.
+
+## 1.6 schedule logic (red)
+
+Red commit: `ScheduleLogicTest` only (TC-S-067..071), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'ScheduleLogic'`, `'SnoozeResult'`, `'SnoozeDenial'`.
+
+## 1.4 compatibility rule (red)
+
+Red commit: `CompatibilityTest` only (TC-S-056..059), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'Compatibility'` and `'decodeIfCompatible'`.
+
+## G2 split into G2a and G2b (red)
+
+Red commit: `scripts/test/test-gates.sh` only (TC-S-143, new), before `gates.json`, the plans and the README change.
+
+- `scripts/test/test-gates.sh` on the current `main`: exit 1, 7 FAIL, with the generic graph checks (unique ids, existing requirements, no cycle, README table equals `gates.json`, lane plans name existing gates) PASS. The FAILs are the split itself: `G2 is replaced by G2a and G2b`, `G2a requires G1 only (got '')`, `G2b requires G2a and G-DEC (got '')`, `G3a requires G2a (got 'G2')`, `G3 ... requires G3a, G-LIB and G2b (got 'G-LIB,G3a')`, `G5 requires G2a (got 'G2')`.
+
+## 2.3 data-layer contract (red)
+
+Red commit: tests only (`FakeWatchLinkDataSourceTest`, the repository contract classes and their in-memory-fake subclasses in `phone/src/test/.../data/`; TC-S-090..092), no implementation. `./gradlew :phone:testDebugUnitTest`: compilation of the test source set fails, `Unresolved reference` for `WatchLinkDataSource`, `WatchEvent`, `PublishResult`, `TaskRepository`, `HistoryRepository`, `SettingsRepository`, `ScheduleRepository`, `PromptRepository`, `LinkStatusRepository` and the fakes.
+
+## Acknowledgement amendment, protocol 1.1 (red)
+
+Red commit: tests only (`ConstantsTest` expects `Protocol.VERSION` 1.1; `CodecTest` cases for `Acknowledgement.reminderId` and `occurrenceAt`: round trip with and without, a 1.0 body still decodes, absent fields are not written, blank, over-long and negative values are invalid). `./gradlew :protocol:test`: compilation fails, `No parameter with name 'reminderId' found`.

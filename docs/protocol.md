@@ -1,9 +1,9 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.0, steps 1.1 to 1.3). This file is the single source of truth; the constants, models
-and codec in `:protocol` follow it, and unit tests keep them equal. The compatibility function, the link-state function,
-the schedule logic, the fake transport and the diagrams are added in steps 1.4 to 1.8. The transport verification below
-comes first in time and changes the cleanup rule.
+Status: **skeleton** (protocol 1.1; steps 1.1 to 1.4, 1.6, 1.7 and 1.8a are done, gate G2a). This file is the single source of
+truth; the constants, models, codec, compatibility rule, schedule logic and transport abstraction in `:protocol` follow
+it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b,
+gate G2b) wait for the hardware spike. The transport verification below comes first in time and changes the cleanup rule.
 
 ## Item catalog
 
@@ -39,13 +39,19 @@ Every item has four keys:
 `Envelope` type. Times inside a body (`at`, `expiresAt`) are epoch milliseconds on the clock of the node that wrote the
 item. The two clocks differ (the emulator spike measured about 1.5 s), so a receiver never computes a delay from them.
 
+**Prompt expiry.** `Prompt.expiresAt` is an absolute epoch-millisecond time on the phone's clock. The phone stays the
+authority and deletes an expired prompt when it can (writer-owns-cleanup rule). The watch additionally hides and ignores a
+prompt once its own clock is at or past `expiresAt`, and never shows an already-expired prompt that it receives late. This
+is not a delay measurement: expiry is on a scale of minutes, and the clocks of real, NTP-synced devices differ by far less
+than the 1.5 s seen between the emulators, so a prompt may be shown or hidden a few seconds early or late.
+
 Bodies (field names are the JSON keys):
 
 | Model | Fields |
 |---|---|
 | `Schedule` | `version` (long, monotonic), `reminders` (`id`, `title`, `minuteOfDay` 0-1439, `days` 1-7 with 1 = Monday), `checkpoints` (`id`, `label`, `minuteOfDay`), `snooze` (`minutes`, `maxCount`), `alerts` (`thresholds` of `metric`, `direction`, `value`; `cooldownSeconds`) |
 | `Prompt` | `title`, `options` (1 to 6 of `key`, `label`; keys unique), `expiresAt` (optional) |
-| `Acknowledgement` | `action` (`DONE`, `SNOOZE`, `START_2_MIN`, `DISMISS`), `at` |
+| `Acknowledgement` | `action` (`DONE`, `SNOOZE`, `START_2_MIN`, `DISMISS`), `at`, optional `reminderId` (the `Reminder.id` it answers, 1 to 32 characters), optional `occurrenceAt` (epoch milliseconds on the watch clock of the scheduled fire time it answers, not negative; protocol 1.1) |
 | `Selection` | `key` (an option key of the prompt with the same id), `at` |
 | `Alert` | `metric` (`HEART_RATE`), `value`, `threshold`, `at` |
 | `Hello` | `side` (`PHONE`, `WATCH`), `protocolVersion` (for example `1.0`), `appVersion` |
@@ -65,7 +71,54 @@ kept.
 item and in the `Hello` body. Additive changes (a new optional field, a new item path) raise the minor version and stay
 compatible; a receiver ignores fields and paths it does not know. A change that removes or reinterprets a field raises
 the major version. A receiver ignores items whose major version it does not support and shows Incompatible. There is no
-negotiation, request or reply. The compatibility function is added in step 1.4.
+negotiation, request or reply.
+
+Version history: **1.0** is the first version. **1.1** adds the optional `reminderId` and `occurrenceAt` to
+`Acknowledgement`, so the phone can tell which reminder (and which occurrence of it) an acknowledgement answers; the
+path id of `/ack/<id>` stays a fresh UUID per acknowledgement. Absent optional fields are not written, so a 1.0 body
+without them still decodes and a 1.1 body is read by a 1.0 receiver, which ignores the extra fields. This is a minor
+bump: paths, keys and the other models are unchanged.
+
+The rule is `Compatibility` in `:protocol`. `Compatibility.ofMajor(v)` is Compatible only when `v` equals
+`Protocol.MAJOR_VERSION`. `Compatibility.ofHello(text)` parses the hello's `protocolVersion` (`major.minor`, optionally
+`.patch`, each part 1 to 4 digits; anything else, a missing value and a very long number included, is malformed) and
+applies the same rule; a missing or malformed version is Incompatible and never throws. `Codec.decodeIfCompatible`
+returns a failure, so the item is ignored, when the envelope's major version is not supported; minor and patch
+differences are accepted.
+
+## Schedule logic
+
+Pure functions in `:protocol` (`ScheduleLogic`), given the current instant and a time zone, so tests use a fixed clock.
+
+- **Next reminder / next checkpoint:** the first occurrence strictly after now. Reminder times are wall-clock times in the
+  device's time zone on the selected days (1 = Monday to 7 = Sunday); checkpoints repeat every day. With no reminders
+  (or checkpoints) there is none. Ties go to the earlier list entry. A checkpoint after the last one of the day is the
+  first one after midnight.
+- **Daylight-saving change:** a time in the skipped hour of a spring-forward day fires at the first valid time after the
+  gap (02:30 becomes 03:30); a time in the repeated hour of a fall-back day fires once, at its first occurrence. A
+  time-zone change recomputes the next occurrence on the new wall clock.
+- **Snooze:** moves the reminder to now plus `snooze.minutes`, counting snoozes used for this occurrence. It is denied at
+  the cap (`snoozeCount` has reached `snooze.maxCount`; 0 turns snoozing off) and, when the occurrence expires, if the
+  new time would be at or after the expiry. The cap is reported first.
+- **Newer version:** a schedule applies only if its `version` is greater than the one in use (or none is in use); equal and
+  older versions are ignored.
+
+## Transport abstraction
+
+`:protocol` defines `LinkTransport`, the one interface the apps use to reach the other node: `put(path, envelope)`,
+`delete(path)`, `items()`, `setListener(...)` and the read-only `linkState` (one of the five states below). The real
+implementations wrap the Wearable Data Layer in `:wear` and `:phone` and compute `linkState` with the link-state function;
+tests use `FakeLink` (two `FakeNode`s), which behaves like DataItems:
+
+- a write is stored on the writer at once, and delivered to the other node when the link is Nearby, Relayed or
+  Incompatible; while the link is Away or there is No watch app it is queued and delivered in order on reconnect;
+- a newer item at the same path replaces the older one, also in the queue (the other node sees only the newest);
+- a deletion reaches the other node the same way; an item deleted before it was delivered is never delivered, and a
+  deleted item is not redelivered after a reconnect;
+- repeated disconnects and reconnects give no duplicates and no loss; state changes call `onLinkStateChanged` on both nodes.
+
+If the hardware spike requires `MessageClient` for urgent alerts, it is added behind this interface; no path, key or model
+changes.
 
 ## Link states
 
@@ -79,6 +132,92 @@ capability and the hello versions is added in step 1.5; the states are fixed now
 | Away | no watch is connected |
 | No watch app | a watch is paired, but without the app capability |
 | Incompatible | the watch's hello has an unsupported major version, or is missing or malformed |
+
+## Diagrams
+
+The flows below are the same under the DataItems-only transport and under a `MessageClient` fallback for urgent alerts,
+because both are written against `LinkTransport`. The link-state machine and the alert flow are added with the link-state
+function (step 1.5), after the hardware spike.
+
+### Schedule sync
+
+```mermaid
+sequenceDiagram
+    participant P as Phone (master)
+    participant D as Data Layer
+    participant W as Watch
+    P->>D: put /schedule (version n, thresholds, cooldown)
+    Note over P,D: urgent only if the next 30 minutes change
+    D-->>W: item changed (when the link allows, queued while Away)
+    alt n is greater than the stored version
+        W->>W: apply, store locally, recompute next reminder
+    else n is equal or older
+        W->>W: ignore
+    end
+    Note over W: thresholds and cooldown are evaluated on the watch
+```
+
+### Prompt, acknowledgement and selection
+
+```mermaid
+sequenceDiagram
+    participant P as Phone
+    participant D as Data Layer
+    participant W as Watch
+    P->>D: put /prompt/id (urgent, optional expiry)
+    D-->>W: item changed
+    W->>W: validate, show, haptic
+    alt user taps Snooze
+        W->>W: apply the snooze at once (cap and expiry rules)
+        W->>D: put /ack/id action SNOOZE with reminderId and occurrenceAt (urgent)
+    else user taps Done or Dismiss or Start 2 min
+        W->>D: put /ack/id with the action, reminderId and occurrenceAt (urgent)
+    else user picks an option
+        W->>D: put /selection/id with the key (urgent)
+    end
+    D-->>P: item changed
+    P->>P: store once (idempotent by id), record in history
+    P->>D: delete /prompt/id (the phone removes its own prompt)
+    P->>D: delete /ack/id or /selection/id (after storing)
+    loop prompt expires unanswered
+        P->>D: delete /prompt/id at the expiry time
+    end
+```
+
+### Hello and version check
+
+```mermaid
+sequenceDiagram
+    participant P as Phone
+    participant W as Watch
+    P->>W: put /hello/phone (protocol version, app version) at start
+    W->>P: put /hello/watch (protocol version, app version) at start
+    alt major version equal
+        P->>P: Compatible, link state from the nodes
+        W->>W: Compatible, link state from the nodes
+    else major version different, missing or malformed
+        P->>P: ignore items from the watch, link state Incompatible
+        W->>W: ignore items from the phone, show Incompatible
+    end
+    Note over P,W: no request and no reply, each side overwrites its hello at start
+```
+
+### Prompt state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Published: phone puts /prompt/id
+    Published --> Shown: watch receives it
+    Published --> Expired: expiry reached before it arrives
+    Shown --> Snoozed: user snoozes (within the cap)
+    Snoozed --> Shown: snooze time passed
+    Snoozed --> Expired: next time at or after expiry
+    Shown --> Answered: ack or selection put
+    Shown --> Expired: expiry reached
+    Answered --> Removed: phone stores the answer and deletes the prompt
+    Expired --> Removed: phone deletes the prompt
+    Removed --> [*]
+```
 
 ## Transport verification: spike 0b.2a (paired emulators)
 

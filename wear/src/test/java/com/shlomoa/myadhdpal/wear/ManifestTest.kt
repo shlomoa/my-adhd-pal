@@ -36,6 +36,24 @@ class ManifestTest {
         assertEquals("NO_BRIDGING", metaData("com.google.android.wearable.notificationBridgeMode"))
     }
 
+    private fun receivers(): Set<String> = (0 until application().getElementsByTagName("receiver").length)
+        .map { androidAttr(application().getElementsByTagName("receiver").item(it) as Element, "name") }
+        .toSet()
+
+    private fun permissionMaxSdk(name: String): String? =
+        (0 until manifest.getElementsByTagName("uses-permission").length)
+            .map { manifest.getElementsByTagName("uses-permission").item(it) as Element }
+            .firstOrNull { androidAttr(it, "name") == name }
+            ?.let { androidAttr(it, "maxSdkVersion") }
+
+    @Test
+    fun `TC-W-027 exact alarm and boot permissions are declared and the alarm and boot receivers are registered`() {
+        assertTrue(permissions().contains("android.permission.USE_EXACT_ALARM"))
+        assertTrue(permissions().contains("android.permission.RECEIVE_BOOT_COMPLETED"))
+        assertEquals("32", permissionMaxSdk("android.permission.SCHEDULE_EXACT_ALARM"))
+        assertTrue(receivers().containsAll(listOf(".scheduler.AlarmReceiver", ".scheduler.BootReceiver")))
+    }
+
     @Test
     fun `TC-W-051 vibrate and notification permissions are declared and backup is off`() {
         assertTrue(permissions().contains("android.permission.VIBRATE"))
