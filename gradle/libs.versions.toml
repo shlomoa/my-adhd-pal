@@ -29,6 +29,8 @@ androidxTestCore = "1.7.0"
 playServicesWearable = "20.0.1"
 # play-services pulls in androidx.fragment 1.1.0, too old for the ActivityResult API (lint InvalidFragmentVersionForActivityResult)
 fragment = "1.9.1"
+tiles = "1.6.2"
+protolayout = "1.4.2"
 
 [libraries]
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -51,6 +53,11 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 # W
+androidx-wear-tiles = { group = "androidx.wear.tiles", name = "tiles", version.ref = "tiles" }
+androidx-wear-tiles-testing = { group = "androidx.wear.tiles", name = "tiles-testing", version.ref = "tiles" }
+androidx-wear-protolayout = { group = "androidx.wear.protolayout", name = "protolayout", version.ref = "protolayout" }
+androidx-wear-protolayout-material3 = { group = "androidx.wear.protolayout", name = "protolayout-material3", version.ref = "protolayout" }
+androidx-wear-protolayout-expression = { group = "androidx.wear.protolayout", name = "protolayout-expression", version.ref = "protolayout" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 
