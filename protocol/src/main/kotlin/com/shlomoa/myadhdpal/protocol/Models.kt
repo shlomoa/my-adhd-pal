@@ -96,10 +96,25 @@ data class Prompt(val title: String, val options: List<PromptOption>, val expire
     }
 }
 
-/** `/ack/<id>`. [at] is the time of the user's action in epoch milliseconds on the watch clock. */
+/**
+ * `/ack/<id>`. [at] is the time of the user's action in epoch milliseconds on the watch clock. Since protocol 1.1,
+ * [reminderId] (the `Reminder.id` the ack answers) and [occurrenceAt] (the scheduled fire time it answers, epoch
+ * milliseconds on the watch clock, so snoozes and repeated days are distinguishable) are optional; a 1.0 body without
+ * them still decodes. The `<id>` of the path stays a fresh UUID per ack event.
+ */
 @Serializable
 @SerialName("ack")
-data class Acknowledgement(val action: AckAction, val at: Long) : Message
+data class Acknowledgement(
+    val action: AckAction,
+    val at: Long,
+    val reminderId: String? = null,
+    val occurrenceAt: Long? = null
+) : Message {
+    init {
+        if (reminderId != null) requireText(reminderId, Limits.MAX_KEY_LENGTH, "reminder id")
+        require(occurrenceAt == null || occurrenceAt >= 0) { "occurrenceAt must not be negative" }
+    }
+}
 
 /** `/selection/<id>`. [key] is the chosen option key of the prompt with the same id. */
 @Serializable

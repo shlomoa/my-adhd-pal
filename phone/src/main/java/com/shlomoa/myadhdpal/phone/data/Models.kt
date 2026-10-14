@@ -20,7 +20,14 @@ sealed interface HistoryEntry {
     val id: String
     val at: Long
 
-    data class Acknowledged(override val id: String, override val at: Long, val action: AckAction) : HistoryEntry
+    /** [reminderId] and [occurrenceAt]: the reminder and scheduled fire time answered, if the watch sent them. */
+    data class Acknowledged(
+        override val id: String,
+        override val at: Long,
+        val action: AckAction,
+        val reminderId: String? = null,
+        val occurrenceAt: Long? = null
+    ) : HistoryEntry
 
     data class Selected(
         override val id: String,

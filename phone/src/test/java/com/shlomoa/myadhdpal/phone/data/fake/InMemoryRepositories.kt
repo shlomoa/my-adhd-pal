@@ -96,7 +96,8 @@ class InMemoryHistoryRepository : HistoryRepository {
     }
 
     private fun toEntry(event: WatchEvent): HistoryEntry? = when (event) {
-        is WatchEvent.AckReceived -> HistoryEntry.Acknowledged(event.id, event.ack.at, event.ack.action)
+        is WatchEvent.AckReceived ->
+            with(event.ack) { HistoryEntry.Acknowledged(event.id, at, action, reminderId, occurrenceAt) }
 
         is WatchEvent.SelectionReceived -> HistoryEntry.Selected(event.id, event.selection.at, event.selection.key)
 

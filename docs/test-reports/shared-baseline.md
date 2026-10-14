@@ -257,3 +257,7 @@ Red commit: `scripts/test/test-gates.sh` only (TC-S-143, new), before `gates.jso
 ## 2.3 data-layer contract (red)
 
 Red commit: tests only (`FakeWatchLinkDataSourceTest`, the repository contract classes and their in-memory-fake subclasses in `phone/src/test/.../data/`; TC-S-090..092), no implementation. `./gradlew :phone:testDebugUnitTest`: compilation of the test source set fails, `Unresolved reference` for `WatchLinkDataSource`, `WatchEvent`, `PublishResult`, `TaskRepository`, `HistoryRepository`, `SettingsRepository`, `ScheduleRepository`, `PromptRepository`, `LinkStatusRepository` and the fakes.
+
+## Acknowledgement amendment, protocol 1.1 (red)
+
+Red commit: tests only (`ConstantsTest` expects `Protocol.VERSION` 1.1; `CodecTest` cases for `Acknowledgement.reminderId` and `occurrenceAt`: round trip with and without, a 1.0 body still decodes, absent fields are not written, blank, over-long and negative values are invalid). `./gradlew :protocol:test`: compilation fails, `No parameter with name 'reminderId' found`.

@@ -39,7 +39,8 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 - **Prompts:** title not blank and up to 200 characters, 2 to 6 option labels (keys "1", "2", ...), optional expiry that
   must be in the future; each publish gets a new id. Violations are `Rejected` with the set of errors.
 - **History:** `store` returns `Stored`, `Duplicate` (same id again) or `Ignored` (a hello). `at` is the time of the user's
-  action or reading on the watch clock; the list is ordered by `at`, newest first.
+  action or reading on the watch clock; the list is ordered by `at`, newest first. An acknowledgement entry also keeps
+  the optional `reminderId` and `occurrenceAt` of protocol 1.1, so history shows which reminder was answered.
 - **Settings:** `update` returns `Saved` or `Invalid(errors)` and keeps the old value on error.
 - **Link status:** reflects the data source; the real source computes the state with the link-state function (step 1.5).
   The fake starts Away and holds events back until the link is up, like DataItems.

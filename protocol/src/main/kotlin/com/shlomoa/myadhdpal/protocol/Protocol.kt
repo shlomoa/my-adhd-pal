@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 /** Protocol version. The major version is the compatibility boundary (see `docs/protocol.md`). */
 object Protocol {
     const val MAJOR_VERSION = 1
-    const val VERSION = "1.0"
+    const val VERSION = "1.1"
 }
 
 /** Keys of a Data Layer item. The `DataMap` adapters in `:wear` and `:phone` use exactly these. */

@@ -45,6 +45,20 @@ abstract class HistoryRepositoryContract {
     }
 
     @Test
+    fun `TC-S-092 history repository keeps which reminder and occurrence an acknowledgement answers`() = runTest {
+        val repo = create()
+        val answered = Acknowledgement(AckAction.SNOOZE, at = 100, reminderId = "r1", occurrenceAt = 90)
+        repo.store(WatchEvent.AckReceived(a1, 100, answered))
+        repo.store(WatchEvent.AckReceived(s1, 50, Acknowledgement(AckAction.DONE, at = 50)))
+        val entries = repo.history().first()
+        assertEquals(
+            HistoryEntry.Acknowledged(a1, 100, AckAction.SNOOZE, reminderId = "r1", occurrenceAt = 90),
+            entries[0]
+        )
+        assertEquals(HistoryEntry.Acknowledged(s1, 50, AckAction.DONE), entries[1])
+    }
+
+    @Test
     fun `TC-S-092 history repository filters by type`() = runTest {
         val repo = create()
         repo.store(ack(a1, 100))
