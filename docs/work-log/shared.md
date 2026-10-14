@@ -116,3 +116,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `gates.json`, `docs/plans/README.md` (table, schedule, graph, risks, a "Why G2 is split" paragraph), `docs/plans/shared.md`, `docs/plans/watch.md` and the catalogue headings. G2a = 1.4, 1.6, 1.7, 1.8a (requires G1); G2b = 1.5, 1.8b (requires G2a, G-DEC). G3a requires G2a; G5 requires G2a; G3 requires G2b; the watch's 3.2-3.7 require G2a and its 6.3-6.8 require G2b. New `scripts/test/test-gates.sh` (TC-S-143) checks the whole graph and runs in the `script-tests` job.
 - Validation: TC-S-143 red first on `main` (7 FAIL, recorded in `shared-baseline.md`), then green; doc lint and link check green; `test-scripts.sh` (gate scripts) green.
 - Open items: no gate flipped. Steps 1.4, 1.6, 1.7, 1.8a start now; 1.5 and 1.8b wait for G-DEC.
+
+## 2026-10-14 - G2a gate: 1.4, 1.6, 1.7, 1.8a merged
+
+- Issue and PR: #30, #32, #33 closed by their PRs (#96, #97, #98); 1.8a is #99 (#34 stays open for 1.8b); flip PR linked from the coordinator message.
+- Changed: gate G2a set to merged in `docs/plans/gates.json`; the status paragraph of `docs/protocol.md` lists what is done. Nothing else.
+- Validation: `scripts/test/test-gates.sh` (TC-S-143) and `scripts/check-pr-gates.sh` against the base; doc lint green.
+- Open items: G3a (2.3) starts now; G2b (1.5, 1.8b) waits for G-DEC.

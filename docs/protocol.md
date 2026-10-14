@@ -1,9 +1,9 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.0, steps 1.1 to 1.4). This file is the single source of truth; the constants, models,
-codec and compatibility rule in `:protocol` follow it, and unit tests keep them equal. The schedule logic, the fake
-transport, the link-state function and the diagrams are added in steps 1.5 to 1.8. The transport verification below
-comes first in time and changes the cleanup rule.
+Status: **skeleton** (protocol 1.0; steps 1.1 to 1.4, 1.6, 1.7 and 1.8a are done, gate G2a). This file is the single source of
+truth; the constants, models, codec, compatibility rule, schedule logic and transport abstraction in `:protocol` follow
+it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b,
+gate G2b) wait for the hardware spike. The transport verification below comes first in time and changes the cleanup rule.
 
 ## Item catalog
 

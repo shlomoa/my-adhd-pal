@@ -76,8 +76,8 @@
       "requires": [
         "G1"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 100
     },
     {
       "id": "G2b",
