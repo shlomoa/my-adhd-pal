@@ -59,7 +59,9 @@ for name in "${names[@]}"; do
   ends="$(printf '%s\n' "$block" | grep -cE '^[[:space:]]*end[[:space:]]*$')"
   [ "$opens" -eq "$ends" ]; check "TC-S-077 '$name' has balanced alt/opt/loop/end blocks ($opens/$ends)" $?
 done
+# a semicolon ends a statement in Mermaid and breaks messages and notes (found when rendering the first draft)
+! printf '%s\n' "$diagrams" | awk '/^```mermaid/{b=1;next} /^```/{b=0} b' | grep -q ';'; check "TC-S-077 no Mermaid line contains a semicolon" $?
 # state machine: every transition target is declared or reachable, and there is a start and an end
 sm="$(section_block "Prompt state machine")"
-printf '%s\n' "$sm" | grep -q '^\[\*\] -->' && printf '%s\n' "$sm" | grep -q -- '--> \[\*\]'; check "TC-S-077 prompt state machine has a start and an end" $?
+printf '%s\n' "$sm" | grep -qE '^[[:space:]]*\[\*\] -->' && printf '%s\n' "$sm" | grep -q -- '--> \[\*\]'; check "TC-S-077 prompt state machine has a start and an end" $?
 exit $fail
