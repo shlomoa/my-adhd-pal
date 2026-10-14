@@ -144,3 +144,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: gate G3a set to merged in `docs/plans/gates.json` (`pr` 104). Nothing else.
 - Validation: `scripts/test/test-gates.sh` (TC-S-143), `scripts/check-pr-gates.sh` against the base, doc lint.
 - Open items: 2.1 (Room) and 2.2 (DataStore) start against the contract tests; 2.4 and 2.5 wait for G2b.
+
+## 2026-10-14 - 2.1 Room schema, DAOs and migration policy
+
+- Issue and PR: step 2.1 issue; PR linked from the coordinator message. 2.1 was BLOCKED on G3a (#111) until the coordinator merged it, then started.
+- Changed: `phone/.../data/db/`: `AppDatabase` (version 1, `exportSchema`), entities `TaskEntity`, `ReminderEntity` (cascade delete), `PromptEntity`, `HistoryEntity` (id is the primary key), DAOs, `RoomTaskRepository` and `RoomHistoryRepository`; the Room Gradle plugin (`androidx.room`, catalog entry) exports the schema to `phone/schemas/`, committed (`1.json`); `docs/data-layer.md` documents the tables and the migration policy (committed schema, one migration per step, never destructive).
+- Validation: TC-S-093..097 and TC-S-092 for Room written first and red (`shared-baseline.md`), then green: the DAO tests, the abstract contract tests for tasks and history run against Room on Robolectric, the schema and policy checks; `./gradlew check` green. The Room Gradle plugin works with AGP 9.4.1 and Kotlin 2.4.21.
+- Open items: 2.2 (DataStore settings) next; the schedule, prompt and link-status repositories come in 2.5 (G2b); the Android lane wires `AppDatabase.create` in 2.7. No migration test yet because the schema is at version 1.
