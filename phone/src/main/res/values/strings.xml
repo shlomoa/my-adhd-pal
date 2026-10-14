@@ -2,4 +2,11 @@
 <resources>
     <string name="app_name">ADHD Pal</string>
     <string name="home_greeting">ADHD Pal phone app</string>
+    <string name="link_nearby">Watch nearby</string>
+    <string name="link_relayed">Watch connected through the cloud</string>
+    <string name="link_away">Watch away</string>
+    <string name="link_no_watch_app">Watch has no ADHD Pal app</string>
+    <string name="link_incompatible">Watch app needs an update</string>
+    <string name="link_last_sync_never">Never synced</string>
+    <string name="link_last_sync_ago">Last sync %1$d min ago</string>
 </resources>
