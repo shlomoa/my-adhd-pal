@@ -89,6 +89,20 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: TC-S-072..076 written first and red (`shared-baseline.md`), then green (delivery in order, buffering while away, replacement at the same path, deletion not redelivered, repeated disconnect and reconnect without duplicates or loss), plus link-state notification and no-watch-app cases; `./gradlew check` and doc lint green. One expectation in my own test (a node also stores its own writes) was corrected after the red run.
 - Open items: the listener-based interface has no coroutines, so the app lanes bridge it to Flow with `callbackFlow`; gate G2a is flipped by 1.8a (the last of the G2a steps).
 
+## 2026-10-14 - 1.6 Schedule logic
+
+- Issue and PR: #32; PR linked from the coordinator message.
+- Changed: `ScheduleLogic` in `:protocol` (`nextReminder`, `nextCheckpoint`, `snooze`, `shouldApply`) with `ReminderOccurrence`, `CheckpointOccurrence`, `SnoozeResult`, `SnoozeDenial`; a "Schedule logic" section in `docs/protocol.md` (strictly-after rule, selected days, daylight-saving and time-zone rules, snooze cap and expiry, newer-version rule).
+- Validation: TC-S-067..071 written first and red (`shared-baseline.md`), then green with a fixed clock, including a spring-forward day, a fall-back day and a time-zone change; `./gradlew check` and doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.7 and 1.8a.
+
+## 2026-10-14 - 1.4 Compatibility rule
+
+- Issue and PR: #30; PR linked from the coordinator message.
+- Changed: `Compatibility` (`ofMajor`, `ofHello`), `ProtocolVersion.parse` and `Codec.decodeIfCompatible` in `:protocol`; the versioning policy in `docs/protocol.md` states the rule and the accepted version text (`major.minor[.patch]`, 1 to 4 digits per part).
+- Validation: TC-S-056..059 written first and red (`shared-baseline.md`), then green with `./gradlew check`; doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.6, 1.7, 1.8a.
+
 ## 2026-10-14 - G2 split into G2a and G2b
 
 - Issue and PR: refs #30-#34 (steps 1.4-1.8); PR linked from the coordinator message.

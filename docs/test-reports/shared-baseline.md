@@ -236,6 +236,14 @@ Red commit: tests only (`PathsTest`, `ConstantsTest`, `CodecTest` in `:protocol`
 
 Red commit: `FakeTransportTest` only (TC-S-072..076), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'fake'`, `'TransportListener'`, `'StoredItem'`, `'LinkState'`.
 
+## 1.6 schedule logic (red)
+
+Red commit: `ScheduleLogicTest` only (TC-S-067..071), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'ScheduleLogic'`, `'SnoozeResult'`, `'SnoozeDenial'`.
+
+## 1.4 compatibility rule (red)
+
+Red commit: `CompatibilityTest` only (TC-S-056..059), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'Compatibility'` and `'decodeIfCompatible'`.
+
 ## G2 split into G2a and G2b (red)
 
 Red commit: `scripts/test/test-gates.sh` only (TC-S-143, new), before `gates.json`, the plans and the README change.
