@@ -107,4 +107,3 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   receivers and the manifest permissions. They need the choice between `USE_EXACT_ALARM` and `SCHEDULE_EXACT_ALARM` on Wear OS
   (`docs/research/watch.md`, section 1), which I asked the coordinator to settle with the user. TC-W-025 (24-hour run) and
   TC-W-026 (reboot) are manual and wait for those parts.
-
