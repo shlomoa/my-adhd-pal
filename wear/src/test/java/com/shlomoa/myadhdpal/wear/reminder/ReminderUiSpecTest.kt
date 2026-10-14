@@ -37,7 +37,12 @@ class ReminderUiSpecTest {
             ReminderAction.entries.map { it.labelRes }
         )
         val strings = File("src/main/res/values/strings.xml").readText()
-        listOf("action_done" to "Done", "action_snooze" to "Snooze", "action_start_2_min" to "Start 2 min", "action_dismiss" to "Dismiss")
+        listOf(
+            "action_done" to "Done",
+            "action_snooze" to "Snooze",
+            "action_start_2_min" to "Start 2 min",
+            "action_dismiss" to "Dismiss"
+        )
             .forEach { (name, text) ->
                 assertEquals(true, Regex("""<string name="$name">$text</string>""").containsMatchIn(strings))
             }

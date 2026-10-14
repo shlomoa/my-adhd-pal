@@ -53,14 +53,16 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `scripts/require-gate.sh G0` exit 0; `./gradlew check` BUILD SUCCESSFUL locally.
 - Open items: none.
 
-## 2026-10-14 - W1c Red baseline: scope question
+## 2026-10-14 - W1c-a Tests and red baseline for the G1-only cases
 
-- Issue and PR: none yet, branch `claude/watch-w1c`
-- Changed: nothing. `scripts/require-gate.sh G1` and `G-ENV` exit 0. PRs #79, #80 and #84 are merged; no PR of this lane is open.
-- Validation: n/a.
-- Open items: (1) the coordinator mentioned a step "W2 (reminder engine)"; `docs/plans/watch.md` and `plan.md` on main have no W2 (the reminder
-  scheduler is 3.4, which needs G2). (2) W1c asks for tests "against the protocol and fakes", but the fake transport (1.7), the
-  link-state function (1.5) and the schedule logic (1.6) arrive with G2, so tests for TC-W-001..007, 010..015, 020..024 and 035..044 would have
-  to guess their APIs, or invent a watch-side sender port that G2's fake transport would then duplicate. Proposed split: W1c-a now
-  (G1 only: the alert evaluator TC-W-070..076 in `protocol/src/**/alerts/` and the watch-only cases), W1c-b after G2 for the rest.
-  Waiting for the coordinator's decision.
+- Issue and PR: #92 (part a; the issue stays open for part b), branch `claude/watch-w1c`
+- Changed: scope agreed with the coordinator (W2 does not exist; part a on G1 only, part b after G2a). Tests first for the alert
+  evaluator (TC-W-070..076, `protocol/src/test/.../alerts/`), the haptic catalogue (TC-W-030) and the reminder actions (TC-W-031);
+  then `AlertEvaluator` and `Reading` in `:protocol` (`alerts/`), `Haptic` and `ReminderAction` in `:wear`, four action strings,
+  and the `:wear` dependency on `:protocol`.
+- Validation: red commit `d53e22e` (tests only, build fails on unresolved references), evidence in
+  `docs/test-reports/watch-baseline.md`. Green: `./gradlew check` BUILD SUCCESSFUL, 10 new tests pass. One test edit after red:
+  `labelResName` became `R.string` ids (still unresolved at red). Thresholds and cooldown are inputs of the evaluator, so H1 does not
+  change it.
+- Open items: TC-W-042 (prompt expiry) needs a decision with the Shared lane on `expiresAt` (a receiver never computes a delay from
+  the two clocks). W1c-b (link state, schedule logic, transport cases) waits for G2a.
