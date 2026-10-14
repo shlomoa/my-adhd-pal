@@ -24,8 +24,17 @@ e: wear/src/test/.../reminder/ReminderUiSpecTest.kt:12:24 Unresolved reference '
 
 `:wear` does not yet depend on `:protocol`, and `Haptic`, `ReminderAction` do not exist.
 
-## Not in W1c-a
+## TC-W-042, TC-W-043: prompt expiry (`wear/src/test/.../reminder/PromptExpiryTest.kt`)
 
-TC-W-042 (prompt expiry): `docs/protocol.md` says a receiver never computes a delay from the two clocks and the phone deletes an
-expired prompt, so what the watch does with `expiresAt` needs a decision with the Shared lane first. All other cases that touch
-the link state, the schedule logic or the transport are W1c-b (after G2a).
+Decision (coordinator, 2026-10-14): `Prompt.expiresAt` is an absolute time on the phone clock; the watch never shows a prompt whose
+expiry is at or before its own clock and hides a shown one when its clock reaches it. Red commit: `0beced5` (test only).
+
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../reminder/PromptExpiryTest.kt:20:36 Unresolved reference 'isExpiredAt' on receiver of type 'Prompt'.
+```
+
+## Not yet written (W1c-b, after G2a)
+
+All other cases that touch the link state, the schedule logic or the transport.

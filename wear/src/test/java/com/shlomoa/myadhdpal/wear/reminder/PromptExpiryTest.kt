@@ -8,7 +8,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** `expiresAt` is epoch milliseconds on the phone clock; the watch compares it with its own clock (docs/protocol.md). */
+/** `expiresAt` is a phone-clock time in epoch milliseconds that the watch compares with its own clock. */
 class PromptExpiryTest {
     private val now = 1_760_000_000_000L
     private val options = listOf(PromptOption("a", "Yes"), PromptOption("b", "No"))
