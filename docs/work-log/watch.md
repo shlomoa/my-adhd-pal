@@ -52,3 +52,15 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: removed `@Suppress("FunctionNaming")` from `DebugLoggingTest`, since the detekt config now skips `src/testDebug`.
 - Validation: `scripts/require-gate.sh G0` exit 0; `./gradlew check` BUILD SUCCESSFUL locally.
 - Open items: none.
+
+## 2026-10-14 - W1c Red baseline: scope question
+
+- Issue and PR: none yet, branch `claude/watch-w1c`
+- Changed: nothing. `scripts/require-gate.sh G1` and `G-ENV` exit 0. PRs #79, #80 and #84 are merged; no PR of this lane is open.
+- Validation: n/a.
+- Open items: (1) the coordinator mentioned a step "W2 (reminder engine)"; `docs/plans/watch.md` and `plan.md` on main have no W2 (the reminder
+  scheduler is 3.4, which needs G2). (2) W1c asks for tests "against the protocol and fakes", but the fake transport (1.7), the
+  link-state function (1.5) and the schedule logic (1.6) arrive with G2, so tests for TC-W-001..007, 010..015, 020..024 and 035..044 would have
+  to guess their APIs, or invent a watch-side sender port that G2's fake transport would then duplicate. Proposed split: W1c-a now
+  (G1 only: the alert evaluator TC-W-070..076 in `protocol/src/**/alerts/` and the watch-only cases), W1c-b after G2 for the rest.
+  Waiting for the coordinator's decision.
