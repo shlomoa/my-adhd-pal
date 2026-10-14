@@ -59,6 +59,16 @@ git -C "$tmp/origin.git" grep -q -e '<redacted-email>' "$b" -- docs/spikes/resul
 [ "$(cat "$tmp/repo/docs/base.md")" = "uncommitted work" ] && [ -z "$(git -C "$tmp/repo" status --porcelain --untracked-files=no | grep -v 'docs/base.md')" ]; check "uncommitted files are untouched" 0 $?
 [ -z "$(git -C "$tmp/repo" worktree list | grep -v "$tmp/repo ")" ]; check "the temporary worktree is removed" 0 $?
 
+# --- readiness gate: a timed-out adb call is never reported as "not installed"
+run slow-start "slowstart" -AdbTimeoutSec 2 -OnlyCases C1; check "emulator slow to respond: retried, then the run goes on (exit 0)" 0 $rc
+has 'is not ready \(state: unresponsive\)' ; check "the retry is announced" 0 $?
+! has 'not installed' ; check "a timeout is not reported as 'not installed'" 0 $?
+has '^C1 PASS' ; check "the cases run once the emulator answers" 0 $?
+run dead-watch "deadwatch" -AdbTimeoutSec 2 -OnlyCases C1; check "emulator that never responds: exit 2" 2 $rc
+has 'emulator-5556 is not responding' ; check "the message names the unresponsive emulator" 0 $?
+! has 'not installed' ; check "a dead emulator is not reported as 'not installed' either" 0 $?
+! has '^C1 ' ; check "no case ran against the unresponsive emulator" 0 $?
+
 # --- -OnlyCases: just C5 and C2b (the comma list arrives as ONE string through pwsh -File); C2b makes its own items
 run only-c5-c2b "" -OnlyCases C5,C2b; check "-OnlyCases C5,C2b: exit 0" 0 $rc
 has 'C2b: creating the DEL and KEEP items it needs' ; check "-OnlyCases: C2b creates the DEL and KEEP items itself" 0 $?

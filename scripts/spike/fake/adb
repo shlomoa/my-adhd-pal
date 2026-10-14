@@ -7,6 +7,8 @@
 #   stoppedwake  a force-stopped app is not woken by the Data Layer
 #   norecover    queued items are never delivered after a restart
 #   nopong       pings are never answered (C4 fails)
+#   slowstart    the first 2 'shell' calls to the watch hang (freshly started emulator that is not responsive yet)
+#   deadwatch    every 'shell' call to the watch hangs (emulator that never responds)
 #   emuhang      'adb emu kill' kills the emulator but the client never returns (seen on real emulators)
 # FAKE_LEAK=1 adds a log line with an e-mail address and a token, to prove they are stripped from published results.
 set -u
@@ -77,6 +79,10 @@ deliver_pending() { # serial just came online / was started; works on a snapshot
 if [ -n "$serial" ] && [ "$cmd" != "__boot" ] && ! online "$serial"; then
   echo "$serial $cmd $*" >> "$D/offline-calls"
   sleep 20; echo "error: device '$serial' not found" >&2; exit 1
+fi
+if [ "$cmd" = shell ] && [ "$(role_of "$serial")" = watch ]; then
+  if fails deadwatch; then sleep 8; exit 0; fi
+  if fails slowstart; then n=$(cat "$D/slow.n" 2>/dev/null || echo 0); if [ "$n" -lt 2 ]; then echo $((n+1)) > "$D/slow.n"; sleep 8; exit 0; fi; fi
 fi
 case "$cmd" in
   devices)

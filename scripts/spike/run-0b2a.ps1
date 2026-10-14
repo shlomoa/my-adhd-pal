@@ -18,7 +18,8 @@
   -OnlyCases C5,C2b runs just those cases (C2b creates its own DEL and KEEP items) and publishes under a distinct
   branch name spike-results/0b2a-<timestamp>-C5-C2b.
 
-  Exit code: 0 all gating cases PASS, 1 at least one gating case FAILED, 2 no FAIL but a gating case was NOT RUN.
+  Exit code: 0 all gating cases PASS, 1 at least one gating case FAILED, 2 no FAIL but a gating case was NOT RUN, or
+  an emulator does not respond (adb timed out) before the cases start.
 
 .EXAMPLE
   .\scripts\spike\run-0b2a.ps1
@@ -334,6 +335,43 @@ function Get-AvdName([string]$Serial, [string]$Given) {
     return $null
 }
 
+# Readiness of one emulator. A TIMED-OUT adb call is never reported as "app not installed":
+#   'unresponsive'  an adb call timed out
+#   'booting'       it answered but sys.boot_completed is not 1 yet, or the package manager is not up
+#   'app'           booted, and the spike package is installed
+#   'no-app'        booted, the package manager answered, and the spike package is genuinely not installed
+function Get-DeviceState {
+    param([string]$Serial)
+    $boot = ((Invoke-Adb $Serial @('shell', 'getprop', 'sys.boot_completed')) -join '').Trim()
+    if ($script:AdbTimedOut) { return 'unresponsive' }
+    if ($boot -ne '1') { return 'booting' }
+    $pm = (Invoke-Adb $Serial @('shell', 'pm', 'list', 'packages', $Package)) -join ' '
+    if ($script:AdbTimedOut) { return 'unresponsive' }
+    if ($pm -match [regex]::Escape($Package)) { return 'app' }
+    if ($pm -match 'Error|Exception|not running|Could not access|cmd: Failure') { return 'booting' }
+    return 'no-app'
+}
+
+function Wait-DeviceReady {
+    param([string]$Serial, [int]$Attempts = 3, [double]$PauseSec = 20)
+    $state = 'unresponsive'
+    for ($i = 1; $i -le $Attempts; $i++) {
+        $state = Get-DeviceState $Serial
+        if ($state -eq 'app' -or $state -eq 'no-app') { return $state }
+        if ($i -lt $Attempts) {
+            Write-Info ("{0} is not ready (state: {1}); attempt {2} of {3}, retrying in {4}s" -f $Serial, $state, $i, $Attempts, $PauseSec)
+            Sleep-Settle $PauseSec
+        }
+    }
+    return $state
+}
+
+function Stop-NotResponding([string]$Serial, [string]$State) {
+    Write-Host ("{0} is not responding (adb timed out or boot not finished; last state: {1}). Restart that emulator and run the script again." -f $Serial, $State)
+    if ((Get-ChildItem -Path $OutDir -Force -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item -Path $OutDir -Force -ErrorAction SilentlyContinue }
+    exit 2
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Devices, build, install, pre-flight
 # ---------------------------------------------------------------------------------------------------------------------
@@ -344,7 +382,15 @@ foreach ($line in $deviceLines) { if ($line -match '^(\S+)\s+device\s*$') { $ser
 if (-not $Phone -or -not $Watch) {
     foreach ($serial in $serials) {
         if ($serial -notmatch '^emulator-') { continue }
-        $traits = ((Invoke-Adb $serial @('shell', 'getprop', 'ro.build.characteristics')) -join ',')
+        # A freshly started emulator may not answer yet: a timeout is retried, never read as "not a watch".
+        $traits = $null
+        for ($attempt = 1; $attempt -le 3; $attempt++) {
+            $answer = ((Invoke-Adb $serial @('shell', 'getprop', 'ro.build.characteristics')) -join ',')
+            if (-not $script:AdbTimedOut) { $traits = $answer; break }
+            Write-Info "$serial did not answer (attempt $attempt of 3)"
+            if ($attempt -lt 3) { Sleep-Settle 20 }
+        }
+        if ($null -eq $traits) { Stop-NotResponding $serial 'unresponsive' }
         if ($traits -match 'watch') { if (-not $Watch) { $Watch = $serial } }
         elseif (-not $Phone) { $Phone = $serial }
     }
@@ -359,6 +405,14 @@ $Components[$Watch] = "$Package/$Package.wear.spike"
 $Role[$Phone] = 'phone'
 $Role[$Watch] = 'watch'
 Write-Info "Phone = $Phone, Watch = $Watch"
+
+# Readiness gate: both emulators must answer (boot completed, package manager up) before anything else happens.
+$States = @{}
+foreach ($serial in @($Phone, $Watch)) { $States[$serial] = Wait-DeviceReady $serial }
+foreach ($serial in @($Phone, $Watch)) {
+    if ($States[$serial] -ne 'app' -and $States[$serial] -ne 'no-app') { Stop-NotResponding $serial $States[$serial] }
+}
+Write-Info "Both emulators answer (phone: $($States[$Phone]), watch: $($States[$Watch]))"
 
 if (-not $SkipBuild) {
     Write-Info 'Building the spike apps (gradlew :phone:assembleDebug :wear:assembleDebug)'
@@ -379,10 +433,11 @@ if (-not $SkipBuild) {
 }
 
 foreach ($serial in @($Phone, $Watch)) {
-    $packages = (Invoke-Adb $serial @('shell', 'pm', 'list', 'packages', $Package)) -join ' '
-    if ($packages -notmatch [regex]::Escape($Package)) {
-        throw "The spike app ($Package) is not installed on $serial. Run without -SkipBuild."
+    $state = Wait-DeviceReady $serial
+    if ($state -eq 'no-app') {
+        throw "The spike app ($Package) is not installed on $serial (the package manager answered with an empty list). Run without -SkipBuild."
     }
+    if ($state -ne 'app') { Stop-NotResponding $serial $state }
 }
 $Info = @{}
 foreach ($serial in @($Phone, $Watch)) {
