@@ -30,13 +30,15 @@ sealed interface ActionOutcome {
  * timer, Done and Dismiss end a pending snooze), then an `/ack/<id>` item for the phone. The item is a fresh UUID per
  * event; the transport buffers it while the phone is away, and the phone deletes it after storing it (the watch only
  * writes its own items). Without a transport the local effect still happens and the missing ack is logged.
+ * [onHandled] is called after an action was carried out (not for a duplicate or a refused snooze).
  */
 class ReminderActionHandler(
     private val scheduler: ReminderScheduler,
     private val transport: () -> LinkTransport?,
     private val timer: TimerPort,
     private val now: () -> Instant,
-    private val newId: () -> String
+    private val newId: () -> String,
+    private val onHandled: () -> Unit = {}
 ) {
     private val handled = LinkedHashSet<String>()
 
@@ -54,6 +56,7 @@ class ReminderActionHandler(
         val denied = applyLocally(action, reminderId, snoozeCount, occurrenceAt)
         if (denied != null) return denied
         acknowledge(action, reminderId, occurrenceAt)
+        onHandled()
         return ActionOutcome.Done
     }
 
