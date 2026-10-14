@@ -85,3 +85,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   BUILD SUCCESSFUL, 8 tests pass.
 - Open items: `LinkStatus` is not yet on the home screen and the real Data Layer transport is not written: it needs the link-state
   function (1.5, G2b). TC-W-008 (manual, on the watch) waits for that.
+
+## 2026-10-14 - 3.3 Schedule receive
+
+- Issue and PR: #44, branch `claude/watch-3.3` (stacked on `claude/watch-3.2`, PR #101)
+- Changed: `ScheduleReceiver` (decode, major-version check, apply only newer, save, notify; applies a schedule already waiting
+  on the node at start; never deletes `/schedule`), `ScheduleStore` with `FileScheduleStore` (one file, atomic replace, a corrupt
+  file reads as nothing), `FanOutListener`. New catalogue case TC-W-016 (writer owns cleanup).
+- Validation: red commit `9993415` (unresolved references), then green: `./gradlew check` BUILD SUCCESSFUL, 11 schedule tests pass.
+- Open items: the Android listener service that feeds `ScheduleReceiver` from the Data Layer is part of the real transport, which
+  needs the link-state function (1.5, G2b). TC-W-015 (manual) waits for it.
+
