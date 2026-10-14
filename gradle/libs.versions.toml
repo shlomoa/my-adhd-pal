@@ -22,7 +22,7 @@ robolectric = "4.17"
 # S: protocol codec (1.3)
 kotlinxSerialization = "1.11.0"
 # S: phone data layer contract (2.3)
-kotlinxCoroutines = "1.10.2"
+kotlinxCoroutines = "1.11.0"
 androidxTestCore = "1.7.0"
 
 # W: watch
