@@ -16,3 +16,32 @@ BUILD FAILED
 
 TC-A-010 and TC-A-012 are red: `ClockModule`, the `@HiltAndroidApp` application and the `@AndroidEntryPoint`
 `MainActivity` do not exist yet.
+
+## A1b ViewModel and UI-state tests
+
+Base: f7cb9da (main after G3a); the test files are committed on `claude/android-A1b` without implementation.
+
+Command: `./gradlew :phone:testDebugUnitTest`. Exit 1: the test sources do not compile.
+
+```
+e: .../ui/history/HistoryViewModelTest.kt:30:22 Unresolved reference 'HistoryViewModel'.
+e: .../ui/link/LinkStateViewModelTest.kt:24:22 Unresolved reference 'LinkStateViewModel'.
+e: .../ui/prompts/PromptViewModelTest.kt:23:22 Unresolved reference 'PromptViewModel'.
+e: .../ui/reminders/ReminderEditViewModelTest.kt:24:72 Unresolved reference 'ReminderEditViewModel'.
+... 67 errors, all Unresolved reference
+```
+
+Every case below is red until its step lands:
+
+| Step | Cases |
+|---|---|
+| 2.6 | TC-A-001 to TC-A-008 |
+| 4.1 | TC-A-013 to TC-A-023, TC-A-053, TC-A-056, TC-A-057 (tasks and reminders) |
+| 4.2 | TC-A-024 to TC-A-029, TC-A-055 |
+| 4.3 | TC-A-031 to TC-A-037 |
+| 4.4 | TC-A-039 to TC-A-043 |
+| 4.5 | TC-A-045 to TC-A-051, TC-A-054, TC-A-056 |
+| 4.6 | TC-A-058, TC-A-059 (Compose UI tests, need a dependency from lane S) |
+| not unit tests | TC-A-009, 011, 030, 038, 044, 052, 060 to 072: manual, CI or docs; ids in `ManualCases.kt` |
+
+`scripts/check-test-cases.sh android baseline` exits 0 (every id appears in a test source).
