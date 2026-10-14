@@ -81,3 +81,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `Compatibility` (`ofMajor`, `ofHello`), `ProtocolVersion.parse` and `Codec.decodeIfCompatible` in `:protocol`; the versioning policy in `docs/protocol.md` states the rule and the accepted version text (`major.minor[.patch]`, 1 to 4 digits per part).
 - Validation: TC-S-056..059 written first and red (`shared-baseline.md`), then green with `./gradlew check`; doc lint green.
 - Open items: none for this step; gate G2a is flipped by the last of 1.6, 1.7, 1.8a.
+
+## 2026-10-14 - G2 split into G2a and G2b
+
+- Issue and PR: refs #30-#34 (steps 1.4-1.8); PR linked from the coordinator message.
+- Changed: `gates.json`, `docs/plans/README.md` (table, schedule, graph, risks, a "Why G2 is split" paragraph), `docs/plans/shared.md`, `docs/plans/watch.md` and the catalogue headings. G2a = 1.4, 1.6, 1.7, 1.8a (requires G1); G2b = 1.5, 1.8b (requires G2a, G-DEC). G3a requires G2a; G5 requires G2a; G3 requires G2b; the watch's 3.2-3.7 require G2a and its 6.3-6.8 require G2b. New `scripts/test/test-gates.sh` (TC-S-143) checks the whole graph and runs in the `script-tests` job.
+- Validation: TC-S-143 red first on `main` (7 FAIL, recorded in `shared-baseline.md`), then green; doc lint and link check green; `test-scripts.sh` (gate scripts) green.
+- Open items: no gate flipped. Steps 1.4, 1.6, 1.7, 1.8a start now; 1.5 and 1.8b wait for G-DEC.
