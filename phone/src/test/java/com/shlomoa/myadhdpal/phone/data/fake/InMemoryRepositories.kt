@@ -82,20 +82,28 @@ class InMemoryHistoryRepository : HistoryRepository {
     }
 
     override suspend fun store(event: WatchEvent): StoreResult {
-        val entry = when (event) {
-            is WatchEvent.AckReceived -> HistoryEntry.Acknowledged(event.id, event.ack.at, event.ack.action)
+        val entry = toEntry(event)
+        return when {
+            entry == null -> StoreResult.Ignored
 
-            is WatchEvent.SelectionReceived -> HistoryEntry.Selected(event.id, event.selection.at, event.selection.key)
+            entries.value.any { it.id == entry.id } -> StoreResult.Duplicate
 
-            is WatchEvent.AlertReceived -> with(event.alert) {
-                HistoryEntry.AlertRaised(event.id, at, metric, value, threshold)
+            else -> {
+                entries.value = entries.value + entry
+                StoreResult.Stored
             }
-
-            is WatchEvent.HelloReceived -> return StoreResult.Ignored
         }
-        if (entries.value.any { it.id == entry.id }) return StoreResult.Duplicate
-        entries.value = entries.value + entry
-        return StoreResult.Stored
+    }
+
+    private fun toEntry(event: WatchEvent): HistoryEntry? = when (event) {
+        is WatchEvent.AckReceived -> HistoryEntry.Acknowledged(event.id, event.ack.at, event.ack.action)
+
+        is WatchEvent.SelectionReceived -> HistoryEntry.Selected(event.id, event.selection.at, event.selection.key)
+
+        is WatchEvent.AlertReceived ->
+            with(event.alert) { HistoryEntry.AlertRaised(event.id, at, metric, value, threshold) }
+
+        is WatchEvent.HelloReceived -> null
     }
 
     private fun typeOf(entry: HistoryEntry) = when (entry) {

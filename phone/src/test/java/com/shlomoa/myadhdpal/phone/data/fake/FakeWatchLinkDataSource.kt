@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 
 /**
- * Test double for [WatchLinkDataSource]. It starts disconnected (Away). Events emitted while the link is Away or there is
- * No watch app are held back and delivered, in order, when the link comes up (like DataItems). Everything the app
+ * Test double for [WatchLinkDataSource]. It starts disconnected (Away). Events emitted while the link is Away or there
+ * is No watch app are held back and delivered, in order, when the link comes up (like DataItems). Everything the app
  * publishes is recorded; [failNextPublish] makes the next publish fail once.
  */
 class FakeWatchLinkDataSource(private val now: () -> Instant = { Instant.now() }) : WatchLinkDataSource {
