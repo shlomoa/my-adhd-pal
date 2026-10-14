@@ -1,12 +1,12 @@
 package com.shlomoa.myadhdpal.phone.data.db
 
+import android.content.Context
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
 import com.shlomoa.myadhdpal.phone.data.TaskRepository
 import com.shlomoa.myadhdpal.phone.data.contract.HistoryRepositoryContract
 import com.shlomoa.myadhdpal.phone.data.contract.TaskRepositoryContract
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import android.content.Context
 import org.junit.After
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

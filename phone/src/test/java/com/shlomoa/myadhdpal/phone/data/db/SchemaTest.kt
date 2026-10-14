@@ -12,7 +12,9 @@ class SchemaTest {
     @Test
     fun `TC-S-097 the exported schema of every version up to the current one is committed`() {
         assertTrue("run from the module directory: ${File(".").absolutePath}", schemaDir.isDirectory)
-        val versions = schemaDir.listFiles { f -> f.extension == "json" }!!.map { it.nameWithoutExtension.toInt() }.sorted()
+        val versions = schemaDir.listFiles { f ->
+            f.extension == "json"
+        }!!.map { it.nameWithoutExtension.toInt() }.sorted()
         assertEquals((1..AppDatabase.VERSION).toList(), versions)
     }
 
