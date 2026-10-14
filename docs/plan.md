@@ -80,8 +80,9 @@ DataItems and network-communication pages and the fitness integration guide.
 | both | `/hello/phone`, `/hello/watch` | protocol and app version, overwritten at start | no |
 | watch to phone | `/debug/biometrics` | raw samples, debug builds only | no |
 
-**Rules:** every event item has a unique `<id>` and a timestamp. Consumers are idempotent by id. The consumer deletes
-an item after storing it. `setUrgent()` is used only where delay hurts. Payloads stay well under the 100 KB limit.
+**Rules:** every event item has a unique `<id>` and a timestamp. Consumers are idempotent by id. Cleanup follows the
+writer-owns-cleanup rule in section 4 (the emulator spike showed that a quick delete by the other node can be lost).
+`setUrgent()` is used only where delay hurts. Payloads stay well under the 100 KB limit.
 
 **What this does and does not mean:** the app contains no Bluetooth or socket code and no message-based protocol.
 Google Play services moves the items over Bluetooth when the devices are connected and through Google's servers
@@ -95,6 +96,9 @@ item can be deleted and does not reappear, (4) urgent-item delay when nearby, re
 
 **Fallback rule, decided now:** if the spike fails on 2 or 3, or urgent alerts are too slow, add `MessageClient` for
 urgent alerts only. Everything else stays as items.
+
+**Emulator result (G-SPK1):** the fallback rule is not triggered; the transport stays DataItems only. Details and the
+open cases are in [`protocol.md`](protocol.md); the decision is final after the hardware spike (0b.2b).
 
 ## 4. Protocol
 
@@ -120,7 +124,11 @@ acknowledgements, selections and alerts flow to the phone and never edit master 
 - **Version and compatibility:** each side publishes a state item (`/hello/phone`, `/hello/watch`) with protocol and app
   version, overwritten at start. A receiver ignores items whose major version it does not support and shows
   Incompatible. There is no request and reply.
-- **Cleanup:** the consumer deletes an item after storing it.
+- **Cleanup (writer owns cleanup; decided from the emulator spike at G-SPK1, final after 0b.2b):** a node deletes the
+  items it wrote. The watch never deletes phone-written items (`/prompt/<id>`, `/schedule`); the phone removes a prompt
+  when it receives the answer or when it expires. The phone may delete watch-written events (`/ack/<id>`,
+  `/selection/<id>`, `/alert/<id>`) after storing them. Consumers stay idempotent by id, so an item that survives a lost
+  delete is handled once. Evidence: [`protocol.md`](protocol.md).
 - **Errors:** no RPC error codes. An item that fails validation is dropped, and the failure is logged in debug builds.
 
 **Spec contents:** item catalog, Mermaid sequence diagrams, state machines for the link and for prompts, and a

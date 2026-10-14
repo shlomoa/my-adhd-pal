@@ -45,8 +45,8 @@
       "requires": [
         "G0"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 89
     },
     {
       "id": "G-DEC",

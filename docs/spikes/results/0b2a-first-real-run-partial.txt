@@ -1,0 +1,27 @@
+Spike 0b.2a, FIRST REAL RUN of scripts/spike/run-0b2a.ps1 (commit 7476512), partial.
+Pasted verbatim by the user via the coordinator on 2026-10-13, because the run hung at C5 before the results branch
+could be published. Windows host, real Android emulators (phone emulator-5554, watch emulator-5556).
+The runner hung at C5 (adb emu kill never returned, no timeout in Invoke-Adb); that bug is fixed in the next commit.
+
+[07:08:23] Phone = emulator-5554, Watch = emulator-5556
+[07:08:23] Building ... [07:09:28] Installed phone apk, [07:09:34] Installed wear apk
+           (build + install worked; apps were uninstalled beforehand so there are no stale items)
+[07:09:52] Link is up: phone sees 1 node(s), watch sees 1.
+[07:09:54] Clock skew (watch minus phone): -1496 ms
+[07:10:11] C1: FAIL phone->watch: deletion did not reach the sender within 10s (no EVENT-DELETED); see C1b;
+           delayMs watch->phone 2452 / phone->watch -1327 (skew contaminated)
+[07:11:01] C1b waiting 45s ...
+[07:11:48] C1b: FAIL phone->watch immediate: 3 item(s) still listed on the writer and 0 on the deleter after 45s |
+           skew -1496 ms |
+           watch->phone immediate: 3 items, writer 0, deleter 0, writer saw EVENT-DELETED for 3 |
+           watch->phone delayed:   3 items, writer 0, deleter 0, writer saw EVENT-DELETED for 3 |
+           phone->watch immediate: 3 items, still listed on writer 3, deleter 0, writer saw EVENT-DELETED for 0 |
+           phone->watch delayed:   3 items, writer 0, deleter 0, writer saw EVENT-DELETED for 3
+[07:11:52] C2a: PASS KEEP item listed on both devices
+[07:12:01] C3a: PASS RECV without opening the app, fg=false, processUptimeMs=510
+[07:12:12] C3b: PASS RECV without opening the app, fg=false, processUptimeMs=447
+[07:12:16] C5-watch-away : stopping watch emulator (Wear_OS_Large_Round)
+           (last line; nothing after for 12+ minutes; the watch emulator had stopped but the adb client never returned)
+
+Other observation from an earlier attempt: the Google Pixel Watch companion app on the phone emulator crashed
+("keeps stopping") at about 4:10 on the phone clock.
