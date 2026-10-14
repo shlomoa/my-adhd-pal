@@ -89,6 +89,27 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: checks written first and red (`shared-baseline.md`), then green; all four diagrams were also rendered with `@mermaid-js/mermaid-cli` 11.4.2 and Chromium (a semicolon in a message broke the first draft and is now guarded); doc lint green. TC-S-078 (rendered view on the PR) is the manual check for the reviewer. Also added the prompt-expiry clause decided by the coordinator (absolute phone-clock time, the watch hides an expired prompt on its own clock, a few seconds of tolerance).
 - Open items: the link-state machine and the alert flow are 1.8b (G2b). Gate G2a is not flipped here: it needs 1.4, 1.6, 1.7 and 1.8a all merged, so a separate small PR flips it.
 
+## 2026-10-14 - 1.7 LinkTransport and fake transport
+
+- Issue and PR: #33; PR linked from the coordinator message.
+- Changed: `LinkState` (five members), `StoredItem`, `TransportListener` and `LinkTransport` in `:protocol`; `FakeLink` and `FakeNode` in `protocol.fake` (test double with DataItem buffering semantics, deterministic and synchronous); a "Transport abstraction" section in `docs/protocol.md`.
+- Validation: TC-S-072..076 written first and red (`shared-baseline.md`), then green (delivery in order, buffering while away, replacement at the same path, deletion not redelivered, repeated disconnect and reconnect without duplicates or loss), plus link-state notification and no-watch-app cases; `./gradlew check` and doc lint green. One expectation in my own test (a node also stores its own writes) was corrected after the red run.
+- Open items: the listener-based interface has no coroutines, so the app lanes bridge it to Flow with `callbackFlow`; gate G2a is flipped by 1.8a (the last of the G2a steps).
+
+## 2026-10-14 - 1.6 Schedule logic
+
+- Issue and PR: #32; PR linked from the coordinator message.
+- Changed: `ScheduleLogic` in `:protocol` (`nextReminder`, `nextCheckpoint`, `snooze`, `shouldApply`) with `ReminderOccurrence`, `CheckpointOccurrence`, `SnoozeResult`, `SnoozeDenial`; a "Schedule logic" section in `docs/protocol.md` (strictly-after rule, selected days, daylight-saving and time-zone rules, snooze cap and expiry, newer-version rule).
+- Validation: TC-S-067..071 written first and red (`shared-baseline.md`), then green with a fixed clock, including a spring-forward day, a fall-back day and a time-zone change; `./gradlew check` and doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.7 and 1.8a.
+
+## 2026-10-14 - 1.4 Compatibility rule
+
+- Issue and PR: #30; PR linked from the coordinator message.
+- Changed: `Compatibility` (`ofMajor`, `ofHello`), `ProtocolVersion.parse` and `Codec.decodeIfCompatible` in `:protocol`; the versioning policy in `docs/protocol.md` states the rule and the accepted version text (`major.minor[.patch]`, 1 to 4 digits per part).
+- Validation: TC-S-056..059 written first and red (`shared-baseline.md`), then green with `./gradlew check`; doc lint green.
+- Open items: none for this step; gate G2a is flipped by the last of 1.6, 1.7, 1.8a.
+
 ## 2026-10-14 - G2 split into G2a and G2b
 
 - Issue and PR: refs #30-#34 (steps 1.4-1.8); PR linked from the coordinator message.

@@ -236,6 +236,18 @@ Red commit: tests only (`PathsTest`, `ConstantsTest`, `CodecTest` in `:protocol`
 
 Red commit: the TC-S-077 structure checks in `scripts/test/test-protocol-spec.sh` only, before the `## Diagrams` section exists in `docs/protocol.md`: exit 1, 9 FAIL (each of the four diagrams missing as a Mermaid block of the right type, and the prompt state machine without a start and an end); the balanced-block checks pass trivially on empty input.
 
+## 1.7 LinkTransport and fake transport (red)
+
+Red commit: `FakeTransportTest` only (TC-S-072..076), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'fake'`, `'TransportListener'`, `'StoredItem'`, `'LinkState'`.
+
+## 1.6 schedule logic (red)
+
+Red commit: `ScheduleLogicTest` only (TC-S-067..071), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'ScheduleLogic'`, `'SnoozeResult'`, `'SnoozeDenial'`.
+
+## 1.4 compatibility rule (red)
+
+Red commit: `CompatibilityTest` only (TC-S-056..059), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'Compatibility'` and `'decodeIfCompatible'`.
+
 ## G2 split into G2a and G2b (red)
 
 Red commit: `scripts/test/test-gates.sh` only (TC-S-143, new), before `gates.json`, the plans and the README change.

@@ -1,8 +1,8 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.0, steps 1.1 to 1.3). This file is the single source of truth; the constants, models
-and codec in `:protocol` follow it, and unit tests keep them equal. The compatibility function, the link-state function,
-the schedule logic, the fake transport and the diagrams are added in steps 1.4 to 1.8. The transport verification below
+Status: **skeleton** (protocol 1.0, steps 1.1 to 1.4). This file is the single source of truth; the constants, models,
+codec and compatibility rule in `:protocol` follow it, and unit tests keep them equal. The schedule logic, the fake
+transport, the link-state function and the diagrams are added in steps 1.5 to 1.8. The transport verification below
 comes first in time and changes the cleanup rule.
 
 ## Item catalog
@@ -71,7 +71,48 @@ kept.
 item and in the `Hello` body. Additive changes (a new optional field, a new item path) raise the minor version and stay
 compatible; a receiver ignores fields and paths it does not know. A change that removes or reinterprets a field raises
 the major version. A receiver ignores items whose major version it does not support and shows Incompatible. There is no
-negotiation, request or reply. The compatibility function is added in step 1.4.
+negotiation, request or reply.
+
+The rule is `Compatibility` in `:protocol`. `Compatibility.ofMajor(v)` is Compatible only when `v` equals
+`Protocol.MAJOR_VERSION`. `Compatibility.ofHello(text)` parses the hello's `protocolVersion` (`major.minor`, optionally
+`.patch`, each part 1 to 4 digits; anything else, a missing value and a very long number included, is malformed) and
+applies the same rule; a missing or malformed version is Incompatible and never throws. `Codec.decodeIfCompatible`
+returns a failure, so the item is ignored, when the envelope's major version is not supported; minor and patch
+differences are accepted.
+
+## Schedule logic
+
+Pure functions in `:protocol` (`ScheduleLogic`), given the current instant and a time zone, so tests use a fixed clock.
+
+- **Next reminder / next checkpoint:** the first occurrence strictly after now. Reminder times are wall-clock times in the
+  device's time zone on the selected days (1 = Monday to 7 = Sunday); checkpoints repeat every day. With no reminders
+  (or checkpoints) there is none. Ties go to the earlier list entry. A checkpoint after the last one of the day is the
+  first one after midnight.
+- **Daylight-saving change:** a time in the skipped hour of a spring-forward day fires at the first valid time after the
+  gap (02:30 becomes 03:30); a time in the repeated hour of a fall-back day fires once, at its first occurrence. A
+  time-zone change recomputes the next occurrence on the new wall clock.
+- **Snooze:** moves the reminder to now plus `snooze.minutes`, counting snoozes used for this occurrence. It is denied at
+  the cap (`snoozeCount` has reached `snooze.maxCount`; 0 turns snoozing off) and, when the occurrence expires, if the
+  new time would be at or after the expiry. The cap is reported first.
+- **Newer version:** a schedule applies only if its `version` is greater than the one in use (or none is in use); equal and
+  older versions are ignored.
+
+## Transport abstraction
+
+`:protocol` defines `LinkTransport`, the one interface the apps use to reach the other node: `put(path, envelope)`,
+`delete(path)`, `items()`, `setListener(...)` and the read-only `linkState` (one of the five states below). The real
+implementations wrap the Wearable Data Layer in `:wear` and `:phone` and compute `linkState` with the link-state function;
+tests use `FakeLink` (two `FakeNode`s), which behaves like DataItems:
+
+- a write is stored on the writer at once, and delivered to the other node when the link is Nearby, Relayed or
+  Incompatible; while the link is Away or there is No watch app it is queued and delivered in order on reconnect;
+- a newer item at the same path replaces the older one, also in the queue (the other node sees only the newest);
+- a deletion reaches the other node the same way; an item deleted before it was delivered is never delivered, and a
+  deleted item is not redelivered after a reconnect;
+- repeated disconnects and reconnects give no duplicates and no loss; state changes call `onLinkStateChanged` on both nodes.
+
+If the hardware spike requires `MessageClient` for urgent alerts, it is added behind this interface; no path, key or model
+changes.
 
 ## Link states
 
