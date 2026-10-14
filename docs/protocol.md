@@ -1,8 +1,84 @@
 # Watch-phone protocol
 
-Status: **skeleton**. The specification itself (item catalog, item format, versioning, link states, diagrams) is written
-in steps 1.1 to 1.8 of [`plan.md`](plan.md) once the transport is confirmed. This file starts with the transport
-verification, because its results change the rules that the specification will state.
+Status: **skeleton** (protocol 1.0, steps 1.1 to 1.3). This file is the single source of truth; the constants, models
+and codec in `:protocol` follow it, and unit tests keep them equal. The compatibility function, the link-state function,
+the schedule logic, the fake transport and the diagrams are added in steps 1.4 to 1.8. The transport verification below
+comes first in time and changes the cleanup rule.
+
+## Item catalog
+
+All traffic is Data Layer items (decision in [`plan.md`](plan.md) section 3). The writer is the only node that creates,
+replaces or deletes an item (writer-owns-cleanup rule, see below).
+
+| Path | Direction | Body model | Urgent | Cleanup |
+|---|---|---|---|---|
+| `/schedule` | phone to watch | `Schedule` | only if it changes the next 30 minutes | replaced by the next version |
+| `/prompt/<id>` | phone to watch | `Prompt` | yes | phone deletes it on the answer or at expiry |
+| `/ack/<id>` | watch to phone | `Acknowledgement` | yes | watch deletes it after a delay, or the phone after storing it |
+| `/selection/<id>` | watch to phone | `Selection` | yes | same as `/ack/<id>` |
+| `/alert/<id>` | watch to phone | `Alert` | yes | same as `/ack/<id>` |
+| `/hello/phone` | phone to watch | `Hello` | no | overwritten at start |
+| `/hello/watch` | watch to phone | `Hello` | no | overwritten at start |
+| `/debug/biometrics` | watch to phone | `BiometricSamples` | no | debug builds only; overwritten |
+
+`<id>` is a lower-case canonical UUID (`123e4567-e89b-42d3-a456-426614174000`). A path with any other id, a trailing
+slash or an extra segment is not a protocol path and is ignored.
+
+## Item format
+
+Every item has four keys:
+
+| Key | Type | Meaning |
+|---|---|---|
+| `v` | int | protocol major version of the writer |
+| `id` | string | UUID of the item; the same as `<id>` in the path for event items; a fresh UUID per write for the others |
+| `ts` | long | sender clock in epoch milliseconds when the item was written |
+| `body` | string | JSON produced by the `:protocol` codec |
+
+`:protocol` never touches Android's `DataMap`; thin adapters in `:wear` and `:phone` convert between `DataMap` and the
+`Envelope` type. Times inside a body (`at`, `expiresAt`) are epoch milliseconds on the clock of the node that wrote the
+item. The two clocks differ (the emulator spike measured about 1.5 s), so a receiver never computes a delay from them.
+
+Bodies (field names are the JSON keys):
+
+| Model | Fields |
+|---|---|
+| `Schedule` | `version` (long, monotonic), `reminders` (`id`, `title`, `minuteOfDay` 0-1439, `days` 1-7 with 1 = Monday), `checkpoints` (`id`, `label`, `minuteOfDay`), `snooze` (`minutes`, `maxCount`), `alerts` (`thresholds` of `metric`, `direction`, `value`; `cooldownSeconds`) |
+| `Prompt` | `title`, `options` (1 to 6 of `key`, `label`; keys unique), `expiresAt` (optional) |
+| `Acknowledgement` | `action` (`DONE`, `SNOOZE`, `START_2_MIN`, `DISMISS`), `at` |
+| `Selection` | `key` (an option key of the prompt with the same id), `at` |
+| `Alert` | `metric` (`HEART_RATE`), `value`, `threshold`, `at` |
+| `Hello` | `side` (`PHONE`, `WATCH`), `protocolVersion` (for example `1.0`), `appVersion` |
+| `BiometricSamples` | `samples` (`at`, `heartRate`), at most 500 |
+
+Limits (`Limits` in `:protocol`): 100 reminders, 24 checkpoints, 8 thresholds, 6 options, texts 1 to 200 characters,
+keys and versions 1 to 32 characters, snooze 1 to 240 minutes and 0 to 10 snoozes, cooldown 0 to 86400 seconds. The
+largest legal item stays below 40 KB, less than half of the 100 KB DataItem limit.
+
+An item whose body is malformed, has a missing or mistyped required field, an unknown enum value or an out-of-limit
+value is dropped, and the failure is logged in debug builds. Unknown extra fields are ignored and the known fields are
+kept.
+
+## Versioning policy
+
+`Protocol.VERSION` is `major.minor`. The major version is the compatibility boundary and is written in `v` of every
+item and in the `Hello` body. Additive changes (a new optional field, a new item path) raise the minor version and stay
+compatible; a receiver ignores fields and paths it does not know. A change that removes or reinterprets a field raises
+the major version. A receiver ignores items whose major version it does not support and shows Incompatible. There is no
+negotiation, request or reply. The compatibility function is added in step 1.4.
+
+## Link states
+
+The phone shows one of five states for the watch link. The function that derives it from the connected nodes, the app
+capability and the hello versions is added in step 1.5; the states are fixed now.
+
+| State | Meaning |
+|---|---|
+| Nearby | the watch app is installed, the watch is directly connected, and its hello version is compatible |
+| Relayed | the watch app is installed, the watch is connected only through the relay, and its hello version is compatible |
+| Away | no watch is connected |
+| No watch app | a watch is paired, but without the app capability |
+| Incompatible | the watch's hello has an unsupported major version, or is missing or malformed |
 
 ## Transport verification: spike 0b.2a (paired emulators)
 

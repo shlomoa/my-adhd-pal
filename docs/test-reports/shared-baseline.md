@@ -224,3 +224,16 @@ Before wiring the lane scripts into the workflow and widening the detekt test ex
 
 - Red: in a fresh clone, `test-structure.sh` then `test-pairing.sh` (the CI job's order, `-Dorg.gradle.caching=false`) gives `FAIL TC-S-008 changed applicationId makes check fail`, as on CI. Cause: the guard `! grep -q "not found"` meant to catch a missing Gradle task also matched Android lint's notice "...listed in the baseline file but not found in the project; perhaps they have been fixed?", which prints only when lint actually executes (clean runner), not from cache.
 - Fix: the guard now matches Gradle's missing-task message (`Task '...' not found`), the same intent without the false match; failing cases print the last 25 lines of the command output; the four scripts are separate CI steps so one failure no longer hides the others (the job's single multi-line step had stopped after `test-pairing.sh`, so `test-checks.sh` and `test-ci.sh` had not run on CI).
+
+## 1.1-1.3 protocol spec, constants, models and codec (red)
+
+Red commit: tests only (`PathsTest`, `ConstantsTest`, `CodecTest` in `:protocol`, `scripts/test/test-protocol-spec.sh`); no implementation.
+
+- `./gradlew :protocol:test`: BUILD FAILED at `:protocol:compileTestKotlin`, `Unresolved reference 'Message'` (and the other protocol types: `Paths`, `Codec`, `Schedule`, ...). TC-S-042..055 cannot run.
+- `scripts/test/test-protocol-spec.sh` (TC-S-040, TC-S-041): exit 1, 7 FAIL, 0 PASS (no `Item catalog`, `Item format`, `Versioning policy` or `Link states` section in `docs/protocol.md`, no `Paths.kt`).
+
+## G2 split into G2a and G2b (red)
+
+Red commit: `scripts/test/test-gates.sh` only (TC-S-143, new), before `gates.json`, the plans and the README change.
+
+- `scripts/test/test-gates.sh` on the current `main`: exit 1, 7 FAIL, with the generic graph checks (unique ids, existing requirements, no cycle, README table equals `gates.json`, lane plans name existing gates) PASS. The FAILs are the split itself: `G2 is replaced by G2a and G2b`, `G2a requires G1 only (got '')`, `G2b requires G2a and G-DEC (got '')`, `G3a requires G2a (got 'G2')`, `G3 ... requires G3a, G-LIB and G2b (got 'G-LIB,G3a')`, `G5 requires G2a (got 'G2')`.

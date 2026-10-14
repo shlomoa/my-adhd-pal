@@ -1,0 +1,35 @@
+package com.shlomoa.myadhdpal.protocol
+
+import kotlinx.serialization.Serializable
+
+/** Protocol version. The major version is the compatibility boundary (see `docs/protocol.md`). */
+object Protocol {
+    const val MAJOR_VERSION = 1
+    const val VERSION = "1.0"
+}
+
+/** Keys of a Data Layer item. The `DataMap` adapters in `:wear` and `:phone` use exactly these. */
+object ItemKeys {
+    const val VERSION = "v"
+    const val ID = "id"
+    const val TIMESTAMP = "ts"
+    const val BODY = "body"
+}
+
+/** Content limits. Together they keep every item far below the 100 KB DataItem limit. */
+object Limits {
+    const val MAX_REMINDERS = 100
+    const val MAX_CHECKPOINTS = 24
+    const val MAX_THRESHOLDS = 8
+    const val MAX_OPTIONS = 6
+    const val MAX_TEXT_LENGTH = 200
+    const val MAX_KEY_LENGTH = 32
+    const val MAX_SNOOZE_MINUTES = 240
+    const val MAX_SNOOZE_COUNT = 10
+    const val MAX_COOLDOWN_SECONDS = 86_400
+    const val MAX_SAMPLES = 500
+}
+
+/** Which device wrote a hello item. */
+@Serializable
+enum class Side { PHONE, WATCH }

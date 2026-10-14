@@ -3,4 +3,8 @@
     <string name="app_name">ADHD Pal</string>
     <string name="home_greeting">Hi! I\'m your ADHD pal.</string>
     <string name="home_subtitle">Features coming soon.</string>
+    <string name="action_done">Done</string>
+    <string name="action_snooze">Snooze</string>
+    <string name="action_start_2_min">Start 2 min</string>
+    <string name="action_dismiss">Dismiss</string>
 </resources>
