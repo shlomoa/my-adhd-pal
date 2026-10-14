@@ -7,6 +7,7 @@ import com.shlomoa.myadhdpal.protocol.Reminder
 import com.shlomoa.myadhdpal.wear.reminder.Haptic
 import com.shlomoa.myadhdpal.wear.reminder.ReminderNotifier
 import com.shlomoa.myadhdpal.wear.scheduler.FiredReminder
+import java.time.Instant
 
 /**
  * Debug-only. Shows a reminder notification now, with a haptic, to try the notification and the haptic catalogue:
@@ -18,6 +19,6 @@ class FireReminderReceiver : BroadcastReceiver() {
         val title = intent.getStringExtra("title") ?: "Test reminder"
         val haptic = Haptic.entries.firstOrNull { it.name == intent.getStringExtra("haptic") } ?: Haptic.TICK
         val reminder = Reminder(id = "debug", title = title, minuteOfDay = 0, days = listOf(1))
-        ReminderNotifier(context).show(FiredReminder(reminder, snoozeCount = 0), haptic)
+        ReminderNotifier(context).show(FiredReminder(reminder, snoozeCount = 0, occurrenceAt = Instant.now()), haptic)
     }
 }

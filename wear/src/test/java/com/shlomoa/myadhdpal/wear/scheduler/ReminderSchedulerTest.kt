@@ -22,6 +22,7 @@ class ReminderSchedulerTest {
     private val zone = ZoneId.of("UTC")
     private var now = Instant.parse("2026-10-14T08:00:00Z")
     private val everyDay = listOf(1, 2, 3, 4, 5, 6, 7)
+    private val medsOccurrence = Instant.parse("2026-10-14T07:59:00Z")
     private val water = Reminder("water", "Drink water", 8 * 60 + 30, everyDay)
     private val meds = Reminder("meds", "Take medication", 9 * 60, everyDay)
     private var schedule: Schedule? = schedule(1, meds, water)
@@ -61,7 +62,7 @@ class ReminderSchedulerTest {
 
     @Test
     fun `TC-W-022 after a boot the alarm is rebuilt from the stored schedule and snoozes`() {
-        scheduler().snooze("meds", snoozeCount = 0)
+        scheduler().snooze("meds", snoozeCount = 0, occurrenceAt = medsOccurrence)
         val afterBoot = FakeAlarmPort()
         ReminderScheduler({ schedule }, afterBoot, snoozes, { now }, zone).rearm()
         assertEquals(FakeAlarmPort.Alarm(Instant.parse("2026-10-14T08:10:00Z"), "meds"), afterBoot.alarm)
@@ -81,7 +82,7 @@ class ReminderSchedulerTest {
     @Test
     fun `TC-W-024 a snooze moves the reminder to now plus the snooze minutes and persists`() {
         val scheduler = scheduler()
-        val result = scheduler.snooze("meds", snoozeCount = 0)
+        val result = scheduler.snooze("meds", snoozeCount = 0, occurrenceAt = medsOccurrence)
         assertEquals(SnoozeResult.Until(Instant.parse("2026-10-14T08:10:00Z"), 1), result)
         assertEquals(FakeAlarmPort.Alarm(Instant.parse("2026-10-14T08:10:00Z"), "meds"), alarms.alarm)
 
@@ -93,7 +94,7 @@ class ReminderSchedulerTest {
     @Test
     fun `TC-W-024 a snooze beyond the cap is denied and sets nothing new`() {
         val scheduler = scheduler()
-        val result = scheduler.snooze("meds", snoozeCount = 2)
+        val result = scheduler.snooze("meds", snoozeCount = 2, occurrenceAt = medsOccurrence)
         assertEquals(SnoozeResult.Denied(SnoozeDenial.AT_CAP), result)
         assertEquals(0, alarms.setCount)
     }
@@ -101,12 +102,20 @@ class ReminderSchedulerTest {
     @Test
     fun `TC-W-024 when the alarm fires the reminder is returned with its snooze count and the next one is armed`() {
         val scheduler = scheduler()
-        scheduler.snooze("meds", snoozeCount = 0)
+        scheduler.snooze("meds", snoozeCount = 0, occurrenceAt = medsOccurrence)
         now = Instant.parse("2026-10-14T08:10:00Z")
         val fired = scheduler.onAlarm("meds", Instant.parse("2026-10-14T08:10:00Z"))
-        assertEquals(FiredReminder(meds, snoozeCount = 1), fired)
+        assertEquals(FiredReminder(meds, snoozeCount = 1, occurrenceAt = medsOccurrence), fired)
         assertEquals(FakeAlarmPort.Alarm(Instant.parse("2026-10-14T08:30:00Z"), "water"), alarms.alarm)
         assertEquals(emptyMap<String, SnoozeEntry>(), snoozes.load())
+    }
+
+    @Test
+    fun `TC-W-020 a scheduled alarm returns the reminder with its own fire time as the occurrence`() {
+        val scheduler = scheduler()
+        scheduler.rearm()
+        val at = Instant.parse("2026-10-14T08:30:00Z")
+        assertEquals(FiredReminder(water, snoozeCount = 0, occurrenceAt = at), scheduler.onAlarm("water", at))
     }
 
     @Test
@@ -120,7 +129,7 @@ class ReminderSchedulerTest {
     @Test
     fun `TC-W-020 acknowledging a reminder clears its pending snooze`() {
         val scheduler = scheduler()
-        scheduler.snooze("meds", snoozeCount = 0)
+        scheduler.snooze("meds", snoozeCount = 0, occurrenceAt = medsOccurrence)
         scheduler.clearSnooze("meds")
         assertEquals(emptyMap<String, SnoozeEntry>(), snoozes.load())
         assertEquals(Instant.parse("2026-10-14T08:30:00Z"), alarms.alarm?.at)
