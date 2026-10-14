@@ -9,4 +9,19 @@
     <string name="link_incompatible">Watch app needs an update</string>
     <string name="link_last_sync_never">Never synced</string>
     <string name="link_last_sync_ago">Last sync %1$d min ago</string>
+    <string name="state_loading">Loading…</string>
+    <string name="state_error">Something went wrong: %1$s</string>
+    <string name="state_retry">Try again</string>
+    <string name="history_empty">Nothing from your watch yet. Answers and alerts appear here.</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_acks">Answers</string>
+    <string name="history_filter_selections">Choices</string>
+    <string name="history_filter_alerts">Alerts</string>
+    <string name="history_ack_done">Done</string>
+    <string name="history_ack_snooze">Snoozed</string>
+    <string name="history_ack_start">Started 2 minutes</string>
+    <string name="history_ack_dismiss">Dismissed</string>
+    <string name="history_acknowledged">Reminder: %1$s</string>
+    <string name="history_selected">%1$s: chose option %2$s</string>
+    <string name="history_alert">Heart rate %1$.0f (threshold %2$.0f)</string>
 </resources>
