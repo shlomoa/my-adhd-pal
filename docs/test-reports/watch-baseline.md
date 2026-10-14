@@ -79,7 +79,17 @@ e: wear/src/test/.../reminder/ReminderChannelTest.kt:13:31 Unresolved reference 
 
 TC-W-033 and TC-W-034 are manual (the user's checklist is in the work log).
 
+## Step 3.7: prompt inbox and selections (TC-W-040 to TC-W-044; `wear/src/test/.../prompt/PromptInboxTest.kt`)
+
+Red commit: `b62df3f` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../prompt/PromptInboxTest.kt:24:27 Unresolved reference 'PromptInbox'.
+```
+
+TC-W-045 (prompt from the phone on the watch) is manual and waits for the real transport (1.5, G2b).
+
 ## Not yet written (later steps)
 
-Cases for 3.6 (TC-W-035 to TC-W-038), 3.7 selections (TC-W-040, 041, 044, 045), the tile (TC-W-060 to TC-W-066) and biometrics
+Cases for 3.6 (TC-W-035 to TC-W-038, waiting for the acknowledgement decision), the tile (TC-W-060 to TC-W-066) and biometrics
 (TC-W-077 to TC-W-083).

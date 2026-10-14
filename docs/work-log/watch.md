@@ -123,3 +123,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   Start 2 min and Dismiss, and does each tap close it? (3) Does the app ask for the notification permission on first launch?
   The effects of the actions (snooze, 2-minute timer, acknowledgement) are 3.6, which waits for a protocol decision (an
   acknowledgement cannot name its reminder).
+
+## 2026-10-14 - 3.7 Selections
+
+- Issue and PR: #48, branch `claude/watch-3.7` (stacked on `claude/watch-3.5`, PR #106)
+- Changed: `PromptInbox` (the pending prompts are derived from the items on the node: valid, supported, not expired on the watch
+  clock, no `/selection/<id>` of the watch's own yet; `choose` sends `/selection/<id>` with the prompt's id, the key and the watch
+  time; the watch never deletes `/prompt`) and the `SelectionScreen` composable (one button per option).
+- Validation: red commit `b62df3f` (unresolved `PromptInbox`), then green: `./gradlew check` BUILD SUCCESSFUL, 10 new tests pass.
+- Open items: the screen and the inbox are not yet wired to a real transport (1.5, G2b); TC-W-045 (manual) waits for it.
