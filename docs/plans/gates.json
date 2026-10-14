@@ -66,8 +66,8 @@
       "requires": [
         "G-SPK1"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 90
     },
     {
       "id": "G2",
