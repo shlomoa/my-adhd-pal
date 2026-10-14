@@ -75,9 +75,23 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red commit `0beced5` (unresolved references); green: `./gradlew check` BUILD SUCCESSFUL.
 - Open items: none for these cases.
 
-## 2026-10-14 - W1c-b and 3.2-3.7 wait for G2a
+## 2026-10-14 - 3.2 Link client
 
-- Issue and PR: #92, #93
-- Changed: nothing.
-- Validation: n/a.
-- Open items: BLOCKED: W1c-b waits for G2a
+- Issue and PR: #43, branch `claude/watch-3.2`
+- Changed: `LinkClient` and `LinkView` (publishes `/hello/watch`, keeps the state and last-sync time in step with a `LinkTransport`),
+  `LinkState.watchLabelRes()`, the `LinkStatus` composable and link strings. Tests: `LinkClientTest` (TC-W-001 to TC-W-007).
+  W1c-b is done per step: each step PR carries its own red commit and baseline entry, so no red code reaches `main`.
+- Validation: `scripts/require-gate.sh G2a` exit 0. Red commit `2f97a7c` (unresolved `LinkClient`), then green: `./gradlew check`
+  BUILD SUCCESSFUL, 8 tests pass.
+- Open items: `LinkStatus` is not yet on the home screen and the real Data Layer transport is not written: it needs the link-state
+  function (1.5, G2b). TC-W-008 (manual, on the watch) waits for that.
+
+## 2026-10-14 - 3.3 Schedule receive
+
+- Issue and PR: #44, branch `claude/watch-3.3` (stacked on `claude/watch-3.2`, PR #101)
+- Changed: `ScheduleReceiver` (decode, major-version check, apply only newer, save, notify; applies a schedule already waiting
+  on the node at start; never deletes `/schedule`), `ScheduleStore` with `FileScheduleStore` (one file, atomic replace, a corrupt
+  file reads as nothing), `FanOutListener`. New catalogue case TC-W-016 (writer owns cleanup).
+- Validation: red commit `9993415` (unresolved references), then green: `./gradlew check` BUILD SUCCESSFUL, 11 schedule tests pass.
+- Open items: the Android listener service that feeds `ScheduleReceiver` from the Data Layer is part of the real transport, which
+  needs the link-state function (1.5, G2b). TC-W-015 (manual) waits for it.
