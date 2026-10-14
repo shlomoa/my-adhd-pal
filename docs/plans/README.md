@@ -49,17 +49,28 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 | **G0** | 0a.1-0a.7: baseline, `:wear`/`:protocol`/`:phone` skeletons, shared config + pairing check, Spotless/ktlint, detekt, lint, markdownlint, link check, CI incl. release-has-no-debug, conventions | S | G-ENV |
 | **G-LIB** | 0b.1 decision: Hilt/KSP/Room on AGP 9.4 + Kotlin 2.4 (Hilt or manual DI) recorded | S | G0 |
 | **G-SPK1** | 0b.2a emulator-pair spike results table in `docs/protocol.md` (run by the user in Android Studio) | S + user | G0 |
-| **G-DEC** | 0b.2b real-hardware results, 0b.3 decision (fallback rule applied if needed), transport section updated; protocol locked | S + user | G-SPK1, H2 |
+| **G-DEC** | 0b.2b real-hardware results, 0b.3 decision (fallback rule applied if needed), transport section updated; the wire contract of G1 is confirmed or amended | S + user | G-SPK1, H2 |
 | **G1** | 1.1-1.3: spec skeleton, constants, models and codec (tested) | S | G-SPK1 |
-| **G2** | 1.4-1.8: compatibility rule, five-state link function, schedule logic, fake transport, diagrams | S | G1, G-DEC |
-| **G3a** | Phone data contract: `WatchLinkDataSource` interface + fake (2.3), repository interfaces + in-memory fakes | S | G2 |
-| **G3** | 2.1-2.5: Room, DataStore, real `WatchLinkDataSource`, background listener service, repositories | S | G3a, G-LIB |
+| **G2a** | 1.4, 1.6, 1.7, 1.8a: compatibility rule, schedule logic, `LinkTransport` and `LinkState` types with the fake transport, transport-neutral diagrams | S | G1 |
+| **G2b** | 1.5, 1.8b: five-state link function from nodes, capability and hello versions, link-state and alert diagrams | S | G2a, G-DEC |
+| **G3a** | Phone data contract: `WatchLinkDataSource` interface + fake (2.3), repository interfaces + in-memory fakes | S | G2a |
+| **G3** | 2.1-2.5: Room, DataStore, real `WatchLinkDataSource`, background listener service, repositories | S | G3a, G-LIB, G2b |
 | **G4** | Phone core: 2.7 DI, 2.6 link-state screen, 4.5 history screen | A | G3a, G-LIB |
-| **G5** | Watch core: 3.1-3.7 (manifest, link client, schedule receive, scheduler, haptics, acks, selections) | W | G2 |
+| **G5** | Watch core: 3.1-3.7 (manifest, link client, schedule receive, scheduler, haptics, acks, selections) | W | G2a |
 | **G6** | Phone features: 4.1-4.4 and 4.6 (tasks, schedule builder, settings, prompt publishing, states) | A | G4, G3 |
 | **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded | W + user | G3, G4, G5, H2 |
 | **H1** (human) | 6.2 biometric metrics and thresholds agreed in an issue; decision doc merged | user | none |
 | **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed (PR flips the gate) | user | none |
+
+**Why G2 is split.** Gates are checked by `scripts/test/test-gates.sh` (TC-S-143). Only the five-state link function
+(1.5) and the diagrams of the link state machine and the alert flow (1.8b) depend on what the real devices report
+(whether Relayed and Away are observable, and how fast). Compatibility (1.4), schedule logic (1.6), the `LinkTransport`
+interface with its `LinkState` output and the fake transport (1.7) and the other diagrams (1.8a) are the same under
+either transport option: DataItems only, or DataItems plus `MessageClient` for urgent alerts only, which would be added
+behind `LinkTransport` and change no path, key or model of G1. Consumers (G3a, G4, G5) therefore depend on G2a and take
+the `LinkState` as an output of `LinkTransport`; the real implementations that compute it with the 1.5 function (G3, the
+watch's production link client) wait for G2b. If G-DEC changes the wire contract, that lands as an amendment of G1's
+contents in its own PR and the dependants re-run their baselines.
 
 ### Stop rule (enforced twice)
 
@@ -101,11 +112,11 @@ gate start immediately; a lane with nothing unblocked stops.
 | 2 | **0a.1-0a.7** -> G0 | ■G0 | ■G0 |
 | 3 | 0b.1 -> G-LIB; 0b.2a (user run) -> G-SPK1 | A2 phone skeleton checks | 3.1 manifest; 3.8 debug set (G0) |
 | 4 | 1.1-1.3 -> G1; 0b.2b (user run, ■H2) -> G-DEC | | W1c red baseline (■G1) |
-| 5 | 1.4-1.8 -> G2 | | |
-| 6 | 2.3 + repository interfaces -> G3a | A1b red baseline (■G3a) | |
-| 7 | 2.1, 2.2, 2.4, 2.5 -> G3 | 2.7, 2.6, 4.5 -> G4 | 3.2-3.7 -> G5 (■G2) |
+| 5 | 1.4, 1.6, 1.7, 1.8a -> G2a (■G1, parallel to wave 4); 1.5, 1.8b -> G2b (■G-DEC) | | |
+| 6 | 2.3 + repository interfaces -> G3a (■G2a) | A1b red baseline (■G3a) | |
+| 7 | 2.1, 2.2 (■G3a); 2.4, 2.5 -> G3 (■G2b) | 2.7, 2.6, 4.5 -> G4 | 3.2-3.7 -> G5 (■G2a) |
 | 8 | | 4.1-4.4, 4.6 -> G6 | 3.9 (■G3, G4, G5, H2) -> G7; 5.2-5.3 tile (■G5) |
-| 9 | | 7.x Play readiness (■G6, G7) | 6.2 (H1), 6.3-6.8 (■H1, 3.8, G2) |
+| 9 | | 7.x Play readiness (■G6, G7) | 6.2 (H1), 6.3-6.8 (■H1, 3.8, G2b) |
 | last | S-final | A-final | W-final |
 
 ```mermaid
@@ -115,14 +126,16 @@ graph LR
   G0 --> SPK[G-SPK1] --> G1
   SPK --> DEC[G-DEC]
   H2 --> DEC
-  G1 --> G2
-  DEC --> G2
-  G2 --> G3a
+  G1 --> G2a
+  G2a --> G2b
+  DEC --> G2b
+  G2a --> G3a
+  G2b --> G3
   G3a --> G3
   LIB --> G3
   G3a --> G4
   LIB --> G4
-  G2 --> G5
+  G2a --> G5
   G4 --> G6
   G3 --> G6
   G3 --> G7
@@ -146,7 +159,8 @@ graph LR
 ## Risks
 
 - **Spike contradicts the transport decision** (`plan.md` section 3): the fallback rule (`MessageClient` for urgent
-  alerts only) is applied at G-DEC, before G2; A and W re-run their baselines after merging `main`.
+  alerts only) is applied at G-DEC; G2a is transport-neutral, G2b, G3 and the real link clients wait for it; A and W re-run
+  their baselines after merging `main`.
 - **Tool incompatibility with AGP 9.4 / Kotlin 2.4** (0a.5, 0b.1): the thread stops and asks (`plan.md` rule).
 - **Human gates** (H1, H2, spike runs, gate PR merges) can idle a lane; `BLOCKED` entries in the work log make it visible.
 - **Cloud sessions without the Android SDK**: G-ENV (0a.8) is the first gate for exactly this reason.
