@@ -52,3 +52,24 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: removed `@Suppress("FunctionNaming")` from `DebugLoggingTest`, since the detekt config now skips `src/testDebug`.
 - Validation: `scripts/require-gate.sh G0` exit 0; `./gradlew check` BUILD SUCCESSFUL locally.
 - Open items: none.
+
+## 2026-10-14 - W1c-a Tests and red baseline for the G1-only cases
+
+- Issue and PR: #92 (part a; the issue stays open for part b), branch `claude/watch-w1c`
+- Changed: scope agreed with the coordinator (W2 does not exist; part a on G1 only, part b after G2a). Tests first for the alert
+  evaluator (TC-W-070..076, `protocol/src/test/.../alerts/`), the haptic catalogue (TC-W-030) and the reminder actions (TC-W-031);
+  then `AlertEvaluator` and `Reading` in `:protocol` (`alerts/`), `Haptic` and `ReminderAction` in `:wear`, four action strings,
+  and the `:wear` dependency on `:protocol`.
+- Validation: red commit `d53e22e` (tests only, build fails on unresolved references), evidence in
+  `docs/test-reports/watch-baseline.md`. Green: `./gradlew check` BUILD SUCCESSFUL, 10 new tests pass. One test edit after red:
+  `labelResName` became `R.string` ids (still unresolved at red). Thresholds and cooldown are inputs of the evaluator, so H1 does not
+  change it.
+- Open items: TC-W-042 (prompt expiry) needs a decision with the Shared lane on `expiresAt` (a receiver never computes a delay from
+  the two clocks). W1c-b (link state, schedule logic, transport cases) waits for G2a.
+
+## 2026-10-14 - W1c-b and 3.2-3.7 wait for G2a
+
+- Issue and PR: #92, #93
+- Changed: nothing.
+- Validation: n/a.
+- Open items: BLOCKED: W1c-b waits for G2a
