@@ -43,7 +43,9 @@ class InMemoryPromptRepositoryTest : PromptRepositoryContract() {
     private var counter = 0
 
     override fun create(source: WatchLinkDataSource, now: Instant): PromptRepository =
-        InMemoryPromptRepository(source, clock = { now }, newId = { "123e4567-e89b-42d3-a456-4266141740%02d".format(++counter) })
+        InMemoryPromptRepository(source, clock = {
+            now
+        }, newId = { "123e4567-e89b-42d3-a456-4266141740%02d".format(++counter) })
 }
 
 class InMemoryLinkStatusRepositoryTest : LinkStatusRepositoryContract() {

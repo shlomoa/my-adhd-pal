@@ -33,7 +33,10 @@ abstract class HistoryRepositoryContract {
         val repo = create()
         assertEquals(StoreResult.Stored, repo.store(ack(a1, 100)))
         assertEquals(StoreResult.Stored, repo.store(WatchEvent.SelectionReceived(s1, 300, Selection("calm", 300))))
-        assertEquals(StoreResult.Stored, repo.store(WatchEvent.AlertReceived(l1, 200, Alert(Metric.HEART_RATE, 163.5, 150.0, 200))))
+        assertEquals(
+            StoreResult.Stored,
+            repo.store(WatchEvent.AlertReceived(l1, 200, Alert(Metric.HEART_RATE, 163.5, 150.0, 200)))
+        )
         val entries = repo.history().first()
         assertEquals(listOf(s1, l1, a1), entries.map { it.id })
         assertEquals(HistoryEntry.Acknowledged(a1, 100, AckAction.SNOOZE), entries[2])

@@ -24,7 +24,11 @@ abstract class PromptRepositoryContract {
     fun `TC-S-092 prompt repository publishes a prompt with options and an optional expiry`() = runTest {
         val source = FakeWatchLinkDataSource()
         val repo = create(source, now)
-        val withExpiry = repo.publish("Mood", listOf("Calm", "Tense"), now.plusSeconds(600)) as PromptPublishResult.Published
+        val withExpiry = repo.publish(
+            "Mood",
+            listOf("Calm", "Tense"),
+            now.plusSeconds(600)
+        ) as PromptPublishResult.Published
         val without = repo.publish("Water", listOf("Done", "Later"), null) as PromptPublishResult.Published
         assertTrue(Paths.isValidId(withExpiry.id))
         assertEquals(2, source.publishedPrompts.size)
@@ -39,13 +43,25 @@ abstract class PromptRepositoryContract {
     @Test
     fun `TC-S-092 prompt repository rejects a blank title, too few or too many options and a past expiry`() = runTest {
         val repo = create(FakeWatchLinkDataSource(), now)
-        assertEquals(PromptPublishResult.Rejected(setOf(PromptError.BLANK_TITLE)), repo.publish(" ", listOf("A", "B"), null))
-        assertEquals(PromptPublishResult.Rejected(setOf(PromptError.TOO_FEW_OPTIONS)), repo.publish("T", listOf("A"), null))
+        assertEquals(
+            PromptPublishResult.Rejected(setOf(PromptError.BLANK_TITLE)),
+            repo.publish(" ", listOf("A", "B"), null)
+        )
+        assertEquals(
+            PromptPublishResult.Rejected(setOf(PromptError.TOO_FEW_OPTIONS)),
+            repo.publish("T", listOf("A"), null)
+        )
         val many = (1..Limits.MAX_OPTIONS + 1).map { "Option $it" }
         assertEquals(PromptPublishResult.Rejected(setOf(PromptError.TOO_MANY_OPTIONS)), repo.publish("T", many, null))
-        assertEquals(PromptPublishResult.Rejected(setOf(PromptError.EXPIRY_IN_PAST)), repo.publish("T", listOf("A", "B"), now))
+        assertEquals(
+            PromptPublishResult.Rejected(setOf(PromptError.EXPIRY_IN_PAST)),
+            repo.publish("T", listOf("A", "B"), now)
+        )
         val long = "x".repeat(Limits.MAX_TEXT_LENGTH + 1)
-        assertEquals(PromptPublishResult.Rejected(setOf(PromptError.TITLE_TOO_LONG)), repo.publish(long, listOf("A", "B"), null))
+        assertEquals(
+            PromptPublishResult.Rejected(setOf(PromptError.TITLE_TOO_LONG)),
+            repo.publish(long, listOf("A", "B"), null)
+        )
     }
 
     @Test

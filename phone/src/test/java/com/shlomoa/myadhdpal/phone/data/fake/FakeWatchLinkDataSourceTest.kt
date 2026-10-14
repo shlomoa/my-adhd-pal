@@ -32,6 +32,7 @@ class FakeWatchLinkDataSourceTest {
     @Test
     fun `TC-S-090 the fake emits what the test publishes, in order`() = runTest {
         val source = FakeWatchLinkDataSource()
+        source.connect(nearby = true)
         source.emit(ack(id1, 1))
         source.emit(ack(id2, 2))
         val received = source.events.take(2).toList()
