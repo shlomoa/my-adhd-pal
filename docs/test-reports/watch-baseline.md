@@ -46,7 +46,18 @@ e: wear/src/test/.../link/LinkClientTest.kt:30:9 Unresolved reference 'LinkClien
 
 TC-W-008 (home screen on the watch) is manual and waits for the real transport (step 1.5, G2b).
 
+## Step 3.3: schedule receive (TC-W-005, 010 to 014, 016; `wear/src/test/.../schedule/`)
+
+Red commit: `9993415` (tests only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../schedule/FileScheduleStoreTest.kt:32:9 Unresolved reference 'FileScheduleStore'.
+e: wear/src/test/.../schedule/FileScheduleStoreTest.kt:32:40 Unresolved reference 'StoredSchedule'.
+```
+
+TC-W-015 (schedule from the phone on the watch) is manual and waits for the real transport (1.5, G2b).
+
 ## Not yet written (later steps)
 
-Cases for 3.3 schedule receive (TC-W-010 to TC-W-015), 3.4 scheduler (TC-W-020 to TC-W-026), 3.5 to 3.6 (TC-W-032 to TC-W-038), 3.7
-selections (TC-W-040, 041, 044, 045), the tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).
+Cases for 3.4 scheduler (TC-W-020 to TC-W-026), 3.5 to 3.6 (TC-W-032 to TC-W-038), 3.7 selections (TC-W-040, 041, 044, 045), the
+tile (TC-W-060 to TC-W-066) and biometrics (TC-W-077 to TC-W-083).

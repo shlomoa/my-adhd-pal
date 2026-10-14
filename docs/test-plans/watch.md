@@ -29,6 +29,7 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-012 | 3.3 | unit | An invalid or unsupported-major `/schedule` item is dropped | nothing stored, no crash |
 | TC-W-013 | 3.3 | unit | The schedule persists and is read back after a process restart | loaded equals saved |
 | TC-W-014 | 3.3 | unit | After the first sync the watch resolves reminders with no transport present | next reminder computed from storage only |
+| TC-W-016 | 3.3 | unit | The watch never deletes the phone's `/schedule` item (the writer owns cleanup) | the item is still on both nodes after it is applied |
 | TC-W-015 | 3.3 | manual | Schedule sent from the phone arrives, and a later reconnect delivers a newer one | user reports versions on the debug log view |
 
 ## Scheduler (3.4)
