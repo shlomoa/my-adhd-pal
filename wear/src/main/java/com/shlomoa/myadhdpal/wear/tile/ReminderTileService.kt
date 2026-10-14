@@ -16,9 +16,11 @@ import androidx.wear.tiles.tile
 import com.shlomoa.myadhdpal.wear.R
 import com.shlomoa.myadhdpal.wear.WatchApplication
 import com.shlomoa.myadhdpal.wear.link.watchLabelRes
+import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.time.toKotlinDuration
 
 /**
  * The glanceable tile (step 5.2): the next reminder with its time, a button that starts the two minutes for it, and the
@@ -27,7 +29,9 @@ import java.time.format.FormatStyle
 class ReminderTileService : Material3TileService() {
     override suspend fun MaterialScope.tileResponse(requestParams: TileRequest): Tile {
         val graph = (application as WatchApplication).graph
-        return tile(timeline = Timeline.fromLayoutElement(layout(graph.tileModel())))
+        val model = graph.tileModel()
+        val freshness = tileFreshness(model.reminder?.at, Instant.now())
+        return tile(timeline = Timeline.fromLayoutElement(layout(model)), freshness = freshness.toKotlinDuration())
     }
 
     private fun MaterialScope.layout(model: TileModel): LayoutElement {

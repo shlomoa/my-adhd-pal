@@ -202,3 +202,15 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   two minutes (a calm haptic after two minutes)? Choice to confirm: the tile's primary action is Start 2 min for the shown reminder
   (not Done), because Done on a reminder that has not fired yet would need the scheduler to skip that occurrence. The tile preview is
   a placeholder drawing, to be replaced by a screenshot. The tile is not refreshed by events yet: that is 5.3.
+
+## 2026-10-14 - 5.3 Tile update triggers
+
+- Issue and PR: #53, branch `claude/watch-5.3` (stacked on `claude/watch-5.2`, PR #119)
+- Changed: `TileUpdateTriggers` (a schedule applied, an action handled and a link-state or last-sync change each request a new tile),
+  `ReminderActionHandler.onHandled` (called after an action was carried out, not for a duplicate or a refused snooze),
+  `tileFreshness` (the tile stays valid until the next reminder is due, between one minute and a day), and the wiring in `AppGraph`
+  (`TileService.getUpdater(...).requestUpdate(...)`); the tile service sets the freshness interval.
+- Validation: red commit `fde0a8a`, then green: `./gradlew check` BUILD SUCCESSFUL, 4 new tests pass.
+- Open items: the schedule receiver and the link client are connected to the triggers once they are wired to the real transport
+  (1.5, G2b); until then only the action trigger runs in the app. Manual check with TC-W-066: after Start 2 min or a new schedule
+  the tile shows the next reminder without being re-added.

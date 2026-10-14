@@ -124,6 +124,16 @@ what is shown and the service only draws it (TC-W-066, manual). Red commit: `75f
 e: wear/src/test/.../tile/TileModelTest.kt:29:21 Unresolved reference 'tileModel'.
 ```
 
+## Step 5.3: tile update triggers (TC-W-064, TC-W-065; `wear/src/test/.../tile/TileUpdateTest.kt`)
+
+Red commit: `fde0a8a` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../tile/TileUpdateTest.kt:32:28 Unresolved reference 'TileUpdateTriggers'.
+e: wear/src/test/.../tile/TileUpdateTest.kt:47:9 No parameter with name 'onHandled' found.
+e: wear/src/test/.../tile/TileUpdateTest.kt:84:46 Unresolved reference 'tileFreshness'.
+```
+
 ## Not yet written (later steps)
 
-Cases for the tile update triggers (TC-W-064, TC-W-065) and biometrics (TC-W-077 to TC-W-083).
+Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
