@@ -179,3 +179,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/protocol.md` records the user's answers (existing Bluetooth pairing, "Put unused apps to sleep" on at default settings, the app listed as "ADHD Pal" with Battery "Optimized" and treated as not exempt, state after the last run) and marks the days-long sleeping-apps recheck as open with its reason.
 - Validation: doc lint and link check green.
 - Open items: the three-day sleeping-apps recheck (`run-0b2b.ps1 -SkipBuild -OnlyCases C3` after three days without opening the app); the G-DEC flip waits for the user's H2 confirmation.
+
+## 2026-10-15 - Gate G-DEC: 0b.2b hardware spike and 0b.3 decision
+
+- Issue and PR: #24 (0b.2b) and the 0b.3 issue; PR linked from the coordinator message. Gate PR 124 is the 0b.2b/0b.3 results PR.
+- Changed: `docs/plans/gates.json` sets G-DEC to merged with `pr` 124. G-SPK1 and H2 are merged, so the hardware results and the DataItems-only decision are on main.
+- Validation: `scripts/require-gate.sh G-SPK1 H2` passes; `scripts/test/test-gates.sh` and `scripts/check-pr-gates.sh` pass.
+- Open items: 1.5 and 1.8b next, then the G2b flip.
