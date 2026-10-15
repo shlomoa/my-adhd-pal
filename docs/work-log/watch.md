@@ -253,3 +253,11 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Open items: the script cannot pass on the real devices until the phone receivers (`PUBLISH_DEMO_SCHEDULE`, `DUMP_HISTORY`, after
   G3) and the real Data Layer transport on both sides exist. The phone receiver class names are a guess to confirm with the Android
   lane (`com.shlomoa.myadhdpal.phone.debug.*`). TC-W-103 is manual and NOT yet run.
+
+## 2026-10-15 - Step 3.9 end-to-end checklist
+
+- Issue and PR: step 3.9 (G7), branch `claude/watch-3-9-checklist`
+- Changed: `docs/test-reports/watch-e2e-checklist.md`, the manual checklist for TC-W-090 to TC-W-093 and TC-W-103 (device runs with
+  `run-demo.ps1`, phone away, Bluetooth toggled, paired emulators) and a report template. G3, G4, G5 and H2 are merged.
+- Validation: docs lint only. NOT yet run: TC-W-090 to TC-W-093 and TC-W-103; G7 is not flipped until the user reports results.
+- Open items: the user's runs.
