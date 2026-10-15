@@ -14,6 +14,7 @@
 #   nofire      the reminder never fires        latefire   the reminder fires 3 s late (the test sets a 1 s tolerance)
 #   nonotif     no notification is listed       noack      the ack never reaches the phone history
 #   noackdone   the watch logs 'ack not sent' (no transport)
+#   FAKE_TAP=ACTION:MS  a user taps ACTION on the watch MS milliseconds after the reminder fires (for -WaitForTap)
 # FAKE_LEAK=1 adds a log line with an e-mail address, the watch ip:port and a token.
 set -u
 D="${FAKE_DIR:?FAKE_DIR must point at the simulation state folder}"
@@ -114,6 +115,9 @@ case "$sub" in
             if ! fails nofire && ! fails noapply; then
               late=0; fails latefire && late=3000
               event $((at + 200 + late)) watch "reminder fired id=demo occurrenceAt=$at snoozeCount=0"
+              if [ -n "${FAKE_TAP:-}" ]; then
+                event $((at + 200 + late + ${FAKE_TAP#*:})) watch "ack sent action=${FAKE_TAP%%:*} reminderId=demo occurrenceAt=$at"
+              fi
             fi
             echo "Broadcast completed: result=0";;
           "$PKG.debug.DEMO_ACTION")
@@ -123,8 +127,9 @@ case "$sub" in
             echo "Broadcast completed: result=0";;
           "$PKG.debug.DUMP_HISTORY")
             at="$(cat "$D/reminderAt" 2>/dev/null || echo 0)"
-            if grep -q "|watch|ack sent action=DONE" "$D/events" 2>/dev/null && ! fails noack; then
-              event "$t" phone "history ack id=00000000-0000-4000-8000-000000000001 action=DONE reminderId=demo occurrenceAt=$at at=$t"
+            sentaction="$(grep -m1 "|watch|ack sent action=" "$D/events" 2>/dev/null | sed -E 's/.*ack sent action=([A-Z_0-9]+).*/\1/')"
+            if [ -n "$sentaction" ] && ! fails noack; then
+              event "$t" phone "history ack id=00000000-0000-4000-8000-000000000001 action=$sentaction reminderId=demo occurrenceAt=$at at=$t"
             fi
             event "$t" phone "history end count=1"
             echo "Broadcast completed: result=0";;
