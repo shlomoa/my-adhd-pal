@@ -175,7 +175,8 @@ A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
 | `AlertSettings`: `offsetBpm` (20 to 50, default 30) and a fallback absolute threshold; `cooldownSeconds` default 300. Protocol 1.2 | Shared lane | D3, D4: a relative threshold is not expressible today (absolute `value` only) |
 | `Alert`: add `level` (1 or 2) | Shared lane | D4 |
 | Watch status (baseline, permission granted) to the phone: a field in `/hello/watch` or a new item | Shared lane | D3, D7 |
-| Phone onboarding screen for the permission and the offset setting | Android lane | D3, D7 |
+| Phone onboarding screen for the permission, the full-screen-intent step and the offset setting | Android lane | D3, D7 |
+| Phone raises its own alert when an `/alert` arrives: alarm-channel notification, repeating maximum vibration, flashing full-screen alert, level 2 stronger (section 4a) | Android lane | D5 |
 | `AlertEvaluator` (in `:protocol`, `alerts/`): resting-relative threshold, escalation level, episode end | Watch lane (6.5), tests first; the existing TC-W-070 to TC-W-076 stay valid for absolute thresholds and get new cases | D3, D4 |
 | Passive listener, baseline store (hourly values), alert activity with full-screen intent, vibration patterns | Watch lane (6.3, 6.4, 6.6) | D5 |
 | Play declaration for the full-screen intent | Step 7.x | section 4 |
