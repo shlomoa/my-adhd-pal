@@ -243,6 +243,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `DefaultRepositoriesTest` (TC-S-092 contracts), `WatchEventProcessorTest` and `DataStoreScheduleVersionStoreTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, Hilt graph, release has no debug code) green.
 - Open items: G3 flip when 2.4 and 2.5 are merged; the hardware demo exercises `GmsDataLayerClient` and the listener service, which have no unit tests against real Play services.
 
+## 2026-10-15 - Spike documentation (PR B)
+
+- Issue and PR: user decision relayed by the coordinator; no issue; PR linked from the coordinator message.
+- Changed: `docs/spikes/README.md` with `why.md` (why this validation architecture and implementation), `how.md` (both stages step by step with the failures), `where.md` (every piece, why it lives there, raw logs), `learnings.md` (what would be faster and what was not worth doing), `spec-apps.md` (components, manifest entries, adb commands and extras, item paths, log formats and the runner patterns) and `spec-tests.md` (every case with purpose, steps, measured value, criterion, parameters, exit codes, and the simulated-adb suites); links from `docs/protocol.md`, `docs/plan.md`, `docs/plans/shared.md`; stale "discarded" and "never merged" statements corrected.
+- Validation: every statement checked against the scripts, the Kotlin sources, `results.txt` and the work log; doc lint and link check green. Marked as not verified: Windows PowerShell 5.1, the moved spike apps and the DUMP-protected receiver on the devices, minutes of the manual stages (not recorded).
+- Open items: one hardware run (`-OnlyCases C1`) to confirm the moved apps; the three-day sleeping-apps recheck.
+
 ## 2026-10-15 - Gate G3: phone data layer
 
 - Issue and PR: steps 2.1 to 2.5; PRs #115, #137 and #138 are merged, this PR flips the gate.

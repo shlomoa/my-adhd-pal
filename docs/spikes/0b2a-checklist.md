@@ -1,6 +1,7 @@
 # Spike 0b.2a run checklist: Data Layer on paired emulators
 
-Throwaway spike (never merged to `main`). Branch: `claude/shared-0b2a-spike`. It answers four questions from
+The original tap-through checklist, replaced by `scripts/spike/run-0b2a.ps1` (see [`README.md`](README.md)); the spike
+apps are now debug-only code in `:phone` and `:wear`. It answers four questions from
 [`plan.md`](../plan.md) section 3 on a **Wear OS emulator paired with a phone emulator**:
 
 1. Items cross the pairing, in both directions.
