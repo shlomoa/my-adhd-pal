@@ -1,0 +1,7 @@
+﻿1791864707465 role=watch pid=30458 processUptimeMs=126681 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=keep urgent=true
+1791864707466 role=watch pid=30458 processUptimeMs=126683 fg=true SEND path=/spike/keep/835a9103-3b04-4bf2-8de7-6212f95b20ab urgent=true
+1791864707487 role=watch pid=30458 processUptimeMs=126703 fg=true SEND-OK path=/spike/keep/835a9103-3b04-4bf2-8de7-6212f95b20ab (putDataItem completed locally)
+1791864707499 role=watch pid=30458 processUptimeMs=126715 fg=true SERVICE-CREATED
+1791864707515 role=watch pid=30458 processUptimeMs=126731 fg=true EVENT-OWN-WRITE ignored path=/spike/keep/835a9103-3b04-4bf2-8de7-6212f95b20ab
+1791864711111 role=watch pid=30458 processUptimeMs=130328 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.LIST_ITEMS kind=null urgent=true
+1791864711113 role=watch pid=30458 processUptimeMs=130330 fg=true ITEMS count=1 wear://48d16a60/spike/keep/835a9103-3b04-4bf2-8de7-6212f95b20ab

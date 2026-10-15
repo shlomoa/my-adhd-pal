@@ -1,0 +1,116 @@
+1792044240991 role=phone pid=16285 processUptimeMs=347467 fg=true SERVICE-CREATED
+1792044241018 role=phone pid=16285 processUptimeMs=347494 fg=true RECV path=/spike/ping/d6904fe6-dbce-45c5-9b4c-36ebc8a8c823 from=watch sentTs=1792044239323 recvTs=1792044241018 delayMs=1695
+1792044241022 role=phone pid=16285 processUptimeMs=347498 fg=true PONG path=/spike/pong/d6904fe6-dbce-45c5-9b4c-36ebc8a8c823 urgent=true
+1792044241044 role=phone pid=16285 processUptimeMs=347520 fg=true PONG-OK path=/spike/pong/d6904fe6-dbce-45c5-9b4c-36ebc8a8c823
+1792044241046 role=phone pid=16285 processUptimeMs=347522 fg=true DELETE-OK path=/spike/ping/d6904fe6-dbce-45c5-9b4c-36ebc8a8c823 count=1
+1792044244416 role=phone pid=16285 processUptimeMs=350892 fg=true SERVICE-CREATED
+1792044244436 role=phone pid=16285 processUptimeMs=350912 fg=true EVENT-DELETED path=/spike/pong/d6904fe6-dbce-45c5-9b4c-36ebc8a8c823 host=dec3450e
+1792044245390 role=phone pid=16285 processUptimeMs=351866 fg=true RECV path=/spike/ping/1530064d-2016-4a9a-ba5c-befe6224c7ae from=watch sentTs=1792044243040 recvTs=1792044245390 delayMs=2350
+1792044245394 role=phone pid=16285 processUptimeMs=351870 fg=true PONG path=/spike/pong/1530064d-2016-4a9a-ba5c-befe6224c7ae urgent=true
+1792044245405 role=phone pid=16285 processUptimeMs=351881 fg=true PONG-OK path=/spike/pong/1530064d-2016-4a9a-ba5c-befe6224c7ae
+1792044245406 role=phone pid=16285 processUptimeMs=351882 fg=true DELETE-OK path=/spike/ping/1530064d-2016-4a9a-ba5c-befe6224c7ae count=1
+1792044248248 role=phone pid=16285 processUptimeMs=354724 fg=true SERVICE-CREATED
+1792044248266 role=phone pid=16285 processUptimeMs=354742 fg=true EVENT-DELETED path=/spike/pong/1530064d-2016-4a9a-ba5c-befe6224c7ae host=dec3450e
+1792044248798 role=phone pid=16285 processUptimeMs=355274 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.PING kind=null urgent=true
+1792044248805 role=phone pid=16285 processUptimeMs=355281 fg=true PING path=/spike/ping/9370b216-b94a-4960-ac19-5ac508209ceb urgent=true
+1792044248821 role=phone pid=16285 processUptimeMs=355297 fg=true PING-OK path=/spike/ping/9370b216-b94a-4960-ac19-5ac508209ceb (putDataItem completed locally)
+1792044257832 role=phone pid=16285 processUptimeMs=364308 fg=true SERVICE-CREATED
+1792044257866 role=phone pid=16285 processUptimeMs=364342 fg=true RECV path=/spike/pong/9370b216-b94a-4960-ac19-5ac508209ceb from=watch sentTs=1792044249781 recvTs=1792044257866 delayMs=8085
+1792044257867 role=phone pid=16285 processUptimeMs=364343 fg=true RTT id=9370b216-b94a-4960-ac19-5ac508209ceb urgent=true rttMs=9067
+1792044257867 role=phone pid=16285 processUptimeMs=364343 fg=true EVENT-DELETED path=/spike/ping/9370b216-b94a-4960-ac19-5ac508209ceb host=dec3450e
+1792044257872 role=phone pid=16285 processUptimeMs=364348 fg=true DELETE-OK path=/spike/pong/9370b216-b94a-4960-ac19-5ac508209ceb count=1
+1792044258616 role=phone pid=16285 processUptimeMs=365092 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.PING kind=null urgent=true
+1792044258622 role=phone pid=16285 processUptimeMs=365098 fg=true PING path=/spike/ping/334b250e-2ff2-4a0b-a5f9-83e14ccc7da7 urgent=true
+1792044258635 role=phone pid=16285 processUptimeMs=365111 fg=true PING-OK path=/spike/ping/334b250e-2ff2-4a0b-a5f9-83e14ccc7da7 (putDataItem completed locally)
+1792044266083 role=phone pid=16285 processUptimeMs=372559 fg=true SERVICE-CREATED
+1792044266114 role=phone pid=16285 processUptimeMs=372590 fg=true RECV path=/spike/pong/334b250e-2ff2-4a0b-a5f9-83e14ccc7da7 from=watch sentTs=1792044261817 recvTs=1792044266114 delayMs=4297
+1792044266115 role=phone pid=16285 processUptimeMs=372591 fg=true RTT id=334b250e-2ff2-4a0b-a5f9-83e14ccc7da7 urgent=true rttMs=7497
+1792044266117 role=phone pid=16285 processUptimeMs=372593 fg=true EVENT-DELETED path=/spike/ping/334b250e-2ff2-4a0b-a5f9-83e14ccc7da7 host=dec3450e
+1792044266128 role=phone pid=16285 processUptimeMs=372604 fg=true DELETE-OK path=/spike/pong/334b250e-2ff2-4a0b-a5f9-83e14ccc7da7 count=1
+1792044270108 role=phone pid=16285 processUptimeMs=376584 fg=true SERVICE-CREATED
+1792044270127 role=phone pid=16285 processUptimeMs=376603 fg=true RECV path=/spike/ping/65a11965-ae68-4cfe-a807-6f01704edb98 from=watch sentTs=1792044268798 recvTs=1792044270127 delayMs=1329
+1792044270131 role=phone pid=16285 processUptimeMs=376607 fg=true PONG path=/spike/pong/65a11965-ae68-4cfe-a807-6f01704edb98 urgent=true
+1792044270151 role=phone pid=16285 processUptimeMs=376627 fg=true PONG-OK path=/spike/pong/65a11965-ae68-4cfe-a807-6f01704edb98
+1792044270153 role=phone pid=16285 processUptimeMs=376628 fg=true DELETE-OK path=/spike/ping/65a11965-ae68-4cfe-a807-6f01704edb98 count=1
+1792044271901 role=phone pid=16285 processUptimeMs=378377 fg=true SERVICE-CREATED
+1792044271914 role=phone pid=16285 processUptimeMs=378390 fg=true EVENT-DELETED path=/spike/pong/65a11965-ae68-4cfe-a807-6f01704edb98 host=dec3450e
+1792044273162 role=phone pid=16285 processUptimeMs=379638 fg=true RECV path=/spike/ping/90faf221-aa48-4098-94ba-f78031a1820c from=watch sentTs=1792044272159 recvTs=1792044273162 delayMs=1003
+1792044273167 role=phone pid=16285 processUptimeMs=379643 fg=true PONG path=/spike/pong/90faf221-aa48-4098-94ba-f78031a1820c urgent=true
+1792044273189 role=phone pid=16285 processUptimeMs=379665 fg=true PONG-OK path=/spike/pong/90faf221-aa48-4098-94ba-f78031a1820c
+1792044273191 role=phone pid=16285 processUptimeMs=379667 fg=true DELETE-OK path=/spike/ping/90faf221-aa48-4098-94ba-f78031a1820c count=1
+1792044274681 role=phone pid=16285 processUptimeMs=381157 fg=true SERVICE-CREATED
+1792044274688 role=phone pid=16285 processUptimeMs=381164 fg=true EVENT-DELETED path=/spike/pong/90faf221-aa48-4098-94ba-f78031a1820c host=dec3450e
+1792044276500 role=phone pid=16285 processUptimeMs=382976 fg=true SERVICE-CREATED
+1792044276520 role=phone pid=16285 processUptimeMs=382996 fg=true RECV path=/spike/ping/6cdd2278-55bb-417a-8fa9-99078cdc0209 from=watch sentTs=1792044275528 recvTs=1792044276520 delayMs=992
+1792044276524 role=phone pid=16285 processUptimeMs=383000 fg=true PONG path=/spike/pong/6cdd2278-55bb-417a-8fa9-99078cdc0209 urgent=true
+1792044276541 role=phone pid=16285 processUptimeMs=383017 fg=true PONG-OK path=/spike/pong/6cdd2278-55bb-417a-8fa9-99078cdc0209
+1792044276542 role=phone pid=16285 processUptimeMs=383018 fg=true DELETE-OK path=/spike/ping/6cdd2278-55bb-417a-8fa9-99078cdc0209 count=1
+1792044278286 role=phone pid=16285 processUptimeMs=384762 fg=true SERVICE-CREATED
+1792044278295 role=phone pid=16285 processUptimeMs=384771 fg=true EVENT-DELETED path=/spike/pong/6cdd2278-55bb-417a-8fa9-99078cdc0209 host=dec3450e
+1792044279936 role=phone pid=16285 processUptimeMs=386412 fg=true SERVICE-CREATED
+1792044279965 role=phone pid=16285 processUptimeMs=386441 fg=true RECV path=/spike/ping/da443780-4ef4-4bf2-9fcc-f7c123514ce0 from=watch sentTs=1792044279002 recvTs=1792044279965 delayMs=963
+1792044279969 role=phone pid=16285 processUptimeMs=386445 fg=true PONG path=/spike/pong/da443780-4ef4-4bf2-9fcc-f7c123514ce0 urgent=false
+1792044279986 role=phone pid=16285 processUptimeMs=386462 fg=true PONG-OK path=/spike/pong/da443780-4ef4-4bf2-9fcc-f7c123514ce0
+1792044279987 role=phone pid=16285 processUptimeMs=386463 fg=true DELETE-OK path=/spike/ping/da443780-4ef4-4bf2-9fcc-f7c123514ce0 count=1
+1792044281616 role=phone pid=16285 processUptimeMs=388092 fg=true SERVICE-CREATED
+1792044281638 role=phone pid=16285 processUptimeMs=388114 fg=true EVENT-DELETED path=/spike/pong/da443780-4ef4-4bf2-9fcc-f7c123514ce0 host=dec3450e
+1792044284343 role=phone pid=16285 processUptimeMs=390819 fg=true SERVICE-CREATED
+1792044284364 role=phone pid=16285 processUptimeMs=390840 fg=true RECV path=/spike/ping/a0023efa-efc6-4c56-9f02-bc1d51a5dcf6 from=watch sentTs=1792044282657 recvTs=1792044284364 delayMs=1707
+1792044284368 role=phone pid=16285 processUptimeMs=390844 fg=true PONG path=/spike/pong/a0023efa-efc6-4c56-9f02-bc1d51a5dcf6 urgent=false
+1792044284392 role=phone pid=16285 processUptimeMs=390868 fg=true PONG-OK path=/spike/pong/a0023efa-efc6-4c56-9f02-bc1d51a5dcf6
+1792044284394 role=phone pid=16285 processUptimeMs=390870 fg=true DELETE-OK path=/spike/ping/a0023efa-efc6-4c56-9f02-bc1d51a5dcf6 count=1
+1792044286067 role=phone pid=16285 processUptimeMs=392543 fg=true SERVICE-CREATED
+1792044286083 role=phone pid=16285 processUptimeMs=392559 fg=true EVENT-DELETED path=/spike/pong/a0023efa-efc6-4c56-9f02-bc1d51a5dcf6 host=dec3450e
+1792044287627 role=phone pid=16285 processUptimeMs=394103 fg=true SERVICE-CREATED
+1792044287643 role=phone pid=16285 processUptimeMs=394119 fg=true RECV path=/spike/ping/ce4521e1-8cb5-437c-b24e-0150a77cbe69 from=watch sentTs=1792044286252 recvTs=1792044287643 delayMs=1391
+1792044287648 role=phone pid=16285 processUptimeMs=394123 fg=true PONG path=/spike/pong/ce4521e1-8cb5-437c-b24e-0150a77cbe69 urgent=false
+1792044287668 role=phone pid=16285 processUptimeMs=394144 fg=true PONG-OK path=/spike/pong/ce4521e1-8cb5-437c-b24e-0150a77cbe69
+1792044287670 role=phone pid=16285 processUptimeMs=394146 fg=true DELETE-OK path=/spike/ping/ce4521e1-8cb5-437c-b24e-0150a77cbe69 count=1
+1792044289484 role=phone pid=16285 processUptimeMs=395960 fg=true SERVICE-CREATED
+1792044289502 role=phone pid=16285 processUptimeMs=395978 fg=true EVENT-DELETED path=/spike/pong/ce4521e1-8cb5-437c-b24e-0150a77cbe69 host=dec3450e
+1792044289829 role=phone pid=16285 processUptimeMs=396305 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.PING kind=null urgent=true
+1792044289835 role=phone pid=16285 processUptimeMs=396311 fg=true PING path=/spike/ping/07e6fe41-4b08-4b4d-846b-2e14ccdd2fec urgent=true
+1792044289848 role=phone pid=16285 processUptimeMs=396324 fg=true PING-OK path=/spike/ping/07e6fe41-4b08-4b4d-846b-2e14ccdd2fec (putDataItem completed locally)
+1792044291603 role=phone pid=16285 processUptimeMs=398079 fg=true SERVICE-CREATED
+1792044291622 role=phone pid=16285 processUptimeMs=398098 fg=true RECV path=/spike/pong/07e6fe41-4b08-4b4d-846b-2e14ccdd2fec from=watch sentTs=1792044290547 recvTs=1792044291622 delayMs=1075
+1792044291623 role=phone pid=16285 processUptimeMs=398099 fg=true RTT id=07e6fe41-4b08-4b4d-846b-2e14ccdd2fec urgent=true rttMs=1793
+1792044291625 role=phone pid=16285 processUptimeMs=398101 fg=true EVENT-DELETED path=/spike/ping/07e6fe41-4b08-4b4d-846b-2e14ccdd2fec host=dec3450e
+1792044291637 role=phone pid=16285 processUptimeMs=398113 fg=true DELETE-OK path=/spike/pong/07e6fe41-4b08-4b4d-846b-2e14ccdd2fec count=1
+1792044293234 role=phone pid=16285 processUptimeMs=399710 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.PING kind=null urgent=true
+1792044293241 role=phone pid=16285 processUptimeMs=399717 fg=true PING path=/spike/ping/e6d75d84-c7cd-415c-b7b8-a03556e0e91a urgent=true
+1792044293254 role=phone pid=16285 processUptimeMs=399730 fg=true PING-OK path=/spike/ping/e6d75d84-c7cd-415c-b7b8-a03556e0e91a (putDataItem completed locally)
+1792044296324 role=phone pid=16285 processUptimeMs=402799 fg=true SERVICE-CREATED
+1792044296343 role=phone pid=16285 processUptimeMs=402818 fg=true RECV path=/spike/pong/e6d75d84-c7cd-415c-b7b8-a03556e0e91a from=watch sentTs=1792044294678 recvTs=1792044296342 delayMs=1664
+1792044296344 role=phone pid=16285 processUptimeMs=402819 fg=true RTT id=e6d75d84-c7cd-415c-b7b8-a03556e0e91a urgent=true rttMs=3107
+1792044296345 role=phone pid=16285 processUptimeMs=402821 fg=true EVENT-DELETED path=/spike/ping/e6d75d84-c7cd-415c-b7b8-a03556e0e91a host=dec3450e
+1792044296359 role=phone pid=16285 processUptimeMs=402835 fg=true DELETE-OK path=/spike/pong/e6d75d84-c7cd-415c-b7b8-a03556e0e91a count=1
+1792044299019 role=phone pid=16285 processUptimeMs=405495 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.PING kind=null urgent=true
+1792044299027 role=phone pid=16285 processUptimeMs=405502 fg=true PING path=/spike/ping/83fd51e5-7bf1-400f-ae4a-493625b91b31 urgent=true
+1792044299045 role=phone pid=16285 processUptimeMs=405521 fg=true PING-OK path=/spike/ping/83fd51e5-7bf1-400f-ae4a-493625b91b31 (putDataItem completed locally)
+1792044300825 role=phone pid=16285 processUptimeMs=407301 fg=true SERVICE-CREATED
+1792044300836 role=phone pid=16285 processUptimeMs=407312 fg=true RECV path=/spike/pong/83fd51e5-7bf1-400f-ae4a-493625b91b31 from=watch sentTs=1792044298872 recvTs=1792044300836 delayMs=1964
+1792044300836 role=phone pid=16285 processUptimeMs=407312 fg=true RTT id=83fd51e5-7bf1-400f-ae4a-493625b91b31 urgent=true rttMs=1815
+1792044300847 role=phone pid=16285 processUptimeMs=407322 fg=true DELETE-OK path=/spike/pong/83fd51e5-7bf1-400f-ae4a-493625b91b31 count=1
+1792044302490 role=phone pid=16285 processUptimeMs=408966 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.PING kind=null urgent=false
+1792044302498 role=phone pid=16285 processUptimeMs=408974 fg=true PING path=/spike/ping/de8dddfc-2f55-4557-b0e4-55c55a81f00e urgent=false
+1792044302513 role=phone pid=16285 processUptimeMs=408989 fg=true PING-OK path=/spike/ping/de8dddfc-2f55-4557-b0e4-55c55a81f00e (putDataItem completed locally)
+1792044304217 role=phone pid=16285 processUptimeMs=410693 fg=true SERVICE-CREATED
+1792044304238 role=phone pid=16285 processUptimeMs=410714 fg=true RECV path=/spike/pong/de8dddfc-2f55-4557-b0e4-55c55a81f00e from=watch sentTs=1792044302379 recvTs=1792044304238 delayMs=1859
+1792044304239 role=phone pid=16285 processUptimeMs=410715 fg=true RTT id=de8dddfc-2f55-4557-b0e4-55c55a81f00e urgent=false rttMs=1747
+1792044304256 role=phone pid=16285 processUptimeMs=410732 fg=true DELETE-OK path=/spike/pong/de8dddfc-2f55-4557-b0e4-55c55a81f00e count=1
+1792044305920 role=phone pid=16285 processUptimeMs=412396 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.PING kind=null urgent=false
+1792044305926 role=phone pid=16285 processUptimeMs=412402 fg=true PING path=/spike/ping/0dd51243-a16b-4701-afed-c2fa216a2d60 urgent=false
+1792044305936 role=phone pid=16285 processUptimeMs=412412 fg=true PING-OK path=/spike/ping/0dd51243-a16b-4701-afed-c2fa216a2d60 (putDataItem completed locally)
+1792044308782 role=phone pid=16285 processUptimeMs=415258 fg=true SERVICE-CREATED
+1792044308794 role=phone pid=16285 processUptimeMs=415270 fg=true RECV path=/spike/pong/0dd51243-a16b-4701-afed-c2fa216a2d60 from=watch sentTs=1792044307815 recvTs=1792044308794 delayMs=979
+1792044308794 role=phone pid=16285 processUptimeMs=415270 fg=true RTT id=0dd51243-a16b-4701-afed-c2fa216a2d60 urgent=false rttMs=2873
+1792044308795 role=phone pid=16285 processUptimeMs=415271 fg=true EVENT-DELETED path=/spike/ping/0dd51243-a16b-4701-afed-c2fa216a2d60 host=dec3450e
+1792044308801 role=phone pid=16285 processUptimeMs=415277 fg=true DELETE-OK path=/spike/pong/0dd51243-a16b-4701-afed-c2fa216a2d60 count=1
+1792044309385 role=phone pid=16285 processUptimeMs=415861 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.PING kind=null urgent=false
+1792044309392 role=phone pid=16285 processUptimeMs=415868 fg=true PING path=/spike/ping/ec49b38f-c26c-4aeb-b90d-e46f74ee02f7 urgent=false
+1792044309405 role=phone pid=16285 processUptimeMs=415881 fg=true PING-OK path=/spike/ping/ec49b38f-c26c-4aeb-b90d-e46f74ee02f7 (putDataItem completed locally)
+1792044311059 role=phone pid=16285 processUptimeMs=417535 fg=true SERVICE-CREATED
+1792044311084 role=phone pid=16285 processUptimeMs=417560 fg=true RECV path=/spike/pong/ec49b38f-c26c-4aeb-b90d-e46f74ee02f7 from=watch sentTs=1792044309592 recvTs=1792044311084 delayMs=1492
+1792044311085 role=phone pid=16285 processUptimeMs=417561 fg=true RTT id=ec49b38f-c26c-4aeb-b90d-e46f74ee02f7 urgent=false rttMs=1699
+1792044311087 role=phone pid=16285 processUptimeMs=417563 fg=true EVENT-DELETED path=/spike/ping/ec49b38f-c26c-4aeb-b90d-e46f74ee02f7 host=dec3450e
+1792044311102 role=phone pid=16285 processUptimeMs=417578 fg=true DELETE-OK path=/spike/pong/ec49b38f-c26c-4aeb-b90d-e46f74ee02f7 count=1

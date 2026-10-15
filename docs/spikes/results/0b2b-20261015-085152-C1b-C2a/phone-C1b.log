@@ -1,0 +1,50 @@
+1792043533044 role=phone pid=13750 processUptimeMs=333867 fg=false SERVICE-CREATED
+1792043533065 role=phone pid=13750 processUptimeMs=333888 fg=false RECV path=/spike/del/7aa1746e-607b-48bb-bebc-1f2b6fd8325b from=watch sentTs=1792043532646 recvTs=1792043533065 delayMs=419
+1792043533083 role=phone pid=13750 processUptimeMs=333906 fg=false DELETE-OK path=/spike/del/7aa1746e-607b-48bb-bebc-1f2b6fd8325b count=1
+1792043533976 role=phone pid=13750 processUptimeMs=334799 fg=false RECV path=/spike/del/730eb8e8-d8ce-481a-b890-24112cf1dea5 from=watch sentTs=1792043533766 recvTs=1792043533976 delayMs=210
+1792043533986 role=phone pid=13750 processUptimeMs=334809 fg=false DELETE-OK path=/spike/del/730eb8e8-d8ce-481a-b890-24112cf1dea5 count=1
+1792043535459 role=phone pid=13750 processUptimeMs=336282 fg=false RECV path=/spike/del/65bde04f-f477-495d-8a18-642a90f1eec7 from=watch sentTs=1792043534936 recvTs=1792043535459 delayMs=523
+1792043535471 role=phone pid=13750 processUptimeMs=336294 fg=false DELETE-OK path=/spike/del/65bde04f-f477-495d-8a18-642a90f1eec7 count=1
+1792043536291 role=phone pid=13750 processUptimeMs=337114 fg=false RECV path=/spike/del/bbefbc3b-91a3-406c-84bb-fc63bf65b358 from=watch sentTs=1792043536110 recvTs=1792043536291 delayMs=181
+1792043536292 role=phone pid=13750 processUptimeMs=337115 fg=false DELETE-SCHEDULED path=/spike/del/bbefbc3b-91a3-406c-84bb-fc63bf65b358 afterMs=6000
+1792043542312 role=phone pid=13750 processUptimeMs=343134 fg=false DELETE-OK path=/spike/del/bbefbc3b-91a3-406c-84bb-fc63bf65b358 count=1
+1792043544590 role=phone pid=13750 processUptimeMs=345413 fg=false SERVICE-CREATED
+1792043544611 role=phone pid=13750 processUptimeMs=345434 fg=false RECV path=/spike/del/2b2a4a85-85fa-43f2-a8f0-e61132eeae66 from=watch sentTs=1792043544027 recvTs=1792043544611 delayMs=584
+1792043544612 role=phone pid=13750 processUptimeMs=345435 fg=false DELETE-SCHEDULED path=/spike/del/2b2a4a85-85fa-43f2-a8f0-e61132eeae66 afterMs=6000
+1792043550638 role=phone pid=13750 processUptimeMs=351461 fg=false DELETE-OK path=/spike/del/2b2a4a85-85fa-43f2-a8f0-e61132eeae66 count=1
+1792043552259 role=phone pid=13750 processUptimeMs=353082 fg=false SERVICE-CREATED
+1792043552272 role=phone pid=13750 processUptimeMs=353095 fg=false RECV path=/spike/del/fda7cd2f-4c80-490d-876d-0a5ef894921c from=watch sentTs=1792043551930 recvTs=1792043552272 delayMs=342
+1792043552273 role=phone pid=13750 processUptimeMs=353096 fg=false DELETE-SCHEDULED path=/spike/del/fda7cd2f-4c80-490d-876d-0a5ef894921c afterMs=6000
+1792043558298 role=phone pid=13750 processUptimeMs=359121 fg=false DELETE-OK path=/spike/del/fda7cd2f-4c80-490d-876d-0a5ef894921c count=1
+1792043559650 role=phone pid=13750 processUptimeMs=360472 fg=true ACTIVITY-RESUMED
+1792043559941 role=phone pid=13750 processUptimeMs=360764 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1792043559943 role=phone pid=13750 processUptimeMs=360766 fg=true SEND path=/spike/del/4bd14a60-45e6-4a5d-b308-d53c17587372 urgent=true
+1792043559977 role=phone pid=13750 processUptimeMs=360800 fg=true SEND-OK path=/spike/del/4bd14a60-45e6-4a5d-b308-d53c17587372 (putDataItem completed locally)
+1792043560558 role=phone pid=13750 processUptimeMs=361381 fg=true SERVICE-CREATED
+1792043560563 role=phone pid=13750 processUptimeMs=361386 fg=true EVENT-DELETED path=/spike/del/4bd14a60-45e6-4a5d-b308-d53c17587372 host=dec3450e
+1792043561367 role=phone pid=13750 processUptimeMs=362190 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1792043561369 role=phone pid=13750 processUptimeMs=362192 fg=true SEND path=/spike/del/35bdb679-b6b0-495c-8f35-18b1cb83b5e9 urgent=true
+1792043561380 role=phone pid=13750 processUptimeMs=362203 fg=true SEND-OK path=/spike/del/35bdb679-b6b0-495c-8f35-18b1cb83b5e9 (putDataItem completed locally)
+1792043561555 role=phone pid=13750 processUptimeMs=362378 fg=true EVENT-DELETED path=/spike/del/35bdb679-b6b0-495c-8f35-18b1cb83b5e9 host=dec3450e
+1792043562797 role=phone pid=13750 processUptimeMs=363620 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1792043562799 role=phone pid=13750 processUptimeMs=363622 fg=true SEND path=/spike/del/545ea6a7-f262-418b-82ce-ceea663d11ae urgent=true
+1792043562811 role=phone pid=13750 processUptimeMs=363633 fg=true SEND-OK path=/spike/del/545ea6a7-f262-418b-82ce-ceea663d11ae (putDataItem completed locally)
+1792043563492 role=phone pid=13750 processUptimeMs=364315 fg=true SERVICE-CREATED
+1792043563512 role=phone pid=13750 processUptimeMs=364335 fg=true EVENT-DELETED path=/spike/del/545ea6a7-f262-418b-82ce-ceea663d11ae host=dec3450e
+1792043564110 role=phone pid=13750 processUptimeMs=364933 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1792043564116 role=phone pid=13750 processUptimeMs=364939 fg=true SEND path=/spike/del/94d3c728-bc0d-4a0f-80c4-e4e438fa27cd urgent=true
+1792043564126 role=phone pid=13750 processUptimeMs=364949 fg=true SEND-OK path=/spike/del/94d3c728-bc0d-4a0f-80c4-e4e438fa27cd (putDataItem completed locally)
+1792043570517 role=phone pid=13750 processUptimeMs=371340 fg=true SERVICE-CREATED
+1792043570540 role=phone pid=13750 processUptimeMs=371363 fg=true EVENT-DELETED path=/spike/del/94d3c728-bc0d-4a0f-80c4-e4e438fa27cd host=dec3450e
+1792043572325 role=phone pid=13750 processUptimeMs=373148 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1792043572332 role=phone pid=13750 processUptimeMs=373155 fg=true SEND path=/spike/del/e4dc520d-48a2-4c8f-8e89-0cdc7eeb0559 urgent=true
+1792043572349 role=phone pid=13750 processUptimeMs=373172 fg=true SEND-OK path=/spike/del/e4dc520d-48a2-4c8f-8e89-0cdc7eeb0559 (putDataItem completed locally)
+1792043578654 role=phone pid=13750 processUptimeMs=379477 fg=true SERVICE-CREATED
+1792043578663 role=phone pid=13750 processUptimeMs=379486 fg=true EVENT-DELETED path=/spike/del/e4dc520d-48a2-4c8f-8e89-0cdc7eeb0559 host=dec3450e
+1792043580738 role=phone pid=13750 processUptimeMs=381561 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1792043580744 role=phone pid=13750 processUptimeMs=381567 fg=true SEND path=/spike/del/012e05ab-08d0-4560-a81c-49718fdd6d07 urgent=true
+1792043580759 role=phone pid=13750 processUptimeMs=381582 fg=true SEND-OK path=/spike/del/012e05ab-08d0-4560-a81c-49718fdd6d07 (putDataItem completed locally)
+1792043587286 role=phone pid=13750 processUptimeMs=388109 fg=true SERVICE-CREATED
+1792043587295 role=phone pid=13750 processUptimeMs=388118 fg=true EVENT-DELETED path=/spike/del/012e05ab-08d0-4560-a81c-49718fdd6d07 host=dec3450e
+1792043619435 role=phone pid=13750 processUptimeMs=420258 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.LIST_ITEMS kind=null urgent=true
+1792043619450 role=phone pid=13750 processUptimeMs=420273 fg=true ITEMS count=0 

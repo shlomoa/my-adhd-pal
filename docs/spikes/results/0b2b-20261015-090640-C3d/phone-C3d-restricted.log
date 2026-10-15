@@ -1,0 +1,6 @@
+1792044442468 role=phone pid=19657 processUptimeMs=173 fg=false SERVICE-CREATED
+1792044442513 role=phone pid=19657 processUptimeMs=218 fg=false RECV path=/spike/del/999e966f-35f0-4090-8cd3-ce9254fbf4ec from=watch sentTs=1792044441100 recvTs=1792044442513 delayMs=1413
+1792044442574 role=phone pid=19657 processUptimeMs=279 fg=false DELETE-OK path=/spike/del/999e966f-35f0-4090-8cd3-ce9254fbf4ec count=1
+1792044445591 role=phone pid=19657 processUptimeMs=3296 fg=false SERVICE-CREATED
+1792044445607 role=phone pid=19657 processUptimeMs=3312 fg=false RECV path=/spike/del/e55ec1ef-eb81-4078-ad9b-74f2032cf190 from=watch sentTs=1792044444275 recvTs=1792044445607 delayMs=1332
+1792044445622 role=phone pid=19657 processUptimeMs=3327 fg=false DELETE-OK path=/spike/del/e55ec1ef-eb81-4078-ad9b-74f2032cf190 count=1
