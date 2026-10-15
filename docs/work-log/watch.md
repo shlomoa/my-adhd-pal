@@ -214,3 +214,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Open items: the schedule receiver and the link client are connected to the triggers once they are wired to the real transport
   (1.5, G2b); until then only the action trigger runs in the app. Manual check with TC-W-066: after Start 2 min or a new schedule
   the tile shows the next reminder without being re-added.
+
+## 2026-10-15 - Demo hooks on the watch
+
+- Issue and PR: none yet (demo path, coordinator priority), branch `claude/watch-demo`
+- Changed: `DemoLog` (the `DEMO` logcat lines the demo script reads: schedule applied, reminder fired, ack sent or not sent, ids and
+  times only), `AppGraph.lastFired`, and the debug-only `DemoActionReceiver` (`am broadcast -n com.shlomoa.myadhdpal/.wear.debug.DemoActionReceiver --es action DONE`)
+  that does what a tap on the last notification would do. Phone side agreed with the Android lane: `PUBLISH_DEMO_SCHEDULE` (extras
+  `minutes_ahead`, `title`, reminder id "demo") and a `DUMP_HISTORY` readback that logs `DEMO history ...` lines.
+- Validation: red commit `0261b13`, then green: `./gradlew check` BUILD SUCCESSFUL; the debug-separation script passes.
+- Open items: the real Data Layer transport on the watch (waiting for the Shared lane's answers), the demo script itself, and the
+  phone receivers (G3).

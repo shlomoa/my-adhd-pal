@@ -13,6 +13,7 @@ import com.shlomoa.myadhdpal.wear.reminder.ReminderNotifier
 import com.shlomoa.myadhdpal.wear.schedule.FileScheduleStore
 import com.shlomoa.myadhdpal.wear.scheduler.AndroidAlarmPort
 import com.shlomoa.myadhdpal.wear.scheduler.FileSnoozeStore
+import com.shlomoa.myadhdpal.wear.scheduler.FiredReminder
 import com.shlomoa.myadhdpal.wear.scheduler.ReminderScheduler
 import com.shlomoa.myadhdpal.wear.tile.ReminderTileService
 import com.shlomoa.myadhdpal.wear.tile.TileModel
@@ -28,6 +29,10 @@ class AppGraph(context: Context) {
     val scheduleStore = FileScheduleStore(File(context.filesDir, "schedule.txt"))
     val notifier = ReminderNotifier(context)
     val haptics = HapticPlayer(context)
+
+    /** The reminder whose notification was shown last (used by the debug demo action). */
+    @Volatile
+    var lastFired: FiredReminder? = null
 
     /** Asks the system for a new tile; the schedule receiver and the link client report here once they exist (1.5). */
     val tileTriggers = TileUpdateTriggers {
