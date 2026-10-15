@@ -387,15 +387,25 @@ difference on these devices; it stays on for the items listed in the item catalo
 - **Delivery with the phone app closed** works after a kill, a force-stop, Doze and the `rare` and `restricted` standby
   buckets, within 1 to 4 s.
 
+### Checklist answers from the user
+
+| # | Item | Answer |
+|---|---|---|
+| 1 | Pairing | The phone and watch were already paired over Bluetooth before the test (an existing pairing, not created for it). The app used to pair was not stated; Galaxy Wearable 2.2.72.26092361 is installed on the phone. |
+| 2 | Phone battery management | All at default, nothing changed by the user. Settings > Battery > Background usage limits: **Put unused apps to sleep is ON**; "Auto disable unused apps" and "Adaptive battery" do not exist on this One UI 8.5 screen. |
+| 3 | The spike app | Listed as "ADHD Pal" (the Spike is an extra launcher icon of the same app). Its Battery setting is **Optimized**. Whether it is in "Never sleeping apps" was not stated; it is treated as **not exempt**, which the runner's Doze allow-list check (False) agrees with. |
+| 4 | State after the last run | Phone Bluetooth, Wi-Fi and mobile data on, both devices on the same Wi-Fi, watch connected. |
+
+Because "Put unused apps to sleep" is on and the app is not exempt, the days-long sleeping-apps check stays worth doing.
+
 ### Not verified on hardware
 
 - **Samsung's own "sleeping apps" and "deep sleeping apps" lists.** They act on apps unused for days and cannot be forced
-  by `adb`; the optional recheck after three idle days (checklist item 9 of the plan) is still to be done. Until then the
-  risk row in `plan.md` section 8 stays open for the phone's background listener.
+  by `adb`; the recheck after three idle days (checklist item 9 of the plan: do not open the app for three days, then run
+  `run-0b2b.ps1 -SkipBuild -OnlyCases C3`) is **open**, and worth doing because "Put unused apps to sleep" is on and the app
+  is not exempt. Until then the risk row in `plan.md` section 8 stays open for the phone's background listener.
 - **Watch away.** The watch's own radios could not be switched off while `adb` ran over its Wi-Fi, so only phone-side
   isolation was tested; the watch-away direction passed on the emulators (0b.2a).
-- **The user's checklist answers** (pairing path through Galaxy Wearable, the three battery-management toggles, the app's
-  battery setting, the Wear OS version as shown on the watch) are still to come and will be added here.
 - Only one phone and one watch were tested, on one firmware each.
 
 ### Fallback-rule evaluation (final)

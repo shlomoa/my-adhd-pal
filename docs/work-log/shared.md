@@ -172,3 +172,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/protocol.md` gets the hardware results (devices and versions, all cases, numbers, what is not verified), what they mean for step 1.5, the final fallback-rule evaluation and the 0b.3 decision; `docs/plan.md` sections 3 and 4 state that the transport is DataItems only and that the writer-owns-cleanup rule is kept; the six `results.txt` files of the runs are copied to `docs/spikes/results/0b2b-*/`.
 - Validation: the user ran `run-0b2b.ps1` on the Galaxy A55 5G (USB) and the Galaxy Watch6 Classic (Wi-Fi debugging), Android 16 on both: every automated case PASS (C1, C1b, C2a and C2b, C3a to C3d, L1 Nearby, L2 Relayed, L3 Away). Nearby round trip about 0.2 s, relayed about 1.8 s, Away seen after 4 s and recovered within 2 to 16 s, delivery with the app closed within 1 to 4 s under kill, force-stop, Doze and the rare and restricted standby buckets, deletion symmetric in both directions. C3d first failed on a runner bug (the closure could not call `Invoke-Adb`) and passed after the fix `d689afa`. Doc lint and link check green.
 - Open items: the user's checklist answers (Galaxy Wearable pairing path, battery-management toggles, app battery setting) and the optional three-day sleeping-apps recheck are still to be added; the G-DEC flip needs gate H2 (the user's devices) merged first; then 1.5, 1.8b and G2b.
+
+## 2026-10-15 - 0b.2b checklist answers from the user
+
+- Issue and PR: #24 (0b.2b); PR linked from the coordinator message.
+- Changed: `docs/protocol.md` records the user's answers (existing Bluetooth pairing, "Put unused apps to sleep" on at default settings, the app listed as "ADHD Pal" with Battery "Optimized" and treated as not exempt, state after the last run) and marks the days-long sleeping-apps recheck as open with its reason.
+- Validation: doc lint and link check green.
+- Open items: the three-day sleeping-apps recheck (`run-0b2b.ps1 -SkipBuild -OnlyCases C3` after three days without opening the app); the G-DEC flip waits for the user's H2 confirmation.
