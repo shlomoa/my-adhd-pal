@@ -342,6 +342,7 @@ so nothing needs pasting back. Rules that cost time on the first runs:
 | Buttons or text sit under the system bars | The spike branch was built before the inset fix. Run `git pull` on the spike branch and rebuild. |
 | Android Studio shows an IDE exception pop-up | Not a build failure. Use the terminal build; report it only if `.\gradlew.bat` itself fails. |
 | Sync fails: *Cannot find a Java installation ... languageVersion=21 ... Toolchain download repositories have not been configured* | No JDK 21 found. Install Temurin 21 and set Gradle JDK (section 3, steps 1 and 5). |
+| `adb devices` lists the watch twice | Pass `-Phone` and `-Watch` explicitly to the 0b.2b script (section 8) |
 | `java -version` is not 21, or `java` is not found | Set `JAVA_HOME` and `Path` by hand (section 3, step 3). The installer does not always do it. |
 | Android Studio warns *Multiple Gradle daemons might be spawned because the Gradle JDK and JAVA_HOME locations are different* | `JAVA_HOME` points at another JDK (such as JDK 23) while Studio uses Temurin 21. Set `JAVA_HOME` to the Temurin 21 folder (section 3, step 3), restart PowerShell and Android Studio. |
 | `.\gradlew.bat` says *JAVA_HOME is not set and no java command could be found* | Same fix: section 3, step 3, in the PowerShell window you are using. |
@@ -349,3 +350,31 @@ so nothing needs pasting back. Rules that cost time on the first runs:
 | Emulator is very slow or refuses to start | Virtualization is off. Section 2. |
 | No Spike icon on the emulators | You built a branch other than `claude/shared-0b2a-spike`. Check out the spike branch, rebuild, reinstall. |
 | `INSTALL_FAILED_...` on a reinstall | Uninstall first: `adb -s PHONE uninstall com.shlomoa.myadhdpal`, then install again. |
+
+## 8. Run the hardware spike (0b.2b) in 8 steps
+
+Full plan, pass criteria and troubleshooting: [`spikes/0b2b-plan.md`](spikes/0b2b-plan.md). The sequence that worked on the
+Galaxy A55 5G and Galaxy Watch6 Classic (PowerShell 7.6.6):
+
+1. Plug in the laptop, turn off sleep (`powercfg /change standby-timeout-ac 0`), put the watch on its charger.
+2. Phone: Developer options and USB debugging on, cable in, tap **Allow**.
+3. Watch: Developer options, ADB debugging and Wireless debugging on, Wi-Fi **On**; note the connect `ip:port`.
+4. `adb connect <ip:port>`, then `adb devices -l`; note the phone's USB serial and the watch's `ip:port`.
+5. `git fetch origin; git checkout claude/shared-0b2b-spike`.
+6. `.\scripts\spike\run-0b2b.ps1 -Phone <usb serial> -Watch <ip:port> -OnlyCases C1` to prove the chain.
+7. The rest in groups: `C1b,C2a`, then `C3,C3c,C3d`, then `L1,L2`, then `L3`.
+8. Check the phone is back to normal (Bluetooth, Wi-Fi, mobile data on), then clean up (section 9).
+
+Lessons from the first real run (details in the plan):
+
+- The watch is listed twice in `adb devices` (`ip:port` and the `adb-...-tls-connect` name): always pass `-Phone` and `-Watch`.
+- Wireless debugging has two ports: one to pair, another to connect. The script's `-WatchAddress` takes the connect port.
+- The battery gate refuses below 20% but prints "30%"; charge above 30%.
+- A case that fails on a script error shows FAIL with the message; repeat just that case with `-SkipBuild -OnlyCases <case>`.
+- The Watch6 charges wirelessly and stays awake on the charger, which keeps Wi-Fi debugging alive.
+
+## 9. Clean up after a spike
+
+The checklist (what you undo on the laptop, watch and phone, which local and remote branches can go, and why the spike
+code is never merged) is in [`spikes/0b2b-plan.md`](spikes/0b2b-plan.md), section "Cleanup after the validation". The
+commands there are for you to run; nothing deletes a branch automatically.

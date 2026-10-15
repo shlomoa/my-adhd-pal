@@ -179,3 +179,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/protocol.md` records the user's answers (existing Bluetooth pairing, "Put unused apps to sleep" on at default settings, the app listed as "ADHD Pal" with Battery "Optimized" and treated as not exempt, state after the last run) and marks the days-long sleeping-apps recheck as open with its reason.
 - Validation: doc lint and link check green.
 - Open items: the three-day sleeping-apps recheck (`run-0b2b.ps1 -SkipBuild -OnlyCases C3` after three days without opening the app); the G-DEC flip waits for the user's H2 confirmation.
+
+## 2026-10-15 - 0b.2b cleanup checklist and lessons from the real run
+
+- Issue and PR: #24 (0b.2b); PR linked from the coordinator message.
+- Changed: `docs/spikes/0b2b-plan.md` gets "What was and was not verified" (updated after the real run), "Lessons from the first real run" with the 8-step sequence that worked, and "Cleanup after the validation" (user side, repository side with exact commands marked as run by the user, code side), plus three troubleshooting rows; `docs/dev-setup-windows.md` gets sections 8 (hardware spike in 8 steps, lessons) and 9 (cleanup pointer) and a troubleshooting row.
+- Validation: doc lint and link check green. The branch merge status used for the deletion advice was read from `git branch -r --merged origin/main`: `claude/docs-dev-setup-windows` and `claude/watch-w1b-research` are merged; `claude/watch-w1b`, the three spike branches and the six result branches are not.
+- Open items: the user runs the cleanup; the three-day sleeping-apps recheck still needs the spike branch.
