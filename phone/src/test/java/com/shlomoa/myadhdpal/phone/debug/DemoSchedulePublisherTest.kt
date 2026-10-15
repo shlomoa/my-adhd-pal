@@ -36,11 +36,12 @@ class DemoSchedulePublisherTest {
 
     @Test
     fun `TC-A-073 a reminder is set two minutes ahead by default`() = runTest {
-        publisher(noon).publish()
+        val result = publisher(noon).publish()
         val reminder = source.publishedSchedules.single().reminders.single()
         assertEquals("demo", reminder.id)
         assertEquals(12 * 60 + 2, reminder.minuteOfDay)
         assertEquals(listOf(3), reminder.days)
+        assertEquals(Instant.parse("2026-10-14T12:02:00Z"), result.reminderAt)
     }
 
     @Test
@@ -69,14 +70,14 @@ class DemoSchedulePublisherTest {
         assertEquals(1, tasks.reminders.first().size)
         assertEquals(1, tasks.tasks.first().size)
         assertEquals(2, source.publishedSchedules.size)
-        assertEquals(PublishOutcome.Unchanged, demo.publish(minutesAhead = 5))
+        assertEquals(PublishOutcome.Unchanged, demo.publish(minutesAhead = 5).outcome)
         assertEquals(2, source.publishedSchedules.size)
     }
 
     @Test
     fun `TC-A-077 a failed publish is returned with its reason`() = runTest {
         source.failNextPublish("link down")
-        assertEquals(PublishOutcome.Failed("link down"), publisher(noon).publish())
+        assertEquals(PublishOutcome.Failed("link down"), publisher(noon).publish().outcome)
     }
 
     @Test
