@@ -214,3 +214,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `phone/.../link/` (`DataLayerClient` seam, `GmsDataLayerClient`, `DataLayerWatchLinkDataSource`, `WatchItemDecoder`, `ScheduleUrgency`, `PhoneLinkListenerService`), `di/LinkModule`, `res/values/wear.xml` (capability `adhd_pal_phone`), the service in the manifest, `play-services-wearable` and `androidx.fragment` as `implementation`, `MyAdhdPalApp` starts the source; `docs/data-layer.md` section.
 - Validation: `DataLayerWatchLinkDataSourceTest` (12 tests) and `ListenerManifestTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, release has no debug code) green. Not run against real Play services here; the hardware demo does that.
 - Open items: 2.5 (schedule, prompt and link-status repositories over this source, the event storer, `/hello/phone` at start, DI), then the G3 flip.
+
+## 2026-10-15 - 2.5 Repositories over the real source, event storer and wiring
+
+- Issue and PR: step 2.5 issue; PR linked from the coordinator message; stacked on the 2.4 PR.
+- Changed: `DefaultScheduleRepository`, `DefaultPromptRepository`, `DefaultLinkStatusRepository` (moved from the in-memory references, which are aliases now), `DataStoreScheduleVersionStore`, `WatchEventProcessor` (row first, then `markStored`; phone hello at start), Hilt `StorageModule` and `RepositoryModule`, `MyAdhdPalApp` starts the processor and the source; `docs/data-layer.md` section.
+- Validation: `DefaultRepositoriesTest` (TC-S-092 contracts), `WatchEventProcessorTest` and `DataStoreScheduleVersionStoreTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, Hilt graph, release has no debug code) green.
+- Open items: G3 flip when 2.4 and 2.5 are merged; the hardware demo exercises `GmsDataLayerClient` and the listener service, which have no unit tests against real Play services.
