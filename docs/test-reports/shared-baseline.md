@@ -289,3 +289,7 @@ Red commit: `scripts/test/test-protocol-spec.sh` extended only (TC-S-077 require
 ## 2.4 Real phone WatchLinkDataSource (red)
 
 Red commit: `DataLayerWatchLinkDataSourceTest` and `FakeDataLayerClient` only (events from the watch in order, own writes and bad items dropped, one delivery per item until stored, `markStored` deletes at the watch node and not for a hello, publish paths and urgent flags, the schedule urgent rule, `Failed` on a failing write, link state from node lists and hello, scan of items stored while away), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'DataLayerWatchLinkDataSource'` and `'RemoteItem'`.
+
+## 2.5 Repositories over the real source, event storer, schedule version store (red)
+
+Red commit: `DefaultRepositoriesTest` (the existing contract tests TC-S-092 for the production schedule, prompt and link-status repositories), `WatchEventProcessorTest` (row first, then `markStored`; duplicates and hellos cleaned up; a failed store is not marked; the phone hello at start) and `DataStoreScheduleVersionStoreTest` (persists across a new store), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'DefaultScheduleRepository'`, `'WatchEventProcessor'`, `'DataStoreScheduleVersionStore'`.

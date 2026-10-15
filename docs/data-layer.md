@@ -111,3 +111,18 @@ of `ItemKeys` (`v` int, `id`, `ts` long, `body`), the same as on the watch.
   `res/values/wear.xml`). Refreshed every 2 s only while something collects `linkState`, once at start otherwise.
 - **Not covered by unit tests:** `GmsDataLayerClient` and the service against the real Play services (only the manifest
   filters and the capability resource are checked); the hardware demo covers them.
+
+## Repositories, storage and wiring (step 2.5)
+
+- **Production repositories** (`phone/.../data/DefaultRepositories.kt`): `DefaultScheduleRepository`,
+  `DefaultPromptRepository`, `DefaultLinkStatusRepository` over the interfaces above; they pass the same contract tests
+  (TC-S-092) as the in-memory references, which are now aliases of them.
+- **Schedule version store**: `DataStoreScheduleVersionStore` keeps the last published schedule (the wire JSON) in
+  Preferences DataStore, so versions grow across restarts.
+- **Event storer**: `WatchEventProcessor` stores each watch event as a history row first and only then calls
+  `markStored` (which deletes the watch-written item). A row that cannot be stored leaves the item in the Data Layer for
+  the next start. It also publishes the phone's `/hello/phone` once at start. It runs in the app process, also when the
+  process was started by the listener service.
+- **Wiring** (Hilt, `phone/.../di/`): `StorageModule` (Room, the two DataStores, task, history and settings
+  repositories), `RepositoryModule` (schedule, prompt, link-status repositories and the processor), `LinkModule` (the
+  Data Layer client and source); `MyAdhdPalApp` starts the processor and the source.
