@@ -15,9 +15,9 @@ on the real watch (section 6).
 |---|---|---|---|
 | D1 | Metrics | Decided | Heart rate only. |
 | D2 | Direction | Decided | Above the threshold only. The evaluator also supports below, unused in v1. |
-| D3 | Threshold | Decided, details open | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. Where the resting baseline comes from and the fallback: section 2. |
-| D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again. Details: section 3. |
-| D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. Section 4. |
+| D3 | Threshold | Decided; baseline rule awaits confirmation | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. Until a baseline exists the threshold is an absolute **110 bpm** (Decided). Where the baseline comes from: section 2. |
+| D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again; after that, **every 2 minutes** while the rate stays above (Decided). Details: section 3. |
+| D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. **The phone raises the same kind of alert** (it vibrates and flashes a full-screen alert, not only the watch). Sections 4 and 4a. |
 | D6 | Latency | Decided | Best effort. Readings are batched by the system at an interval the app is not told (section 6). No maximum delay is promised. |
 | D7 | Permission | Decided, feasibility checked | Requested from the **phone** app (onboarding). Section 5. |
 | D8 | Privacy | Decided | Raw readings are never logged in release builds; raw feed only in `wear/src/debug/`. `/alert` carries the numeric value (already accepted). |
@@ -55,9 +55,9 @@ on the real watch (section 6).
 4. The alert threshold is `baseline + offset` (D3). The phone shows the current baseline and the resulting threshold
    (the watch sends the baseline in `/hello/watch` or a status item: a protocol change, section 7).
 
-**Fallback until a baseline exists (Proposal, needs the user's number):** an absolute **110 bpm**. It is deliberately
-conservative (fewer false alerts than 100) and is a placeholder like the earlier 120, not a watch value. Replace it with a
-number you prefer.
+**Fallback until a baseline exists (Decided):** an absolute **110 bpm**, used from the first run until the watch has the 24
+hourly values above. The baseline rule above is what produces the baseline; once it exists the threshold becomes
+`baseline + offset` and 110 is no longer used.
 
 **Optional later improvement (Proposal, not in v1):** ignore a breach while the user is clearly exercising (steps in the last
 two minutes). It needs a second passive data type and permission and is a source of false alerts until then: walking fast or
@@ -65,15 +65,21 @@ climbing stairs can exceed resting + 30.
 
 ## 3. Cooldown and escalation (D4)
 
+Decided by the user:
+
 - **Level 1** at the first reading above the threshold.
-- **Cooldown 5 minutes**, counted between reading times (batching may deliver late).
-- When the cooldown ends and the **next reading is still above** the threshold: **level 2**, a stronger alert. Level 2 repeats
-  after each further cooldown while the rate stays above the threshold.
+- **Cooldown 5 minutes** after it, counted between reading times (batching may deliver late).
+- If the **next reading is still above** the threshold when the cooldown ends: **level 2**, a stronger alert. After that, level 2
+  repeats **every 2 minutes** while the rate stays above the threshold.
 - The episode ends when a reading is at or below the threshold. The next breach starts again at level 1.
-- Proposal: level 2 repeats at most **6 times** per episode (30 minutes), and the full-screen alert has an "I'm OK" button that
-  ends the episode early. Without these a high rate during exercise would keep alarming the user for as long as it lasts.
-  Say if you want it unlimited.
-- Both levels send `/alert/<id>` to the phone (history). The alert carries a `level` (protocol change, section 7).
+- Each alert (level 1 and every level 2 repeat) sends `/alert/<id>` with its `level` (protocol change, section 7); the **phone
+  raises its own alert for each one** (section 4a).
+- Batching can make the 2-minute rhythm irregular: an alert can only follow a reading, and readings may arrive late or in
+  groups (section 6). The rhythm is "at most one alert per 2 minutes, as soon as a reading above the threshold is evaluated".
+
+Still a proposal (the user did not answer this part): level 2 stops after **6 repeats** per episode (12 minutes at 2-minute
+intervals), and the full-screen alert has an "I'm OK" button that ends the episode early. Without a limit a high rate during
+exercise would alarm the user for as long as it lasts. Say if you want no limit or another number.
 
 ## 4. How strong an alert can be (D5)
 
@@ -114,6 +120,21 @@ and Play Console needs a declaration ([Play policy](https://support.google.com/g
 the screen is woken on the Galaxy Watch6 Classic. Consequence: this alert may need a manual permission step on the watch and
 a Play declaration (step 7.x) that a health-alert app might not get by default. For a private build that is acceptable; it is a
 Play-readiness item to decide with the user.
+
+## 4a. The phone raises the alert too (D5, Decided)
+
+The user wants the **phone** to shake and flash, not only the watch. Consequences:
+
+- The watch's `/alert/<id>` item (urgent, already in the protocol) is the trigger. The phone app's listener service receives it,
+  stores it in the history as today and **also raises the alert**: maximum-importance alarm-category notification channel, a
+  repeating maximum-amplitude vibration, a full-screen alert that flashes, and optional sound. Level 2 is stronger than level 1,
+  as on the watch.
+- This only works while the link delivers the item. With the watch away from the phone the phone shows nothing until the item
+  arrives (items queue and are delivered on reconnect; a late alert is shown with its original time).
+- The phone has the same limits as the watch (section 4): Do Not Disturb and silent modes, the full-screen-intent permission on
+  Android 14 and later (Unverified for the Galaxy A55 5G here), and the vibration-intensity setting. The phone also needs the
+  full-screen-intent step, asked during the same onboarding as the watch permission (D7).
+- Owner: Android lane (phone alert), after the protocol change (`level`). Watch lane: the watch alert only.
 
 ## 5. Permission requested from the phone (D7)
 
@@ -159,11 +180,22 @@ A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
 | Passive listener, baseline store (hourly values), alert activity with full-screen intent, vibration patterns | Watch lane (6.3, 6.4, 6.6) | D5 |
 | Play declaration for the full-screen intent | Step 7.x | section 4 |
 
-## 8. Open questions for the user
+## 8. Answers and what is still open
 
-1. Confirm or change the **fallback of 110 bpm** until a baseline exists (section 2).
-2. Confirm the **baseline rule** (20th percentile of hourly lows over 7 days, at least 24 values) or ask for another.
-3. Confirm the **escalation limits**: level 2 repeats at most 6 times, with an "I'm OK" button (section 3).
-4. Accept that **theater mode (and possibly the watch's own vibration-intensity setting) can silence the alert** and that nothing
-   in an app overrides them (section 4).
-5. Accept the **full-screen-intent permission** step on the watch and the later Play declaration (section 4).
+Answered by the user on 2026-10-15:
+
+1. Fallback threshold until a baseline exists: **110 bpm** (Decided, section 2).
+2. Baseline rule: the user asked whether it is what establishes the baseline for the fallback in 1. Yes: the rule computes the
+   baseline, and 110 applies until it has 24 hourly values. **Still to be confirmed** by the user (20th percentile of the
+   hourly lows over 7 days, at least 24 values) or replaced by another rule.
+3. Escalation: after the 5-minute cooldown, alerts every **2 minutes** while above the threshold (Decided, section 3). The
+   alert must shake and flash the **phone** too and act like an alert there (Decided, section 4a).
+4. Theater mode, and possibly the watch's vibration-intensity setting, can silence the alert, and nothing in an app overrides
+   them: **accepted**.
+5. The full-screen-intent permission step and the later Play declaration: **accepted**.
+
+Still open:
+
+- Confirm the baseline rule (answer 2).
+- The cap on level-2 repeats (proposed 6) and the "I'm OK" button (section 3), or no limit.
+- Once these are answered and the user confirms this document, the one-line PR that flips H1 follows.

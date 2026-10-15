@@ -281,3 +281,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   watch first, and the changes owed by the Shared and Android lanes.
 - Validation: docs lint. H1 is NOT flipped: it flips in a separate one-line PR after the user confirms the document.
 - Open items: five questions for the user at the end of the document; the real-watch probe (H2).
+
+## 2026-10-15 - Biometric decision document: the user's answers
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), PR #147
+- Changed: `docs/plans/biometrics.md` records the answers: fallback 110 bpm until a baseline exists, alerts every 2 minutes after the
+  5-minute cooldown, the phone must shake and flash too (new section 4a, Android lane), theater mode and full-screen-intent limits accepted.
+- Validation: docs lint. H1 is NOT flipped. Still open: confirmation of the baseline rule and the cap on level-2 repeats.
