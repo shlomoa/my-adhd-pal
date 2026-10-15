@@ -290,8 +290,8 @@ Replaces "the consumer deletes an item after storing it" in [`plan.md`](plan.md)
   because that direction worked in every run.
 - Consumers stay idempotent by `id`: an item that survives a lost delete is handled once, so a surviving item is harmless.
 
-This is decided from emulator evidence and is **final only after 0b.2b**, which repeats the deletion groups on the
-Galaxy Watch6 Classic and Galaxy A55 5G.
+This was decided from emulator evidence. The hardware spike (below) repeated the deletion groups and found no asymmetry
+on the real devices; the rule stays, because it costs nothing and does not depend on the clock offset.
 
 ### Other observations
 
@@ -316,10 +316,10 @@ alerts are too slow, add `MessageClient` for urgent alerts only; everything else
 | (4) urgent-item delay | not measured; every `delayMs` is clock-skew contaminated | decided in 0b.2b with round trips on one clock and delay targets agreed first |
 | (1) persistence while away | PASS with the watch away; phone away not run | phone away is checked in 0b.2b |
 
-**Decision at G-SPK1:** the transport stays **DataItems only**; the `MessageClient` fallback is not applied. The decision
-becomes final at G-DEC, after the hardware spike.
+**Decision at G-SPK1:** the transport stays **DataItems only**; the `MessageClient` fallback is not applied. The hardware
+spike below confirmed it.
 
-### Deferred to the hardware spike (0b.2b)
+### Deferred to the hardware spike (0b.2b, done below)
 
 The laptop sleeping and the hung first runner stopped the emulator runs; these are not protocol failures. Move into the
 0b.2b checklist, and reuse the same runner (`scripts/spike/run-0b2a.ps1` on `claude/shared-0b2a-spike-rtt`, with
@@ -330,3 +330,86 @@ The laptop sleeping and the hung first runner stopped the emulator runs; these a
 - The hardware-only items already in the plan: Nearby, Relayed and Away, Samsung battery management with default
   settings, and pairing through the Galaxy Wearable app. The runner's emulator restart and `adb emu kill` steps do not
   apply to a watch and phone; how the away state is produced on hardware is decided in 0b.2b.
+
+## Transport verification: spike 0b.2b (Galaxy Watch6 Classic and Galaxy A55 5G)
+
+The same four questions on the real devices, run by the user with `scripts/spike/run-0b2b.ps1` from the throwaway branch
+`claude/shared-0b2b-spike` (never merged; plan: [`spikes/0b2b-plan.md`](spikes/0b2b-plan.md)). The phone was on USB, the
+watch on Wi-Fi debugging, and the runner switched the phone's radios with `adb`. The raw outputs are kept in
+[`spikes/results/`](spikes/results/) (`0b2b-*/results.txt`) and, with the per-case logs, on the branches
+`spike-results/0b2b-20261015-*`.
+
+### Environment (hardware)
+
+| | Phone | Watch |
+|---|---|---|
+| Model | Samsung SM-A556E (Galaxy A55 5G) | Samsung SM-R965F (Galaxy Watch6 Classic) |
+| Android | 16 (API 36) | 16 (API 36, Wear OS 6) |
+| One UI | 8.5 (80500) | One UI Watch 8 (80000) |
+| Build | BP4A.251205.006.A556EXXSIDZI3 | BP2A.250325.020.R965FXXS2CZF5 |
+| Google Play services | 26.39.33 | 26.39.33 |
+| Galaxy Wearable | 2.2.72.26092361 | not reported |
+| Battery settings | defaults for the run; standby bucket 50 (first run) and 10 (later runs), not in the Doze allow-list | on Wi-Fi, advised on its charger |
+
+Host: Windows 11 (NT 10.0.26220), PowerShell 7.6.6. Runner commit `bc1b4e5` for the first runs; `d689afa` for the last
+two (it fixes a bug of the runner, not of the protocol: the C3d blocks could not call `Invoke-Adb`, so C3d was rerun).
+Clock skew between the devices: -76, -90, -135, -236, -532 and -1054 ms in the six runs (watch behind the phone), so the
+offset is **not constant** and a delay must never be computed from the two clocks.
+
+### Results on hardware (targets: nearby 10 s, relayed 60 s, away 180 s, app closed 120 s)
+
+| Case | Question | Result | Evidence |
+|---|---|---|---|
+| C1 items cross both ways | 3 | PASS | `RECV` both ways |
+| C1b deletion in both directions, immediate and after 6 s, three items each | 3 | PASS | 0 items left on the writer or the deleter in all four groups, the writer saw all 12 deletion events, **including the immediate phone-written item deleted by the watch that failed on the emulators** |
+| C2a a KEEP item stays | 3 | PASS | listed on both devices |
+| C2b after the Away reconnect, deleted items did not reappear and the KEEP item is still there | 3 | PASS | listed on both devices |
+| C3a phone app killed | 2 | PASS | `RECV` with `fg=false`, `processUptimeMs=221` |
+| C3b phone app force-stopped | 2 | PASS | `fg=false`, `processUptimeMs=244` |
+| C3c screen off and Doze forced (`dumpsys deviceidle force-idle`), app closed | 2 | PASS | urgent and non-urgent item received in 1 s |
+| C3d app in the `rare` standby bucket | 2 | PASS | urgent 4 s, non-urgent 3 s |
+| C3d app in the `restricted` standby bucket | 2 | PASS | urgent 3 s, non-urgent 3 s |
+| L1 Nearby: round trips on the sender's own clock, 3 urgent and 3 non-urgent from each side | 4 | PASS | urgent median 201 ms (watch-started) and 223 ms (phone-started); non-urgent 192 and 230 ms |
+| L2 Relayed: phone Bluetooth off, both online | 4 | PASS | the watch listed the phone as connected and not nearby **8 s** after Bluetooth went off; urgent median 1721 ms and 1815 ms; non-urgent 1830 and 1747 ms |
+| L3 Away: phone Bluetooth, Wi-Fi and mobile data off, both sides send, radios restored | 1, 2 | PASS | the watch saw no phone **4 s** after the radios went off; all four items (a DEL and a KEEP item each way) arrived 2 to 16 s after the radios came back, with no action by the user; the phone listener ran with the app closed (`fg=false`); the watch saw the phone as nearby again 2 s after the restore |
+
+Urgent and non-urgent items took the same time within the noise on every link state, so `setUrgent()` made no measurable
+difference on these devices; it stays on for the items listed in the item catalog because it costs nothing.
+
+### What the results mean for the design
+
+- **Link state (step 1.5).** The three observations the function needs exist on the hardware: the node list with
+  `isNearby` true (Nearby), a connected node with `isNearby` false (Relayed, seen 8 s after the Bluetooth link dropped),
+  and an empty node list (Away, seen 4 s after the phone lost every radio). The runner asked for the list every 2 s, so
+  the app must refresh it at a similar rate while it shows the state, since there is no documented callback. No watch app
+  (a paired node without the capability) and Incompatible (from the hello) were not exercised on hardware.
+- **Deletion.** The asymmetry found on the emulators did not occur. The writer-owns-cleanup rule stays as the safe rule.
+- **Delivery with the phone app closed** works after a kill, a force-stop, Doze and the `rare` and `restricted` standby
+  buckets, within 1 to 4 s.
+
+### Not verified on hardware
+
+- **Samsung's own "sleeping apps" and "deep sleeping apps" lists.** They act on apps unused for days and cannot be forced
+  by `adb`; the optional recheck after three idle days (checklist item 9 of the plan) is still to be done. Until then the
+  risk row in `plan.md` section 8 stays open for the phone's background listener.
+- **Watch away.** The watch's own radios could not be switched off while `adb` ran over its Wi-Fi, so only phone-side
+  isolation was tested; the watch-away direction passed on the emulators (0b.2a).
+- **The user's checklist answers** (pairing path through Galaxy Wearable, the three battery-management toggles, the app's
+  battery setting, the Wear OS version as shown on the watch) are still to come and will be added here.
+- Only one phone and one watch were tested, on one firmware each.
+
+### Fallback-rule evaluation (final)
+
+| Criterion | Hardware outcome | Consequence |
+|---|---|---|
+| (1) persistence while away | PASS with the phone away and sending from both sides | none |
+| (2) listener wakes with the app closed | PASS after kill, force-stop, Doze and standby buckets | none |
+| (3) a consumed item can be deleted and does not reappear | PASS in both directions | none |
+| (4) urgent-item delay | nearby about 0.2 s, relayed about 1.8 s round trip, away items within 16 s of the link coming back | all far inside the targets |
+
+### Transport decision (step 0b.3)
+
+**The transport is DataItems only.** No criterion of the fallback rule was missed, so `MessageClient` for urgent alerts is
+**not** added. Section 3 of [`plan.md`](plan.md) is updated to say so. The spike code on `claude/shared-0b2a-spike`,
+`claude/shared-0b2a-spike-rtt` and `claude/shared-0b2b-spike` is discarded: it was never merged and is only kept as the
+evidence above. No path, key or model of the protocol changes; the next steps are 1.5 and 1.8b (gate G2b).
