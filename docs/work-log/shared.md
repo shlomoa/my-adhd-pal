@@ -186,3 +186,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/gates.json` sets G-DEC to merged with `pr` 124. G-SPK1 and H2 are merged, so the hardware results and the DataItems-only decision are on main.
 - Validation: `scripts/require-gate.sh G-SPK1 H2` passes; `scripts/test/test-gates.sh` and `scripts/check-pr-gates.sh` pass.
 - Open items: 1.5 and 1.8b next, then the G2b flip.
+
+## 2026-10-15 - 1.8b Link-state machine and alert-flow diagrams
+
+- Issue and PR: step 1.8b issue; PR linked from the coordinator message.
+- Changed: `docs/protocol.md` gets the "Link state machine" (`stateDiagram-v2`, states named like the `LinkState` members, transition times from the hardware spike) and the "Alert flow" (`sequenceDiagram`: reading, threshold and cooldown on the watch, urgent `/alert/<id>`, listener service, store once, delete) under Diagrams; the status line no longer says the diagrams wait for the spike.
+- Validation: `test-protocol-spec.sh` extended first and red (`shared-baseline.md`), then green: TC-S-077 for the two new blocks (Mermaid, diagram type, balanced blocks, no semicolons) and TC-S-079 (the diagram states equal the `LinkState` members, found by reading `LinkTransport.kt`). TC-S-078: all six diagrams of the file parsed and rendered without error with Mermaid 10.9.1 in headless Chromium; the PR's own rendered view is still for the reviewer. Doc lint green.
+- Open items: the G2b flip once this PR and the 1.5 PR (#131) are merged.
