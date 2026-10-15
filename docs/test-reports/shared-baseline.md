@@ -273,3 +273,27 @@ Red commit: tests only (`DaoTest`, `RoomRepositoriesTest` running the existing a
 ## Compose UI-test dependencies (issue 113, red)
 
 Red commit: `ComposeUiTestSampleTest` only (TC-S-144), before the dependencies exist. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'test'` for `androidx.compose.ui.test`.
+
+## Spike content kept in main (red)
+
+Red commit: `scripts/test/test-spike.sh` only (TC-S-145, TC-S-146), run against the tree without the spike apps and runners: every case FAILs (no classes under `src/debug/.../debug/spike`, no debug manifests declaring the components, no runner scripts, `test-run-0b2a.sh` and `test-run-0b2b.sh` missing).
+
+## Spike content: raw logs and receiver permission (red)
+
+Red: `test-run-0b2b.sh` with a `.gitignore` containing `*.log` in its temporary repository (as in the real repository), against the runner without the fix: FAIL "results table and raw per-case logs (L2, L3) are in the commit" and FAIL "the redaction markers are present" (the logs were never committed because `git add` skips ignored files). `test-spike.sh` gets the check "the command receiver is protected by the DUMP permission", which the receiver did not have (CI lint reported `ExportedReceiver`, and `WearRecents` for the watch activity without `taskAffinity`).
+
+## 1.5 Link-state function (red)
+
+Red commit: `LinkStateTest` only (TC-S-060..066, one table-driven exhaustive case over 5 x 5 x 8 input combinations, the capability name), no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'NodeObservation'`, `'LinkStateLogic'`, `'LinkObservation'`.
+
+## 1.5 follow-up: both capability names (red)
+
+Red commit: `LinkStateTest` asserts `Capabilities.PHONE_APP == "adhd_pal_phone"`, before the constant exists. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'PHONE_APP'`.
+
+## 1.8b Link-state and alert diagrams (red)
+
+Red commit: `scripts/test/test-protocol-spec.sh` extended only (TC-S-077 requires the "Link state machine" and "Alert flow" Mermaid blocks, TC-S-079 compares the diagram's states with the `LinkState` members). Run against `docs/protocol.md` without the two diagrams: FAIL for "Link state machine is a Mermaid block", "is a stateDiagram-v2", "Alert flow is a Mermaid block", "is a sequenceDiagram", "diagram states equal the LinkState members (found: )" and "link-state diagram has a start".
+
+## 2.4 Real phone WatchLinkDataSource (red)
+
+Red commit: `DataLayerWatchLinkDataSourceTest` and `FakeDataLayerClient` only (events from the watch in order, own writes and bad items dropped, one delivery per item until stored, `markStored` deletes at the watch node and not for a hello, publish paths and urgent flags, the schedule urgent rule, `Failed` on a failing write, link state from node lists and hello, scan of items stored while away), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'DataLayerWatchLinkDataSource'` and `'RemoteItem'`.

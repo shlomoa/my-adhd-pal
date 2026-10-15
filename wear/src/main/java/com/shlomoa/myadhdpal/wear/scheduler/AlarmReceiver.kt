@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.shlomoa.myadhdpal.wear.WatchApplication
+import com.shlomoa.myadhdpal.wear.demo.DemoLog
 import com.shlomoa.myadhdpal.wear.log.Logger
 import com.shlomoa.myadhdpal.wear.reminder.Haptic
 import java.time.Instant
@@ -19,6 +20,8 @@ class AlarmReceiver : BroadcastReceiver() {
         }
         val graph = (context.applicationContext as WatchApplication).graph
         graph.scheduler.onAlarm(reminderId, Instant.ofEpochMilli(atMillis))?.let {
+            graph.lastFired = it
+            DemoLog.reminderFired(it)
             graph.notifier.show(it, Haptic.TICK)
         }
     }

@@ -186,3 +186,52 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/spikes/0b2b-plan.md` gets "What was and was not verified" (updated after the real run), "Lessons from the first real run" with the 8-step sequence that worked, and "Cleanup after the validation" (user side, repository side with exact commands marked as run by the user, code side), plus three troubleshooting rows; `docs/dev-setup-windows.md` gets sections 8 (hardware spike in 8 steps, lessons) and 9 (cleanup pointer) and a troubleshooting row.
 - Validation: doc lint and link check green. The branch merge status used for the deletion advice was read from `git branch -r --merged origin/main`: `claude/docs-dev-setup-windows` and `claude/watch-w1b-research` are merged; `claude/watch-w1b`, the three spike branches and the six result branches are not.
 - Open items: the user runs the cleanup; the three-day sleeping-apps recheck still needs the spike branch.
+
+## 2026-10-15 - Spike apps, runners and results kept in main (PR A)
+
+- Issue and PR: user decision relayed by the coordinator (testing content is kept and merged); no issue; PR linked from the coordinator message.
+- Changed: the spike apps move from the spike branches into the debug source sets (`phone/src/debug/.../phone/debug/spike`, `wear/src/debug/.../wear/debug/spike`, manifest entries in `src/debug/AndroidManifest.xml`; `:phone` gets `debugImplementation(play-services-wearable)`). The package contains `debug`, so the existing `checkNoDebugInRelease` covers it, and release builds hold no spike class. `scripts/spike/` (both runners with the C3d fix, simulated adb for both, both test suites) and `docs/spikes/0b2a-checklist.md` plus the partial first emulator run come from the spike branches; component names in the runners follow the new package. detekt skips `**/debug/spike/**` (the code stays as it was run, spotless still formats it). `docs/protocol.md` and `docs/plan.md` no longer say the spike code is discarded. `scripts/test/test-spike.sh` (TC-S-145, TC-S-146) runs in the `script-tests` CI job. Follow-ups on the same PR: the runners publish with `git add -f` and `.gitignore` allows `docs/spikes/results/**/*.log` (the raw logs of the six hardware runs never reached the `spike-results/*` branches because `*.log` is ignored, and the simulated suites missed it because their temporary repository had no `.gitignore`; they do now); the command receiver is protected by `android:permission="android.permission.DUMP"` (CI lint `ExportedReceiver`; `adb shell` holds DUMP, apps do not), the watch spike activity sets `taskAffinity` (lint `WearRecents`); the raw logs from the user's branch `spike-raw-logs-0b2b` (26 files of the six 0b.2b runs, 12 files of the first 0b.2a scripted run) are in `docs/spikes/results/`. Hardware behaviour of the DUMP-protected receiver is unverified.
+- Validation: `test-spike.sh` written first and red against main (`shared-baseline.md`), then green: both simulated suites pass (66 and 71 checks), `assembleDebug` and `assembleRelease` succeed, the debug APKs contain the spike classes and manifest entries and the release APKs contain neither, `checkNoDebugInRelease`, spotless and detekt green.
+- Open items: PR B (detailed documentation in `docs/spikes/README.md`); raw per-case logs of 0b.2b wait for the branch `spike-raw-logs-0b2b` from the user; the 0b.2a raw logs are not in the repository (only the partial first run), so they exist at most on the user's PC.
+
+## 2026-10-15 - Gate G-DEC: 0b.2b hardware spike and 0b.3 decision
+
+- Issue and PR: #24 (0b.2b) and the 0b.3 issue; PR linked from the coordinator message. Gate PR 124 is the 0b.2b/0b.3 results PR.
+- Changed: `docs/plans/gates.json` sets G-DEC to merged with `pr` 124. G-SPK1 and H2 are merged, so the hardware results and the DataItems-only decision are on main.
+- Validation: `scripts/require-gate.sh G-SPK1 H2` passes; `scripts/test/test-gates.sh` and `scripts/check-pr-gates.sh` pass.
+- Open items: 1.5 and 1.8b next, then the G2b flip.
+
+## 2026-10-15 - 1.5 Link-state function
+
+- Issue and PR: step 1.5 issue; PR linked from the coordinator message.
+- Changed: `protocol/.../LinkStateLogic.kt` (`LinkStateLogic.derive`, `LinkObservation`, `NodeObservation`, `Capabilities.WATCH_APP` = `adhd_pal_watch`); `docs/protocol.md` link-state section with the precedence table, the rules behind it and what the hardware showed.
+- Validation: `LinkStateTest` written first and red (`shared-baseline.md`), then green (14 tests): TC-S-060..066, an exhaustive case over 5 x 5 x 8 input combinations checked against an independent statement of the rules, malformed and unsupported hello versions, several watches, and a capability the node list does not show yet. spotless, detekt and doc lint green. Nearby, Relayed and Away match the 0b.2b observations; No watch app and Incompatible are unit-tested only.
+- Open items: 1.8b (link-state machine and alert-flow diagrams, TC-S-077..079), then the G2b flip. The watch lane declares the `adhd_pal_watch` capability resource and the data sources (2.4, 2.5) refresh the node list about every 2 s.
+
+## 2026-10-15 - 1.8b Link-state machine and alert-flow diagrams
+
+- Issue and PR: step 1.8b issue; PR linked from the coordinator message.
+- Changed: `docs/protocol.md` gets the "Link state machine" (`stateDiagram-v2`, states named like the `LinkState` members, transition times from the hardware spike) and the "Alert flow" (`sequenceDiagram`: reading, threshold and cooldown on the watch, urgent `/alert/<id>`, listener service, store once, delete) under Diagrams; the status line no longer says the diagrams wait for the spike.
+- Validation: `test-protocol-spec.sh` extended first and red (`shared-baseline.md`), then green: TC-S-077 for the two new blocks (Mermaid, diagram type, balanced blocks, no semicolons) and TC-S-079 (the diagram states equal the `LinkState` members, found by reading `LinkTransport.kt`). TC-S-078: all six diagrams of the file parsed and rendered without error with Mermaid 10.9.1 in headless Chromium; the PR's own rendered view is still for the reviewer. Doc lint green.
+- Open items: the G2b flip once this PR and the 1.5 PR (#131) are merged.
+
+## 2026-10-15 - Gate G2b: link-state function and diagrams
+
+- Issue and PR: steps 1.5 and 1.8b; PRs #131 and #132 are merged, this PR flips the gate.
+- Changed: `docs/plans/gates.json` sets G2b to merged with `pr` 131.
+- Validation: `scripts/require-gate.sh G2a G-DEC` passes; `scripts/test/test-gates.sh` passes.
+- Open items: 2.4 and 2.5 (phone Data Layer source and repositories) next, then the G3 flip.
+
+## 2026-10-15 - 2.4 Real phone WatchLinkDataSource over the Data Layer
+
+- Issue and PR: step 2.4 issue; PR linked from the coordinator message.
+- Changed: `phone/.../link/` (`DataLayerClient` seam, `GmsDataLayerClient`, `DataLayerWatchLinkDataSource`, `WatchItemDecoder`, `ScheduleUrgency`, `PhoneLinkListenerService`), `di/LinkModule`, `res/values/wear.xml` (capability `adhd_pal_phone`), the service in the manifest, `play-services-wearable` and `androidx.fragment` as `implementation`, `MyAdhdPalApp` starts the source; `docs/data-layer.md` section.
+- Validation: `DataLayerWatchLinkDataSourceTest` (12 tests) and `ListenerManifestTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, release has no debug code) green. Not run against real Play services here; the hardware demo does that.
+- Open items: 2.5 (schedule, prompt and link-status repositories over this source, the event storer, `/hello/phone` at start, DI), then the G3 flip.
+
+## 2026-10-15 - Cleanup list updated: the testing content is kept in main
+
+- Issue and PR: user decision relayed by the coordinator; this updates the cleanup PR.
+- Changed: `docs/spikes/0b2b-plan.md` and `docs/dev-setup-windows.md` no longer say the spike code is never merged or discarded: the apps (debug builds), runners, results and raw logs are in `main`; the user-side and repository-side cleanup lists say nothing is lost by deleting the spike branches, the `spike-results/*` branches (they held `results.txt` only) and `spike-raw-logs-0b2b`; the days-long recheck uses the runner from `main`.
+- Validation: doc lint and link check green.
+- Open items: the user runs the cleanup commands.

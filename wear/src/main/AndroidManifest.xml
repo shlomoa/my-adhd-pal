@@ -56,6 +56,33 @@
             </intent-filter>
         </receiver>
 
+        <!-- Woken by the Data Layer when the phone changes its schedule, a prompt or its hello, even if the app is closed. -->
+        <service
+            android:name=".datalayer.WatchListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data
+                    android:host="*"
+                    android:pathPrefix="/schedule"
+                    android:scheme="wear" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data
+                    android:host="*"
+                    android:pathPrefix="/prompt/"
+                    android:scheme="wear" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data
+                    android:host="*"
+                    android:pathPrefix="/hello/phone"
+                    android:scheme="wear" />
+            </intent-filter>
+        </service>
+
         <service
             android:name=".tile.ReminderTileService"
             android:description="@string/tile_description"

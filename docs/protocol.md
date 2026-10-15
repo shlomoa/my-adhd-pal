@@ -1,9 +1,9 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.1; steps 1.1 to 1.4, 1.6, 1.7 and 1.8a are done, gate G2a). This file is the single source of
+Status: **skeleton** (protocol 1.1; steps 1.1 to 1.8 are done). This file is the single source of
 truth; the constants, models, codec, compatibility rule, schedule logic and transport abstraction in `:protocol` follow
-it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b,
-gate G2b) wait for the hardware spike. The transport verification below comes first in time and changes the cleanup rule.
+it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b)
+complete gate G2b. The transport verification below comes first in time and changes the cleanup rule.
 
 ## Item catalog
 
@@ -122,8 +122,11 @@ changes.
 
 ## Link states
 
-The phone shows one of five states for the watch link. The function that derives it from the connected nodes, the app
-capability and the hello versions is added in step 1.5; the states are fixed now.
+The phone shows one of five states for the watch link. `LinkStateLogic.derive` in `:protocol` (step 1.5) derives it from
+three observations, which the data sources in `:phone` and `:wear` read from the Data Layer: the connected nodes
+(`NodeClient.getConnectedNodes()`, each with `isNearby`), the reachable nodes that declare the peer's capability
+(`adhd_pal_watch` for the phone, `adhd_pal_phone` for the watch; `CapabilityClient`), and the `protocolVersion` of the
+peer's hello item. The watch calls the same function and shows No watch app (there: no phone app) as Away.
 
 | State | Meaning |
 |---|---|
@@ -133,11 +136,35 @@ capability and the hello versions is added in step 1.5; the states are fixed now
 | No watch app | a watch is paired, but without the app capability |
 | Incompatible | the watch's hello has an unsupported major version, or is missing or malformed |
 
+Precedence, first match wins:
+
+| Step | Condition | State |
+|---|---|---|
+| 1 | no connected node and no node with the app | Away |
+| 2 | no node with the app | No watch app |
+| 3 | the hello version is present and its major is not the supported one, or it is malformed | Incompatible |
+| 4 | a node with the app is nearby | Nearby |
+| 5 | otherwise | Relayed |
+
+Rules behind the table:
+
+- A watch that is connected but has no app capability is No watch app, whatever its hello says. A watch that is not
+  connected is Away, because the Data Layer reports no paired-but-disconnected node and the app capability of such a
+  watch is unknown.
+- A node with the app that the node list does not (yet) show still counts as a reachable watch: the two Data Layer
+  queries are not atomic, so the capability list decides on its own.
+- No hello item yet (`null`) does not make the link Incompatible. The capability already proves the app is installed,
+  and the watch app writes its hello at start; the version check applies as soon as the hello arrives. An item that
+  cannot be decoded is passed on as malformed text and is Incompatible.
+- With several watches the nearest one with the app decides (any nearby node gives Nearby).
+- Hardware: Nearby, Relayed and Away were seen on the Galaxy A55 5G with the Galaxy Watch6 Classic (spike 0b.2b, below).
+  No watch app and Incompatible are covered by unit tests only. The app must refresh the node list about every 2 s while
+  it shows the state, since the Data Layer offers no documented callback for it.
+
 ## Diagrams
 
 The flows below are the same under the DataItems-only transport and under a `MessageClient` fallback for urgent alerts,
-because both are written against `LinkTransport`. The link-state machine and the alert flow are added with the link-state
-function (step 1.5), after the hardware spike.
+because both are written against `LinkTransport`.
 
 ### Schedule sync
 
@@ -219,13 +246,66 @@ stateDiagram-v2
     Removed --> [*]
 ```
 
+### Link state machine
+
+The state is not stored: `LinkStateLogic.derive` recomputes it from the observations (see Link states), and the
+transitions below are the events that change an observation. The state names are the members of `LinkState`, and
+a test keeps the two equal. Times are those seen on the hardware (spike 0b.2b).
+
+```mermaid
+stateDiagram-v2
+    state "Nearby" as NEARBY
+    state "Relayed" as RELAYED
+    state "Away" as AWAY
+    state "No watch app" as NO_WATCH_APP
+    state "Incompatible" as INCOMPATIBLE
+    [*] --> AWAY: app starts and no watch is connected
+    AWAY --> NEARBY: watch with the app connects directly
+    AWAY --> RELAYED: watch with the app connects through the relay
+    AWAY --> NO_WATCH_APP: a watch connects that has no app capability
+    NEARBY --> RELAYED: direct link lost and relay still up (seen after about 8 s)
+    RELAYED --> NEARBY: direct link back
+    NEARBY --> AWAY: every radio lost (seen after about 4 s)
+    RELAYED --> AWAY: relay lost
+    NO_WATCH_APP --> NEARBY: app installed on the watch and capability found
+    NO_WATCH_APP --> AWAY: watch disconnects
+    NEARBY --> INCOMPATIBLE: hello with another major version
+    RELAYED --> INCOMPATIBLE: hello with another major version
+    INCOMPATIBLE --> NEARBY: hello compatible again and direct
+    INCOMPATIBLE --> RELAYED: hello compatible again and relayed
+    INCOMPATIBLE --> AWAY: watch disconnects
+```
+
+### Alert flow
+
+```mermaid
+sequenceDiagram
+    participant H as Health Services
+    participant W as Watch
+    participant D as Data Layer
+    participant P as Phone
+    H->>W: heart rate reading
+    W->>W: compare with the thresholds from the schedule
+    alt threshold breached and not in cooldown
+        W->>D: put /alert/id with metric, value, threshold, time (urgent)
+        W->>W: start the cooldown for that threshold
+        D-->>P: item changed (the listener service starts the app process if it is closed)
+        P->>P: validate and check the version, store once (idempotent by id), record in history
+        P->>P: show a notification
+        P->>D: delete /alert/id (after storing)
+    else in cooldown or within limits
+        W->>W: nothing is sent
+    end
+    Note over W,P: while the link is Away the item waits in the Data Layer and arrives when the link is back
+```
+
 ## Transport verification: spike 0b.2a (paired emulators)
 
 Question set from [`plan.md`](plan.md) section 3: (1) items persist while the receiver is away and arrive on reconnect,
 (2) the phone's listener service wakes with its app closed, (3) a consumed item can be deleted and does not reappear,
-(4) urgent-item delay. The spike code is throwaway and lives only on the branches `claude/shared-0b2a-spike` (the apps)
-and `claude/shared-0b2a-spike-rtt` (the apps plus the runner `scripts/spike/run-0b2a.ps1`); it is discarded in step
-0b.3. Run by the user on real Android emulators, not on hardware.
+(4) urgent-item delay. The spike apps are kept in the debug builds
+(`phone/src/debug/` and `wear/src/debug/`, package `...debug.spike`) and the runner is `scripts/spike/run-0b2a.ps1`;
+release builds do not contain them. Run by the user on real Android emulators, not on hardware.
 
 ### Environment
 
@@ -322,7 +402,7 @@ spike below confirmed it.
 ### Deferred to the hardware spike (0b.2b, done below)
 
 The laptop sleeping and the hung first runner stopped the emulator runs; these are not protocol failures. Move into the
-0b.2b checklist, and reuse the same runner (`scripts/spike/run-0b2a.ps1` on `claude/shared-0b2a-spike-rtt`, with
+0b.2b checklist, and reuse the same runner (`scripts/spike/run-0b2a.ps1`, with
 `-OnlyCases`, which also reports round trips on the sender's own clock):
 
 - C5 phone away (the listener started by a restarted phone), C2b (deleted items do not reappear), C4 urgent versus
@@ -420,6 +500,5 @@ Because "Put unused apps to sleep" is on and the app is not exempt, the days-lon
 ### Transport decision (step 0b.3)
 
 **The transport is DataItems only.** No criterion of the fallback rule was missed, so `MessageClient` for urgent alerts is
-**not** added. Section 3 of [`plan.md`](plan.md) is updated to say so. The spike code on `claude/shared-0b2a-spike`,
-`claude/shared-0b2a-spike-rtt` and `claude/shared-0b2b-spike` is discarded: it was never merged and is only kept as the
-evidence above. No path, key or model of the protocol changes; the next steps are 1.5 and 1.8b (gate G2b).
+**not** added. Section 3 of [`plan.md`](plan.md) is updated to say so. The spike apps and runners stay in the repository as
+test tooling (debug builds only, `scripts/spike/`), so the evidence above can be reproduced. No path, key or model of the protocol changes; the next steps are 1.5 and 1.8b (gate G2b).

@@ -1,0 +1,5 @@
+1792043882735 role=phone pid=16147 processUptimeMs=188 fg=false SERVICE-CREATED
+1792043882759 role=phone pid=16147 processUptimeMs=212 fg=false RECV path=/spike/del/7070858f-d44f-4731-8c9f-52c4254f4f0e from=watch sentTs=1792043881613 recvTs=1792043882759 delayMs=1146
+1792043882797 role=phone pid=16147 processUptimeMs=250 fg=false DELETE-OK path=/spike/del/7070858f-d44f-4731-8c9f-52c4254f4f0e count=1
+1792043883353 role=phone pid=16147 processUptimeMs=806 fg=false RECV path=/spike/del/6b351622-c323-4d30-9d41-455482bbf6db from=watch sentTs=1792043882781 recvTs=1792043883353 delayMs=572
+1792043883358 role=phone pid=16147 processUptimeMs=811 fg=false DELETE-OK path=/spike/del/6b351622-c323-4d30-9d41-455482bbf6db count=1

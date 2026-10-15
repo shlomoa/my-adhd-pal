@@ -46,6 +46,8 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-030 | 0a.8 | script | Script failure paths | a missing prerequisite (no `curl` or `unzip`) or an interrupted download exits non-zero with a clear message |
 | TC-S-143 | G2 split | script | Gate graph is consistent and G2 is split | `scripts/test/test-gates.sh`: unique ids, existing requirements, no cycle, README table equals `gates.json`, lane plans name existing gates; G2a requires G1 only, G2b requires G2a and G-DEC, G3a and G5 require G2a, G3 requires G2b |
 | TC-S-144 | issue 113 | unit | Compose UI tests run on the JVM | a `createComposeRule()` test finds and clicks a node under Robolectric in `:phone:testDebugUnitTest`; `./gradlew check` stays green |
+| TC-S-145 | spike content | script | Spike apps are debug-only | `scripts/test/test-spike.sh`: the four spike classes are in `src/debug/.../debug/spike` of `:phone` and `:wear`, nothing spike-related is under `src/main` or in the main manifests, the debug manifests declare the three components, and a built release APK contains no spike class |
+| TC-S-146 | spike content | script | Spike runners and their simulated suites | the same script: both runners are in `scripts/spike/` and `test-run-0b2a.sh` and `test-run-0b2b.sh` pass against the simulated adb (needs `pwsh`) |
 
 ## Part b: protocol (milestone 1, `:protocol`; needs G-SPK1 for 1.1-1.3; G1 for 1.4, 1.6, 1.7 and 1.8a (gate G2a); G2a and G-DEC for 1.5 and 1.8b (gate G2b))
 

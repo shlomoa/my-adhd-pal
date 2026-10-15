@@ -214,3 +214,42 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Open items: the schedule receiver and the link client are connected to the triggers once they are wired to the real transport
   (1.5, G2b); until then only the action trigger runs in the app. Manual check with TC-W-066: after Start 2 min or a new schedule
   the tile shows the next reminder without being re-added.
+
+## 2026-10-15 - Demo hooks on the watch
+
+- Issue and PR: none yet (demo path, coordinator priority), branch `claude/watch-demo`
+- Changed: `DemoLog` (the `DEMO` logcat lines the demo script reads: schedule applied, reminder fired, ack sent or not sent, ids and
+  times only), `AppGraph.lastFired`, and the debug-only `DemoActionReceiver` (`am broadcast -n com.shlomoa.myadhdpal/.wear.debug.DemoActionReceiver --es action DONE`)
+  that does what a tap on the last notification would do. Phone side agreed with the Android lane: `PUBLISH_DEMO_SCHEDULE` (extras
+  `minutes_ahead`, `title`, reminder id "demo") and a `DUMP_HISTORY` readback that logs `DEMO history ...` lines.
+- Validation: red commit `0261b13`, then green: `./gradlew check` BUILD SUCCESSFUL; the debug-separation script passes.
+- Open items: the real Data Layer transport on the watch (waiting for the Shared lane's answers), the demo script itself, and the
+  phone receivers (G3).
+
+## 2026-10-15 - Real Data Layer transport on the watch
+
+- Issue and PR: none (demo path, coordinator priority), branch `claude/watch-datalayer`, stacked on `claude/shared-1-5` (needs
+  `LinkStateLogic` and `Capabilities` from #131)
+- Changed: `CachedTransport` (in-memory cache behind the synchronous `LinkTransport`, async writes through `ItemWriter`, remote events
+  reported only when another node wrote them, a late `load` never overwrites a newer change), `ItemMapping` (the four keys, urgent
+  paths), `DataLayerTransport` (Android: stored items read once, writes with `setUrgent` for prompt/ack/selection/alert, link state
+  from the node list, the `adhd_pal_phone` capability and the phone's hello via `LinkStateLogic`), `WatchListenerService` (manifest
+  filters `/schedule`, `/prompt/`, `/hello/phone`), `res/values/wear.xml` (declares `adhd_pal_watch`). `AppGraph` now builds the link
+  at every process start, wires `ScheduleReceiver`, `LinkClient`, `PromptInbox` and the tile triggers through a fan-out, publishes
+  `/hello/watch`, and `MainActivity` re-reads the link state every 2 s while shown. The watch deletes only its own items.
+- Validation: red commit `03b5d22` (tests only), then green: `./gradlew :wear:check :wear:lintDebug :wear:assembleRelease` successful.
+- Not run: TC-W-118 and the Data Layer calls themselves (manual, real devices); TC-W-008, TC-W-015, TC-W-045 and TC-W-103 stay NOT yet run.
+- Open items: the phone-side `DataLayerTransport` (Shared lane, 2.4) must use the same paths and keys; `MessageClient` is not used.
+
+## 2026-10-15 - Demo script
+
+- Issue and PR: none yet (demo path, coordinator priority), branch `claude/watch-demo-script`
+- Changed: `scripts/demo/run-demo.ps1` (one command: readiness gate, explicit `-Phone` and `-Watch`, per-call timeouts, build and
+  install of the debug apps, eight stages with PASS or FAIL, what to see on the watch, results pushed as a `demo-results/<time>`
+  branch without device identifiers), a simulated `adb` and `scripts/demo/test-run-demo.sh`, and `docs/demo.md`. Catalogue cases
+  TC-W-102 (script test) and TC-W-103 (the user's run).
+- Validation: `scripts/demo/test-run-demo.sh` with PowerShell 7.5.2: 48 checks pass; breaking the late-reminder rule on purpose makes
+  two of them fail (see the baseline report).
+- Open items: the script cannot pass on the real devices until the phone receivers (`PUBLISH_DEMO_SCHEDULE`, `DUMP_HISTORY`, after
+  G3) and the real Data Layer transport on both sides exist. The phone receiver class names are a guess to confirm with the Android
+  lane (`com.shlomoa.myadhdpal.phone.debug.*`). TC-W-103 is manual and NOT yet run.
