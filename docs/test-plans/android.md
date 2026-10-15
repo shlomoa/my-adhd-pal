@@ -122,6 +122,23 @@ Pass criterion: every case PASS, zero skipped (`docs/test-reports/android-final.
 | TC-A-068 | README covers both devices | Docs | Reviewed; markdownlint and link check green |
 | TC-A-069 | Release checklist reviewed | Docs + user | User signs off |
 
+## Demo schedule publisher (debug only)
+
+Priority item for the real-life demo: a debug-build way to publish a schedule from the phone without UI. The publisher
+logic is pure and tested here; the broadcast receiver `PUBLISH_DEMO_SCHEDULE` that calls it is wired once the real
+repositories exist (G3).
+
+| Id | Case | How | Pass criteria |
+|---|---|---|---|
+| TC-A-073 | A reminder is set the requested minutes ahead | Unit | Schedule sent with one reminder at now + N minutes on that weekday (default 2) |
+| TC-A-074 | Crossing midnight uses the next weekday | Unit | 23:59 + 2 minutes gives 00:01 on the next day, Sunday wraps to Monday |
+| TC-A-075 | Title and minutes come from the extras | Unit | The custom title and offset appear in the sent schedule |
+| TC-A-076 | Repeating does not pile up reminders | Unit | Two publishes at different offsets leave exactly one demo reminder; the same offset sends nothing new |
+| TC-A-077 | A failed publish is returned, not hidden | Unit | `PublishOutcome.Failed` with the reason |
+| TC-A-078 | An offset outside 1 to 1440 minutes is rejected | Unit | `IllegalArgumentException`, nothing stored or sent |
+| TC-A-079 | The receiver is absent from release builds | CI | `checkNoDebugInRelease` green (class lives in a `debug` package) |
+| TC-A-080 | The broadcast publishes the schedule on the real devices | Manual | Watch shows the reminder at the set time after the broadcast |
+
 ## Final (A-final)
 
 | Id | Case | How | Pass criteria |
