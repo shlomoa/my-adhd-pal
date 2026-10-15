@@ -695,6 +695,11 @@ $DelIds = New-Object System.Collections.ArrayList
 $KeepId = $null
 
 try {
+# An unexpected error in a case is reported as a FAIL of that case (never as NOT SELECTED) and the run goes on.
+trap {
+    Set-Result $script:CaseTag 'FAIL' "unexpected error: $($_.Exception.Message)"
+    continue
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # C1 items cross the pairing in both directions; DEL items are deleted and the deletion reaches the sender
 # ---------------------------------------------------------------------------------------------------------------------
@@ -860,6 +865,8 @@ function Test-ClosedUnder {
         Save-CaseLogs
         $detail = "urgent item with the app closed: $($times['urgent']); non-urgent: $($times['non-urgent']) (host clock, includes up to one poll of $PollSec s)"
         if ($times['urgent'] -like 'not received*') { Set-Result $Case 'FAIL' $detail } else { Set-Result $Case 'PASS' $detail }
+    } catch {
+        Set-Result $Case 'FAIL' "unexpected error: $($_.Exception.Message)"
     } finally {
         & $Cleanup
     }
@@ -886,16 +893,25 @@ if (Test-Selected 'C3c') {
 
 if (Test-Selected 'C3d') {
     foreach ($b in @(@('rare', 40), @('restricted', 45))) {
-        $bucketName = $b[0]; $bucketNumber = [string]$b[1]
-        $prepare = {
-            Invoke-Adb $Phone @('shell', 'am', 'set-standby-bucket', $Package, $bucketName) | Out-Null
+        # Plain scriptblocks that read script-scope variables: a GetNewClosure() block runs in a dynamic module that
+        # cannot see this script's functions (Invoke-Adb) on some hosts.
+        $script:StandbyBucketName = $b[0]
+        $script:StandbyBucketNumber = [string]$b[1]
+        if ($env:SPIKE_TEST_THROW -eq 'C3d') {
+            $script:CaseTag = "C3d-$($b[0])"
+            throw 'simulated failure (SPIKE_TEST_THROW)'
+        } else {
+        Test-ClosedUnder "C3d-$($b[0])" {
+            Invoke-Adb $Phone @('shell', 'am', 'set-standby-bucket', $Package, $script:StandbyBucketName) | Out-Null
             $now = ((Invoke-Adb $Phone @('shell', 'am', 'get-standby-bucket', $Package)) -join ' ').Trim()
-            if ($now -notmatch "^($bucketName|$bucketNumber)$") { return "could not set the standby bucket to $bucketName (am get-standby-bucket said: '$now')" }
+            if ($now -notmatch "^($($script:StandbyBucketName)|$($script:StandbyBucketNumber))$") {
+                return "could not set the standby bucket to $($script:StandbyBucketName) (am get-standby-bucket said: '$now')"
+            }
             return $null
-        }.GetNewClosure()
-        Test-ClosedUnder "C3d-$bucketName" $prepare {
+        } {
             Invoke-Adb $Phone @('shell', 'am', 'set-standby-bucket', $Package, 'active') | Out-Null
             Wake-Apps
+        }
         }
     }
 }

@@ -103,6 +103,14 @@ has 'could not force Doze' ; check "C3c NOT RUN explains it" 0 $?
 run bucketfail "bucketfail" -WatchAddress $WATCH -OnlyCases C3d; check "standby bucket cannot be set: exit 2" 2 $rc
 has 'could not set the standby bucket to rare' ; check "C3d NOT RUN explains it" 0 $?
 
+# --- C3d on its own (regression: the standby-bucket blocks once ran as closures that could not see Invoke-Adb)
+run c3d-only "" -WatchAddress $WATCH -OnlyCases C3d; check "-OnlyCases C3d: exit 0" 0 $rc
+has 'rare bucket PASS, restricted bucket PASS' ; check "C3d: both d-rare and d-restricted PASS" 0 $?
+! has 'NOT SELECTED' || has 'C1 NOT SELECTED'; check "C3d: the two C3d results are not reported as NOT SELECTED" 0 $?
+SPIKE_TEST_THROW=C3d run c3d-throw "" -WatchAddress $WATCH -OnlyCases C3d; check "an unexpected error in a case: exit 1" 1 $rc
+has 'rare bucket FAIL' && has 'unexpected error: simulated failure' ; check "an unexpected error is reported as FAIL with its message, not NOT SELECTED" 0 $?
+radios_on; check "radios restored after an unexpected error" 0 $?
+
 # --- -RestorePhone and pairing
 tmp="$(mktemp -d)"; mkdir -p "$tmp/state" "$tmp/repo/scripts"; cp -r "$here" "$tmp/repo/scripts/spike"; git init -q -b main "$tmp/repo"
 echo 0 > "$tmp/state/radio.bluetooth"; echo 0 > "$tmp/state/radio.wifi"; echo 0 > "$tmp/state/radio.data"; touch "$tmp/state/doze"
