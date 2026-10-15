@@ -1,0 +1,5 @@
+1792043864940 role=watch pid=12113 processUptimeMs=664614 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1792043864948 role=watch pid=12113 processUptimeMs=664622 fg=true SEND path=/spike/del/9af27586-7fb7-40f6-8bec-cf3e7f1ee340 urgent=true
+1792043864960 role=watch pid=12113 processUptimeMs=664635 fg=true SEND-OK path=/spike/del/9af27586-7fb7-40f6-8bec-cf3e7f1ee340 (putDataItem completed locally)
+1792043865769 role=watch pid=12113 processUptimeMs=665444 fg=true SERVICE-CREATED
+1792043865795 role=watch pid=12113 processUptimeMs=665469 fg=true EVENT-DELETED path=/spike/del/9af27586-7fb7-40f6-8bec-cf3e7f1ee340 host=8a2864cc

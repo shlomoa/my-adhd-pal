@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.ApplicationExtension
+import org.gradle.api.tasks.SourceTask
 
 plugins {
     base
@@ -30,6 +31,10 @@ detekt {
     config.setFrom("config/detekt/detekt.yml")
     buildUponDefaultConfig = true
 }
+
+// The hardware spike apps are measurement tools kept as they were run (docs/spikes/README.md). They stay formatted
+// by spotless but are not reworked for detekt style rules, so the code that produced the results stays unchanged.
+tasks.withType<SourceTask>().matching { it.name.startsWith("detekt") }.configureEach { exclude("**/debug/spike/**") }
 
 // Configuration shared by both apps lives here and in the [versions] block of gradle/libs.versions.toml.
 // The watch and phone apps must keep the same applicationId and signing config (plan.md section 2).

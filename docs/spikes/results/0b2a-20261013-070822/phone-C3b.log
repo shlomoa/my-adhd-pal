@@ -1,0 +1,3 @@
+﻿1791864730720 role=phone pid=6554 processUptimeMs=317 fg=false SERVICE-CREATED
+1791864730848 role=phone pid=6554 processUptimeMs=447 fg=false RECV path=/spike/del/544c3add-a7c3-4bf1-9e3d-81020022b863 from=watch sentTs=1791864728826 recvTs=1791864730848 delayMs=2022
+1791864731001 role=phone pid=6554 processUptimeMs=600 fg=false DELETE-OK path=/spike/del/544c3add-a7c3-4bf1-9e3d-81020022b863 count=1
