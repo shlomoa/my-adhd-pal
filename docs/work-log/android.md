@@ -67,6 +67,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Open items: the broadcast receiver `PUBLISH_DEMO_SCHEDULE` is part 2: it needs the real `ScheduleRepository` and `WatchLinkDataSource` (G3) to build the publisher, and a Hilt entry point without a binding would break the graph. Manual TC-A-080 runs on the devices once the receiver exists.
 - Follow-up in the same PR: the Watch lane's demo script needs a known reminder id, so the fixed id is now `demo` (TC-A-073 asserts it; red first with the old id `demo-reminder`, then green).
 
+## 2026-10-15 - Demo schedule publisher (debug), part 2: broadcast receivers
+
+- Issue and PR: demo priority from the coordinator; PR linked from the coordinator message. Builds on #129.
+- Changed (all in `phone/src/debug`, `phone.debug` package): `DemoScheduleReceiver` (`com.shlomoa.myadhdpal.debug.PUBLISH_DEMO_SCHEDULE`, extras `minutes_ahead`, `title`) and `DemoHistoryReceiver` (`...DUMP_HISTORY`), both exported and protected by `android.permission.DUMP` in the debug manifest; `DemoCommands` (the logged `DEMO ...` lines, the contract with the Watch lane's `scripts/demo`); `DemoSchedulePublisher.publish()` now returns the outcome and the reminder time. The receivers are thin Hilt entry points over the real repositories, off the main thread with `goAsync()`.
+- Validation: tests first, red (`docs/test-reports/android-baseline.md`), then `DemoCommandsTest` 5 of 5 and `DemoSchedulePublisherTest` 6 of 6 PASS (TC-A-073 to 078, 081 to 085); `./gradlew detekt spotlessCheck check assembleDebug` green, including `checkNoDebugInRelease`.
+- Open items: manual TC-A-080 (the broadcast, then the reminder on the watch) is for the user with `scripts/demo` from the Watch lane. The receivers are not exercised end to end by a unit test: the repositories and the Data Layer are real only on the device. Wiring the screens into `MainActivity` is the next PR.
+
 ## 2026-10-15 - Screens wired into MainActivity (2.6 and 4.5 on the real graph)
 
 - Issue and PR: demo priority from the coordinator; PR linked from the coordinator message.

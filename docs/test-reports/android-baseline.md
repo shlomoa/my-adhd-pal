@@ -56,6 +56,18 @@ e: DemoSchedulePublisherTest.kt:32:9 Unresolved reference 'DemoSchedulePublisher
 
 TC-A-073 to TC-A-078 are red. TC-A-079 is the `checkNoDebugInRelease` CI check and TC-A-080 is manual on the devices (ids in `DemoManualCases`).
 
+## Demo broadcast receivers (debug only)
+
+Red commit: 2cf2501 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*Demo*'`. Exit 1, the test sources do not compile:
+
+```
+e: DemoCommandsTest.kt:46:28 Unresolved reference 'DemoCommands'.
+e: DemoCommandsTest.kt:105:31 Unresolved reference 'DemoActions'.
+e: DemoSchedulePublisherTest.kt:44:68 Unresolved reference 'reminderAt' on receiver of type 'PublishOutcome'.
+```
+
+TC-A-081 to TC-A-085 are red, and TC-A-073 to 078 are red again because `publish()` now returns the reminder time with the outcome.
+
 ## Screens wired into MainActivity
 
 Red commit: 6e71e17 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*HomeScreenTest*' --tests '*MainActivityWiringTest*'`. Exit 1, the test sources do not compile:
