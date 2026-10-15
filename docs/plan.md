@@ -213,8 +213,8 @@ Every step becomes a GitHub issue labelled with its milestone, starting with its
   5 seconds nearby and about 30 seconds relayed, calibrated by the spike). *Validate:* results table with device,
   Android, One UI and Wear OS versions and the battery settings used. If the listener is cut off, how to handle it is
   decided with the user.
-- **0b.3 Decide and record.** Apply the fallback rule if needed and update the Transport section. The spike code is
-  discarded. *Validate:* the decision and its evidence are in the work log.
+- **0b.3 Decide and record.** Apply the fallback rule if needed and update the Transport section. The spike apps and runners are kept as
+  debug-only test tooling (`docs/spikes/`). *Validate:* the decision and its evidence are in the work log.
 
 ### 1. Protocol (`docs/protocol.md` and `:protocol`)
 

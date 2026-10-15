@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+# Simulated adb with HARDWARE-STYLE serials for testing scripts/spike/run-0b2b.ps1 without devices.
+#   phone  R58W20ABCDE          (USB serial)
+#   watch  192.168.1.57:41203   (Wi-Fi debugging; listed only after `adb connect 192.168.1.57:41203`)
+# State lives in $FAKE_DIR (see test-run-0b2b.sh). Radios: phone bluetooth / wifi / data. Link: Bluetooth on = Nearby,
+# else Wi-Fi or data on = Relayed, else Away (watch sees 0 nodes, items queue).
+# Failure injection (FAKE_FAIL, comma separated):
+#   unauth       phone listed as 'unauthorized'
+#   nowatch      watch is never listed (connect does nothing)
+#   deadwatch    every 'shell' call to the watch hangs
+#   btfail       `svc bluetooth` and `cmd bluetooth_manager` have no effect (tests the manual fallback)
+#   norelay      with Bluetooth off the watch reports 0 nodes (Relayed not observable)
+#   noaway       with every radio off the watch still reports the phone (Away not observable)
+#   nodoze       `deviceidle force-idle` has no effect
+#   dozeblock    while Doze is forced, items for the phone are held back
+#   bucketfail   `am set-standby-bucket` has no effect
+#   lowbattery   the watch reports 5 % battery
+#   slowrtt      urgent pings are answered, with a round trip of 15000 ms (over the nearby target)
+# FAKE_LEAK=1 adds a log line with an e-mail address, the watch ip:port and a token.
+set -u
+D="${FAKE_DIR:?FAKE_DIR must point at the simulation state folder}"
+PHONE=R58W20ABCDE; WATCH=192.168.1.57:41203
+serial=""
+if [ "${1:-}" = "-s" ]; then serial="$2"; shift 2; fi
+cmd="${1:-}"; shift || true
+role_of() { case "$1" in "$PHONE") echo phone;; *) echo watch;; esac; }
+peer_of() { case "$1" in "$PHONE") echo "$WATCH";; *) echo "$PHONE";; esac; }
+key() { echo "${1//[:.]/_}"; }
+state_of() { cat "$D/$(key "$1").state" 2>/dev/null || echo dead; }
+set_state() { echo "$2" > "$D/$(key "$1").state"; }
+fails() { case ",${FAKE_FAIL:-}," in *",$1,"*) return 0;; esac; return 1; }
+radio() { cat "$D/radio.$1" 2>/dev/null || echo 1; }
+set_radio() { echo "$2" > "$D/radio.$1"; }
+listed() { # serial
+  case "$1" in
+    "$PHONE") return 0;;
+    "$WATCH") fails nowatch && return 1; [ -e "$D/watch.connected" ];;
+    *) return 1;;
+  esac
+}
+link() { # nearby | relayed | away
+  if [ "$(radio bluetooth)" = 1 ]; then echo nearby
+  elif [ "$(radio wifi)" = 1 ] || [ "$(radio data)" = 1 ]; then echo relayed
+  else echo away; fi
+}
+link_up() { [ "$(link)" != away ]; }
+logf() { echo "$D/$(key "$1").log"; }
+log() { # serial message
+  local st up fg; st="$(state_of "$1")"; up=90000; fg=false
+  [ "$st" = dead ] && up=300
+  [ "$st" = fg ] && fg=true
+  echo "role=$(role_of "$1") pid=1234 processUptimeMs=$up fg=$fg $2" >> "$(logf "$1")"
+  [ -n "${FAKE_LEAK:-}" ] && echo "role=$(role_of "$1") signed in as test.user@example.com on $WATCH serial $PHONE token=abc123secret" >> "$(logf "$1")"
+  return 0
+}
+next_id() { local n; n=$(( $(cat "$D/counter" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$D/counter"; printf 'item%04d' "$n"; }
+items() { echo "$D/$(key "$1").items"; }
+add_item() { echo "wear://node/spike/$2/$3" >> "$(items "$1")"; }
+drop_item() { grep -v "/spike/$2/$3\$" "$(items "$1")" > "$(items "$1").tmp" 2>/dev/null; mv "$(items "$1").tmp" "$(items "$1")" 2>/dev/null; true; }
+dozing() { [ -e "$D/doze" ]; }
+deliver() { # dst src kind id urgent delay
+  local dst="$1" src="$2" kind="$3" id="$4" urgent="$5" delay="${6:-0}"
+  if ! link_up; then echo "$dst|$src|$kind|$id|$urgent|$delay" >> "$D/pending"; return; fi
+  if [ "$dst" = "$PHONE" ] && dozing && fails dozeblock; then echo "$dst|$src|$kind|$id|$urgent|$delay" >> "$D/pending"; return; fi
+  if [ "$(state_of "$dst")" = dead ]; then log "$dst" SERVICE-CREATED; set_state "$dst" bg; fi
+  log "$dst" "RECV path=/spike/$kind/$id from=$(role_of "$src") sentTs=1 recvTs=2 delayMs=$(( RANDOM % 60 - 25 ))"
+  case "$kind" in
+    del)
+      add_item "$src" del "$id"; add_item "$dst" del "$id"
+      log "$dst" "DELETE-OK path=/spike/del/$id count=1"
+      drop_item "$dst" del "$id"; drop_item "$src" del "$id"
+      log "$src" "EVENT-DELETED path=/spike/del/$id host=x";;
+    keep) add_item "$src" keep "$id"; add_item "$dst" keep "$id";;
+    ping)
+      log "$dst" "PONG path=/spike/pong/$id urgent=$urgent"
+      deliver "$src" "$dst" pong "$id" "$urgent";;
+    pong)
+      rtt=$(( 100 + RANDOM % 80 )); [ "$urgent" = true ] && fails slowrtt && rtt=15000
+      [ "$(link)" = relayed ] && rtt=$(( rtt + 4000 ))
+      log "$dst" "RTT id=$id urgent=$urgent rttMs=$rtt";;
+  esac
+}
+deliver_pending() {
+  [ -s "$D/pending" ] || return 0
+  link_up || return 0
+  local snap; snap="$(mktemp)"
+  mv "$D/pending" "$snap"; : > "$D/pending"
+  while IFS='|' read -r dst src kind id urgent delay; do deliver "$dst" "$src" "$kind" "$id" "$urgent" "$delay"; done < "$snap"
+  rm -f "$snap"
+}
+# adb to a serial that is not listed fails like the real one
+if [ -n "$serial" ] && ! listed "$serial"; then echo "$serial $cmd $*" >> "$D/unlisted-calls"; echo "error: device '$serial' not found" >&2; exit 1; fi
+if [ "$cmd" = shell ] && [ "$(role_of "$serial")" = watch ] && fails deadwatch; then sleep 8; exit 0; fi
+case "$cmd" in
+  devices)
+    echo "List of devices attached"
+    if fails unauth; then printf '%s\tunauthorized\n' "$PHONE"; else printf '%s\tdevice\n' "$PHONE"; fi
+    listed "$WATCH" && printf '%s\tdevice\n' "$WATCH"; true;;
+  connect)
+    if [ "$1" = "$WATCH" ] && ! fails nowatch; then touch "$D/watch.connected"; echo "connected to $1"; else echo "failed to connect to '$1'"; fi;;
+  pair)
+    if [ "${2:-}" = 123456 ]; then echo "Successfully paired to $1 [guid=adb-XXXX]"; else echo "Failed: Wrong password or connection was dropped."; fi;;
+  install) echo "Performing Streamed Install"; echo "Success";;
+  logcat)
+    case "$1" in
+      -c) : > "$(logf "$serial")";;
+      -d) i=0; while IFS= read -r l; do printf '10-12 12:00:%02d.000  1234  1234 I SPIKE   : %s\n' $((i % 60)) "$l"; i=$((i+1)); done < "$(logf "$serial")" 2>/dev/null;;
+    esac;;
+  shell)
+    sub="$1"; shift
+    case "$sub" in
+      getprop)
+        case "$1" in
+          ro.build.version.sdk) [ "$(role_of "$serial")" = watch ] && echo 34 || echo 35;;
+          ro.build.version.release) [ "$(role_of "$serial")" = watch ] && echo 14 || echo 15;;
+          ro.build.version.oneui) [ "$(role_of "$serial")" = watch ] && echo 60100 || echo 70000;;
+          ro.build.display.id) echo "BUILD.$(role_of "$serial")";;
+          ro.product.manufacturer) echo samsung;;
+          ro.product.model) [ "$(role_of "$serial")" = watch ] && echo SM-R965F || echo SM-A556E;;
+          ro.build.characteristics) [ "$(role_of "$serial")" = watch ] && echo "watch,nosdcard" || echo "phone,default";;
+          sys.boot_completed) echo 1;;
+        esac;;
+      date) now=$(( $(date +%s) * 1000 )); [ "$(role_of "$serial")" = watch ] && now=$(( now - 1500 )); printf '%s000000\n' "$now";;
+      pm) echo "package:com.shlomoa.myadhdpal";;
+      pidof) [ "$(state_of "$serial")" != dead ] && echo 1234;;
+      input) case "$1 ${2:-}" in
+               "keyevent KEYCODE_HOME") [ "$(state_of "$serial")" = fg ] && set_state "$serial" bg;;
+               "keyevent KEYCODE_SLEEP") [ "$(state_of "$serial")" = fg ] && set_state "$serial" bg;;
+             esac;;
+      settings)  # settings get global <key>
+        case "$3" in
+          bluetooth_on) radio bluetooth;; wifi_on) radio wifi;; mobile_data) radio data;;
+          airplane_mode_on) echo 0;; stay_on_while_plugged_in) echo 0;; *) echo null;;
+        esac;;
+      svc)
+        case "$1" in
+          bluetooth) fails btfail || { [ "$2" = enable ] && set_radio bluetooth 1 || set_radio bluetooth 0; };;
+          wifi) [ "$2" = enable ] && set_radio wifi 1 || set_radio wifi 0;;
+          data) [ "$2" = enable ] && set_radio data 1 || set_radio data 0;;
+          power) :;;
+        esac
+        deliver_pending;;
+      cmd)
+        case "$1" in
+          bluetooth_manager) fails btfail || { [ "$2" = enable ] && set_radio bluetooth 1 || set_radio bluetooth 0; };;
+          connectivity) :;;
+        esac
+        deliver_pending;;
+      dumpsys)
+        case "$1" in
+          battery)
+            case "${2:-}" in
+              unplug|reset) :;;
+              *) if [ "$(role_of "$serial")" = watch ] && fails lowbattery; then echo "  level: 5"; else echo "  level: 80"; fi;;
+            esac;;
+          deviceidle)
+            case "${2:-}" in
+              force-idle) fails nodoze || touch "$D/doze";;
+              unforce) rm -f "$D/doze"; deliver_pending;;
+              get) [ -e "$D/doze" ] && echo IDLE || echo ACTIVE;;
+              whitelist) :;;
+            esac;;
+          package) echo "    versionName=24.40.1";;
+        esac;;
+      am)
+        a="$1"; shift
+        case "$a" in
+          start) rm -f "$D/$(key "$serial").stopped"; set_state "$serial" fg; log "$serial" ACTIVITY-RESUMED; echo "Starting: Intent"; deliver_pending;;
+          kill) [ "$(state_of "$serial")" = bg ] && set_state "$serial" dead;;
+          force-stop) set_state "$serial" dead; touch "$D/$(key "$serial").stopped";;
+          set-standby-bucket) fails bucketfail || echo "$2" > "$D/bucket";;
+          get-standby-bucket) cat "$D/bucket" 2>/dev/null || echo active;;
+          broadcast)
+            action=""; kind=del; urgent=true; delay=0
+            while [ $# -gt 0 ]; do
+              case "$1" in
+                -a) action="${2##*.}"; shift 2;;
+                --es) [ "$2" = kind ] && kind="$3"; [ "$2" = delayMs ] && delay="$3"; shift 3;;
+                --ez) [ "$2" = urgent ] && urgent="$3"; shift 3;;
+                *) shift;;
+              esac
+            done
+            [ "$(state_of "$serial")" = dead ] && set_state "$serial" bg
+            log "$serial" "COMMAND action=$action kind=$kind urgent=$urgent"
+            peer="$(peer_of "$serial")"
+            case "$action" in
+              SEND) id="$(next_id)"; log "$serial" "SEND path=/spike/$kind/$id urgent=$urgent"; log "$serial" "SEND-OK path=/spike/$kind/$id (putDataItem completed locally)"
+                    deliver "$peer" "$serial" "$kind" "$id" "$urgent" "$delay";;
+              PING) id="$(next_id)"; log "$serial" "PING path=/spike/ping/$id urgent=$urgent"; log "$serial" "PING-OK path=/spike/ping/$id (putDataItem completed locally)"
+                    deliver "$peer" "$serial" ping "$id" "$urgent";;
+              LIST_ITEMS) log "$serial" "ITEMS count=$(wc -l < "$(items "$serial")" 2>/dev/null || echo 0) $(tr '\n' ' ' < "$(items "$serial")" 2>/dev/null)";;
+              LIST_NODES)
+                l="$(link)"
+                if [ "$(role_of "$serial")" = watch ]; then
+                  [ "$l" = relayed ] && fails norelay && l=away
+                  [ "$l" = away ] && fails noaway && l=relayed
+                else
+                  [ "$l" = away ] && l=none
+                fi
+                case "$l" in
+                  nearby) log "$serial" "NODES count=1 peer(nearby=true)";;
+                  relayed) log "$serial" "NODES count=1 peer(nearby=false)";;
+                  *) log "$serial" "NODES count=0 ";;
+                esac;;
+            esac
+            echo "Broadcast completed: result=0";;
+        esac;;
+    esac;;
+esac
+exit 0

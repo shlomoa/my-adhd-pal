@@ -1,0 +1,6 @@
+﻿1791864596396 role=phone pid=4308 processUptimeMs=15475 fg=true SERVICE-CREATED
+1791864596645 role=phone pid=4308 processUptimeMs=15723 fg=true RECV path=/spike/del/9e9af8d7-6b76-4e18-8c1e-70a708383167 from=watch sentTs=1791864594193 recvTs=1791864596645 delayMs=2452
+1791864596725 role=phone pid=4308 processUptimeMs=15804 fg=true DELETE-OK path=/spike/del/9e9af8d7-6b76-4e18-8c1e-70a708383167 count=1
+1791864598846 role=phone pid=4308 processUptimeMs=17925 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791864598862 role=phone pid=4308 processUptimeMs=17941 fg=true SEND path=/spike/del/fbc0584e-fb80-4ff3-82d3-e2c032e5af98 urgent=true
+1791864598890 role=phone pid=4308 processUptimeMs=17968 fg=true SEND-OK path=/spike/del/fbc0584e-fb80-4ff3-82d3-e2c032e5af98 (putDataItem completed locally)

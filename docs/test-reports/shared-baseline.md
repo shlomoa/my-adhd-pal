@@ -274,6 +274,14 @@ Red commit: tests only (`DaoTest`, `RoomRepositoriesTest` running the existing a
 
 Red commit: `ComposeUiTestSampleTest` only (TC-S-144), before the dependencies exist. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'test'` for `androidx.compose.ui.test`.
 
+## Spike content kept in main (red)
+
+Red commit: `scripts/test/test-spike.sh` only (TC-S-145, TC-S-146), run against the tree without the spike apps and runners: every case FAILs (no classes under `src/debug/.../debug/spike`, no debug manifests declaring the components, no runner scripts, `test-run-0b2a.sh` and `test-run-0b2b.sh` missing).
+
+## Spike content: raw logs and receiver permission (red)
+
+Red: `test-run-0b2b.sh` with a `.gitignore` containing `*.log` in its temporary repository (as in the real repository), against the runner without the fix: FAIL "results table and raw per-case logs (L2, L3) are in the commit" and FAIL "the redaction markers are present" (the logs were never committed because `git add` skips ignored files). `test-spike.sh` gets the check "the command receiver is protected by the DUMP permission", which the receiver did not have (CI lint reported `ExportedReceiver`, and `WearRecents` for the watch activity without `taskAffinity`).
+
 ## 1.5 Link-state function (red)
 
 Red commit: `LinkStateTest` only (TC-S-060..066, one table-driven exhaustive case over 5 x 5 x 8 input combinations, the capability name), no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'NodeObservation'`, `'LinkStateLogic'`, `'LinkObservation'`.

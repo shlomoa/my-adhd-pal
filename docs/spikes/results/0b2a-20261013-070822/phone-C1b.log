@@ -1,0 +1,45 @@
+﻿1791864612273 role=phone pid=4308 processUptimeMs=31351 fg=true SERVICE-CREATED
+1791864612302 role=phone pid=4308 processUptimeMs=31380 fg=true RECV path=/spike/del/1485d649-2ce1-43ec-aeda-a722e77ade49 from=watch sentTs=1791864610727 recvTs=1791864612301 delayMs=1574
+1791864612342 role=phone pid=4308 processUptimeMs=31421 fg=true DELETE-OK path=/spike/del/1485d649-2ce1-43ec-aeda-a722e77ade49 count=1
+1791864614475 role=phone pid=4308 processUptimeMs=33553 fg=true SERVICE-CREATED
+1791864614600 role=phone pid=4308 processUptimeMs=33678 fg=true RECV path=/spike/del/29567713-4427-419e-8e9f-93a463842344 from=watch sentTs=1791864612766 recvTs=1791864614599 delayMs=1833
+1791864614716 role=phone pid=4308 processUptimeMs=33794 fg=true DELETE-OK path=/spike/del/29567713-4427-419e-8e9f-93a463842344 count=1
+1791864615625 role=phone pid=4308 processUptimeMs=34704 fg=true RECV path=/spike/del/3d848c36-0701-44aa-9911-441161175d13 from=watch sentTs=1791864614046 recvTs=1791864615625 delayMs=1579
+1791864615689 role=phone pid=4308 processUptimeMs=34767 fg=true DELETE-OK path=/spike/del/3d848c36-0701-44aa-9911-441161175d13 count=1
+1791864616656 role=phone pid=4308 processUptimeMs=35735 fg=true RECV path=/spike/del/ca7b2c38-261d-4550-bb6a-f0a49994443c from=watch sentTs=1791864615088 recvTs=1791864616656 delayMs=1568
+1791864616657 role=phone pid=4308 processUptimeMs=35736 fg=true DELETE-SCHEDULED path=/spike/del/ca7b2c38-261d-4550-bb6a-f0a49994443c afterMs=6000
+1791864623409 role=phone pid=4308 processUptimeMs=42488 fg=true DELETE-OK path=/spike/del/ca7b2c38-261d-4550-bb6a-f0a49994443c count=1
+1791864624845 role=phone pid=4308 processUptimeMs=43924 fg=true SERVICE-CREATED
+1791864624984 role=phone pid=4308 processUptimeMs=44062 fg=true RECV path=/spike/del/3df80637-8f43-40ca-b00b-80658443267b from=watch sentTs=1791864622705 recvTs=1791864624984 delayMs=2279
+1791864624984 role=phone pid=4308 processUptimeMs=44063 fg=true DELETE-SCHEDULED path=/spike/del/3df80637-8f43-40ca-b00b-80658443267b afterMs=6000
+1791864631020 role=phone pid=4308 processUptimeMs=50099 fg=true DELETE-OK path=/spike/del/3df80637-8f43-40ca-b00b-80658443267b count=1
+1791864633727 role=phone pid=4308 processUptimeMs=52805 fg=true SERVICE-CREATED
+1791864633736 role=phone pid=4308 processUptimeMs=52815 fg=true RECV path=/spike/del/65b188c2-7230-4a07-baad-ba285e5476ba from=watch sentTs=1791864631773 recvTs=1791864633736 delayMs=1963
+1791864633736 role=phone pid=4308 processUptimeMs=52815 fg=true DELETE-SCHEDULED path=/spike/del/65b188c2-7230-4a07-baad-ba285e5476ba afterMs=6000
+1791864639754 role=phone pid=4308 processUptimeMs=58832 fg=true DELETE-OK path=/spike/del/65b188c2-7230-4a07-baad-ba285e5476ba count=1
+1791864639994 role=phone pid=4308 processUptimeMs=59072 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791864639995 role=phone pid=4308 processUptimeMs=59074 fg=true SEND path=/spike/del/086a8e4c-690b-438f-baff-244fb6d482b4 urgent=true
+1791864640013 role=phone pid=4308 processUptimeMs=59091 fg=true SEND-OK path=/spike/del/086a8e4c-690b-438f-baff-244fb6d482b4 (putDataItem completed locally)
+1791864640351 role=phone pid=4308 processUptimeMs=59430 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791864640352 role=phone pid=4308 processUptimeMs=59431 fg=true SEND path=/spike/del/69041d27-9cc5-4c6f-a2c7-4502d98f77b5 urgent=true
+1791864640378 role=phone pid=4308 processUptimeMs=59456 fg=true SEND-OK path=/spike/del/69041d27-9cc5-4c6f-a2c7-4502d98f77b5 (putDataItem completed locally)
+1791864640818 role=phone pid=4308 processUptimeMs=59897 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791864640820 role=phone pid=4308 processUptimeMs=59899 fg=true SEND path=/spike/del/187f666a-d8ea-459c-8831-2c6613849d5b urgent=true
+1791864640844 role=phone pid=4308 processUptimeMs=59923 fg=true SEND-OK path=/spike/del/187f666a-d8ea-459c-8831-2c6613849d5b (putDataItem completed locally)
+1791864641278 role=phone pid=4308 processUptimeMs=60356 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791864641282 role=phone pid=4308 processUptimeMs=60360 fg=true SEND path=/spike/del/632ad362-ecba-49b3-b8cd-b991fa01ea2f urgent=true
+1791864641304 role=phone pid=4308 processUptimeMs=60383 fg=true SEND-OK path=/spike/del/632ad362-ecba-49b3-b8cd-b991fa01ea2f (putDataItem completed locally)
+1791864647524 role=phone pid=4308 processUptimeMs=66600 fg=true SERVICE-CREATED
+1791864647577 role=phone pid=4308 processUptimeMs=66654 fg=true EVENT-DELETED path=/spike/del/632ad362-ecba-49b3-b8cd-b991fa01ea2f host=faf82461
+1791864648014 role=phone pid=4308 processUptimeMs=67092 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791864648017 role=phone pid=4308 processUptimeMs=67095 fg=true SEND path=/spike/del/13d98bed-d003-4cc7-a95e-ffc26ed038e2 urgent=true
+1791864648040 role=phone pid=4308 processUptimeMs=67119 fg=true SEND-OK path=/spike/del/13d98bed-d003-4cc7-a95e-ffc26ed038e2 (putDataItem completed locally)
+1791864654121 role=phone pid=4308 processUptimeMs=73200 fg=true SERVICE-CREATED
+1791864654129 role=phone pid=4308 processUptimeMs=73208 fg=true EVENT-DELETED path=/spike/del/13d98bed-d003-4cc7-a95e-ffc26ed038e2 host=faf82461
+1791864654726 role=phone pid=4308 processUptimeMs=73804 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791864654728 role=phone pid=4308 processUptimeMs=73806 fg=true SEND path=/spike/del/756c9329-9196-4644-b575-1ebbbb0dde39 urgent=true
+1791864654746 role=phone pid=4308 processUptimeMs=73824 fg=true SEND-OK path=/spike/del/756c9329-9196-4644-b575-1ebbbb0dde39 (putDataItem completed locally)
+1791864660815 role=phone pid=4308 processUptimeMs=79894 fg=true SERVICE-CREATED
+1791864660820 role=phone pid=4308 processUptimeMs=79899 fg=true EVENT-DELETED path=/spike/del/756c9329-9196-4644-b575-1ebbbb0dde39 host=faf82461
+1791864706382 role=phone pid=4308 processUptimeMs=125460 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.LIST_ITEMS kind=null urgent=true
+1791864706388 role=phone pid=4308 processUptimeMs=125467 fg=true ITEMS count=4 wear://faf82461/spike/del/086a8e4c-690b-438f-baff-244fb6d482b4, wear://faf82461/spike/del/187f666a-d8ea-459c-8831-2c6613849d5b, wear://faf82461/spike/del/69041d27-9cc5-4c6f-a2c7-4502d98f77b5, wear://faf82461/spike/del/fbc0584e-fb80-4ff3-82d3-e2c032e5af98

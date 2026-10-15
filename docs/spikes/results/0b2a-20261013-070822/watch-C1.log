@@ -1,0 +1,10 @@
+﻿1791864594180 role=watch pid=30458 processUptimeMs=13396 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791864594243 role=watch pid=30458 processUptimeMs=13459 fg=true SEND path=/spike/del/9e9af8d7-6b76-4e18-8c1e-70a708383167 urgent=true
+1791864594291 role=watch pid=30458 processUptimeMs=13507 fg=true SEND-OK path=/spike/del/9e9af8d7-6b76-4e18-8c1e-70a708383167 (putDataItem completed locally)
+1791864594333 role=watch pid=30458 processUptimeMs=13549 fg=true SERVICE-CREATED
+1791864594386 role=watch pid=30458 processUptimeMs=13602 fg=true EVENT-OWN-WRITE ignored path=/spike/del/9e9af8d7-6b76-4e18-8c1e-70a708383167
+1791864595330 role=watch pid=30458 processUptimeMs=14547 fg=true EVENT-DELETED path=/spike/del/9e9af8d7-6b76-4e18-8c1e-70a708383167 host=48d16a60
+1791864597512 role=watch pid=30458 processUptimeMs=16728 fg=true SERVICE-CREATED
+1791864597525 role=watch pid=30458 processUptimeMs=16741 fg=true RECV path=/spike/del/fbc0584e-fb80-4ff3-82d3-e2c032e5af98 from=phone sentTs=1791864598852 recvTs=1791864597525 delayMs=-1327
+1791864597550 role=watch pid=30458 processUptimeMs=16766 fg=true DELETE-OK path=/spike/del/fbc0584e-fb80-4ff3-82d3-e2c032e5af98 count=1
+1791864597559 role=watch pid=30458 processUptimeMs=16776 fg=true EVENT-DELETED path=/spike/del/fbc0584e-fb80-4ff3-82d3-e2c032e5af98 host=faf82461

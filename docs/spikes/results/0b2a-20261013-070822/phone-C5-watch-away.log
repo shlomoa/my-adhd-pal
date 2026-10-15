@@ -1,0 +1,10 @@
+﻿1791865709512 role=phone pid=6554 processUptimeMs=979111 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1791865709527 role=phone pid=6554 processUptimeMs=979125 fg=false SEND path=/spike/del/4a84f4b4-bfb4-4622-ae0b-91860d217a8c urgent=true
+1791865709553 role=phone pid=6554 processUptimeMs=979151 fg=false SEND-OK path=/spike/del/4a84f4b4-bfb4-4622-ae0b-91860d217a8c (putDataItem completed locally)
+1791865709772 role=phone pid=6554 processUptimeMs=979370 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=keep urgent=true
+1791865709772 role=phone pid=6554 processUptimeMs=979371 fg=false SEND path=/spike/keep/438fc27c-d431-4d01-a0d4-2b687f63865d urgent=true
+1791865709782 role=phone pid=6554 processUptimeMs=979380 fg=false SEND-OK path=/spike/keep/438fc27c-d431-4d01-a0d4-2b687f63865d (putDataItem completed locally)
+1791865709918 role=phone pid=6554 processUptimeMs=979516 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.LIST_NODES kind=null urgent=true
+1791865709922 role=phone pid=6554 processUptimeMs=979520 fg=false NODES count=0 
+1791865773814 role=phone pid=6554 processUptimeMs=1043413 fg=false SERVICE-CREATED
+1791865773882 role=phone pid=6554 processUptimeMs=1043480 fg=false EVENT-DELETED path=/spike/del/4a84f4b4-bfb4-4622-ae0b-91860d217a8c host=faf82461
