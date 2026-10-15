@@ -89,3 +89,7 @@ e: TaskViewModelsTest.kt:103:41 Unresolved reference 'TaskListViewModel'.
 ```
 
 TC-A-013 to 017, 023, 053, 056 and 057 are red until this step lands.
+
+## 4.1 wiring: the Tasks tab
+
+Red commit: 453bee1 (tests only). `TasksWiringTest` (TC-A-089) fails at run time: no node with the text "Tasks" exists, because the home screen has only the Watch and History tabs.

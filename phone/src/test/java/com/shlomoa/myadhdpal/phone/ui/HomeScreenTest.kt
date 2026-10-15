@@ -27,7 +27,8 @@ class HomeScreenTest {
                     link = LinkStateUiState(LinkState.NEARBY, LastSync.Never),
                     history = HistoryUiState(null, ListState.Empty),
                     onFilter = {},
-                    onRetry = {}
+                    onRetry = {},
+                    tasks = {}
                 )
             }
         }
