@@ -20,6 +20,11 @@ every stage, what you should have seen on the watch, and pushes the results as a
 results folder; your own branch and files are untouched). Add `-SkipBuild` to reuse the installed apps, `-SkipPush` to keep
 the results local, `-Phone` and `-Watch` to name the devices.
 
+To feel and see the reminder yourself, add `-WaitForTap`: the script does not press Done. After the Notification stage it prints
+"Feel and look at the watch now, then tap Done" and waits up to `-TapWaitSec` seconds (default 90) for you to tap an action on
+the watch (Done, Snooze, Start 2 min or Dismiss). The Done stage then names the action you tapped and the Ack stage checks that
+action in the phone history. Without a tap in time the Done stage fails and the Ack stage is not run.
+
 ## Stages
 
 | Stage | What is checked | Where it is read from |

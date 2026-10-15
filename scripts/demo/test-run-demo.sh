@@ -37,6 +37,7 @@ run() {
 }
 has() { grep -qE -- "$1" "$tmp/stdout"; }
 branch() { git -C "$tmp/origin.git" for-each-ref --format='%(refname:short)' 'refs/heads/demo-results/*' | head -1; }
+detail() { grep -E "^$1 +" "$tmp/repo/docs/demo/results"/*/results.txt | head -1 | cut -c25-; }
 stage() { grep -E "^$1 +" "$tmp/repo/docs/demo/results"/*/results.txt | head -1 | awk '{print $2}'; }
 
 # --- everything works; the watch is connected by the script (-WatchAddress); results published without device identifiers
@@ -102,5 +103,20 @@ has "time out"; check "TC-W-102 unresponsive watch: says why" 0 $?
 
 NOT_INSTALLED=1 run notinstalled "" -WatchAddress $WATCH -SkipPush; check "TC-W-102 apps not installed with -SkipBuild: exit 2" 2 $rc
 has "app is not installed"; check "TC-W-102 apps not installed with -SkipBuild: says what to do" 0 $?
+
+# --- -WaitForTap: the user taps on the watch, the script does not send Done itself
+FAKE_TAP=DONE:1500 run tap-done "" -WatchAddress $WATCH -SkipPush -WaitForTap -TapWaitSec 8; check "TC-W-102 WaitForTap, Done tapped: exit 0" 0 $rc
+has "Feel and look at the watch now, then tap Done"; check "TC-W-102 WaitForTap: tells the user to look and tap" 0 $?
+check "TC-W-102 WaitForTap, Done tapped: Done PASS" PASS "$(stage Done)"
+detail Done | grep -q "tapped DONE"; check "TC-W-102 WaitForTap, Done tapped: names the action" 0 $?
+check "TC-W-102 WaitForTap, Done tapped: Ack PASS" PASS "$(stage Ack)"
+check "TC-W-102 WaitForTap, Done tapped: the script sent no action itself" 1 "$(grep -c 'ack sent' "$tmp/repo/docs/demo/results"/*/watch.log 2>/dev/null | head -1)"
+FAKE_TAP=SNOOZE:1000 run tap-snooze "" -WatchAddress $WATCH -SkipPush -WaitForTap -TapWaitSec 8; check "TC-W-102 WaitForTap, Snooze tapped: exit 0" 0 $rc
+detail Done | grep -q "tapped SNOOZE"; check "TC-W-102 WaitForTap, Snooze tapped: names the action" 0 $?
+check "TC-W-102 WaitForTap, Snooze tapped: Ack PASS" PASS "$(stage Ack)"
+run no-tap "" -WatchAddress $WATCH -SkipPush -WaitForTap -TapWaitSec 2; check "TC-W-102 WaitForTap, no tap: exit 1" 1 $rc
+check "TC-W-102 WaitForTap, no tap: Done FAIL" FAIL "$(stage Done)"
+check "TC-W-102 WaitForTap, no tap: Ack NOT" NOT "$(stage Ack)"
+detail Done | grep -q "tap"; check "TC-W-102 WaitForTap, no tap: says nothing was tapped" 0 $?
 
 exit $fail
