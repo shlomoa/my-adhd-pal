@@ -235,3 +235,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/spikes/0b2b-plan.md` and `docs/dev-setup-windows.md` no longer say the spike code is never merged or discarded: the apps (debug builds), runners, results and raw logs are in `main`; the user-side and repository-side cleanup lists say nothing is lost by deleting the spike branches, the `spike-results/*` branches (they held `results.txt` only) and `spike-raw-logs-0b2b`; the days-long recheck uses the runner from `main`.
 - Validation: doc lint and link check green.
 - Open items: the user runs the cleanup commands.
+
+## 2026-10-15 - 2.5 Repositories over the real source, event storer and wiring
+
+- Issue and PR: step 2.5 issue; PR linked from the coordinator message; stacked on the 2.4 PR.
+- Changed: `DefaultScheduleRepository`, `DefaultPromptRepository`, `DefaultLinkStatusRepository` (moved from the in-memory references, which are aliases now), `DataStoreScheduleVersionStore`, `WatchEventProcessor` (row first, then `markStored`; phone hello at start), Hilt `StorageModule` and `RepositoryModule`, `MyAdhdPalApp` starts the processor and the source; `docs/data-layer.md` section.
+- Validation: `DefaultRepositoriesTest` (TC-S-092 contracts), `WatchEventProcessorTest` and `DataStoreScheduleVersionStoreTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, Hilt graph, release has no debug code) green.
+- Open items: G3 flip when 2.4 and 2.5 are merged; the hardware demo exercises `GmsDataLayerClient` and the listener service, which have no unit tests against real Play services.
