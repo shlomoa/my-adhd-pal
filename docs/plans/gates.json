@@ -170,8 +170,8 @@
       "name": "Galaxy Watch6 Classic + Galaxy A55 5G available (human)",
       "owner": "user",
       "requires": [],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 124
     }
   ]
 }
