@@ -4,7 +4,7 @@
   and publishes the results.
 
 .DESCRIPTION
-  THROWAWAY spike tooling (never merged to main; discarded in step 0b.3). Works with Windows PowerShell 5.1 and
+  Spike tooling kept as test evidence (docs/spikes/README.md). Works with Windows PowerShell 5.1 and
   PowerShell 7; needs adb and git on PATH. It never restarts or kills a device. One command: it checks that both devices
   are ready (and says which one is not and why), builds and installs the spike apps, drives them with broadcasts (no
   taps), switches the phone's radios with adb to produce the link states, reads `adb logcat -s SPIKE`, writes the
@@ -1136,7 +1136,7 @@ function Publish-Results {
         Copy-Item -Path (Join-Path $OutDir '*') -Destination $target -Recurse -Force
         [void](Invoke-Git $worktree @('checkout', '-q', '-b', $branch))
         if ($script:GitExit -ne 0) { throw "git checkout -b $branch failed" }
-        [void](Invoke-Git $worktree @('add', '--', $relative))
+        [void](Invoke-Git $worktree @('add', '-f', '--', $relative))
         $commit = Invoke-Git $worktree @('commit', '-q', '-m', "Spike 0b.2b results $Stamp")
         if ($script:GitExit -ne 0) { throw ("git commit failed: " + ($commit -join ' ')) }
         Write-Info "Results committed on local branch $branch (only $relative)"

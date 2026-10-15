@@ -22,6 +22,8 @@ keystore.properties
 
 # Logs and crash dumps
 *.log
+# the raw per-case logs of the hardware spikes are evidence (docs/spikes/README.md)
+!docs/spikes/results/**/*.log
 *.hprof
 hs_err_pid*
 

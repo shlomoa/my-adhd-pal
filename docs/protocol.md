@@ -221,6 +221,9 @@ stateDiagram-v2
 
 ## Transport verification: spike 0b.2a (paired emulators)
 
+Why the validation was built this way, how it went, where its pieces live, what could have been faster and the exact
+specification of the spike apps and tests: [`spikes/README.md`](spikes/README.md).
+
 Question set from [`plan.md`](plan.md) section 3: (1) items persist while the receiver is away and arrive on reconnect,
 (2) the phone's listener service wakes with its app closed, (3) a consumed item can be deleted and does not reappear,
 (4) urgent-item delay. The spike apps are kept in the debug builds

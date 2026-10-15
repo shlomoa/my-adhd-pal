@@ -23,6 +23,7 @@ run() {
   git init -q -b main "$tmp/repo"
   mkdir -p "$tmp/repo/scripts" "$tmp/repo/docs"
   cp -r "$here" "$tmp/repo/scripts/spike"; echo base > "$tmp/repo/docs/base.md"
+  echo '*.log' > "$tmp/repo/.gitignore"   # as in the real repository: the raw per-case logs end in .log
   git -C "$tmp/repo" add -A; git -C "$tmp/repo" commit -q -m base
   git -C "$tmp/repo" remote add origin "$tmp/origin.git"
   echo "uncommitted work" > "$tmp/repo/docs/base.md"      # must survive untouched
