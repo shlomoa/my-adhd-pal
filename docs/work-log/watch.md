@@ -253,3 +253,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Open items: the script cannot pass on the real devices until the phone receivers (`PUBLISH_DEMO_SCHEDULE`, `DUMP_HISTORY`, after
   G3) and the real Data Layer transport on both sides exist. The phone receiver class names are a guess to confirm with the Android
   lane (`com.shlomoa.myadhdpal.phone.debug.*`). TC-W-103 is manual and NOT yet run.
+
+## 2026-10-15 - Demo script against the phone receivers (#141)
+
+- Issue and PR: none (demo path), branch `claude/watch-demo-contract`
+- Checked `scripts/demo/run-demo.ps1` against Android #141: component names, action strings, extras (`minutes_ahead`, `title`), the
+  `published schedule ... reminderAt=`, `unchanged` and `publish failed` lines, the `history ack ... reminderId= occurrenceAt=` line and the
+  reminder id `demo` all match. One mismatch: the phone repeats the tag in its messages (`DEMO published ...`); the parser now drops it.
+- Validation: simulated adb changed to the phone's real format first (18 checks red), then fixed: 48 PASS.
+- Open items: TC-W-103 (the user's run on the devices) is NOT yet run.
