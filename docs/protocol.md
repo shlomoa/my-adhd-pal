@@ -122,8 +122,10 @@ changes.
 
 ## Link states
 
-The phone shows one of five states for the watch link. The function that derives it from the connected nodes, the app
-capability and the hello versions is added in step 1.5; the states are fixed now.
+The phone shows one of five states for the watch link. `LinkStateLogic.derive` in `:protocol` (step 1.5) derives it from
+three observations, which the data sources in `:phone` and `:wear` read from the Data Layer: the connected nodes
+(`NodeClient.getConnectedNodes()`, each with `isNearby`), the reachable nodes that declare the capability
+`adhd_pal_watch` (`CapabilityClient`), and the `protocolVersion` of the watch's hello item.
 
 | State | Meaning |
 |---|---|
@@ -132,6 +134,31 @@ capability and the hello versions is added in step 1.5; the states are fixed now
 | Away | no watch is connected |
 | No watch app | a watch is paired, but without the app capability |
 | Incompatible | the watch's hello has an unsupported major version, or is missing or malformed |
+
+Precedence, first match wins:
+
+| Step | Condition | State |
+|---|---|---|
+| 1 | no connected node and no node with the app | Away |
+| 2 | no node with the app | No watch app |
+| 3 | the hello version is present and its major is not the supported one, or it is malformed | Incompatible |
+| 4 | a node with the app is nearby | Nearby |
+| 5 | otherwise | Relayed |
+
+Rules behind the table:
+
+- A watch that is connected but has no app capability is No watch app, whatever its hello says. A watch that is not
+  connected is Away, because the Data Layer reports no paired-but-disconnected node and the app capability of such a
+  watch is unknown.
+- A node with the app that the node list does not (yet) show still counts as a reachable watch: the two Data Layer
+  queries are not atomic, so the capability list decides on its own.
+- No hello item yet (`null`) does not make the link Incompatible. The capability already proves the app is installed,
+  and the watch app writes its hello at start; the version check applies as soon as the hello arrives. An item that
+  cannot be decoded is passed on as malformed text and is Incompatible.
+- With several watches the nearest one with the app decides (any nearby node gives Nearby).
+- Hardware: Nearby, Relayed and Away were seen on the Galaxy A55 5G with the Galaxy Watch6 Classic (spike 0b.2b, below).
+  No watch app and Incompatible are covered by unit tests only. The app must refresh the node list about every 2 s while
+  it shows the state, since the Data Layer offers no documented callback for it.
 
 ## Diagrams
 

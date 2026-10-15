@@ -186,3 +186,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/gates.json` sets G-DEC to merged with `pr` 124. G-SPK1 and H2 are merged, so the hardware results and the DataItems-only decision are on main.
 - Validation: `scripts/require-gate.sh G-SPK1 H2` passes; `scripts/test/test-gates.sh` and `scripts/check-pr-gates.sh` pass.
 - Open items: 1.5 and 1.8b next, then the G2b flip.
+
+## 2026-10-15 - 1.5 Link-state function
+
+- Issue and PR: step 1.5 issue; PR linked from the coordinator message.
+- Changed: `protocol/.../LinkStateLogic.kt` (`LinkStateLogic.derive`, `LinkObservation`, `NodeObservation`, `Capabilities.WATCH_APP` = `adhd_pal_watch`); `docs/protocol.md` link-state section with the precedence table, the rules behind it and what the hardware showed.
+- Validation: `LinkStateTest` written first and red (`shared-baseline.md`), then green (14 tests): TC-S-060..066, an exhaustive case over 5 x 5 x 8 input combinations checked against an independent statement of the rules, malformed and unsupported hello versions, several watches, and a capability the node list does not show yet. spotless, detekt and doc lint green. Nearby, Relayed and Away match the 0b.2b observations; No watch app and Incompatible are unit-tested only.
+- Open items: 1.8b (link-state machine and alert-flow diagrams, TC-S-077..079), then the G2b flip. The watch lane declares the `adhd_pal_watch` capability resource and the data sources (2.4, 2.5) refresh the node list about every 2 s.
