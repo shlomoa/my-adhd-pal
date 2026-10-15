@@ -160,6 +160,12 @@ commit. Evidence that the test can fail instead: with the late-reminder rule bro
 (`if ($lateMs -gt 99999999)`) the test reported `FAIL TC-W-102 late reminder: exit 1 (expected 1, got 0)` and
 `FAIL TC-W-102 late reminder: Reminder FAIL (expected FAIL, got PASS)`; with the real rule it reports no failure (48 checks, including a phone that has nothing new to publish or cannot publish).
 
+### Phone log prefix (Android PR #141 contract check)
+
+The phone app logs `DEMO published ...` (the tag is repeated in the message), the watch app does not. The simulated adb now
+prints the phone lines that way, as on the devices. The script before the fix: 18 of 48 checks FAIL (`./scripts/demo/test-run-demo.sh`,
+the parser did not strip the prefix); after the fix 48 PASS, 0 FAIL.
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

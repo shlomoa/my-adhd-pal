@@ -261,3 +261,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   `run-demo.ps1`, phone away, Bluetooth toggled, paired emulators) and a report template. G3, G4, G5 and H2 are merged.
 - Validation: docs lint only. NOT yet run: TC-W-090 to TC-W-093 and TC-W-103; G7 is not flipped until the user reports results.
 - Open items: the user's runs.
+
+## 2026-10-15 - Demo script against the phone receivers (#141)
+
+- Issue and PR: none (demo path), branch `claude/watch-demo-contract`
+- Checked `scripts/demo/run-demo.ps1` against Android #141: component names, action strings, extras (`minutes_ahead`, `title`), the
+  `published schedule ... reminderAt=`, `unchanged` and `publish failed` lines, the `history ack ... reminderId= occurrenceAt=` line and the
+  reminder id `demo` all match. One mismatch: the phone repeats the tag in its messages (`DEMO published ...`); the parser now drops it.
+- Validation: simulated adb changed to the phone's real format first (18 checks red), then fixed: 48 PASS.
+- Open items: TC-W-103 (the user's run on the devices) is NOT yet run.

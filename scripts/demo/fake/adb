@@ -56,6 +56,8 @@ case "$cmd" in
     while IFS='|' read -r ms r text; do
       [ "$r" = "$role" ] || continue
       [ "$ms" -le "$t" ] || continue
+      # The phone app repeats the tag in the message ("DEMO published ..."), the watch app does not (as on the devices).
+      [ "$role" = phone ] && text="DEMO $text"
       printf '%d.%03d  1234  1234 I DEMO    : %s\n' $((ms / 1000)) $((ms % 1000)) "$text"
     done < "$D/events"
     [ -n "${FAKE_LEAK:-}" ] && printf '%d.000  1234  1234 I DEMO    : signed in as test.user@example.com on %s serial %s token=abc123secret\n' $((t / 1000)) "$WATCH" "$PHONE"

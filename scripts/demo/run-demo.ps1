@@ -167,7 +167,8 @@ function Get-DemoLog {
     foreach ($line in (Invoke-Adb $Serial @('logcat', '-d', '-v', 'epoch', '-s', "${LogTag}:I"))) {
         if ($line -match '^\s*(\d+)\.(\d+)\s+\d+\s+\d+\s+I\s+DEMO\s*:\s*(.*)$') {
             $ms = [int64]$Matches[1] * 1000 + [int64]($Matches[2].PadRight(3, '0').Substring(0, 3))
-            $found += [pscustomobject]@{ Ms = $ms; Text = $Matches[3] }
+            # The phone app repeats the tag at the start of its messages ("DEMO published ..."); drop it.
+            $found += [pscustomobject]@{ Ms = $ms; Text = ($Matches[3] -replace '^DEMO\s+', '') }
         }
     }
     return $found
