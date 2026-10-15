@@ -207,3 +207,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/gates.json` sets G2b to merged with `pr` 131.
 - Validation: `scripts/require-gate.sh G2a G-DEC` passes; `scripts/test/test-gates.sh` passes.
 - Open items: 2.4 and 2.5 (phone Data Layer source and repositories) next, then the G3 flip.
+
+## 2026-10-15 - 2.4 Real phone WatchLinkDataSource over the Data Layer
+
+- Issue and PR: step 2.4 issue; PR linked from the coordinator message.
+- Changed: `phone/.../link/` (`DataLayerClient` seam, `GmsDataLayerClient`, `DataLayerWatchLinkDataSource`, `WatchItemDecoder`, `ScheduleUrgency`, `PhoneLinkListenerService`), `di/LinkModule`, `res/values/wear.xml` (capability `adhd_pal_phone`), the service in the manifest, `play-services-wearable` and `androidx.fragment` as `implementation`, `MyAdhdPalApp` starts the source; `docs/data-layer.md` section.
+- Validation: `DataLayerWatchLinkDataSourceTest` (12 tests) and `ListenerManifestTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, release has no debug code) green. Not run against real Play services here; the hardware demo does that.
+- Open items: 2.5 (schedule, prompt and link-status repositories over this source, the event storer, `/hello/phone` at start, DI), then the G3 flip.

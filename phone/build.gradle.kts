@@ -38,6 +38,8 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(project(":protocol"))
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.play.services.wearable)
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)

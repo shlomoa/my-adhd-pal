@@ -19,5 +19,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Starts the process for items the watch writes, also when the app is closed. -->
+        <service
+            android:name=".link.PhoneLinkListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" />
+                <data android:host="*" />
+                <data android:pathPrefix="/ack/" />
+                <data android:pathPrefix="/selection/" />
+                <data android:pathPrefix="/alert/" />
+                <data android:path="/hello/watch" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

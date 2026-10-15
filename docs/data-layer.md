@@ -90,3 +90,24 @@ the Android lane's step 2.7. The settings, schedule, prompt and link-status repo
   (tasks, reminders, history). A column that must change is added next to the old one, copied, and only dropped in a
   later version once the copy is verified.
 - Version 1 has no migration; `MIGRATIONS` is empty.
+
+## Real Data Layer source (step 2.4)
+
+`phone/.../link/`: `DataLayerWatchLinkDataSource` implements `WatchLinkDataSource` over a small `DataLayerClient`
+(`GmsDataLayerClient` is the Play services implementation, a fake in the tests). The mapping of an item is the four keys
+of `ItemKeys` (`v` int, `id`, `ts` long, `body`), the same as on the watch.
+
+- **Events in.** `PhoneLinkListenerService` (declared in the manifest for `/ack/`, `/selection/`, `/alert/` and
+  `/hello/watch`, so the system starts the process when the app is closed) and `scanExisting()` at start (items that
+  arrived while the process was dead) hand watch-written items to `ingest`. Own writes (item host equals the local node),
+  unknown paths, bad bodies and other major versions are dropped (`WatchItemDecoder`). An item is delivered once until
+  `markStored` deletes it at the watch's node (writer-owns-cleanup: the phone may delete watch-written events after
+  storing them). A hello is never deleted.
+- **Publishing.** `/schedule` (urgent only when the reminders or checkpoints firing in the next 30 minutes change,
+  `ScheduleUrgency`; the first publish after start is urgent), `/prompt/<id>` (urgent), `/hello/phone` (not urgent). A
+  failing write is `PublishResult.Failed` with the reason. `removePrompt` deletes the phone's own prompt.
+- **Link state.** `LinkStateLogic.derive` over `NodeClient.getConnectedNodes()`, the nodes with the capability
+  `adhd_pal_watch` and the version of the watch's hello (declared by the phone as `adhd_pal_phone` in
+  `res/values/wear.xml`). Refreshed every 2 s only while something collects `linkState`, once at start otherwise.
+- **Not covered by unit tests:** `GmsDataLayerClient` and the service against the real Play services (only the manifest
+  filters and the capability resource are checked); the hardware demo covers them.

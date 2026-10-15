@@ -285,3 +285,7 @@ Red commit: `LinkStateTest` asserts `Capabilities.PHONE_APP == "adhd_pal_phone"`
 ## 1.8b Link-state and alert diagrams (red)
 
 Red commit: `scripts/test/test-protocol-spec.sh` extended only (TC-S-077 requires the "Link state machine" and "Alert flow" Mermaid blocks, TC-S-079 compares the diagram's states with the `LinkState` members). Run against `docs/protocol.md` without the two diagrams: FAIL for "Link state machine is a Mermaid block", "is a stateDiagram-v2", "Alert flow is a Mermaid block", "is a sequenceDiagram", "diagram states equal the LinkState members (found: )" and "link-state diagram has a start".
+
+## 2.4 Real phone WatchLinkDataSource (red)
+
+Red commit: `DataLayerWatchLinkDataSourceTest` and `FakeDataLayerClient` only (events from the watch in order, own writes and bad items dropped, one delivery per item until stored, `markStored` deletes at the watch node and not for a hello, publish paths and urgent flags, the schedule urgent rule, `Failed` on a failing write, link state from node lists and hello, scan of items stored while away), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'DataLayerWatchLinkDataSource'` and `'RemoteItem'`.
