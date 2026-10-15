@@ -134,6 +134,15 @@ e: wear/src/test/.../tile/TileUpdateTest.kt:47:9 No parameter with name 'onHandl
 e: wear/src/test/.../tile/TileUpdateTest.kt:84:46 Unresolved reference 'tileFreshness'.
 ```
 
+## Demo hooks (TC-W-100, TC-W-101; `wear/src/test/.../demo/DemoLogTest.kt`, `wear/src/testDebug/.../debug/DemoActionTest.kt`)
+
+Red commit: `0261b13` (tests only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../demo/DemoLogTest.kt:30:9 Unresolved reference 'DemoLog'.
+e: wear/src/testDebug/.../debug/DemoActionTest.kt:22:23 Unresolved reference 'performDemoAction'.
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

@@ -6,6 +6,7 @@ import com.shlomoa.myadhdpal.protocol.LinkTransport
 import com.shlomoa.myadhdpal.protocol.Paths
 import com.shlomoa.myadhdpal.protocol.SnoozeDenial
 import com.shlomoa.myadhdpal.protocol.SnoozeResult
+import com.shlomoa.myadhdpal.wear.demo.DemoLog
 import com.shlomoa.myadhdpal.wear.log.Logger
 import com.shlomoa.myadhdpal.wear.scheduler.ReminderScheduler
 import java.time.Instant
@@ -87,12 +88,14 @@ class ReminderActionHandler(
         val link = transport()
         if (link == null) {
             Logger.w(TAG, "no transport yet, the acknowledgement was not sent")
+            DemoLog.ackNotSent(action.ack, reminderId, "no transport")
             return
         }
         val at = now().toEpochMilli()
         val message = Acknowledgement(action.ack, at, reminderId, occurrenceAt.toEpochMilli())
         val id = newId()
         link.put(Paths.ack(id), Codec.encode(id, at, message))
+        DemoLog.ackSent(action.ack, reminderId, occurrenceAt)
     }
 
     private fun remember(key: String): Boolean {

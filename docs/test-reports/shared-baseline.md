@@ -281,3 +281,7 @@ Red commit: `scripts/test/test-spike.sh` only (TC-S-145, TC-S-146), run against 
 ## Spike content: raw logs and receiver permission (red)
 
 Red: `test-run-0b2b.sh` with a `.gitignore` containing `*.log` in its temporary repository (as in the real repository), against the runner without the fix: FAIL "results table and raw per-case logs (L2, L3) are in the commit" and FAIL "the redaction markers are present" (the logs were never committed because `git add` skips ignored files). `test-spike.sh` gets the check "the command receiver is protected by the DUMP permission", which the receiver did not have (CI lint reported `ExportedReceiver`, and `WearRecents` for the watch activity without `taskAffinity`).
+
+## 1.8b Link-state and alert diagrams (red)
+
+Red commit: `scripts/test/test-protocol-spec.sh` extended only (TC-S-077 requires the "Link state machine" and "Alert flow" Mermaid blocks, TC-S-079 compares the diagram's states with the `LinkState` members). Run against `docs/protocol.md` without the two diagrams: FAIL for "Link state machine is a Mermaid block", "is a stateDiagram-v2", "Alert flow is a Mermaid block", "is a sequenceDiagram", "diagram states equal the LinkState members (found: )" and "link-state diagram has a start".
