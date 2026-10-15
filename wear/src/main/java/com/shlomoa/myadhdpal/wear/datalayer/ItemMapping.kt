@@ -14,17 +14,14 @@ fun Envelope.toFields(): Map<String, Any> = mapOf(
 )
 
 /** Null when a key is missing or has the wrong type: such an item is dropped. */
-fun envelopeOf(fields: Map<String, Any?>): Envelope? {
-    val version = fields[ItemKeys.VERSION] as? Int
-    val id = fields[ItemKeys.ID] as? String
-    val timestamp = fields[ItemKeys.TIMESTAMP] as? Long
-    val body = fields[ItemKeys.BODY] as? String
-    return if (version == null || id == null || timestamp == null || body == null) {
-        null
-    } else {
-        Envelope(version, id, timestamp, body)
+fun envelopeOf(fields: Map<String, Any?>): Envelope? =
+    (fields[ItemKeys.VERSION] as? Int)?.let { version ->
+        (fields[ItemKeys.ID] as? String)?.let { id ->
+            (fields[ItemKeys.TIMESTAMP] as? Long)?.let { timestamp ->
+                (fields[ItemKeys.BODY] as? String)?.let { body -> Envelope(version, id, timestamp, body) }
+            }
+        }
     }
-}
 
 /** Items the user waits for are sent as urgent (`docs/protocol.md`, item catalog); hello and schedule items are not. */
 fun isUrgent(path: String): Boolean = when (Paths.parse(path)) {

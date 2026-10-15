@@ -9,7 +9,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ItemMappingTest {
-    private val envelope = Envelope(version = 1, id = "11111111-1111-4111-8111-111111111111", timestamp = 42L, body = "{}")
+    private val envelope =
+        Envelope(version = 1, id = "11111111-1111-4111-8111-111111111111", timestamp = 42L, body = "{}")
 
     @Test
     fun `TC-W-117 the mapping round trips the four keys`() {
