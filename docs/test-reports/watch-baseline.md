@@ -143,6 +143,16 @@ e: wear/src/test/.../demo/DemoLogTest.kt:30:9 Unresolved reference 'DemoLog'.
 e: wear/src/testDebug/.../debug/DemoActionTest.kt:22:23 Unresolved reference 'performDemoAction'.
 ```
 
+## Data Layer transport (TC-W-110 to TC-W-117; `wear/src/test/.../datalayer/`)
+
+Red commit: `03b5d22` (tests only). Command: `./gradlew :wear:testDebugUnitTest`.
+Build fails before any test runs.
+
+```
+e: wear/src/test/.../datalayer/CachedTransportTest.kt:12:28 Unresolved reference 'ItemWriter'.
+e: wear/src/test/.../datalayer/CachedTransportTest.kt:43:29 Unresolved reference 'CachedTransport'.
+```
+
 ## Demo script (TC-W-102; `scripts/demo/test-run-demo.sh`)
 
 The script and its simulated `adb` were written together, because each defines the other's contract, so there is no separate red
