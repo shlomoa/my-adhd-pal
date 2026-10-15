@@ -186,3 +186,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: the spike apps move from the spike branches into the debug source sets (`phone/src/debug/.../phone/debug/spike`, `wear/src/debug/.../wear/debug/spike`, manifest entries in `src/debug/AndroidManifest.xml`; `:phone` gets `debugImplementation(play-services-wearable)`). The package contains `debug`, so the existing `checkNoDebugInRelease` covers it, and release builds hold no spike class. `scripts/spike/` (both runners with the C3d fix, simulated adb for both, both test suites) and `docs/spikes/0b2a-checklist.md` plus the partial first emulator run come from the spike branches; component names in the runners follow the new package. detekt skips `**/debug/spike/**` (the code stays as it was run, spotless still formats it). `docs/protocol.md` and `docs/plan.md` no longer say the spike code is discarded. `scripts/test/test-spike.sh` (TC-S-145, TC-S-146) runs in the `script-tests` CI job.
 - Validation: `test-spike.sh` written first and red against main (`shared-baseline.md`), then green: both simulated suites pass (66 and 71 checks), `assembleDebug` and `assembleRelease` succeed, the debug APKs contain the spike classes and manifest entries and the release APKs contain neither, `checkNoDebugInRelease`, spotless and detekt green.
 - Open items: PR B (detailed documentation in `docs/spikes/README.md`); raw per-case logs of 0b.2b wait for the branch `spike-raw-logs-0b2b` from the user; the 0b.2a raw logs are not in the repository (only the partial first run), so they exist at most on the user's PC.
+
+## 2026-10-15 - Gate G-DEC: 0b.2b hardware spike and 0b.3 decision
+
+- Issue and PR: #24 (0b.2b) and the 0b.3 issue; PR linked from the coordinator message. Gate PR 124 is the 0b.2b/0b.3 results PR.
+- Changed: `docs/plans/gates.json` sets G-DEC to merged with `pr` 124. G-SPK1 and H2 are merged, so the hardware results and the DataItems-only decision are on main.
+- Validation: `scripts/require-gate.sh G-SPK1 H2` passes; `scripts/test/test-gates.sh` and `scripts/check-pr-gates.sh` pass.
+- Open items: 1.5 and 1.8b next, then the G2b flip.
