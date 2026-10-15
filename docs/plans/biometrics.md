@@ -1,7 +1,7 @@
 # Biometric alerts: decisions (step 6.2, gate H1)
 
 Decision document for step 6.2 ([issue #55](https://github.com/shlomoa/my-adhd-pal/issues/55)). The user's answers to the
-proposal are in the issue (comment of 2026-10-15). Gate **H1 flips only after the user confirms this document**, in a
+proposal are in the body of the issue (section "Decisions"). Gate **H1 flips only after the user confirms this document**, in a
 separate one-line PR. Research notes: [`../research/watch.md`](../research/watch.md) sections 3 to 5. Steps 6.3 to 6.8 in
 [`watch.md`](watch.md) follow once H1 and G2b are merged.
 
