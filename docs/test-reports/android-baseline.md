@@ -77,3 +77,15 @@ e: HomeScreenTest.kt:26:17 Unresolved reference 'HomeScreen'.
 ```
 
 TC-A-086 and TC-A-087 are red (`MainActivityWiringTest` also fails at run time: `MainActivity` still shows the greeting). TC-A-088 is manual on the devices.
+
+## 4.1a Task ViewModels
+
+Red commit: 5fcf014 (tests only). Command: `./gradlew :phone:testDebugUnitTest --tests '*TaskViewModelsTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: TaskViewModelsTest.kt:32:9 Unresolved reference 'TaskEditViewModel'.
+e: TaskViewModelsTest.kt:58:22 Unresolved reference 'TitleError'.
+e: TaskViewModelsTest.kt:103:41 Unresolved reference 'TaskListViewModel'.
+```
+
+TC-A-013 to 017, 023, 053, 056 and 057 are red until this step lands.

@@ -15,11 +15,16 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryType
+import com.shlomoa.myadhdpal.phone.data.Task
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryScreen
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryUiState
 import com.shlomoa.myadhdpal.phone.ui.link.LastSync
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateScreen
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
+import com.shlomoa.myadhdpal.phone.ui.tasks.TaskEditScreen
+import com.shlomoa.myadhdpal.phone.ui.tasks.TaskEditUiState
+import com.shlomoa.myadhdpal.phone.ui.tasks.TaskListScreen
+import com.shlomoa.myadhdpal.phone.ui.tasks.TitleError
 import com.shlomoa.myadhdpal.protocol.AckAction
 import com.shlomoa.myadhdpal.protocol.LinkState
 import java.time.Duration
@@ -54,6 +59,21 @@ class AccessibilityTest {
         },
         "history filtered" to {
             HistoryScreen(HistoryUiState(HistoryType.ALERT, ListState.Empty), onFilter = {}, onRetry = {})
+        },
+        "task list content" to {
+            TaskListScreen(
+                ListState.Content(listOf(Task("t-1", "Take the pills"))),
+                onAdd = {},
+                onOpen = {},
+                onDelete = {},
+                onRetry = {}
+            )
+        },
+        "task list failed" to {
+            TaskListScreen(ListState.Failed("disk"), onAdd = {}, onOpen = {}, onDelete = {}, onRetry = {})
+        },
+        "task edit with error" to {
+            TaskEditScreen(TaskEditUiState("", TitleError.BLANK, false), onTitle = {}, onSave = {}, onCancel = {})
         },
         "home with tabs" to {
             HomeScreen(
