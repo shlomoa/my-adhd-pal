@@ -34,6 +34,6 @@ class DemoSchedulePublisher(
         const val MAX_MINUTES_AHEAD = 1_440
         private const val MINUTES_PER_HOUR = 60
         const val TASK_ID = "demo-task"
-        const val REMINDER_ID = "demo-reminder"
+        const val REMINDER_ID = "demo"
     }
 }

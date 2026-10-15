@@ -38,6 +38,7 @@ class DemoSchedulePublisherTest {
     fun `TC-A-073 a reminder is set two minutes ahead by default`() = runTest {
         publisher(noon).publish()
         val reminder = source.publishedSchedules.single().reminders.single()
+        assertEquals("demo", reminder.id)
         assertEquals(12 * 60 + 2, reminder.minuteOfDay)
         assertEquals(listOf(3), reminder.days)
     }
