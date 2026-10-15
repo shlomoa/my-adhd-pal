@@ -45,3 +45,13 @@ Every case below is red until its step lands:
 | not unit tests | TC-A-009, 011, 030, 038, 044, 052, 060 to 072: manual, CI or docs; ids in `ManualCases.kt` |
 
 `scripts/check-test-cases.sh android baseline` exits 0 (every id appears in a test source).
+
+## Demo schedule publisher (debug only)
+
+Red commit: dcce700 (tests and catalogue rows only, no implementation). Command: `./gradlew :phone:testDebugUnitTest --tests '*DemoSchedulePublisherTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: DemoSchedulePublisherTest.kt:32:9 Unresolved reference 'DemoSchedulePublisher'.
+```
+
+TC-A-073 to TC-A-078 are red. TC-A-079 is the `checkNoDebugInRelease` CI check and TC-A-080 is manual on the devices (ids in `DemoManualCases`).
