@@ -93,3 +93,14 @@ TC-A-013 to 017, 023, 053, 056 and 057 are red until this step lands.
 ## 4.1 wiring: the Tasks tab
 
 Red commit: 453bee1 (tests only). `TasksWiringTest` (TC-A-089) fails at run time: no node with the text "Tasks" exists, because the home screen has only the Watch and History tabs.
+
+## 4.1b Reminder edit ViewModel
+
+Red commit: 99279df (tests only). Command: `./gradlew :phone:testDebugUnitTest --tests '*ReminderEditViewModelTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: ReminderEditViewModelTest.kt:24:72 Unresolved reference 'ReminderEditViewModel'.
+e: ReminderEditViewModelTest.kt:32:12 Unresolved reference 'setMinuteOfDay'.
+```
+
+TC-A-018 to TC-A-022 are red until this step lands.

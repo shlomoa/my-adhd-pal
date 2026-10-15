@@ -34,4 +34,15 @@
     <string name="task_error_too_long">That is too long. Keep it under 200 characters.</string>
     <string name="task_save">Save</string>
     <string name="task_cancel">Cancel</string>
+    <string name="reminder_time_label">Time</string>
+    <string name="reminder_days_label">Days</string>
+    <string name="reminder_error_time">Pick a time.</string>
+    <string name="reminder_error_days">Pick at least one day.</string>
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+    <string name="day_sun">Sun</string>
 </resources>
