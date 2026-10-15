@@ -124,8 +124,9 @@ changes.
 
 The phone shows one of five states for the watch link. `LinkStateLogic.derive` in `:protocol` (step 1.5) derives it from
 three observations, which the data sources in `:phone` and `:wear` read from the Data Layer: the connected nodes
-(`NodeClient.getConnectedNodes()`, each with `isNearby`), the reachable nodes that declare the capability
-`adhd_pal_watch` (`CapabilityClient`), and the `protocolVersion` of the watch's hello item.
+(`NodeClient.getConnectedNodes()`, each with `isNearby`), the reachable nodes that declare the peer's capability
+(`adhd_pal_watch` for the phone, `adhd_pal_phone` for the watch; `CapabilityClient`), and the `protocolVersion` of the
+peer's hello item. The watch calls the same function and shows No watch app (there: no phone app) as Away.
 
 | State | Meaning |
 |---|---|

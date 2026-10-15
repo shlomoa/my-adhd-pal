@@ -277,3 +277,7 @@ Red commit: `ComposeUiTestSampleTest` only (TC-S-144), before the dependencies e
 ## 1.5 Link-state function (red)
 
 Red commit: `LinkStateTest` only (TC-S-060..066, one table-driven exhaustive case over 5 x 5 x 8 input combinations, the capability name), no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'NodeObservation'`, `'LinkStateLogic'`, `'LinkObservation'`.
+
+## 1.5 follow-up: both capability names (red)
+
+Red commit: `LinkStateTest` asserts `Capabilities.PHONE_APP == "adhd_pal_phone"`, before the constant exists. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'PHONE_APP'`.

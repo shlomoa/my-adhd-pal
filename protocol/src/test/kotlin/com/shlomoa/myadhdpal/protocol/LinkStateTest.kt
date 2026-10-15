@@ -125,7 +125,8 @@ class LinkStateTest {
     }
 
     @Test
-    fun `the watch app capability name is fixed`() {
+    fun `the capability names are fixed`() {
         assertEquals("adhd_pal_watch", Capabilities.WATCH_APP)
+        assertEquals("adhd_pal_phone", Capabilities.PHONE_APP)
     }
 }
