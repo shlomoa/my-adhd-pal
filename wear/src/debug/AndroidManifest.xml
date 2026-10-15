@@ -24,11 +24,12 @@
             android:permission="android.permission.DUMP" />
 
         <!-- Hardware spike apps (docs/spikes/README.md): a second launcher entry, a command receiver driven by
-             adb broadcasts and a listener service that logs Data Layer events. Debug builds only. -->
+             adb broadcasts (protected by DUMP, which only `adb shell` holds) and a listener service that logs Data Layer events. Debug builds only. -->
         <activity
             android:name=".debug.spike.SpikeActivity"
             android:exported="true"
-            android:label="Spike">
+            android:label="Spike"
+            android:taskAffinity="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -37,7 +38,8 @@
 
         <receiver
             android:name=".debug.spike.SpikeCommandReceiver"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
 
         <service
             android:name=".debug.spike.SpikeListenerService"

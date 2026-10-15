@@ -1,0 +1,18 @@
+1792044554568 role=watch pid=12113 processUptimeMs=1354243 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.LIST_NODES kind=null urgent=true
+1792044554575 role=watch pid=12113 processUptimeMs=1354249 fg=false NODES count=1 Shlomo's A55(nearby=true)
+1792044557614 role=watch pid=12113 processUptimeMs=1357288 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.LIST_NODES kind=null urgent=true
+1792044557642 role=watch pid=12113 processUptimeMs=1357316 fg=false NODES count=0 
+1792044563154 role=watch pid=12113 processUptimeMs=1362829 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=del urgent=true
+1792044563163 role=watch pid=12113 processUptimeMs=1362837 fg=false SEND path=/spike/del/a976be6c-0f8d-41c6-8c29-d62c1807322b urgent=true
+1792044563210 role=watch pid=12113 processUptimeMs=1362884 fg=false SEND-OK path=/spike/del/a976be6c-0f8d-41c6-8c29-d62c1807322b (putDataItem completed locally)
+1792044564211 role=watch pid=12113 processUptimeMs=1363885 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=keep urgent=true
+1792044564219 role=watch pid=12113 processUptimeMs=1363894 fg=false SEND path=/spike/keep/f3eeaf45-8390-49da-8fb3-9f0c6ff7156e urgent=true
+1792044564244 role=watch pid=12113 processUptimeMs=1363919 fg=false SEND-OK path=/spike/keep/f3eeaf45-8390-49da-8fb3-9f0c6ff7156e (putDataItem completed locally)
+1792044569484 role=watch pid=12113 processUptimeMs=1369158 fg=false SERVICE-CREATED
+1792044570135 role=watch pid=12113 processUptimeMs=1369810 fg=false RECV path=/spike/del/4ff35bdd-c04b-48c9-9618-302097d4bd81 from=phone sentTs=1792044558841 recvTs=1792044570135 delayMs=11294
+1792044570402 role=watch pid=12113 processUptimeMs=1370076 fg=false RECV path=/spike/keep/b4514402-ad00-4fe4-b681-042b3bc26bab from=phone sentTs=1792044559637 recvTs=1792044570402 delayMs=10765
+1792044574260 role=watch pid=12113 processUptimeMs=1373935 fg=false SERVICE-CREATED
+1792044574276 role=watch pid=12113 processUptimeMs=1373950 fg=false EVENT-DELETED path=/spike/del/a976be6c-0f8d-41c6-8c29-d62c1807322b host=8a2864cc
+1792044575101 role=watch pid=12113 processUptimeMs=1374775 fg=false DELETE-OK path=/spike/del/4ff35bdd-c04b-48c9-9618-302097d4bd81 count=1
+1792044583563 role=watch pid=12113 processUptimeMs=1383238 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.LIST_NODES kind=null urgent=true
+1792044583716 role=watch pid=12113 processUptimeMs=1383390 fg=false NODES count=1 Shlomo's A55(nearby=true)

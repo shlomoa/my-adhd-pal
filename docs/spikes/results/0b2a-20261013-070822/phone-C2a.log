@@ -1,0 +1,4 @@
+﻿1791864708978 role=phone pid=4308 processUptimeMs=128057 fg=true SERVICE-CREATED
+1791864708993 role=phone pid=4308 processUptimeMs=128071 fg=true RECV path=/spike/keep/835a9103-3b04-4bf2-8de7-6212f95b20ab from=watch sentTs=1791864707466 recvTs=1791864708993 delayMs=1527
+1791864712284 role=phone pid=4308 processUptimeMs=131362 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.LIST_ITEMS kind=null urgent=true
+1791864712288 role=phone pid=4308 processUptimeMs=131367 fg=true ITEMS count=5 wear://faf82461/spike/del/086a8e4c-690b-438f-baff-244fb6d482b4, wear://faf82461/spike/del/187f666a-d8ea-459c-8831-2c6613849d5b, wear://faf82461/spike/del/69041d27-9cc5-4c6f-a2c7-4502d98f77b5, wear://faf82461/spike/del/fbc0584e-fb80-4ff3-82d3-e2c032e5af98, wear://48d16a60/spike/keep/835a9103-3b04-4bf2-8de7-6212f95b20ab

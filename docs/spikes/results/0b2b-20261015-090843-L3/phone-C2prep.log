@@ -1,0 +1,4 @@
+1792044545899 role=phone pid=19657 processUptimeMs=103604 fg=true SERVICE-CREATED
+1792044545915 role=phone pid=19657 processUptimeMs=103620 fg=true RECV path=/spike/del/3c7638e1-e08c-4807-af79-99a7d9437fe6 from=watch sentTs=1792044545291 recvTs=1792044545915 delayMs=624
+1792044545927 role=phone pid=19657 processUptimeMs=103632 fg=true DELETE-OK path=/spike/del/3c7638e1-e08c-4807-af79-99a7d9437fe6 count=1
+1792044546514 role=phone pid=19657 processUptimeMs=104219 fg=true RECV path=/spike/keep/fcad1890-3ba0-441b-a4ff-6eb8b009ce37 from=watch sentTs=1792044546176 recvTs=1792044546514 delayMs=338

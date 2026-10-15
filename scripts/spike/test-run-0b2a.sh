@@ -23,6 +23,7 @@ run() {
   git init -q --bare "$tmp/origin.git"
   git init -q -b main "$tmp/repo"
   mkdir -p "$tmp/repo/scripts" "$tmp/repo/docs"
+  echo "*.log" > "$tmp/repo/.gitignore"   # as in the real repository: the raw per-case logs end in .log
   cp -r "$here" "$tmp/repo/scripts/spike"; echo base > "$tmp/repo/docs/base.md"
   git -C "$tmp/repo" add -A; git -C "$tmp/repo" commit -q -m base
   git -C "$tmp/repo" remote add origin "${ORIGIN_URL:-$tmp/origin.git}"

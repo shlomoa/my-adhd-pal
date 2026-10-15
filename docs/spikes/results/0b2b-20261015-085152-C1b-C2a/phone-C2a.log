@@ -1,0 +1,4 @@
+1792043646367 role=phone pid=13750 processUptimeMs=447190 fg=true SERVICE-CREATED
+1792043646386 role=phone pid=13750 processUptimeMs=447209 fg=true RECV path=/spike/keep/eb159db9-2c3c-4e3d-b4a6-4b80220a9561 from=watch sentTs=1792043645705 recvTs=1792043646386 delayMs=681
+1792043652536 role=phone pid=13750 processUptimeMs=453359 fg=true COMMAND action=com.shlomoa.myadhdpal.spike.LIST_ITEMS kind=null urgent=true
+1792043652542 role=phone pid=13750 processUptimeMs=453365 fg=true ITEMS count=1 wear://8a2864cc/spike/keep/eb159db9-2c3c-4e3d-b4a6-4b80220a9561

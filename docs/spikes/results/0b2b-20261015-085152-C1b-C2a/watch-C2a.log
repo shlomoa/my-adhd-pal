@@ -1,0 +1,5 @@
+1792043645703 role=watch pid=12113 processUptimeMs=445378 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.SEND kind=keep urgent=true
+1792043645713 role=watch pid=12113 processUptimeMs=445387 fg=false SEND path=/spike/keep/eb159db9-2c3c-4e3d-b4a6-4b80220a9561 urgent=true
+1792043645742 role=watch pid=12113 processUptimeMs=445417 fg=false SEND-OK path=/spike/keep/eb159db9-2c3c-4e3d-b4a6-4b80220a9561 (putDataItem completed locally)
+1792043655051 role=watch pid=12113 processUptimeMs=454726 fg=false COMMAND action=com.shlomoa.myadhdpal.spike.LIST_ITEMS kind=null urgent=true
+1792043655059 role=watch pid=12113 processUptimeMs=454733 fg=false ITEMS count=1 wear://8a2864cc/spike/keep/eb159db9-2c3c-4e3d-b4a6-4b80220a9561

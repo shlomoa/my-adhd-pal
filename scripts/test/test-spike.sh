@@ -23,6 +23,9 @@ for m in phone wear; do
     grep -q "android:name=\".debug.spike.$c\"" "$root/$m/src/debug/AndroidManifest.xml"; check "TC-S-145 $m: the debug manifest declares $c" $?
   done
 
+  tr -d '\n' < "$root/$m/src/debug/AndroidManifest.xml" | grep -Eq 'SpikeCommandReceiver"[^>]*android:permission="android.permission.DUMP"'
+  check "TC-S-145 $m: the command receiver is protected by the DUMP permission (only adb shell can send to it)" $?
+
   # the release check of build.gradle.kts finds a class whose package contains `debug`: the spike package qualifies
   grep -q "^package com.shlomoa.myadhdpal.$m.debug.spike" "$dir/Spike.kt"; check "TC-S-145 $m: the spike package is a debug package" $?
 

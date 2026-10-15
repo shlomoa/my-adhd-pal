@@ -3,7 +3,7 @@
   Runs the 0b.2a Data Layer spike on a paired phone + watch emulator pair, hands-off, and publishes the results.
 
 .DESCRIPTION
-  THROWAWAY spike tooling (never merged). Works with Windows PowerShell 5.1 and PowerShell 7; needs adb and git on PATH.
+  Spike tooling kept as test evidence (docs/spikes/README.md). Works with Windows PowerShell 5.1 and PowerShell 7; needs adb and git on PATH.
   One command: it finds the two emulators, builds and installs the spike apps, drives them with broadcasts (no taps),
   reads `adb logcat -s SPIKE`, runs the cases, writes the results table and raw per-case logs to
   docs/spikes/results/0b2a-<yyyyMMdd-HHmmss>/ and commits ONLY that folder on a new branch
@@ -827,7 +827,7 @@ function Publish-Results {
         Copy-Item -Path (Join-Path $OutDir '*') -Destination $target -Recurse -Force
         [void](Invoke-Git $worktree @('checkout', '-q', '-b', $branch))
         if ($script:GitExit -ne 0) { throw "git checkout -b $branch failed" }
-        [void](Invoke-Git $worktree @('add', '--', $relative))
+        [void](Invoke-Git $worktree @('add', '-f', '--', $relative))
         $commit = Invoke-Git $worktree @('commit', '-q', '-m', "Spike 0b.2a results $Stamp")
         if ($script:GitExit -ne 0) { throw ("git commit failed: " + ($commit -join ' ')) }
         Write-Info "Results committed on local branch $branch (only $relative)"

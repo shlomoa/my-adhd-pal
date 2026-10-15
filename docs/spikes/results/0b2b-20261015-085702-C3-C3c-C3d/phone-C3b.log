@@ -1,0 +1,3 @@
+1792043866464 role=phone pid=15748 processUptimeMs=171 fg=false SERVICE-CREATED
+1792043866537 role=phone pid=15748 processUptimeMs=244 fg=false RECV path=/spike/del/9af27586-7fb7-40f6-8bec-cf3e7f1ee340 from=watch sentTs=1792043864941 recvTs=1792043866536 delayMs=1595
+1792043866613 role=phone pid=15748 processUptimeMs=320 fg=false DELETE-OK path=/spike/del/9af27586-7fb7-40f6-8bec-cf3e7f1ee340 count=1
