@@ -270,3 +270,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   reminder id `demo` all match. One mismatch: the phone repeats the tag in its messages (`DEMO published ...`); the parser now drops it.
 - Validation: simulated adb changed to the phone's real format first (18 checks red), then fixed: 48 PASS.
 - Open items: TC-W-103 (the user's run on the devices) is NOT yet run.
+
+## 2026-10-15 - Biometric decision document (step 6.2)
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), branch `claude/watch-biometrics-plan`
+- Changed: `docs/plans/biometrics.md` with the user's decisions D1 to D8 (D3 relative threshold resting + 30 bpm with a 20 to 50
+  phone setting, D4 5-minute cooldown with an escalation level, D5 strongest safe alert, D7 permission requested from the phone),
+  the research behind the open points (resting baseline source, phone-triggered permission, Do Not Disturb, Bedtime and
+  vibration-intensity limits, full-screen intent) each marked verified, unverified or proposal, the probe that must run on the
+  watch first, and the changes owed by the Shared and Android lanes.
+- Validation: docs lint. H1 is NOT flipped: it flips in a separate one-line PR after the user confirms the document.
+- Open items: five questions for the user at the end of the document; the real-watch probe (H2).
