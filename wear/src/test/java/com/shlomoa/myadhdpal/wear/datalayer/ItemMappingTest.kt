@@ -3,7 +3,9 @@ package com.shlomoa.myadhdpal.wear.datalayer
 import com.shlomoa.myadhdpal.protocol.Envelope
 import com.shlomoa.myadhdpal.protocol.ItemKeys
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ItemMappingTest {
@@ -24,5 +26,14 @@ class ItemMappingTest {
         assertNull(envelopeOf(good + (ItemKeys.TIMESTAMP to "42")))
         assertNull(envelopeOf(good + (ItemKeys.VERSION to 1L)))
         assertNull(envelopeOf(emptyMap()))
+    }
+
+    @Test
+    fun `TC-W-119 prompts, acks, selections and alerts are urgent, hello and schedule are not`() {
+        val id = "11111111-1111-4111-8111-111111111111"
+        listOf("/prompt/$id", "/ack/$id", "/selection/$id", "/alert/$id").forEach { assertTrue(it, isUrgent(it)) }
+        listOf("/hello/watch", "/hello/phone", "/schedule", "/debug/biometrics", "/ack/bad").forEach {
+            assertFalse(it, isUrgent(it))
+        }
     }
 }

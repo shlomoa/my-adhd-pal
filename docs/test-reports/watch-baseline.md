@@ -145,7 +145,7 @@ e: wear/src/testDebug/.../debug/DemoActionTest.kt:22:23 Unresolved reference 'pe
 
 ## Data Layer transport (TC-W-110 to TC-W-117; `wear/src/test/.../datalayer/`)
 
-Red commit: see the branch `claude/watch-datalayer` (tests only, first commit). Command: `./gradlew :wear:testDebugUnitTest`.
+Red commit: `03b5d22` (tests only). Command: `./gradlew :wear:testDebugUnitTest`.
 Build fails before any test runs.
 
 ```

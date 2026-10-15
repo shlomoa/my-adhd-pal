@@ -144,6 +144,7 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-115 | demo | unit | A load that finishes after a local `put` or `delete` keeps the local change | the local state wins |
 | TC-W-116 | demo | unit | The link state is read from the injected observation, and a changed state reaches the listener once | one callback per change |
 | TC-W-117 | demo | unit | The `DataMap` mapping round-trips the four keys and rejects an item with a missing or mistyped key | equal envelope; null for a bad item |
+| TC-W-119 | demo | unit | Prompt, ack, selection and alert items are written urgent; hello, schedule and unknown paths are not | `isUrgent` per path |
 | TC-W-118 | demo | manual | On the real watch the phone's schedule arrives with the app closed and an ack reaches the phone | user reports (part of TC-W-015, TC-W-103) |
 
 ## Final (W-final)

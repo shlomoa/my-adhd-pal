@@ -40,7 +40,7 @@ class CachedTransportTest {
     private val writer = Writer()
     private val recorder = Recorder()
     private var state = LinkState.AWAY
-    private val transport = CachedTransport(writer, localNodeId = "watch-1", observeLinkState = { state })
+    private val transport = CachedTransport(writer, localNodeId = { "watch-1" }, observeLinkState = { state })
         .also { it.setListener(recorder) }
 
     private fun envelope(id: String) = Envelope(version = 1, id = id, timestamp = 1L, body = "{}")
@@ -102,6 +102,14 @@ class CachedTransportTest {
         )
         val byPath = transport.items().associate { it.path to it.envelope.id }
         assertEquals(mapOf("/hello/watch" to "new", "/schedule" to "s"), byPath)
+    }
+
+    @Test
+    fun `TC-W-115 a load that finishes after a Data Layer event keeps the event`() {
+        transport.onDataChanged("/schedule", envelope("fresh"), originNodeId = "phone-1")
+        transport.onDataDeleted("/prompt/p", originNodeId = "phone-1")
+        transport.load(listOf(StoredItem("/schedule", envelope("stale")), StoredItem("/prompt/p", envelope("p"))))
+        assertEquals(listOf(StoredItem("/schedule", envelope("fresh"))), transport.items())
     }
 
     @Test

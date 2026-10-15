@@ -21,7 +21,7 @@ interface ItemWriter {
  */
 class CachedTransport(
     private val writer: ItemWriter,
-    private val localNodeId: String,
+    private val localNodeId: () -> String,
     private val observeLinkState: () -> LinkState
 ) : LinkTransport {
     private val lock = Any()
@@ -33,7 +33,7 @@ class CachedTransport(
     override val linkState: LinkState
         get() = observeLinkState()
 
-    /** Adds the stored items that no local change has touched since the cache was created. */
+    /** Adds the stored items that no change, local or from the Data Layer, has touched since the cache was created. */
     fun load(items: List<StoredItem>) = synchronized(lock) {
         for (item in items) if (item.path !in touched) cache[item.path] = item.envelope
     }
@@ -62,7 +62,8 @@ class CachedTransport(
     fun onDataChanged(path: String, envelope: Envelope, originNodeId: String) {
         val target = synchronized(lock) {
             cache[path] = envelope
-            listener.takeIf { originNodeId != localNodeId }
+            touched += path
+            listener.takeIf { originNodeId != localNodeId() }
         }
         target?.onItemChanged(StoredItem(path, envelope))
     }
@@ -71,7 +72,8 @@ class CachedTransport(
     fun onDataDeleted(path: String, originNodeId: String) {
         val target = synchronized(lock) {
             cache.remove(path)
-            listener.takeIf { originNodeId != localNodeId }
+            touched += path
+            listener.takeIf { originNodeId != localNodeId() }
         }
         target?.onItemDeleted(path)
     }
