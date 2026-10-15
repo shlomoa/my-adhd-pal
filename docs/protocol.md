@@ -223,9 +223,9 @@ stateDiagram-v2
 
 Question set from [`plan.md`](plan.md) section 3: (1) items persist while the receiver is away and arrive on reconnect,
 (2) the phone's listener service wakes with its app closed, (3) a consumed item can be deleted and does not reappear,
-(4) urgent-item delay. The spike code is throwaway and lives only on the branches `claude/shared-0b2a-spike` (the apps)
-and `claude/shared-0b2a-spike-rtt` (the apps plus the runner `scripts/spike/run-0b2a.ps1`); it is discarded in step
-0b.3. Run by the user on real Android emulators, not on hardware.
+(4) urgent-item delay. The spike apps are kept in the debug builds
+(`phone/src/debug/` and `wear/src/debug/`, package `...debug.spike`) and the runner is `scripts/spike/run-0b2a.ps1`;
+release builds do not contain them. Run by the user on real Android emulators, not on hardware.
 
 ### Environment
 
@@ -322,7 +322,7 @@ spike below confirmed it.
 ### Deferred to the hardware spike (0b.2b, done below)
 
 The laptop sleeping and the hung first runner stopped the emulator runs; these are not protocol failures. Move into the
-0b.2b checklist, and reuse the same runner (`scripts/spike/run-0b2a.ps1` on `claude/shared-0b2a-spike-rtt`, with
+0b.2b checklist, and reuse the same runner (`scripts/spike/run-0b2a.ps1`, with
 `-OnlyCases`, which also reports round trips on the sender's own clock):
 
 - C5 phone away (the listener started by a restarted phone), C2b (deleted items do not reappear), C4 urgent versus
@@ -420,6 +420,5 @@ Because "Put unused apps to sleep" is on and the app is not exempt, the days-lon
 ### Transport decision (step 0b.3)
 
 **The transport is DataItems only.** No criterion of the fallback rule was missed, so `MessageClient` for urgent alerts is
-**not** added. Section 3 of [`plan.md`](plan.md) is updated to say so. The spike code on `claude/shared-0b2a-spike`,
-`claude/shared-0b2a-spike-rtt` and `claude/shared-0b2b-spike` is discarded: it was never merged and is only kept as the
-evidence above. No path, key or model of the protocol changes; the next steps are 1.5 and 1.8b (gate G2b).
+**not** added. Section 3 of [`plan.md`](plan.md) is updated to say so. The spike apps and runners stay in the repository as
+test tooling (debug builds only, `scripts/spike/`), so the evidence above can be reproduced. No path, key or model of the protocol changes; the next steps are 1.5 and 1.8b (gate G2b).

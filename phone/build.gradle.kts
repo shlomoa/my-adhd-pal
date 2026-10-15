@@ -30,6 +30,8 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    // The hardware spike app (src/debug, docs/spikes/README.md) is the only user until the real link client lands.
+    debugImplementation(libs.play.services.wearable)
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

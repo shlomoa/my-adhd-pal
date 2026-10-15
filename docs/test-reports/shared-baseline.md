@@ -273,3 +273,7 @@ Red commit: tests only (`DaoTest`, `RoomRepositoriesTest` running the existing a
 ## Compose UI-test dependencies (issue 113, red)
 
 Red commit: `ComposeUiTestSampleTest` only (TC-S-144), before the dependencies exist. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'test'` for `androidx.compose.ui.test`.
+
+## Spike content kept in main (red)
+
+Red commit: `scripts/test/test-spike.sh` only (TC-S-145, TC-S-146), run against the tree without the spike apps and runners: every case FAILs (no classes under `src/debug/.../debug/spike`, no debug manifests declaring the components, no runner scripts, `test-run-0b2a.sh` and `test-run-0b2b.sh` missing).
