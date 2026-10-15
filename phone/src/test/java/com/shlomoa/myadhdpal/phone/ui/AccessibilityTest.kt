@@ -80,7 +80,8 @@ class AccessibilityTest {
                 link = LinkStateUiState(LinkState.AWAY, LastSync.Never),
                 history = HistoryUiState(null, ListState.Empty),
                 onFilter = {},
-                onRetry = {}
+                onRetry = {},
+                tasks = {}
             )
         },
         "history failed" to {

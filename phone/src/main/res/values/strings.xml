@@ -24,6 +24,7 @@
     <string name="history_selected">%1$s: chose option %2$s</string>
     <string name="history_alert">Heart rate %1$.0f (threshold %2$.0f)</string>
     <string name="nav_link">Watch</string>
+    <string name="nav_tasks">Tasks</string>
     <string name="nav_history">History</string>
     <string name="task_add">Add a task</string>
     <string name="task_empty">No tasks yet. Add one to get a reminder on your watch.</string>
