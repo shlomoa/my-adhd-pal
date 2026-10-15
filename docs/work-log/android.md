@@ -89,6 +89,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `TaskViewModelsTest` (TC-A-013 to 017, 023, 053, 056, 057) red first (did not compile, `docs/test-reports/android-baseline.md`), now 9 of 9 PASS; accessibility tests 2 of 2; `./gradlew detekt spotlessCheck check assembleDebug` green.
 - Open items: not in `MainActivity` yet (next PR); TC-A-023's manual rotation check and the manual round trip (a task becomes a reminder on the watch) follow with the wiring and 4.1b/4.2.
 
+## 2026-10-15 - 4.1 wiring: a Tasks tab in the app
+
+- Issue and PR: second part of #62 (4.1); references it and does not close it. Stacked on #148 (4.1a), so merge #148 first.
+- Changed: a third tab, Tasks, in `HomeScreen` (the tab content is passed in as a slot); `ui/tasks/TasksTab` (list, then the edit form, the choice survives recreation); `MainActivity` creates one `TaskEditViewModel` per edit session with the task id as its `SavedStateHandle` argument (`ViewModelProvider.create` with creation extras, no new dependency; the build file is the Shared lane's). The test-only fake Data Layer client is now one `@TestInstallIn` module for every Hilt test (`FakeLinkTestModule`) instead of a copy per test.
+- Validation: `TasksWiringTest` (TC-A-089) red first (`docs/test-reports/android-baseline.md`), now PASS: add a task through the real graph (Room included), see it listed, delete it. `MainActivityWiringTest`, `HomeScreenTest` and the accessibility tests still pass; `./gradlew detekt spotlessCheck check assembleDebug` green. One full run first crashed in lint (a detector error right after a run with a failing test) and the identical rerun passed; I read it as stale incremental output (same pattern as the KSP case earlier), CI builds clean.
+- Open items: reminders for a task (4.1b), then 4.2 to 4.4. Manual round trip (a task on the phone becomes a reminder on the watch) needs 4.1b and 4.2.
+- CI fix on the same PR: `TasksWiringTest` (TC-A-089) failed on the CI runner at the click on "Delete". Cause, from the test order: `waitForText("Take the pills")` was satisfied by the text field of the still-open edit form (the field contains that text), so the test moved on; once the form closed the list could still show its old state until Room answered on its own executor, and "Delete" did not exist yet. The test now waits for the form to close, then for the list row and its Delete button, before clicking. I checked the other Hilt/Room wiring test (`MainActivityWiringTest`): it already waits for content after its only click, a static tab. Not reproduced locally, so argued from the code path.
+
 ## 2026-10-15 - 4.1b Reminder edit (ViewModel and screen)
 
 - Issue and PR: third part of #62 (4.1); references it and does not close it. Listing a task's reminders and wiring this form into the Tasks tab is the next PR.
