@@ -21,6 +21,9 @@ import com.shlomoa.myadhdpal.phone.ui.history.HistoryUiState
 import com.shlomoa.myadhdpal.phone.ui.link.LastSync
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateScreen
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
+import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditScreen
+import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditUiState
+import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderError
 import com.shlomoa.myadhdpal.phone.ui.tasks.TaskEditScreen
 import com.shlomoa.myadhdpal.phone.ui.tasks.TaskEditUiState
 import com.shlomoa.myadhdpal.phone.ui.tasks.TaskListScreen
@@ -74,6 +77,21 @@ class AccessibilityTest {
         },
         "task edit with error" to {
             TaskEditScreen(TaskEditUiState("", TitleError.BLANK, false), onTitle = {}, onSave = {}, onCancel = {})
+        },
+        "reminder edit with errors" to {
+            ReminderEditScreen(
+                ReminderEditUiState(
+                    null,
+                    emptyList(),
+                    setOf(ReminderError.TIME_MISSING, ReminderError.DAYS_INVALID),
+                    false
+                ),
+                onTime = {},
+                onDays = {},
+                onSave = {},
+                onDelete = {},
+                onCancel = {}
+            )
         },
         "home with tabs" to {
             HomeScreen(

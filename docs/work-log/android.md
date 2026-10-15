@@ -88,3 +88,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `ui/tasks/TaskListViewModel` (loading, empty, content, failed with retry; delete), `TaskEditViewModel` (create or edit by `taskId`; trims, rejects blank or over 200 characters; the unsaved title survives recreation through `SavedStateHandle`), stateless `TaskListScreen` and `TaskEditScreen`, strings. `AccessibilityTest` covers both screens.
 - Validation: `TaskViewModelsTest` (TC-A-013 to 017, 023, 053, 056, 057) red first (did not compile, `docs/test-reports/android-baseline.md`), now 9 of 9 PASS; accessibility tests 2 of 2; `./gradlew detekt spotlessCheck check assembleDebug` green.
 - Open items: not in `MainActivity` yet (next PR); TC-A-023's manual rotation check and the manual round trip (a task becomes a reminder on the watch) follow with the wiring and 4.1b/4.2.
+
+## 2026-10-15 - 4.1b Reminder edit (ViewModel and screen)
+
+- Issue and PR: third part of #62 (4.1); references it and does not close it. Listing a task's reminders and wiring this form into the Tasks tab is the next PR.
+- Changed: `ui/reminders/ReminderEditViewModel` (create for a `taskId`, or edit by `reminderId`; the time and days survive recreation; a new reminder repeats every day; a missing or out-of-range time and an empty, out-of-range or repeated day are rejected; days are stored sorted; delete), stateless `ReminderEditScreen` (24-hour `TimeInput`, day chips, Save/Cancel/Delete), strings. `AccessibilityTest` covers the form with both errors shown. No change to `data/`: an existing reminder is read through `remindersOf`.
+- Validation: `ReminderEditViewModelTest` (TC-A-018 to 022) red first (did not compile, `docs/test-reports/android-baseline.md`), now 5 of 5 PASS; accessibility tests 2 of 2; `./gradlew detekt spotlessCheck check assembleDebug` green.
+- Open items: not reachable in the app yet. Next small PRs: the reminder list inside the task form, 4.2 (publish the schedule from the UI), 4.3, 4.4; then the phone-side alert (design note first, after the H1 decision in #55).
