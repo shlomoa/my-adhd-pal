@@ -12,8 +12,10 @@ import com.shlomoa.myadhdpal.protocol.Threshold
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -39,6 +41,15 @@ class DataStoreSettingsRepositoryTest : SettingsRepositoryContract() {
     @After
     fun cancelScopes() {
         scopes.forEach { it.cancel() }
+    }
+
+    /**
+     * DataStore allows one active instance per file and frees the file only when its scope's job has completed, which
+     * `cancel()` alone does not wait for: reopening right after it can fail with "multiple DataStores active".
+     */
+    private suspend fun closeAll() {
+        scopes.forEach { it.coroutineContext[Job]?.cancelAndJoin() }
+        scopes.clear()
     }
 
     private fun open(): SettingsRepository {
@@ -71,9 +82,19 @@ class DataStoreSettingsRepositoryTest : SettingsRepositoryContract() {
             cadenceMinutes = 30
         )
         assertEquals(SettingsResult.Saved, open().update(changed))
-        scopes.forEach { it.cancel() }
-        scopes.clear()
+        closeAll()
         assertEquals(changed, open().settings.first())
+    }
+
+    @Test
+    fun `TC-S-099 reopening the file right after closing it works every time`() = runTest {
+        repeat(100) { round ->
+            val value = SettingsDefaults.settings.copy(cooldownSeconds = 100 + round)
+            assertEquals(SettingsResult.Saved, open().update(value))
+            closeAll()
+            assertEquals(value, open().settings.first())
+            closeAll()
+        }
     }
 
     @Test
