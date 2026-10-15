@@ -193,3 +193,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `protocol/.../LinkStateLogic.kt` (`LinkStateLogic.derive`, `LinkObservation`, `NodeObservation`, `Capabilities.WATCH_APP` = `adhd_pal_watch`); `docs/protocol.md` link-state section with the precedence table, the rules behind it and what the hardware showed.
 - Validation: `LinkStateTest` written first and red (`shared-baseline.md`), then green (14 tests): TC-S-060..066, an exhaustive case over 5 x 5 x 8 input combinations checked against an independent statement of the rules, malformed and unsupported hello versions, several watches, and a capability the node list does not show yet. spotless, detekt and doc lint green. Nearby, Relayed and Away match the 0b.2b observations; No watch app and Incompatible are unit-tested only.
 - Open items: 1.8b (link-state machine and alert-flow diagrams, TC-S-077..079), then the G2b flip. The watch lane declares the `adhd_pal_watch` capability resource and the data sources (2.4, 2.5) refresh the node list about every 2 s.
+
+## 2026-10-15 - 1.8b Link-state machine and alert-flow diagrams
+
+- Issue and PR: step 1.8b issue; PR linked from the coordinator message.
+- Changed: `docs/protocol.md` gets the "Link state machine" (`stateDiagram-v2`, states named like the `LinkState` members, transition times from the hardware spike) and the "Alert flow" (`sequenceDiagram`: reading, threshold and cooldown on the watch, urgent `/alert/<id>`, listener service, store once, delete) under Diagrams; the status line no longer says the diagrams wait for the spike.
+- Validation: `test-protocol-spec.sh` extended first and red (`shared-baseline.md`), then green: TC-S-077 for the two new blocks (Mermaid, diagram type, balanced blocks, no semicolons) and TC-S-079 (the diagram states equal the `LinkState` members, found by reading `LinkTransport.kt`). TC-S-078: all six diagrams of the file parsed and rendered without error with Mermaid 10.9.1 in headless Chromium; the PR's own rendered view is still for the reviewer. Doc lint green.
+- Open items: the G2b flip once this PR and the 1.5 PR (#131) are merged.

@@ -281,3 +281,7 @@ Red commit: `LinkStateTest` only (TC-S-060..066, one table-driven exhaustive cas
 ## 1.5 follow-up: both capability names (red)
 
 Red commit: `LinkStateTest` asserts `Capabilities.PHONE_APP == "adhd_pal_phone"`, before the constant exists. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'PHONE_APP'`.
+
+## 1.8b Link-state and alert diagrams (red)
+
+Red commit: `scripts/test/test-protocol-spec.sh` extended only (TC-S-077 requires the "Link state machine" and "Alert flow" Mermaid blocks, TC-S-079 compares the diagram's states with the `LinkState` members). Run against `docs/protocol.md` without the two diagrams: FAIL for "Link state machine is a Mermaid block", "is a stateDiagram-v2", "Alert flow is a Mermaid block", "is a sequenceDiagram", "diagram states equal the LinkState members (found: )" and "link-state diagram has a start".

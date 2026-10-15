@@ -9,6 +9,7 @@ import com.shlomoa.myadhdpal.protocol.Schedule
 import com.shlomoa.myadhdpal.protocol.ScheduleLogic
 import com.shlomoa.myadhdpal.protocol.StoredItem
 import com.shlomoa.myadhdpal.protocol.TransportListener
+import com.shlomoa.myadhdpal.wear.demo.DemoLog
 import com.shlomoa.myadhdpal.wear.log.Logger
 import java.time.Instant
 
@@ -53,6 +54,7 @@ class ScheduleReceiver(
         val appliedAt = now()
         store.save(StoredSchedule(schedule, appliedAt))
         current = schedule
+        DemoLog.scheduleApplied(schedule.version)
         onApplied(schedule, appliedAt)
     }
 

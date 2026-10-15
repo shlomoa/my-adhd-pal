@@ -123,6 +123,15 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-092 | 3.9 | manual | Real devices, phone away: reminder fires locally, ack arrives on reconnect | ack in phone history after reconnect |
 | TC-W-093 | 3.9 | manual | Real devices, Bluetooth toggled off and on | link state follows, nothing lost or duplicated |
 
+## Demo (real-device demo path)
+
+| Id | Step | Kind | Case | Pass criteria |
+|---|---|---|---|---|
+| TC-W-100 | demo | unit | The `DEMO` log lines (schedule applied, reminder fired, ack sent, ack not sent) have the format the demo script reads and hold no reminder text | exact line text |
+| TC-W-101 | demo | unit | The debug demo action applies the action to the last fired reminder with its occurrence and snooze count; unknown action or nothing fired does nothing | handler called once with the expected arguments, or not at all |
+| TC-W-102 | demo | script | `scripts/demo/run-demo.ps1` against a simulated adb: readiness gate, each stage PASS or FAIL, exit codes, results published | script test passes |
+| TC-W-103 | demo | manual | The user runs the demo with the real phone and watch and sees the notification, feels the haptic, and the ack is in the phone history | user reports in the work log |
+
 ## Final (W-final)
 
 | Id | Step | Kind | Case | Pass criteria |

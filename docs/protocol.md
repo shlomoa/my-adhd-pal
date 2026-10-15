@@ -1,9 +1,9 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.1; steps 1.1 to 1.4, 1.6, 1.7 and 1.8a are done, gate G2a). This file is the single source of
+Status: **skeleton** (protocol 1.1; steps 1.1 to 1.8 are done). This file is the single source of
 truth; the constants, models, codec, compatibility rule, schedule logic and transport abstraction in `:protocol` follow
-it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b,
-gate G2b) wait for the hardware spike. The transport verification below comes first in time and changes the cleanup rule.
+it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b)
+complete gate G2b. The transport verification below comes first in time and changes the cleanup rule.
 
 ## Item catalog
 
@@ -164,8 +164,7 @@ Rules behind the table:
 ## Diagrams
 
 The flows below are the same under the DataItems-only transport and under a `MessageClient` fallback for urgent alerts,
-because both are written against `LinkTransport`. The link-state machine and the alert flow are added with the link-state
-function (step 1.5), after the hardware spike.
+because both are written against `LinkTransport`.
 
 ### Schedule sync
 
@@ -245,6 +244,59 @@ stateDiagram-v2
     Answered --> Removed: phone stores the answer and deletes the prompt
     Expired --> Removed: phone deletes the prompt
     Removed --> [*]
+```
+
+### Link state machine
+
+The state is not stored: `LinkStateLogic.derive` recomputes it from the observations (see Link states), and the
+transitions below are the events that change an observation. The state names are the members of `LinkState`, and
+a test keeps the two equal. Times are those seen on the hardware (spike 0b.2b).
+
+```mermaid
+stateDiagram-v2
+    state "Nearby" as NEARBY
+    state "Relayed" as RELAYED
+    state "Away" as AWAY
+    state "No watch app" as NO_WATCH_APP
+    state "Incompatible" as INCOMPATIBLE
+    [*] --> AWAY: app starts and no watch is connected
+    AWAY --> NEARBY: watch with the app connects directly
+    AWAY --> RELAYED: watch with the app connects through the relay
+    AWAY --> NO_WATCH_APP: a watch connects that has no app capability
+    NEARBY --> RELAYED: direct link lost and relay still up (seen after about 8 s)
+    RELAYED --> NEARBY: direct link back
+    NEARBY --> AWAY: every radio lost (seen after about 4 s)
+    RELAYED --> AWAY: relay lost
+    NO_WATCH_APP --> NEARBY: app installed on the watch and capability found
+    NO_WATCH_APP --> AWAY: watch disconnects
+    NEARBY --> INCOMPATIBLE: hello with another major version
+    RELAYED --> INCOMPATIBLE: hello with another major version
+    INCOMPATIBLE --> NEARBY: hello compatible again and direct
+    INCOMPATIBLE --> RELAYED: hello compatible again and relayed
+    INCOMPATIBLE --> AWAY: watch disconnects
+```
+
+### Alert flow
+
+```mermaid
+sequenceDiagram
+    participant H as Health Services
+    participant W as Watch
+    participant D as Data Layer
+    participant P as Phone
+    H->>W: heart rate reading
+    W->>W: compare with the thresholds from the schedule
+    alt threshold breached and not in cooldown
+        W->>D: put /alert/id with metric, value, threshold, time (urgent)
+        W->>W: start the cooldown for that threshold
+        D-->>P: item changed (the listener service starts the app process if it is closed)
+        P->>P: validate and check the version, store once (idempotent by id), record in history
+        P->>P: show a notification
+        P->>D: delete /alert/id (after storing)
+    else in cooldown or within limits
+        W->>W: nothing is sent
+    end
+    Note over W,P: while the link is Away the item waits in the Data Layer and arrives when the link is back
 ```
 
 ## Transport verification: spike 0b.2a (paired emulators)
