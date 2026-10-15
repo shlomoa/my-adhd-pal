@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ADHD Pal</string>
-    <string name="home_greeting">ADHD Pal phone app</string>
     <string name="link_nearby">Watch nearby</string>
     <string name="link_relayed">Watch connected through the cloud</string>
     <string name="link_away">Watch away</string>
@@ -24,4 +23,6 @@
     <string name="history_acknowledged">Reminder: %1$s</string>
     <string name="history_selected">%1$s: chose option %2$s</string>
     <string name="history_alert">Heart rate %1$.0f (threshold %2$.0f)</string>
+    <string name="nav_link">Watch</string>
+    <string name="nav_history">History</string>
 </resources>

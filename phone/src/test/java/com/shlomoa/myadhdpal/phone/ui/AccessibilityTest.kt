@@ -55,6 +55,14 @@ class AccessibilityTest {
         "history filtered" to {
             HistoryScreen(HistoryUiState(HistoryType.ALERT, ListState.Empty), onFilter = {}, onRetry = {})
         },
+        "home with tabs" to {
+            HomeScreen(
+                link = LinkStateUiState(LinkState.AWAY, LastSync.Never),
+                history = HistoryUiState(null, ListState.Empty),
+                onFilter = {},
+                onRetry = {}
+            )
+        },
         "history failed" to {
             HistoryScreen(HistoryUiState(null, ListState.Failed("disk")), onFilter = {}, onRetry = {})
         }

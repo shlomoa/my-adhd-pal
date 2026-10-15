@@ -55,3 +55,13 @@ e: DemoSchedulePublisherTest.kt:32:9 Unresolved reference 'DemoSchedulePublisher
 ```
 
 TC-A-073 to TC-A-078 are red. TC-A-079 is the `checkNoDebugInRelease` CI check and TC-A-080 is manual on the devices (ids in `DemoManualCases`).
+
+## Screens wired into MainActivity
+
+Red commit: 6e71e17 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*HomeScreenTest*' --tests '*MainActivityWiringTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: HomeScreenTest.kt:26:17 Unresolved reference 'HomeScreen'.
+```
+
+TC-A-086 and TC-A-087 are red (`MainActivityWiringTest` also fails at run time: `MainActivity` still shows the greeting). TC-A-088 is manual on the devices.

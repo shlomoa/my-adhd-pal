@@ -66,3 +66,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `DemoSchedulePublisherTest` red first (does not compile, `docs/test-reports/android-baseline.md`), now 6 of 6 PASS; `./gradlew check assembleDebug` green (includes `checkNoDebugInRelease`, TC-A-079). detekt flagged a magic number, fixed with a named constant.
 - Open items: the broadcast receiver `PUBLISH_DEMO_SCHEDULE` is part 2: it needs the real `ScheduleRepository` and `WatchLinkDataSource` (G3) to build the publisher, and a Hilt entry point without a binding would break the graph. Manual TC-A-080 runs on the devices once the receiver exists.
 - Follow-up in the same PR: the Watch lane's demo script needs a known reminder id, so the fixed id is now `demo` (TC-A-073 asserts it; red first with the old id `demo-reminder`, then green).
+
+## 2026-10-15 - Screens wired into MainActivity (2.6 and 4.5 on the real graph)
+
+- Issue and PR: demo priority from the coordinator; PR linked from the coordinator message.
+- Changed: `LinkStateViewModel` and `HistoryViewModel` are `@HiltViewModel`; `ui/HomeScreen` (two tabs, Watch and History, bottom navigation bar, no extra navigation library); `MainActivity` shows it from the two ViewModels; the placeholder greeting string is gone. `AccessibilityTest` also covers the home screen.
+- Validation: tests first, red (`docs/test-reports/android-baseline.md`), then TC-A-086 (`HomeScreenTest`) and TC-A-087 (`MainActivityWiringTest`: the real Hilt graph with Room and DataStore, only the Play services client replaced by `FakeDataLayerClient`) PASS; accessibility tests still 2 of 2; `./gradlew detekt spotlessCheck check assembleDebug` green.
+- Open items: manual TC-A-088 (link state changes with Bluetooth and distance; an acknowledgement from the watch appears in History) for the user on the A55 and the Watch6 Classic. Steps 4.1 to 4.4 add further tabs.
