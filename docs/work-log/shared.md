@@ -180,6 +180,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: doc lint and link check green.
 - Open items: the three-day sleeping-apps recheck (`run-0b2b.ps1 -SkipBuild -OnlyCases C3` after three days without opening the app); the G-DEC flip waits for the user's H2 confirmation.
 
+## 2026-10-15 - 0b.2b cleanup checklist and lessons from the real run
+
+- Issue and PR: #24 (0b.2b); PR linked from the coordinator message.
+- Changed: `docs/spikes/0b2b-plan.md` gets "What was and was not verified" (updated after the real run), "Lessons from the first real run" with the 8-step sequence that worked, and "Cleanup after the validation" (user side, repository side with exact commands marked as run by the user, code side), plus three troubleshooting rows; `docs/dev-setup-windows.md` gets sections 8 (hardware spike in 8 steps, lessons) and 9 (cleanup pointer) and a troubleshooting row.
+- Validation: doc lint and link check green. The branch merge status used for the deletion advice was read from `git branch -r --merged origin/main`: `claude/docs-dev-setup-windows` and `claude/watch-w1b-research` are merged; `claude/watch-w1b`, the three spike branches and the six result branches are not.
+- Open items: the user runs the cleanup; the three-day sleeping-apps recheck still needs the spike branch.
+
 ## 2026-10-15 - Spike apps, runners and results kept in main (PR A)
 
 - Issue and PR: user decision relayed by the coordinator (testing content is kept and merged); no issue; PR linked from the coordinator message.
@@ -222,6 +229,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `DataLayerWatchLinkDataSourceTest` (12 tests) and `ListenerManifestTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, release has no debug code) green. Not run against real Play services here; the hardware demo does that.
 - Open items: 2.5 (schedule, prompt and link-status repositories over this source, the event storer, `/hello/phone` at start, DI), then the G3 flip.
 
+## 2026-10-15 - Cleanup list updated: the testing content is kept in main
+
+- Issue and PR: user decision relayed by the coordinator; this updates the cleanup PR.
+- Changed: `docs/spikes/0b2b-plan.md` and `docs/dev-setup-windows.md` no longer say the spike code is never merged or discarded: the apps (debug builds), runners, results and raw logs are in `main`; the user-side and repository-side cleanup lists say nothing is lost by deleting the spike branches, the `spike-results/*` branches (they held `results.txt` only) and `spike-raw-logs-0b2b`; the days-long recheck uses the runner from `main`.
+- Validation: doc lint and link check green.
+- Open items: the user runs the cleanup commands.
+
 ## 2026-10-15 - 2.5 Repositories over the real source, event storer and wiring
 
 - Issue and PR: step 2.5 issue; PR linked from the coordinator message; stacked on the 2.4 PR.
@@ -235,3 +249,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/spikes/README.md` with `why.md` (why this validation architecture and implementation), `how.md` (both stages step by step with the failures), `where.md` (every piece, why it lives there, raw logs), `learnings.md` (what would be faster and what was not worth doing), `spec-apps.md` (components, manifest entries, adb commands and extras, item paths, log formats and the runner patterns) and `spec-tests.md` (every case with purpose, steps, measured value, criterion, parameters, exit codes, and the simulated-adb suites); links from `docs/protocol.md`, `docs/plan.md`, `docs/plans/shared.md`; stale "discarded" and "never merged" statements corrected.
 - Validation: every statement checked against the scripts, the Kotlin sources, `results.txt` and the work log; doc lint and link check green. Marked as not verified: Windows PowerShell 5.1, the moved spike apps and the DUMP-protected receiver on the devices, minutes of the manual stages (not recorded).
 - Open items: one hardware run (`-OnlyCases C1`) to confirm the moved apps; the three-day sleeping-apps recheck.
+
+## 2026-10-15 - Gate G3: phone data layer
+
+- Issue and PR: steps 2.1 to 2.5; PRs #115, #137 and #138 are merged, this PR flips the gate.
+- Changed: `docs/plans/gates.json` sets G3 to merged with `pr` 138.
+- Validation: `scripts/require-gate.sh G3a G-LIB G2b` passes; `scripts/test/test-gates.sh` passes.
+- Open items: S-final later; the hardware demo exercises the real Data Layer path.

@@ -100,12 +100,13 @@ Wireless debugging is switched off and on (read it from the watch screen again).
 
    Expected: `connected to 192.168.1.57:41203`, then two lines ending in `device`: the phone's USB serial and
    `192.168.1.57:41203`. If the watch line says `offline`, run `adb disconnect` and connect again.
-3. Get the spike branch (it is never merged; it contains the apps and the runner). Before switching, run `git status`;
-   if it lists changes run `git stash`:
+3. Get `main` (the spike apps are in the debug builds and the runner is in `scripts/spike/`, see
+   `docs/spikes/README.md`). Before switching, run `git status`; if it lists changes run `git stash`:
 
    ```powershell
    git fetch origin
-   git checkout claude/shared-0b2b-spike
+   git checkout main
+   git pull
    ```
 
    The build needs JDK 21 as in [`../dev-setup-windows.md`](../dev-setup-windows.md) section 3.
@@ -211,30 +212,105 @@ The script publishes the branch `spike-results/0b2b-<timestamp>` (only the folde
 `results.txt` plus the raw per-case logs, with e-mail addresses, tokens, device serials and IP addresses removed). The
 shared lane then writes the hardware results table into [`../protocol.md`](../protocol.md) with the device and version
 details, decides G-DEC with the coordinator (fallback rule if a criterion failed), records the decision in the work log
-and discards the spike code (step 0b.3).
+and keeps the spike apps and runners as test tooling (step 0b.3, `docs/spikes/README.md`).
 
-## What is not verified
+## What was and was not verified
 
-The runner was tested against a **simulated adb** with hardware-style serials (a USB serial and `192.168.x.x:port`);
-`scripts/spike/test-run-0b2b.sh` on the spike branch runs 65 checks of its flow, readiness gate, radio handling and
-restore, report, exit codes and publishing. It has **not** been run on the Galaxy A55 5G, the Galaxy Watch6 Classic or
-Windows PowerShell 5.1 (only PowerShell 7 on Linux). Unverified on the real devices:
+The runner was first tested against a **simulated adb** with hardware-style serials (`scripts/spike/test-run-0b2b.sh` on
+the spike branch, now 71 checks) and then run by the user on the real devices on Windows with PowerShell 7.6.6: every
+automated case passed (results in [`../protocol.md`](../protocol.md)). That settled the open questions of the plan:
+`svc bluetooth/wifi/data`, `dumpsys deviceidle force-idle` and `am set-standby-bucket` took effect without root on the
+Galaxy A55 5G, and the watch reported Relayed (8 s) and Away (4 s). Still not verified:
 
-- the watch click paths and menu names in part B, and the Auto Blocker setting, are from memory of Samsung and Wear OS
-  documentation, not read from these devices;
-- whether `svc bluetooth disable`, `svc wifi`, `svc data`, `dumpsys deviceidle force-idle`, `dumpsys battery unplug` and
-  `am set-standby-bucket` take effect without root on One UI 7 (the script checks each and falls back or reports NOT RUN);
-- whether Google Play services reports a Bluetooth-off phone as a connected, not-nearby node (Relayed), and how
-  quickly it reports no node when the phone has no radio (Away); both are measured and reported, and may FAIL;
-- the **watch cannot be made Away** while adb runs over its Wi-Fi, so only phone-side isolation is tested; the
-  watch-away direction passed on emulators (0b.2a) and is not repeated on hardware;
-- the Wi-Fi debugging connection can drop when the watch sleeps; the script reconnects at the start of a run only.
+- **Windows PowerShell 5.1.** Only PowerShell 7.6.6 was used on Windows; the script restricts itself to 5.1 syntax but
+  has not been run there.
+- The exact menu names of part B on the Watch6 firmware: the user reached every case, so the path worked, but the names
+  were not recorded.
+- The **watch cannot be made Away** while adb runs over its Wi-Fi, so only phone-side isolation was tested.
+- Samsung's days-long "sleeping apps" lists (checklist item 9 stays open).
+
+## Lessons from the first real run
+
+1. **The watch shows up twice in `adb devices`**: once as `192.168.x.x:port` and once under its mDNS name
+   (`adb-...-tls-connect...`). The automatic detection then sees two watches. Pass both serials explicitly:
+   `-Phone <usb serial> -Watch 192.168.x.x:port`.
+2. **Wireless debugging uses two ports.** The pairing port (Pair new device, valid for one pairing, changes each time) is
+   for `adb pair`; the connect port on the main Wireless debugging screen is for `adb connect` and for `-WatchAddress`.
+   Mixing them up gives `failed to connect`.
+3. **The battery message and the check disagree.** The readiness gate refuses a device below **20%** but its message says
+   "charge to at least 30%". Charge above 30% to be safe; the runner was not changed.
+4. **C3d once failed on a runner bug, not on the device**: the standby-bucket blocks were closures that could not call the
+   script's own functions on the user's host (`The term 'Invoke-Adb' is not recognized`). The fix (`d689afa`) uses plain
+   scriptblocks, and any unexpected error in a case is now a FAIL with its message instead of "NOT SELECTED". Re-run only
+   the missing case with `-SkipBuild -OnlyCases C3d`.
+5. **The Watch6 charges wirelessly and stays awake** on its charger, which kept Wi-Fi debugging alive for the whole run.
+   Doze and battery behaviour of the watch itself were therefore not tested.
+6. **PowerShell 7.6 was used**, started as `pwsh`; Windows PowerShell 5.1 (`powershell`) was not.
+7. **Run the cases in small groups.** `-OnlyCases` publishes one results branch per run (six runs gave six branches); a
+   failed case can be repeated alone without repeating the others.
+
+### The sequence that worked, in 8 short steps
+
+1. Plug in the laptop and turn off sleep (`powercfg /change standby-timeout-ac 0`); put the watch on its charger.
+2. Phone: Developer options and USB debugging on, cable in, tap **Allow**.
+3. Watch: Developer options, ADB debugging and Wireless debugging on, Wi-Fi **On**; note the connect `ip:port`.
+4. PC: `adb connect <ip:port>`, then `adb devices -l`; note the phone's USB serial and the watch's `ip:port`.
+5. `git checkout main; git pull`.
+6. `.\scripts\spike\run-0b2b.ps1 -Phone <usb serial> -Watch <ip:port> -OnlyCases C1` first, to prove the chain.
+7. The rest in groups: `C1b,C2a`, then `C3,C3c,C3d`, then `L1,L2`, then `L3` (which includes C2b).
+8. Check the phone is back to normal (Bluetooth, Wi-Fi, mobile data on, Galaxy Wearable shows Connected), then clean up.
+
+## Cleanup after the validation
+
+The results are in `main` ([`../protocol.md`](../protocol.md) and `docs/spikes/results/0b2b-*/results.txt`), and the
+decision (0b.3) is DataItems only. The user decided to keep the testing content, so the spike apps (debug source sets
+under `phone/src/debug` and `wear/src/debug`, package `...debug.spike`), the runners (`scripts/spike/`), the results and
+the raw logs are all in `main` (`docs/spikes/README.md`); the spike branches hold nothing that `main` does not.
+
+### User side (the user runs these)
+
+| What | How |
+|---|---|
+| Laptop sleep back | `powercfg /change standby-timeout-ac 30` |
+| Watch | Settings > Developer options: switch **Wireless debugging** and **ADB debugging** off. On the PC: `adb disconnect` |
+| Phone | Settings > Developer options: switch **USB debugging** off (or the whole Developer options switch); turn **Auto Blocker** back on (Settings > Security and privacy) if it was on before |
+| The debug app on both devices | The debug build has the real application id, so remove it with `adb -s <phone serial> uninstall com.shlomoa.myadhdpal` and `adb -s <ip:port> uninstall com.shlomoa.myadhdpal` while the devices are still connected, or **keep it for the demo** |
+| Untracked result folders on the PC | The raw logs are in `main` now. Before deleting the folders, compare: `git status --short docs/spikes/results`; preview with `git clean -nd docs/spikes/results`, then `git clean -fd docs/spikes/results` |
+| Back to `main` | `git checkout main; git pull` |
+| Local spike branches | `git branch -D claude/shared-0b2a-spike claude/shared-0b2a-spike-rtt claude/shared-0b2b-spike`, then `git worktree prune`, and the local result branches with `git branch --list "spike-results/*"` and `git branch -D <name>` for each |
+
+### Repository side (the user runs these, after reading the notes)
+
+Nothing is lost by deleting these: the code, the runners, the six `results.txt` and the raw logs are on `main`:
+
+```powershell
+git push origin --delete claude/shared-0b2a-spike claude/shared-0b2a-spike-rtt claude/shared-0b2b-spike
+git push origin --delete claude/docs-dev-setup-windows
+git push origin --delete spike-raw-logs-0b2b
+```
+
+- The **six `spike-results/0b2b-*` branches** hold only `results.txt` (the raw logs were never in them, because
+  `.gitignore` ignored `*.log`; see `docs/spikes/README.md`). Both are now in `main`, so delete each with
+  `git push origin --delete spike-results/<name>` (list them with `git branch -r --list "origin/spike-results/*"`).
+- `claude/docs-dev-setup-windows` is merged into `main`, so deleting it loses nothing.
+- `claude/watch-w1b` is **not merged** and belongs to the Watch lane; do not delete it without asking that lane.
+  `claude/watch-w1b-research` is merged and can go with the others if wanted.
+- The optional three-day sleeping-apps recheck (checklist item 9) uses the runner from `main`; no branch has to be kept
+  for it.
+
+### Code side
+
+Step 0b.3 is done by deleting the branches above: no spike code is ever merged, so nothing in `phone/` or `wear/` needs
+reverting on `main`.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 |---|---|
 | `adb` is not recognized | Add the SDK `platform-tools` folder to `PATH` ([`../dev-setup-windows.md`](../dev-setup-windows.md) section 6.1) |
+| `adb devices` lists the watch twice (`ip:port` and `adb-...-tls-connect`) | Pass `-Phone` and `-Watch` explicitly (lessons, point 1) |
+| `failed to connect` right after a successful `adb pair` | Pairing and connecting use different ports; use the connect port of the main Wireless debugging screen (lessons, point 2) |
+| "battery is at N%" although it is above 20% | The gate checks below 20% but says 30%; charge above 30% (lessons, point 3) |
 | `adb pair` says `Failed: Wrong password` | The code and port change every time you open Pair new device; read them again and run again quickly |
 | `failed to connect` for the watch | Same Wi-Fi network? Watch Wi-Fi set to On? Wireless debugging still on? The port changed? |
 | The phone asks "Scan app with Play Protect?" during install | Tap **Install anyway** or **Don't send** on the phone |
