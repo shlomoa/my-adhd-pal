@@ -6,6 +6,7 @@ import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
 import com.shlomoa.myadhdpal.phone.data.HistoryType
 import com.shlomoa.myadhdpal.phone.ui.ListState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ data class HistoryUiState(val filter: HistoryType?, val entries: ListState<Histo
  * [HistoryRepository] is bound (step 2.5).
  */
 @OptIn(ExperimentalCoroutinesApi::class)
+@HiltViewModel
 class HistoryViewModel @Inject constructor(private val history: HistoryRepository) : ViewModel() {
     private val filter = MutableStateFlow<HistoryType?>(null)
     private val attempt = MutableStateFlow(0)
