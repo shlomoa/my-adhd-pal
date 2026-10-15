@@ -25,4 +25,12 @@
     <string name="history_alert">Heart rate %1$.0f (threshold %2$.0f)</string>
     <string name="nav_link">Watch</string>
     <string name="nav_history">History</string>
+    <string name="task_add">Add a task</string>
+    <string name="task_empty">No tasks yet. Add one to get a reminder on your watch.</string>
+    <string name="task_delete">Delete</string>
+    <string name="task_title_label">What do you want to remember?</string>
+    <string name="task_error_blank">Write something first.</string>
+    <string name="task_error_too_long">That is too long. Keep it under 200 characters.</string>
+    <string name="task_save">Save</string>
+    <string name="task_cancel">Cancel</string>
 </resources>
