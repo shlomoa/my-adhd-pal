@@ -270,3 +270,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   reminder id `demo` all match. One mismatch: the phone repeats the tag in its messages (`DEMO published ...`); the parser now drops it.
 - Validation: simulated adb changed to the phone's real format first (18 checks red), then fixed: 48 PASS.
 - Open items: TC-W-103 (the user's run on the devices) is NOT yet run.
+
+## 2026-10-15 - Demo script: wait for the user's tap
+
+- Issue and PR: demo path (coordinator request after the real run `demo-results/20261015-134043`), branch `claude/watch-demo-waitfortap`
+- Why: the script pressed Done seconds after the reminder fired, so the notification was gone before the user looked.
+- Changed: `-WaitForTap` and `-TapWaitSec` (default 90) in `run-demo.ps1`: after the Notification stage it asks the user to feel and
+  look, then waits for any action in the watch log (DONE, SNOOZE, START_2_MIN, DISMISS); the Done stage names the action and the Ack
+  stage checks that action in the phone history. The default mode is unchanged. `docs/demo.md` updated.
+- Validation: tests first, 12 red, then 61 PASS, 0 FAIL against the simulated adb. NOT yet run on the devices (TC-W-103).

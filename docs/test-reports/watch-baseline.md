@@ -166,6 +166,11 @@ The phone app logs `DEMO published ...` (the tag is repeated in the message), th
 prints the phone lines that way, as on the devices. The script before the fix: 18 of 48 checks FAIL (`./scripts/demo/test-run-demo.sh`,
 the parser did not strip the prefix); after the fix 48 PASS, 0 FAIL.
 
+### `-WaitForTap` (TC-W-102)
+
+Tests and simulated-adb tap injection (`FAKE_TAP=ACTION:MS`) written first. Against the script without the switch: 12 checks FAIL
+(the parameter does not exist, exit 1). After: 61 PASS, 0 FAIL (tap Done, tap Snooze, no tap, and the unchanged default mode).
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
