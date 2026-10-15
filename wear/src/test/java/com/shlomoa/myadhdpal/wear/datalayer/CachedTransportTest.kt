@@ -40,7 +40,7 @@ class CachedTransportTest {
     private val writer = Writer()
     private val recorder = Recorder()
     private var state = LinkState.AWAY
-    private val transport = CachedTransport(writer, localNodeId = "watch-1", linkState = { state })
+    private val transport = CachedTransport(writer, localNodeId = "watch-1", observeLinkState = { state })
         .also { it.setListener(recorder) }
 
     private fun envelope(id: String) = Envelope(version = 1, id = id, timestamp = 1L, body = "{}")
