@@ -256,3 +256,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/gates.json` sets G3 to merged with `pr` 138.
 - Validation: `scripts/require-gate.sh G3a G-LIB G2b` passes; `scripts/test/test-gates.sh` passes.
 - Open items: S-final later; the hardware demo exercises the real Data Layer path.
+
+## 2026-10-15 - Fix: DataStore reopen race in the tests
+
+- Issue and PR: flaky `DataStoreSettingsRepositoryTest` TC-S-099 on CI (docs-only PR #144); PR linked from the coordinator message.
+- Changed: both DataStore tests close the store with `cancelAndJoin()` before reopening the same file (DataStore frees the file when the scope job completes; `cancel()` does not wait); a 100-round reopen test.
+- Validation: not reproduced locally with the old code (see `shared-baseline.md`), the class passes with the fix; `detekt spotlessCheck check` green. No test skipped.
+- Open items: none.

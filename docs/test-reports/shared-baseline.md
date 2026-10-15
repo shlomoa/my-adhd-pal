@@ -301,3 +301,7 @@ Red commit: `DataLayerWatchLinkDataSourceTest` and `FakeDataLayerClient` only (e
 ## 2.5 Repositories over the real source, event storer, schedule version store (red)
 
 Red commit: `DefaultRepositoriesTest` (the existing contract tests TC-S-092 for the production schedule, prompt and link-status repositories), `WatchEventProcessorTest` (row first, then `markStored`; duplicates and hellos cleaned up; a failed store is not marked; the phone hello at start) and `DataStoreScheduleVersionStoreTest` (persists across a new store), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'DefaultScheduleRepository'`, `'WatchEventProcessor'`, `'DataStoreScheduleVersionStore'`.
+
+## DataStore reopen flake (TC-S-099)
+
+Not reproduced locally: with `cancel()` only, the new 100-round reopen test and the whole class passed on this machine. CI failed once with `IllegalStateException` at `FileStorage.kt:52` (two active DataStores for one file). Cause, by construction: DataStore frees the file when its scope's job has completed, and `cancel()` does not wait for that, so reopening right after it can race. The new test `reopening the file right after closing it works every time` uses `cancelAndJoin()` (both DataStore tests), which removes the race.

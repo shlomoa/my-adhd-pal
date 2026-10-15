@@ -8,8 +8,10 @@ import com.shlomoa.myadhdpal.protocol.SnoozeSettings
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -51,8 +53,9 @@ class DataStoreScheduleVersionStoreTest {
     @Test
     fun `a saved schedule and its version survive a new store on the same file`() = runTest {
         open().save(schedule(7))
-        // DataStore allows one active instance per file: closing the first scope is what a restart does.
-        scopes.forEach { it.cancel() }
+        // DataStore allows one active instance per file and frees it when the scope's job has completed.
+        scopes.forEach { it.coroutineContext[Job]?.cancelAndJoin() }
+        scopes.clear()
         val reopened = open()
         assertEquals(7L, reopened.lastVersion())
         assertEquals(schedule(7), reopened.lastSchedule())
