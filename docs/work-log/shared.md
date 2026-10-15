@@ -180,6 +180,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: doc lint and link check green.
 - Open items: the three-day sleeping-apps recheck (`run-0b2b.ps1 -SkipBuild -OnlyCases C3` after three days without opening the app); the G-DEC flip waits for the user's H2 confirmation.
 
+## 2026-10-15 - 0b.2b cleanup checklist and lessons from the real run
+
+- Issue and PR: #24 (0b.2b); PR linked from the coordinator message.
+- Changed: `docs/spikes/0b2b-plan.md` gets "What was and was not verified" (updated after the real run), "Lessons from the first real run" with the 8-step sequence that worked, and "Cleanup after the validation" (user side, repository side with exact commands marked as run by the user, code side), plus three troubleshooting rows; `docs/dev-setup-windows.md` gets sections 8 (hardware spike in 8 steps, lessons) and 9 (cleanup pointer) and a troubleshooting row.
+- Validation: doc lint and link check green. The branch merge status used for the deletion advice was read from `git branch -r --merged origin/main`: `claude/docs-dev-setup-windows` and `claude/watch-w1b-research` are merged; `claude/watch-w1b`, the three spike branches and the six result branches are not.
+- Open items: the user runs the cleanup; the three-day sleeping-apps recheck still needs the spike branch.
+
 ## 2026-10-15 - Spike apps, runners and results kept in main (PR A)
 
 - Issue and PR: user decision relayed by the coordinator (testing content is kept and merged); no issue; PR linked from the coordinator message.
@@ -221,6 +228,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `phone/.../link/` (`DataLayerClient` seam, `GmsDataLayerClient`, `DataLayerWatchLinkDataSource`, `WatchItemDecoder`, `ScheduleUrgency`, `PhoneLinkListenerService`), `di/LinkModule`, `res/values/wear.xml` (capability `adhd_pal_phone`), the service in the manifest, `play-services-wearable` and `androidx.fragment` as `implementation`, `MyAdhdPalApp` starts the source; `docs/data-layer.md` section.
 - Validation: `DataLayerWatchLinkDataSourceTest` (12 tests) and `ListenerManifestTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, release has no debug code) green. Not run against real Play services here; the hardware demo does that.
 - Open items: 2.5 (schedule, prompt and link-status repositories over this source, the event storer, `/hello/phone` at start, DI), then the G3 flip.
+
+## 2026-10-15 - Cleanup list updated: the testing content is kept in main
+
+- Issue and PR: user decision relayed by the coordinator; this updates the cleanup PR.
+- Changed: `docs/spikes/0b2b-plan.md` and `docs/dev-setup-windows.md` no longer say the spike code is never merged or discarded: the apps (debug builds), runners, results and raw logs are in `main`; the user-side and repository-side cleanup lists say nothing is lost by deleting the spike branches, the `spike-results/*` branches (they held `results.txt` only) and `spike-raw-logs-0b2b`; the days-long recheck uses the runner from `main`.
+- Validation: doc lint and link check green.
+- Open items: the user runs the cleanup commands.
 
 ## 2026-10-15 - 2.5 Repositories over the real source, event storer and wiring
 
