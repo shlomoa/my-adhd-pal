@@ -44,8 +44,11 @@ class TasksWiringTest {
         compose.onNodeWithText("Add a task").performClick()
         compose.onNode(hasText("What do you want to remember?")).performTextInput("Take the pills")
         compose.onNodeWithText("Save").performClick()
-        waitForText("Take the pills")
+        // Order matters: the text field itself contains "Take the pills", so first wait for the form to close, then
+        // for the list row (Room answers on its own executor, which Compose idling does not track).
         waitForNoText("What do you want to remember?")
+        waitForText("Take the pills")
+        waitForText("Delete")
 
         compose.onNodeWithText("Delete").performClick()
         waitForText("No tasks yet")
