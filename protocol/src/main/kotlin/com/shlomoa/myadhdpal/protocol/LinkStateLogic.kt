@@ -1,6 +1,6 @@
 package com.shlomoa.myadhdpal.protocol
 
-/** Names of the Data Layer capabilities. The watch app declares [WATCH_APP] in an `android_wear_capabilities` resource. */
+/** Data Layer capability names. The watch app declares [WATCH_APP] in an `android_wear_capabilities` resource. */
 object Capabilities {
     const val WATCH_APP = "adhd_pal_watch"
 }
