@@ -9,6 +9,7 @@
 #   deadwatch   every 'shell' call to the watch hangs
 #   nopublish   the phone has no publish receiver (the broadcast fails)
 #   nopublishlog  the publish broadcast works but the phone never logs 'published schedule'
+#   unchanged   the phone logs 'published schedule unchanged'     publishfail  the phone logs 'publish failed reason=...'
 #   noapply     the schedule never reaches the watch
 #   nofire      the reminder never fires        latefire   the reminder fires 3 s late (the test sets a 1 s tolerance)
 #   nonotif     no notification is listed       noack      the ack never reaches the phone history
@@ -104,7 +105,9 @@ case "$sub" in
             fails nopublish && { echo "Error: Activity class {$comp} does not exist."; exit 0; }
             at=$(( t + minutes * ${FAKE_SECONDS_PER_MINUTE:-60} * 1000 ))
             ver=$(( $(cat "$D/version" 2>/dev/null || echo 0) + 1 )); echo "$ver" > "$D/version"; echo "$at" > "$D/reminderAt"
-            fails nopublishlog || event "$t" phone "published schedule version=$ver reminderAt=$at"
+            if fails unchanged; then event "$t" phone "published schedule unchanged reminderAt=$at"
+            elif fails publishfail; then event "$t" phone "publish failed reason=repositories not ready"
+            else fails nopublishlog || event "$t" phone "published schedule version=$ver reminderAt=$at"; fi
             fails noapply || event $((t + 300)) watch "schedule applied version=$ver"
             if ! fails nofire && ! fails noapply; then
               late=0; fails latefire && late=3000

@@ -148,7 +148,7 @@ e: wear/src/testDebug/.../debug/DemoActionTest.kt:22:23 Unresolved reference 'pe
 The script and its simulated `adb` were written together, because each defines the other's contract, so there is no separate red
 commit. Evidence that the test can fail instead: with the late-reminder rule broken on purpose
 (`if ($lateMs -gt 99999999)`) the test reported `FAIL TC-W-102 late reminder: exit 1 (expected 1, got 0)` and
-`FAIL TC-W-102 late reminder: Reminder FAIL (expected FAIL, got PASS)`; with the real rule it reports no failure (44 checks).
+`FAIL TC-W-102 late reminder: Reminder FAIL (expected FAIL, got PASS)`; with the real rule it reports no failure (48 checks, including a phone that has nothing new to publish or cannot publish).
 
 ## Not yet written (later steps)
 

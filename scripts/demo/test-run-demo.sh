@@ -85,6 +85,12 @@ run nopublish "nopublish" -WatchAddress $WATCH -SkipPush; check "TC-W-102 no pub
 check "TC-W-102 no publish receiver: Publish FAIL" FAIL "$(stage Publish)"
 check "TC-W-102 no publish receiver: Schedule NOT" NOT "$(stage Schedule)"
 
+# --- the phone has nothing new to send, or cannot publish
+run unchanged "unchanged" -WatchAddress $WATCH -SkipPush; check "TC-W-102 nothing new to publish: Publish FAIL" FAIL "$(stage Publish)"
+has "nothing new to send"; check "TC-W-102 nothing new to publish: says why" 0 $?
+run publishfail "publishfail" -WatchAddress $WATCH -SkipPush; check "TC-W-102 publish failed: Publish FAIL" FAIL "$(stage Publish)"
+has "repositories not ready"; check "TC-W-102 publish failed: shows the reason" 0 $?
+
 # --- readiness gate: nothing is installed or changed
 NOT_INSTALLED=1 run unauth "unauth" -WatchAddress $WATCH -SkipPush; check "TC-W-102 phone unauthorized: exit 2" 2 $rc
 has "unauthorized"; check "TC-W-102 phone unauthorized: says why" 0 $?

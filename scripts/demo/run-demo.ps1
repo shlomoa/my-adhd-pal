@@ -431,9 +431,16 @@ try {
     # --- Publish: the phone publishes a demo schedule ------------------------------------------------------------------
     $phoneBefore = Get-DeviceSeconds $Phone
     Send-Broadcast $Phone $PhonePublishAction $PhonePublishComponent @('--ei', 'minutes_ahead', "$MinutesAhead", '--es', 'title', $ReminderTitle)
-    $published = Wait-Demo $Phone '^published schedule version=(\d+) reminderAt=(\d+)' $PublishWaitSec
+    $published = Wait-Demo $Phone '^(published schedule (version=\d+ )?(unchanged )?reminderAt=\d+|publish failed reason=)' $PublishWaitSec
     if ($null -eq $published) {
-        Set-Result 'Publish' 'FAIL' "the phone did not log 'published schedule' within ${PublishWaitSec}s (is the debug phone app new enough? see docs/demo.md)"
+        Set-Result 'Publish' 'FAIL' "the phone did not log a 'published schedule' line within ${PublishWaitSec}s (is the debug phone app new enough? see docs/demo.md)"
+        $published = $null
+    } elseif ($published.Text -match '^publish failed') {
+        Set-Result 'Publish' 'FAIL' ("the phone could not publish: " + $published.Text)
+        $published = $null
+    } elseif ($published.Text -match 'unchanged') {
+        Set-Result 'Publish' 'FAIL' ("the phone had nothing new to send (" + $published.Text + "); run again, the reminder time is new each run")
+        $published = $null
     } else {
         [void]($published.Text -match 'version=(\d+) reminderAt=(\d+)')
         $version = [int64]$Matches[1]

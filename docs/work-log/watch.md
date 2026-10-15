@@ -233,7 +233,7 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   install of the debug apps, eight stages with PASS or FAIL, what to see on the watch, results pushed as a `demo-results/<time>`
   branch without device identifiers), a simulated `adb` and `scripts/demo/test-run-demo.sh`, and `docs/demo.md`. Catalogue cases
   TC-W-102 (script test) and TC-W-103 (the user's run).
-- Validation: `scripts/demo/test-run-demo.sh` with PowerShell 7.5.2: 44 checks pass; breaking the late-reminder rule on purpose makes
+- Validation: `scripts/demo/test-run-demo.sh` with PowerShell 7.5.2: 48 checks pass; breaking the late-reminder rule on purpose makes
   two of them fail (see the baseline report).
 - Open items: the script cannot pass on the real devices until the phone receivers (`PUBLISH_DEMO_SCHEDULE`, `DUMP_HISTORY`, after
   G3) and the real Data Layer transport on both sides exist. The phone receiver class names are a guess to confirm with the Android
