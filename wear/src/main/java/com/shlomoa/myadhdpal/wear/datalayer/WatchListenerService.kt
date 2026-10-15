@@ -22,7 +22,9 @@ class WatchListenerService : WearableListenerService() {
                 continue
             }
             val envelope = envelopeOf(item.toFieldMap())
-            if (envelope == null) Logger.w(TAG, "item at $path dropped: missing or mistyped key") else {
+            if (envelope == null) {
+                Logger.w(TAG, "item at $path dropped: missing or mistyped key")
+            } else {
                 transport.onDataChanged(path, envelope, origin)
             }
         }

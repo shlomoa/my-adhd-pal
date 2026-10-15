@@ -10,12 +10,12 @@ import com.shlomoa.myadhdpal.wear.link.FanOutListener
 import com.shlomoa.myadhdpal.wear.link.LinkClient
 import com.shlomoa.myadhdpal.wear.link.LinkView
 import com.shlomoa.myadhdpal.wear.prompt.PromptInbox
-import com.shlomoa.myadhdpal.wear.schedule.ScheduleReceiver
 import com.shlomoa.myadhdpal.wear.reminder.AndroidTimerPort
 import com.shlomoa.myadhdpal.wear.reminder.HapticPlayer
 import com.shlomoa.myadhdpal.wear.reminder.ReminderActionHandler
 import com.shlomoa.myadhdpal.wear.reminder.ReminderNotifier
 import com.shlomoa.myadhdpal.wear.schedule.FileScheduleStore
+import com.shlomoa.myadhdpal.wear.schedule.ScheduleReceiver
 import com.shlomoa.myadhdpal.wear.scheduler.AndroidAlarmPort
 import com.shlomoa.myadhdpal.wear.scheduler.FileSnoozeStore
 import com.shlomoa.myadhdpal.wear.scheduler.FiredReminder
@@ -82,8 +82,13 @@ class AppGraph(private val context: Context) {
             linkClient.onScheduleApplied(appliedAt)
             tileTriggers.onScheduleApplied()
         }
-        linkClient = LinkClient(link, appVersion(), newId = { UUID.randomUUID().toString() }, now = { Instant.now() },
-            lastSyncAt = scheduleStore.load()?.appliedAt)
+        linkClient = LinkClient(
+            link,
+            appVersion(),
+            newId = { UUID.randomUUID().toString() },
+            now = { Instant.now() },
+            lastSyncAt = scheduleStore.load()?.appliedAt
+        )
         linkClient.setOnChange(tileTriggers::onLinkChanged)
         promptInbox = PromptInbox(link, now = { Instant.now() })
         link.setListener(FanOutListener(linkClient, scheduleReceiver, promptInbox))
