@@ -1,0 +1,21 @@
+Spike 0b.2b results 20261015-085152 (commit bc1b4e5)
+Host: Microsoft Windows NT 10.0.26220.0, PowerShell 7.6.6
+Phone: samsung SM-A556E, Android 16 (API 36), One UI 80500, build BP4A.251205.006.A556EXXSIDZI3, Google Play services versionName=26.39.33 (260400-995470952), Galaxy Wearable versionName=2.2.72.26092361
+Watch: samsung SM-R965F, Android 16 (API 36), One UI 80000, build BP2A.250325.020.R965FXXS2CZF5, Google Play services versionName=26.39.33 (240300-995470952), Galaxy Wearable 
+Phone battery settings used: standby bucket at start '10'; in the Doze allow-list (battery optimisation exemption): False; Samsung 'sleeping apps' and 'deep sleeping apps' state: <fill in from checklist item 9, the script cannot read it>
+Clock skew: -90 ms (watch minus phone). Delay targets used: median urgent round trip <= 10000 ms nearby, <= 60000 ms relayed; away: all items within 180 s of restoring the radios
+C1 NOT SELECTED  
+C1b deletion symmetry PASS  clock skew watch-minus-phone -90 ms | watch->phone immediate: 3 items, still listed on the writer 0, on the deleter 0, writer saw EVENT-DELETED for 3 | watch->phone delayed: 3 items, still listed on the writer 0, on the deleter 0, writer saw EVENT-DELETED for 3 | phone->watch immediate: 3 items, still listed on the writer 0, on the deleter 0, writer saw EVENT-DELETED for 3 | phone->watch delayed: 3 items, still listed on the writer 0, on the deleter 0, writer saw EVENT-DELETED for 3
+C2 PARTIAL (C2b not run)  C2a: PASS KEEP item listed on both devices | C2b: NOT SELECTED 
+C3 app closed: kill NOT SELECTED, force-stop NOT SELECTED, Doze NOT SELECTED, rare bucket NOT SELECTED, restricted bucket NOT SELECTED  a:  | b:  | c:  | d-rare:  | d-restricted: 
+L1 Nearby NOT SELECTED  
+L2 Relayed NOT SELECTED  
+L3 Away NOT SELECTED  
+Anything unexpected: see the per-case logs in this folder (phone-<case>.log, watch-<case>.log).
+
+Not automated / differences from a real-world day:
+  - Pairing through the Galaxy Wearable app, and the Samsung battery-management screens, are manual checklist items; the script only checks that each side sees the other node.
+  - The phone radios are switched with adb (svc / settings); airplane mode, a watch out of range and a phone out of range are not the same radio state.
+  - Doze and standby buckets are forced with dumpsys / am; Samsung's own sleeping-apps list cannot be forced and needs days of non-use.
+  - The watch was kept on Wi-Fi (for adb) and, advised, on its charger; the watch's own battery behaviour is not tested here.
+  - delayMs values compare two clocks and are skew-contaminated; only round trips (sender clock) and host-clock seconds are delay measurements.
