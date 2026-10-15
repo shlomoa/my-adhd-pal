@@ -132,6 +132,21 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-102 | demo | script | `scripts/demo/run-demo.ps1` against a simulated adb: readiness gate, each stage PASS or FAIL, exit codes, results published | script test passes |
 | TC-W-103 | demo | manual | The user runs the demo with the real phone and watch and sees the notification, feels the haptic, and the ack is in the phone history | user reports in the work log |
 
+## Data Layer transport (demo path)
+
+| Id | Step | Kind | Case | Pass criteria |
+|---|---|---|---|---|
+| TC-W-110 | demo | unit | The cached transport lists nothing before the first load and the loaded items after it | `items()` equals the loaded set |
+| TC-W-111 | demo | unit | `put` updates the cache at once and writes asynchronously; a newer item at the same path replaces the older | cache and writer both hold the newer item |
+| TC-W-112 | demo | unit | `delete` removes the item from the cache at once and deletes it in the Data Layer | cache empty, one delete written |
+| TC-W-113 | demo | unit | An item changed by the other node is cached and reported once; one written by this node is cached already and not reported | one callback for the other node, none for the own |
+| TC-W-114 | demo | unit | An item deleted by the other node is removed and reported; a deletion by this node is not reported | one callback for the other node, none for the own |
+| TC-W-115 | demo | unit | A load that finishes after a local `put` or `delete` keeps the local change | the local state wins |
+| TC-W-116 | demo | unit | The link state is read from the injected observation, and a changed state reaches the listener once | one callback per change |
+| TC-W-117 | demo | unit | The `DataMap` mapping round-trips the four keys and rejects an item with a missing or mistyped key | equal envelope; null for a bad item |
+| TC-W-119 | demo | unit | Prompt, ack, selection and alert items are written urgent; hello, schedule and unknown paths are not | `isUrgent` per path |
+| TC-W-118 | demo | manual | On the real watch the phone's schedule arrives with the app closed and an ack reaches the phone | user reports (part of TC-W-015, TC-W-103) |
+
 ## Final (W-final)
 
 | Id | Step | Kind | Case | Pass criteria |

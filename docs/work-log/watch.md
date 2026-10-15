@@ -226,6 +226,21 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Open items: the real Data Layer transport on the watch (waiting for the Shared lane's answers), the demo script itself, and the
   phone receivers (G3).
 
+## 2026-10-15 - Real Data Layer transport on the watch
+
+- Issue and PR: none (demo path, coordinator priority), branch `claude/watch-datalayer`, stacked on `claude/shared-1-5` (needs
+  `LinkStateLogic` and `Capabilities` from #131)
+- Changed: `CachedTransport` (in-memory cache behind the synchronous `LinkTransport`, async writes through `ItemWriter`, remote events
+  reported only when another node wrote them, a late `load` never overwrites a newer change), `ItemMapping` (the four keys, urgent
+  paths), `DataLayerTransport` (Android: stored items read once, writes with `setUrgent` for prompt/ack/selection/alert, link state
+  from the node list, the `adhd_pal_phone` capability and the phone's hello via `LinkStateLogic`), `WatchListenerService` (manifest
+  filters `/schedule`, `/prompt/`, `/hello/phone`), `res/values/wear.xml` (declares `adhd_pal_watch`). `AppGraph` now builds the link
+  at every process start, wires `ScheduleReceiver`, `LinkClient`, `PromptInbox` and the tile triggers through a fan-out, publishes
+  `/hello/watch`, and `MainActivity` re-reads the link state every 2 s while shown. The watch deletes only its own items.
+- Validation: red commit `03b5d22` (tests only), then green: `./gradlew :wear:check :wear:lintDebug :wear:assembleRelease` successful.
+- Not run: TC-W-118 and the Data Layer calls themselves (manual, real devices); TC-W-008, TC-W-015, TC-W-045 and TC-W-103 stay NOT yet run.
+- Open items: the phone-side `DataLayerTransport` (Shared lane, 2.4) must use the same paths and keys; `MessageClient` is not used.
+
 ## 2026-10-15 - Demo script
 
 - Issue and PR: none yet (demo path, coordinator priority), branch `claude/watch-demo-script`

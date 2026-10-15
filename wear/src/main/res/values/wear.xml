@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Read by Google Play services, not by code. Found by the phone app to tell that this watch has the app (Capabilities.WATCH_APP). -->
+    <string-array name="android_wear_capabilities" tools:ignore="UnusedResources">
+        <item>adhd_pal_watch</item>
+    </string-array>
+</resources>
