@@ -200,3 +200,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/protocol.md` gets the "Link state machine" (`stateDiagram-v2`, states named like the `LinkState` members, transition times from the hardware spike) and the "Alert flow" (`sequenceDiagram`: reading, threshold and cooldown on the watch, urgent `/alert/<id>`, listener service, store once, delete) under Diagrams; the status line no longer says the diagrams wait for the spike.
 - Validation: `test-protocol-spec.sh` extended first and red (`shared-baseline.md`), then green: TC-S-077 for the two new blocks (Mermaid, diagram type, balanced blocks, no semicolons) and TC-S-079 (the diagram states equal the `LinkState` members, found by reading `LinkTransport.kt`). TC-S-078: all six diagrams of the file parsed and rendered without error with Mermaid 10.9.1 in headless Chromium; the PR's own rendered view is still for the reviewer. Doc lint green.
 - Open items: the G2b flip once this PR and the 1.5 PR (#131) are merged.
+
+## 2026-10-15 - Gate G2b: link-state function and diagrams
+
+- Issue and PR: steps 1.5 and 1.8b; PRs #131 and #132 are merged, this PR flips the gate.
+- Changed: `docs/plans/gates.json` sets G2b to merged with `pr` 131.
+- Validation: `scripts/require-gate.sh G2a G-DEC` passes; `scripts/test/test-gates.sh` passes.
+- Open items: 2.4 and 2.5 (phone Data Layer source and repositories) next, then the G3 flip.
