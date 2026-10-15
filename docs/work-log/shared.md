@@ -228,3 +228,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `DefaultScheduleRepository`, `DefaultPromptRepository`, `DefaultLinkStatusRepository` (moved from the in-memory references, which are aliases now), `DataStoreScheduleVersionStore`, `WatchEventProcessor` (row first, then `markStored`; phone hello at start), Hilt `StorageModule` and `RepositoryModule`, `MyAdhdPalApp` starts the processor and the source; `docs/data-layer.md` section.
 - Validation: `DefaultRepositoriesTest` (TC-S-092 contracts), `WatchEventProcessorTest` and `DataStoreScheduleVersionStoreTest` written first and red (`shared-baseline.md`), then green; `./gradlew check` (tests, spotless, detekt, lint, Hilt graph, release has no debug code) green.
 - Open items: G3 flip when 2.4 and 2.5 are merged; the hardware demo exercises `GmsDataLayerClient` and the listener service, which have no unit tests against real Play services.
+
+## 2026-10-15 - Gate G3: phone data layer
+
+- Issue and PR: steps 2.1 to 2.5; PRs #115, #137 and #138 are merged, this PR flips the gate.
+- Changed: `docs/plans/gates.json` sets G3 to merged with `pr` 138.
+- Validation: `scripts/require-gate.sh G3a G-LIB G2b` passes; `scripts/test/test-gates.sh` passes.
+- Open items: S-final later; the hardware demo exercises the real Data Layer path.
