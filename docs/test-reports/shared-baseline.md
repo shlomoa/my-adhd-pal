@@ -273,3 +273,7 @@ Red commit: tests only (`DaoTest`, `RoomRepositoriesTest` running the existing a
 ## Compose UI-test dependencies (issue 113, red)
 
 Red commit: `ComposeUiTestSampleTest` only (TC-S-144), before the dependencies exist. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'test'` for `androidx.compose.ui.test`.
+
+## 1.8b Link-state and alert diagrams (red)
+
+Red commit: `scripts/test/test-protocol-spec.sh` extended only (TC-S-077 requires the "Link state machine" and "Alert flow" Mermaid blocks, TC-S-079 compares the diagram's states with the `LinkState` members). Run against `docs/protocol.md` without the two diagrams: FAIL for "Link state machine is a Mermaid block", "is a stateDiagram-v2", "Alert flow is a Mermaid block", "is a sequenceDiagram", "diagram states equal the LinkState members (found: )" and "link-state diagram has a start".
