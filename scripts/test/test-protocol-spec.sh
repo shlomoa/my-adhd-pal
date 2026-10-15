@@ -43,7 +43,7 @@ section_block() { # heading -> mermaid block text under "### heading"
     in_s && blk && /^```/{blk=0; exit}
     in_s && blk{print}'
 }
-required="Schedule sync|Prompt, acknowledgement and selection|Hello and version check|Prompt state machine"
+required="Schedule sync|Prompt, acknowledgement and selection|Hello and version check|Prompt state machine|Link state machine|Alert flow"
 IFS='|' read -r -a names <<EOF2
 $required
 EOF2
@@ -52,7 +52,7 @@ for name in "${names[@]}"; do
   [ -n "$block" ]; check "TC-S-077 diagram '$name' is a Mermaid block" $?
   first="$(printf '%s\n' "$block" | sed -n '1p')"
   case "$name" in
-    "Prompt state machine") [ "$first" = "stateDiagram-v2" ]; check "TC-S-077 '$name' is a stateDiagram-v2" $?;;
+    "Prompt state machine"|"Link state machine") [ "$first" = "stateDiagram-v2" ]; check "TC-S-077 '$name' is a stateDiagram-v2" $?;;
     *) [ "$first" = "sequenceDiagram" ]; check "TC-S-077 '$name' is a sequenceDiagram" $?;;
   esac
   opens="$(printf '%s\n' "$block" | grep -cE '^[[:space:]]*(alt|opt|loop|par|critical|break|rect)([[:space:]]|$)')"
@@ -64,4 +64,16 @@ done
 # state machine: every transition target is declared or reachable, and there is a start and an end
 sm="$(section_block "Prompt state machine")"
 printf '%s\n' "$sm" | grep -qE '^[[:space:]]*\[\*\] -->' && printf '%s\n' "$sm" | grep -q -- '--> \[\*\]'; check "TC-S-077 prompt state machine has a start and an end" $?
+
+# TC-S-079: the states of the link-state machine are exactly the members of the LinkState enum (as the diagram names them
+# in `state "label" as NAME` lines and transitions), and the diagram starts somewhere and covers all five
+link_src="$(dirname "$0")/../../protocol/src/main/kotlin/com/shlomoa/myadhdpal/protocol/LinkTransport.kt"
+[ -n "${REPO_ROOT:-}" ] && link_src="$REPO_ROOT/protocol/src/main/kotlin/com/shlomoa/myadhdpal/protocol/LinkTransport.kt"
+enum_members="$(sed -n 's/^enum class LinkState {\(.*\)}.*/\1/p' "$link_src" | tr ',' '\n' | tr -d ' ' | sort)"
+lsm="$(section_block "Link state machine")"
+diagram_states="$(printf '%s\n' "$lsm" | sed -n '2,$p' | grep -oE '[A-Z][A-Z_]+' | sort -u)"
+[ -n "$enum_members" ]; check "TC-S-079 LinkState members found in LinkTransport.kt" $?
+[ "$diagram_states" = "$enum_members" ]; r=$?
+check "TC-S-079 link-state diagram states equal the LinkState members (found: $(echo $diagram_states))" $r
+printf '%s\n' "$lsm" | grep -qE '^[[:space:]]*\[\*\] -->'; check "TC-S-079 link-state diagram has a start" $?
 exit $fail
