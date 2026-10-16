@@ -277,3 +277,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `:protocol` `Alert.level` and `episodeId`, `AlertSettings.offsetBpm` and `initialBpm`, `AlertRules` constants, `EpisodeEnd` with `/episode-end/<id>` (phone to watch), `WatchStatus` with `/status/watch`, `Protocol.VERSION` 1.2; `docs/protocol.md` (catalog, models, version history, the "I'm OK" rule, alert flow diagram); test plan rows TC-S-150 to TC-S-156.
 - Validation: `Protocol12Test` and the version assertion written first and red (`shared-baseline.md`), then green; spotless, detekt and doc lint green. The existing codec, path, compatibility and spec tests stay green; 1.1 bodies decode (tested).
 - Open items: tell the Watch lane (evaluator 6.5, status writer, episode end handling) and the Android lane (the phone writes `/episode-end/<id>` on "I'm OK" and deletes its old ones) when merged; whether `/status/watch` stays in 1.2 is an open question in #168.
+
+## 2026-10-16 - Issue 171, need 2: publishing the end of an episode
+
+- Issue and PR: #171 (need 2 of 4); PR linked from the coordinator message.
+- Changed: `WatchLinkDataSource.publishEpisodeEnd(episodeId)` (the source builds `EpisodeEnd(episodeId, at)` with its clock and a fresh item id, urgent, `/episode-end/<id>`); `DataLayerWatchLinkDataSource` implements it and deletes the phone's own `/episode-end/<id>` items older than one hour when one is written and once at start (`EpisodeEndCleaner`, `PendingItems` moved out of the class for detekt); `FakeWatchLinkDataSource` records `publishedEpisodeEnds` and can fail them; `docs/data-layer.md`.
+- Validation: TC-S-162 and TC-S-163 written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green. A KDoc containing `/*` opens a nested comment in Kotlin, which ktlint reported as "Missing }": paths in comments are written as `<id>`.
+- Open items: needs 3 and 4 of #171.

@@ -30,6 +30,15 @@ class FakeWatchLinkDataSourceTest {
     private fun ack(id: String, at: Long) = WatchEvent.AckReceived(id, at, Acknowledgement(AckAction.DONE, at))
 
     @Test
+    fun `TC-S-162 the fake records the episode ends the app publishes and can fail them`() = runTest {
+        val source = FakeWatchLinkDataSource()
+        assertEquals(PublishResult.Sent, source.publishEpisodeEnd(id1))
+        source.failNextPublish("offline")
+        assertTrue(source.publishEpisodeEnd(id2) is PublishResult.Failed)
+        assertEquals(listOf(id1), source.publishedEpisodeEnds)
+    }
+
+    @Test
     fun `TC-S-090 the fake emits what the test publishes, in order`() = runTest {
         val source = FakeWatchLinkDataSource()
         source.connect(nearby = true)

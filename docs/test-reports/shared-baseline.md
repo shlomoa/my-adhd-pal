@@ -309,3 +309,7 @@ Not reproduced locally: with `cancel()` only, the new 100-round reopen test and 
 ## Protocol 1.2 (issue 168, red)
 
 Red commit: `Protocol12Test` (TC-S-150 to TC-S-156: alert level and episode id, relative threshold fields and constants, `EpisodeEnd` and its path, `WatchStatus`, version 1.2 and compatibility) and `ConstantsTest` expecting `Protocol.VERSION` 1.2, no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'level'`, `'episodeId'`, `'AlertRules'`, `'EpisodeEnd'`, `'WatchStatus'`, `'episodeEnd'`.
+
+## Issue 171, need 2: publishing the end of an episode (red)
+
+Red commit: `DataLayerWatchLinkDataSourceTest` TC-S-162 (urgent `EpisodeEnd` at a fresh `/episode-end/<id>`, `Failed` on a failing write) and TC-S-163 (the one-hour cleanup of the phone's own old episode-end items when writing one and once at start), `FakeWatchLinkDataSourceTest` TC-S-162 (records `publishedEpisodeEnds`), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'publishEpisodeEnd'`, `'publishedEpisodeEnds'`.

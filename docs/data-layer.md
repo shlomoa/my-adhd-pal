@@ -106,6 +106,9 @@ of `ItemKeys` (`v` int, `id`, `ts` long, `body`), the same as on the watch.
 - **Publishing.** `/schedule` (urgent only when the reminders or checkpoints firing in the next 30 minutes change,
   `ScheduleUrgency`; the first publish after start is urgent), `/prompt/<id>` (urgent), `/hello/phone` (not urgent). A
   failing write is `PublishResult.Failed` with the reason. `removePrompt` deletes the phone's own prompt.
+  `publishEpisodeEnd(episodeId)` (protocol 1.2, issue 171) writes the urgent `EpisodeEnd` at a fresh `/episode-end/<id>`; the
+  phone deletes its own `/episode-end/<id>` items older than one hour when it writes one and once at start
+  (`EpisodeEndCleaner`).
 - **Link state.** `LinkStateLogic.derive` over `NodeClient.getConnectedNodes()`, the nodes with the capability
   `adhd_pal_watch` and the version of the watch's hello (declared by the phone as `adhd_pal_phone` in
   `res/values/wear.xml`). Refreshed every 2 s only while something collects `linkState`, once at start otherwise.
