@@ -1,6 +1,6 @@
 # Documentation lane final report (D1, issue #154)
 
-Base: cf0b097 (`main` after PR 159); TC-D-014..020 (issue #157) were run on branch `claude/docs-checks` and merged in PR 161.
+Base: cf0b097 (`main` after PR 159); TC-D-014..020 (issue #157) were run on branch `claude/docs-checks` and merged in PR 161; TC-D-021..029 (issue #156) on branch `claude/docs-site`.
 Commands run from the repository root. The design is a proposal until the user approves it (approval by the user,
 recorded in issue #154).
 
@@ -23,5 +23,14 @@ recorded in issue #154).
 - TC-D-018 PASS: same script: `docs-lint.sh fix` repairs the format fixture and leaves the lint violation
 - TC-D-019 PASS: same script: lint, format and markdown pass on the repository documents
 - TC-D-020 PASS: same script: `check` calls `docs-lint.sh markdown`; `script-tests` runs the script; CI green on PR 161
+- TC-D-021 PASS: `scripts/test/test-docs-site.sh` (issue #156): every `docs/**/*.md` is reachable from `docs/index.md`
+- TC-D-022 PASS: same script: the index has the planned sections
+- TC-D-023 PASS: same script: `mkdocs.yml` docs_dir, strict, Material, Mermaid fence
+- TC-D-024 PASS: same script: requirements pinned with `==`
+- TC-D-025 PASS: same script: strict build passes, the site has an index page
+- TC-D-026 PASS: same script: a broken relative link fails the strict build and names the file; removal is green
+- TC-D-027 PASS: same script: index sections shown, Mermaid rendered in `protocol/index.html`
+- TC-D-028 PASS: same script: an orphan document is reported by name
+- TC-D-029 PASS: same script: the workflow runs the build and the test, `build/` is ignored
 
 `scripts/test/test-gates.sh`: no FAIL lines.

@@ -102,3 +102,23 @@ jobs:
       - name: Documentation lint and format checks
         if: ${{ !cancelled() }}
         run: scripts/test/test-doc-checks.sh
+
+      - name: Documentation index and site
+        if: ${{ !cancelled() }}
+        run: scripts/test/test-docs-site.sh
+
+  # The documentation site (mkdocs.yml, issue #156) is built in strict mode; the result is not published.
+  docs-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Every document is linked from docs/index.md
+        run: scripts/check-docs-index.sh
+
+      - name: Build the documentation site (strict)
+        run: scripts/docs-site.sh

@@ -62,11 +62,23 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   `links` green. Gradle-based checks (TC-S-015, TC-S-016) cannot run in this cloud session (no Android SDK); CI runs them.
 - Open items: the user may switch the format check to option A (Prettier, would rewrite 28 files) in the issue body.
 
+## 2026-10-16 - D2 Documentation index and generated site (issue #156)
+
+- Issue and PR: #156; PR `claude/docs-site`. The user accepted option A (MkDocs with the Material theme) in the issue body.
+- Changed: `docs/index.md` (sections, links to every document), `mkdocs.yml`, `tools/docs-site/requirements.txt` (exact pins),
+  `scripts/docs-site.sh` (strict build into `build/docs-site`), `scripts/check-docs-index.sh` (no orphan), a `docs-site` CI job
+  and `test-docs-site.sh` in `script-tests`; the two links in `docs/demo.md` and `docs/test-reports/watch-e2e-checklist.md`
+  that left `docs/` now point to the GitHub URL of `scripts/demo/run-demo.ps1` (a strict build treats them as unresolved).
+  The design pages are reachable through `plan.md`; the Design section of the index is added after G-DOC.
+- Validation: red baseline commit 1e16149, then `scripts/test/test-docs-site.sh` all PASS, docs lint (markdown, links) green.
+- Open items: approval step: the user approves the index structure and the built site (gate G-INDEX, recorded in the issue body); the Design section of the index
+  after G-DOC; publishing the site is a separate decision for the user.
+
 ## 2026-10-16 - D1.4 Approval is not a test case
 
 - Issue and PR: #154; PR `claude/docs-approval-step`. User rule relayed by the coordinator: a human approval is never a test case.
-- Changed: removed TC-D-013 from `docs/test-plans/docs.md`, `docs/test-reports/docs-baseline.md`, `docs-final.md`,
-  `scripts/test/test-design-docs.sh` and the plan row of D1.4; the approval is described as approval by the user, recorded in
+- Changed: removed the approval from the test catalogue, the baseline and final reports, `scripts/test/test-design-docs.sh` and the
+  plan row of D1.4; the approval is described as approval by the user, recorded in
   issue #154. `docs-final.md` lists each case as `TC-D-nnn PASS` so `check-test-cases.sh docs final` can read it. Other ids are not renumbered.
 - Validation: `scripts/check-test-cases.sh docs final` and `baseline` exit 0, `scripts/test/test-design-docs.sh` 10 PASS,
   docs lint (markdown, links) green.
