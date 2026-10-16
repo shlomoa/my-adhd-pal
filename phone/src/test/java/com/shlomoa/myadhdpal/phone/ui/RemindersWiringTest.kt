@@ -46,7 +46,7 @@ class RemindersWiringTest {
     fun `TC-A-119 save a task, add a reminder, see it listed, open it and delete it`() {
         compose.onNodeWithText("Tasks").performClick()
         waitForText("No tasks yet")
-        press("Add a task")
+        compose.onNodeWithText("Add a task").performClick()
         compose.onNode(hasText("What do you want to remember?")).performTextInput("Take the pills")
         press("Save")
 

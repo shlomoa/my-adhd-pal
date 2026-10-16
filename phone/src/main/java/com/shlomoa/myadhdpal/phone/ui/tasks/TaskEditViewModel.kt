@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 
 enum class TitleError { BLANK, TOO_LONG }
 
-data class TaskEditUiState(val title: String, val error: TitleError?, val saved: Boolean)
+/** [taskId] is the id of the task once it is saved (the new id for a new task), so reminders can be added to it. */
+data class TaskEditUiState(val title: String, val error: TitleError?, val saved: Boolean, val taskId: String? = null)
 
 private const val KEY_TASK_ID = "taskId"
 private const val KEY_TITLE = "title"
@@ -64,8 +65,9 @@ class TaskEditViewModel(
             return
         }
         viewModelScope.launch {
-            tasks.save(Task(taskId ?: newId(), title))
-            state.update { it.copy(error = null, saved = true) }
+            val id = taskId ?: newId()
+            tasks.save(Task(id, title))
+            state.update { it.copy(error = null, saved = true, taskId = id) }
         }
     }
 }

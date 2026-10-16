@@ -51,4 +51,10 @@
     <string name="alert_ok">I\'m OK</string>
     <string name="alert_channel_sound">Heart rate alerts (with sound)</string>
     <string name="alert_channel_silent">Heart rate alerts (silent)</string>
+    <string name="reminders_title">Reminders</string>
+    <string name="reminders_empty">No reminders yet.</string>
+    <string name="reminders_add">Add a reminder</string>
+    <string name="reminders_row">%1$s · %2$s</string>
+    <string name="reminders_every_day">Every day</string>
+    <string name="reminders_weekdays">Weekdays</string>
 </resources>

@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import com.shlomoa.myadhdpal.phone.MainActivity
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -44,6 +45,9 @@ class TasksWiringTest {
         compose.onNodeWithText("Add a task").performClick()
         compose.onNode(hasText("What do you want to remember?")).performTextInput("Take the pills")
         compose.onNodeWithText("Save").performClick()
+        // A saved task reopens with its reminders; leave the form to get back to the list.
+        waitForText("No reminders yet")
+        compose.onNodeWithText("Cancel").performScrollTo().performClick()
         // Order matters: the text field itself contains "Take the pills", so first wait for the form to close, then
         // for the list row (Room answers on its own executor, which Compose idling does not track).
         waitForNoText("What do you want to remember?")
