@@ -57,3 +57,19 @@ an approval step of the plan (gate G-INDEX), not a test case.
 | TC-D-027 | script | Built site | the index page shows the sections and the Mermaid diagrams of `protocol.md` are rendered as diagrams |
 | TC-D-028 | script | Orphan detected | a document not linked from the index makes `check-docs-index.sh` exit 1 and name it |
 | TC-D-029 | CI | CI build | the `build` workflow runs `scripts/docs-site.sh`, the `script-tests` job runs `test-docs-site.sh`, and the generated site is ignored by git |
+
+## Aurora restyle of the design images (issue #164, D4)
+
+`scripts/test/test-design-style.sh` runs these cases (python3, standard library only). The user's approval of the look is
+approval by the user, recorded in issue #164; it is not a test case.
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-D-031 | script | W4 is the reference | `docs/design/images/W4-choice.png` has the sha256 of the approved reference file, is 1254x1254 RGBA, transparent in the corners and opaque in the center |
+| TC-D-032 | script | Pixel sizes | P1-P6 and P8-P13 are 780x1688, P7 is 780x2000, W1-W9 are 1254x1254, the overview is 2400x1280 |
+| TC-D-033 | script | Watch circles | W1-W9 are transparent outside the circle (corners) and opaque in the center |
+| TC-D-034 | script | Rendered from the sources | `docs/design/source/render-manifest.json` holds, for every image except the reference W4, the hash of the board and `ui.css` it was rendered from, and it equals the current files |
+| TC-D-035 | script | Contrast | the text, soft text and button label colors of `ui.css` meet 4.5:1 on their backgrounds (page, card, button gradient stops, alert backgrounds) |
+| TC-D-036 | script | Alert levels | the level 1 and level 2 boards differ by text and by icon, on the phone (P10, P11) and on the watch (W7, W8) |
+| TC-D-037 | script | Wording | the section texts say "aurora", keep "proposed design" and the undecided tile action, and no old color wording is left |
+| TC-D-038 | script | Old palette gone | none of the legacy colors is left in `ui.css` or the boards |

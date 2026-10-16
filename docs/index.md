@@ -31,7 +31,8 @@ body of the GitHub issue of each step; the documents record what was decided and
   [watch end-to-end checklist](test-reports/watch-e2e-checklist.md),
   [documentation baseline](test-reports/docs-baseline.md), [documentation final](test-reports/docs-final.md),
   [documentation checks baseline](test-reports/docs-checks-baseline.md),
-  [documentation site baseline](test-reports/docs-site-baseline.md).
+  [documentation site baseline](test-reports/docs-site-baseline.md),
+  [aurora style baseline](test-reports/docs-style-baseline.md).
 
 ## Spikes and research
 

@@ -83,3 +83,15 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `scripts/check-test-cases.sh docs final` and `baseline` exit 0, `scripts/test/test-design-docs.sh` 10 PASS,
   docs lint (markdown, links) green.
 - Open items: G-DOC flips only after the user approves the design (recorded in issue #154).
+
+## 2026-10-16 - D4.1 Aurora restyle: tests first and the W4 reference image (issue #164)
+
+- Issue and PR: #164 (created for this order); PR `claude/docs-style-tests`.
+- Changed: `docs/design/images/W4-choice.png` is the user's approved reference image (copied with `git show` from
+  `handoff/W4-aurora-reference.png` on branch `claude/wonderful-darwin-gm3w0y`, not merged; 1254x1254 RGBA, sha256 74dc8655...);
+  catalogue `TC-D-031..038`, `scripts/test/test-design-style.sh` (not in CI until the restyle is green), red baseline
+  `docs/test-reports/docs-style-baseline.md` (commit 93adb71); D4 row in `docs/plans/docs.md`.
+- Validation: `scripts/require-gate.sh G-BOOT` exited 0; the three W4 cases of TC-D-031 now PASS and the other cases stay red
+  until D4.2; docs lint (markdown, links) green and `test-design-docs.sh` green.
+- Open items: D4.2 restyles `ui.css` and the boards, re-renders the images and updates the color wording; the user's approval
+  of the look is recorded in issue #164.
