@@ -369,3 +369,11 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug
   :wear:assembleRelease checkNoDebugInRelease`. The Health Services calls and the vibration are not unit-tested.
 - NOT yet run: TC-W-136 and TC-W-137 (the user's runs on the watch). Nothing else of 6.4 is built until the answers are in.
+
+## 2026-10-16 - Episode evaluator ignores absolute thresholds (TC-W-138)
+
+- Issue and PR: step 6.5, branch `claude/watch-6-5c`; asked by the Android lane (#180)
+- Changed: test only, `EpisodeEvaluatorTest`: `AlertSettings.thresholds` (absolute values such as the phone's old 150 bpm default) are not
+  read by `EpisodeEvaluator`; only `baseline + offsetBpm`, or `initialBpm` until a baseline exists, counts (decision in issue #55).
+- Validation: the test passes at once because the evaluator never read `thresholds`; it is a regression guard, not a red-first test. A
+  mutation (making the evaluator use `thresholds`) made TC-W-138 fail, then it was reverted. `./gradlew detekt spotlessCheck :protocol:check`.

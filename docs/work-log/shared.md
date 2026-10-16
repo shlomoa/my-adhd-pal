@@ -305,3 +305,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `HistoryEntry.AlertRaised` gets `level` (default 1) and `episodeId` (default null); `HistoryEntity` columns `level` and `episodeId`; Room database version 2 with `MIGRATION_1_2` (`ALTER TABLE history ADD COLUMN`, old alerts level 1, no episode) and the committed `2.json`; `RoomHistoryRepository` and the in-memory fake pass the fields through (the decoder already carries them in `Alert`); `docs/data-layer.md` migration policy text.
 - Validation: TC-S-160 (contract) and TC-S-161 (`MigrationTest`) written first and red (`shared-baseline.md`), then green; `MigrationTest` builds the version 1 database from the committed `1.json` because `MigrationTestHelper` could not find the schema assets under Robolectric; `detekt spotlessCheck check` green.
 - Open items: needs 2 to 4 of #171 (episode end publishing and cleanup, offset and initial threshold in the settings, the watch status); Android lane reads `level` in `AlertRaiser` after this merges.
+
+## 2026-10-16 - No absolute heart-rate threshold in the defaults
+
+- Issue and PR: #180 question from the Android lane; decision in the issue 55 body (baseline plus offset is the only threshold rule, `initialBpm` 110 until a baseline exists).
+- Changed: `SettingsDefaults` no longer has the 150 bpm heart-rate threshold (`thresholds` is empty); `docs/data-layer.md` settings table. The `thresholds` list in `AppSettings`, its validation and the protocol `AlertSettings.thresholds` field stay: 1.1 watches still read that field and the protocol is additive, so removing it would be a major change.
+- Validation: TC-S-098 changed first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
+- Open items: none for this change; the Android lane stops showing or using the 150 value.

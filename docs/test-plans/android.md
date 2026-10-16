@@ -158,6 +158,13 @@ repositories exist (G3).
 | TC-A-107 | If telling the watch fails, the phone's alert is still stopped and the failure is reported | Unit | Stopped; result NotSent with the reason |
 | TC-A-108 | Tapping "I'm OK" on the alert screen writes the episode end for that episode | Unit (Hilt + Compose, fake Data Layer client) | An `/episode-end/` item is written; the screen closes |
 | TC-A-109 | On the A55 and the Watch6 Classic, "I'm OK" on the phone ends the episode on the watch | Manual | The watch stops repeating its alert |
+| TC-A-110 | The alert offset is shown with its default of 30 and a change within 20 to 50 is saved and published | Unit | Stored; a new schedule version carries it |
+| TC-A-111 | An offset below 20 or above 50 is rejected and the old value kept | Unit | `OFFSET_OUT_OF_RANGE`; nothing published |
+| TC-A-112 | The initial threshold (used until the watch has a baseline) can be changed within its range and is rejected outside it | Unit | Stored, or `INITIAL_OUT_OF_RANGE` with the old value kept |
+| TC-A-113 | The watch's baseline, threshold and heart-rate permission are shown, and "not reported yet" before the watch has sent them | Unit | State follows the watch status repository |
+| TC-A-114 | The alert sound and flashing switches default to on and a change is kept | Unit | Preferences store updated |
+| TC-A-115 | The Settings tab in the app saves a changed offset and says so when the value is out of range | Unit (Hilt + Compose, fake Data Layer client) | Valid value stays after Save; invalid shows the error and keeps the old value |
+| TC-A-116 | On the A55 and the Watch6 Classic, a changed offset reaches the watch: the watch's reported threshold follows baseline plus the new offset | Manual | Settings screen shows the new threshold after the watch reports |
 | TC-A-117 | A task's reminders are listed in time order, and only that task's | Unit | Sorted by minute of day; other tasks' reminders absent |
 | TC-A-118 | A task without reminders shows the Empty state | Unit | `ListState.Empty` |
 | TC-A-119 | In the app: save a task, add a reminder to it, see it listed, open it and delete it | Unit (Hilt + Compose, fake Data Layer client) | Reminder shown as time and days; gone after Delete |
