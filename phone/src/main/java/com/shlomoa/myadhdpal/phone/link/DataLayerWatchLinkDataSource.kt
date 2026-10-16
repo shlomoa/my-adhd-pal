@@ -5,7 +5,9 @@ import com.shlomoa.myadhdpal.phone.data.WatchEvent
 import com.shlomoa.myadhdpal.phone.data.WatchLinkDataSource
 import com.shlomoa.myadhdpal.protocol.Capabilities
 import com.shlomoa.myadhdpal.protocol.Codec
+import com.shlomoa.myadhdpal.protocol.EpisodeEnd
 import com.shlomoa.myadhdpal.protocol.Hello
+import com.shlomoa.myadhdpal.protocol.ItemPath
 import com.shlomoa.myadhdpal.protocol.LinkObservation
 import com.shlomoa.myadhdpal.protocol.LinkState
 import com.shlomoa.myadhdpal.protocol.LinkStateLogic
@@ -43,11 +45,11 @@ class DataLayerWatchLinkDataSource(
     private val clock: Clock,
     private val refreshMillis: Long = DEFAULT_REFRESH_MILLIS
 ) : WatchLinkDataSource {
+    private val episodeEnds = EpisodeEndCleaner(client, clock)
     private val state = MutableStateFlow(LinkState.AWAY)
     private val sync = MutableStateFlow<Instant?>(null)
     private val channel = Channel<WatchEvent>(Channel.UNLIMITED)
-    private val pending = mutableMapOf<String, RemoteItem>()
-    private val lock = Any()
+    private val pending = PendingItems()
     private var watchHelloVersion: String? = null
     private var lastSchedule: Schedule? = null
 
@@ -66,6 +68,7 @@ class DataLayerWatchLinkDataSource(
     fun start(scope: CoroutineScope) {
         scope.launch {
             attempt { scanExisting() }
+            attempt { episodeEnds.deleteOld() }
             attempt { refreshLinkState() }
             state.subscriptionCount.map { it > 0 }.distinctUntilChanged().collectLatest { watched ->
                 while (watched) {
@@ -87,15 +90,12 @@ class DataLayerWatchLinkDataSource(
             val decoded = WatchItemDecoder.decode(item) ?: continue
             if (decoded.isHello) watchHelloVersion = decoded.helloVersion
             decoded.status?.let { if (latestStatus.accept(it, decoded.statusAt)) sync.value = clock.instant() }
-            decoded.event?.let { deliver(it, item) }
+            val event = decoded.event
+            if (event != null && pending.offer(event.id, item)) {
+                channel.trySend(event)
+                sync.value = clock.instant()
+            }
         }
-    }
-
-    private fun deliver(event: WatchEvent, item: RemoteItem) {
-        val isNew = synchronized(lock) { pending.putIfAbsent(event.id, item) == null }
-        if (!isNew) return
-        channel.trySend(event)
-        sync.value = clock.instant()
     }
 
     suspend fun refreshLinkState() {
@@ -122,12 +122,18 @@ class DataLayerWatchLinkDataSource(
         return put(Paths.pathFor(id, hello), id, hello, urgent = false)
     }
 
+    override suspend fun publishEpisodeEnd(episodeId: String): PublishResult {
+        attempt { episodeEnds.deleteOld() }
+        val id = UUID.randomUUID().toString()
+        return put(Paths.episodeEnd(id), id, EpisodeEnd(episodeId, clock.millis()), urgent = true)
+    }
+
     override suspend fun removePrompt(id: String) {
         attempt { client.delete(client.localNode(), Paths.prompt(id)) }
     }
 
     override suspend fun markStored(event: WatchEvent) {
-        val item = synchronized(lock) { pending.remove(event.id) } ?: return
+        val item = pending.remove(event.id) ?: return
         if (event is WatchEvent.HelloReceived) return
         // If the delete fails the item stays in the Data Layer and is handled again by id (idempotent), not lost.
         attempt { client.delete(item.nodeId, item.path) }

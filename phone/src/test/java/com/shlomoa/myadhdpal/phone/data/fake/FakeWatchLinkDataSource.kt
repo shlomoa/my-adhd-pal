@@ -36,6 +36,7 @@ class FakeWatchLinkDataSource(private val now: () -> Instant = { Instant.now() }
     val publishedSchedules = mutableListOf<Schedule>()
     val publishedPrompts = mutableListOf<Pair<String, Prompt>>()
     val publishedHellos = mutableListOf<Hello>()
+    val publishedEpisodeEnds = mutableListOf<String>()
     val removedPrompts = mutableListOf<String>()
     val storedIds = mutableListOf<String>()
 
@@ -72,6 +73,9 @@ class FakeWatchLinkDataSource(private val now: () -> Instant = { Instant.now() }
         publish { publishedPrompts += id to prompt }
 
     override suspend fun publishHello(hello: Hello): PublishResult = publish { publishedHellos += hello }
+
+    override suspend fun publishEpisodeEnd(episodeId: String): PublishResult =
+        publish { publishedEpisodeEnds += episodeId }
 
     override suspend fun removePrompt(id: String) {
         removedPrompts += id

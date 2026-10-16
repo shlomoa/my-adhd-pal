@@ -10,8 +10,10 @@ import com.shlomoa.myadhdpal.protocol.Capabilities
 import com.shlomoa.myadhdpal.protocol.Codec
 import com.shlomoa.myadhdpal.protocol.DecodeResult
 import com.shlomoa.myadhdpal.protocol.Envelope
+import com.shlomoa.myadhdpal.protocol.EpisodeEnd
 import com.shlomoa.myadhdpal.protocol.HeartRatePermission
 import com.shlomoa.myadhdpal.protocol.Hello
+import com.shlomoa.myadhdpal.protocol.ItemPath
 import com.shlomoa.myadhdpal.protocol.LinkState
 import com.shlomoa.myadhdpal.protocol.Message
 import com.shlomoa.myadhdpal.protocol.Metric
@@ -46,6 +48,7 @@ class DataLayerWatchLinkDataSourceTest {
     private val ackId = "123e4567-e89b-42d3-a456-426614174001"
     private val selId = "123e4567-e89b-42d3-a456-426614174002"
     private val alertId = "123e4567-e89b-42d3-a456-426614174003"
+    private val episodeId = "423e4567-e89b-42d3-a456-426614174009"
     private val promptId = "123e4567-e89b-42d3-a456-426614174004"
     private val now = Instant.parse("2026-10-15T08:00:00Z")
     private val clock = Clock.fixed(now, ZoneOffset.UTC)
@@ -189,6 +192,78 @@ class DataLayerWatchLinkDataSourceTest {
         runCurrent()
         assertEquals(status, source.watchStatus.value)
         assertTrue(client.deletes.isEmpty())
+    }
+
+    @Test
+    fun `TC-S-162 publishing an episode end puts an urgent EpisodeEnd at a fresh episode-end path`() = runTest {
+        assertEquals(PublishResult.Sent, source.publishEpisodeEnd(episodeId))
+        val put = client.puts.single()
+        assertTrue(put.path, put.path.startsWith(Paths.EPISODE_END_PREFIX))
+        assertTrue(Paths.parse(put.path) is ItemPath.EpisodeEnd)
+        assertTrue(put.urgent)
+        val decoded = Codec.decode(put.path, put.envelope) as DecodeResult.Ok
+        assertEquals(EpisodeEnd(episodeId, now.toEpochMilli()), decoded.item.message)
+        source.publishEpisodeEnd(episodeId)
+        assertTrue("each end gets its own item id", client.puts[0].path != client.puts[1].path)
+    }
+
+    @Test
+    fun `TC-S-162 a failing write of the episode end is reported as Failed`() = runTest {
+        client.failPutWith = "no connection"
+        val result = source.publishEpisodeEnd(episodeId)
+        assertTrue(result is PublishResult.Failed)
+        assertTrue(client.puts.isEmpty())
+    }
+
+    @Test
+    fun `TC-S-163 writing an episode end deletes the phone's own episode-end items older than one hour`() = runTest {
+        val local = client.localNodeId
+        val oldId = "323e4567-e89b-42d3-a456-426614174001"
+        val freshId = "323e4567-e89b-42d3-a456-426614174002"
+        val hourAgo = now.toEpochMilli() - 3_600_000
+        client.items = listOf(
+            RemoteItem(
+                local,
+                Paths.episodeEnd(oldId),
+                Codec.encode(
+                    oldId,
+                    hourAgo - 1,
+                    EpisodeEnd(
+                        episodeId,
+                        hourAgo - 1
+                    )
+                )
+            ),
+            RemoteItem(
+                local,
+                Paths.episodeEnd(freshId),
+                Codec.encode(
+                    freshId,
+                    hourAgo + 1,
+                    EpisodeEnd(
+                        episodeId,
+                        hourAgo + 1
+                    )
+                )
+            ),
+            item(Paths.ack(ackId), ackId, ack, 1, node = watchNode),
+            RemoteItem(local, Paths.prompt(promptId), Codec.encode(promptId, 1, prompt()))
+        )
+        source.publishEpisodeEnd(episodeId)
+        assertEquals("only the old own episode end goes", listOf(local to Paths.episodeEnd(oldId)), client.deletes)
+    }
+
+    @Test
+    fun `TC-S-163 the same cleanup runs once at start`() = runTest {
+        val local = client.localNodeId
+        val oldId = "323e4567-e89b-42d3-a456-426614174001"
+        val old = now.toEpochMilli() - 4_000_000
+        client.items = listOf(
+            RemoteItem(local, Paths.episodeEnd(oldId), Codec.encode(oldId, old, EpisodeEnd(episodeId, old)))
+        )
+        source.start(backgroundScope)
+        runCurrent()
+        assertEquals(listOf(local to Paths.episodeEnd(oldId)), client.deletes)
     }
 
     @Test

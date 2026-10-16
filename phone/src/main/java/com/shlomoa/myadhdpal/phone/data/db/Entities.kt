@@ -1,5 +1,6 @@
 package com.shlomoa.myadhdpal.phone.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -40,7 +41,9 @@ data class HistoryEntity(
     val value: Double? = null,
     val threshold: Double? = null,
     val reminderId: String? = null,
-    val occurrenceAt: Long? = null
+    val occurrenceAt: Long? = null,
+    @ColumnInfo(defaultValue = "1") val level: Int = 1,
+    val episodeId: String? = null
 ) {
     companion object {
         const val TYPE_ACK = "ACK"
@@ -53,7 +56,23 @@ data class HistoryEntity(
         fun selection(id: String, at: Long, key: String, promptTitle: String? = null) =
             HistoryEntity(id, TYPE_SELECTION, at, key = key, promptTitle = promptTitle)
 
-        fun alert(id: String, at: Long, metric: String, value: Double, threshold: Double) =
-            HistoryEntity(id, TYPE_ALERT, at, metric = metric, value = value, threshold = threshold)
+        fun alert(
+            id: String,
+            at: Long,
+            metric: String,
+            value: Double,
+            threshold: Double,
+            level: Int = 1,
+            episodeId: String? = null
+        ) = HistoryEntity(
+            id,
+            TYPE_ALERT,
+            at,
+            metric = metric,
+            value = value,
+            threshold = threshold,
+            level = level,
+            episodeId = episodeId
+        )
     }
 }

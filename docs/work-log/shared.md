@@ -284,3 +284,17 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `WatchLinkDataSource.watchStatus: StateFlow<WatchStatus?>` (state, not an event: never deleted by the phone, read again at start, the newest item by `ts` wins via `LatestStatus`, `lastSync` updates), `WatchItemDecoder` decodes `/status/watch`, `WatchStatusRepository` and `DefaultWatchStatusRepository` (Hilt in `StorageModule`), `FakeWatchLinkDataSource.setWatchStatus`; `docs/data-layer.md`.
 - Validation: TC-S-165 (source, fake and the new `WatchStatusRepositoryContract`) written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
 - Open items: #171 is complete with this PR and #175, #176, #177; lane A shows the status on the settings screen and in the onboarding (A-alert-2).
+
+## 2026-10-16 - Issue 171, need 2: publishing the end of an episode
+
+- Issue and PR: #171 (need 2 of 4); PR linked from the coordinator message.
+- Changed: `WatchLinkDataSource.publishEpisodeEnd(episodeId)` (the source builds `EpisodeEnd(episodeId, at)` with its clock and a fresh item id, urgent, `/episode-end/<id>`); `DataLayerWatchLinkDataSource` implements it and deletes the phone's own `/episode-end/<id>` items older than one hour when one is written and once at start (`EpisodeEndCleaner`, `PendingItems` moved out of the class for detekt); `FakeWatchLinkDataSource` records `publishedEpisodeEnds` and can fail them; `docs/data-layer.md`.
+- Validation: TC-S-162 and TC-S-163 written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green. A KDoc containing `/*` opens a nested comment in Kotlin, which ktlint reported as "Missing }": paths in comments are written as `<id>`.
+- Open items: needs 3 and 4 of #171.
+
+## 2026-10-16 - Issue 171, need 1: alert level and episode in the history
+
+- Issue and PR: #171 (need 1 of 4); PR linked from the coordinator message.
+- Changed: `HistoryEntry.AlertRaised` gets `level` (default 1) and `episodeId` (default null); `HistoryEntity` columns `level` and `episodeId`; Room database version 2 with `MIGRATION_1_2` (`ALTER TABLE history ADD COLUMN`, old alerts level 1, no episode) and the committed `2.json`; `RoomHistoryRepository` and the in-memory fake pass the fields through (the decoder already carries them in `Alert`); `docs/data-layer.md` migration policy text.
+- Validation: TC-S-160 (contract) and TC-S-161 (`MigrationTest`) written first and red (`shared-baseline.md`), then green; `MigrationTest` builds the version 1 database from the committed `1.json` because `MigrationTestHelper` could not find the schema assets under Robolectric; `detekt spotlessCheck check` green.
+- Open items: needs 2 to 4 of #171 (episode end publishing and cleanup, offset and initial threshold in the settings, the watch status); Android lane reads `level` in `AlertRaiser` after this merges.
