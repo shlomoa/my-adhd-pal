@@ -48,6 +48,13 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-144 | issue 113 | unit | Compose UI tests run on the JVM | a `createComposeRule()` test finds and clicks a node under Robolectric in `:phone:testDebugUnitTest`; `./gradlew check` stays green |
 | TC-S-145 | spike content | script | Spike apps are debug-only | `scripts/test/test-spike.sh`: the four spike classes are in `src/debug/.../debug/spike` of `:phone` and `:wear`, nothing spike-related is under `src/main` or in the main manifests, the debug manifests declare the three components, and a built release APK contains no spike class |
 | TC-S-146 | spike content | script | Spike runners and their simulated suites | the same script: both runners are in `scripts/spike/` and `test-run-0b2a.sh` and `test-run-0b2b.sh` pass against the simulated adb (needs `pwsh`) |
+| TC-S-150 | protocol 1.2 | unit | Alert level | default 1, 1 and 2 accepted, other values rejected, round trip, a 1.1 body decodes as level 1 |
+| TC-S-151 | protocol 1.2 | unit | Alert episode id | canonical UUID or absent, invalid rejected, not written when absent |
+| TC-S-152 | protocol 1.2 | unit | Relative threshold fields | `offsetBpm` 20-50 default 30, `initialBpm` 30-220 default 110, constants, round trip, a 1.1 schedule body decodes with the defaults |
+| TC-S-153 | protocol 1.2 | unit | `EpisodeEnd` model | round trip, invalid episode id and negative time rejected, extra fields ignored |
+| TC-S-154 | protocol 1.2 | unit | `/episode-end/<id>` path | builds, parses, rejects bad ids and shapes, `pathFor` |
+| TC-S-155 | protocol 1.2 | unit | `WatchStatus` | round trip with and without optional numbers, unknown permission invalid, path `/status/watch`, ranges |
+| TC-S-156 | protocol 1.2 | unit | Version 1.2 and compatibility | `Protocol.VERSION` 1.2, major 1, a 1.1 hello is compatible, new items decode |
 
 ## Part b: protocol (milestone 1, `:protocol`; needs G-SPK1 for 1.1-1.3; G1 for 1.4, 1.6, 1.7 and 1.8a (gate G2a); G2a and G-DEC for 1.5 and 1.8b (gate G2b))
 

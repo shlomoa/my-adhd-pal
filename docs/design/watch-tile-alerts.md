@@ -24,7 +24,7 @@ vibrates and wakes the screen ([`biometrics.md`](../plans/biometrics.md) section
 
 ![W8 Heart-rate alert level 2](images/W8-alert-level-2.png)
 
-The escalation: "Still high", the value, "I'm OK" and "Repeats every 2 min", in a stronger colour. It follows level 1 when
+The escalation: "Still high", the value, "I'm OK" and "Repeats every 2 min", with an alert triangle instead of the heart and an amber to magenta ring and aurora instead of violet. It follows level 1 when
 the rate is still above the threshold after the 5-minute cooldown, then repeats every 2 minutes, at most 6 times.
 "I'm OK" ends the episode.
 

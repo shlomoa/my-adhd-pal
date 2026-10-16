@@ -20,6 +20,8 @@ body of the GitHub issue of each step; the documents record what was decided and
 - [Watch-phone protocol](protocol.md): item catalog, format, versioning, link states, diagrams and the transport
   verification results.
 - [Phone data layer contract](data-layer.md): repositories, storage, the Data Layer source and the contract tests.
+- [Phone alert design](phone-alert.md): how the phone vibrates and shows a full-screen alert for a biometric alert from the
+  watch, what can suppress it, and the steps.
 
 ## Test plans and reports
 
@@ -31,7 +33,8 @@ body of the GitHub issue of each step; the documents record what was decided and
   [watch end-to-end checklist](test-reports/watch-e2e-checklist.md),
   [documentation baseline](test-reports/docs-baseline.md), [documentation final](test-reports/docs-final.md),
   [documentation checks baseline](test-reports/docs-checks-baseline.md),
-  [documentation site baseline](test-reports/docs-site-baseline.md).
+  [documentation site baseline](test-reports/docs-site-baseline.md),
+  [aurora style baseline](test-reports/docs-style-baseline.md).
 
 ## Spikes and research
 

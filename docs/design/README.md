@@ -10,6 +10,19 @@ screens (W1-W9). The images are in [`images/`](images) and their sources in [`so
 
 ![Overview of the screen designs](images/overview-screens.png)
 
+## Style: aurora
+
+The proposed design has one visual language on the phone and on the watch, taken from the approved reference image of
+W4 ([Watch main flow](watch-main-flow.md)). The background is deep midnight blue with smooth, flowing aurora light
+(teal, cobalt, violet, a little magenta) near the edges, kept dark and quiet behind the text. The watch face is round with
+a continuous gradient ring from mint and cyan (upper left) through blue to violet and magenta (lower right). Buttons are
+large, spaced pills with gentle gradients: mint to turquoise for the primary action (dark play or check icon), sunny
+yellow to amber for the second (dark pause icon), lavender to violet for the third (dark forward icon). Headings are bold
+white, button labels and icons are deep midnight navy, supporting text is soft white or pale cool gray, icons sit on the
+left and labels are centered. The two heart-rate alert levels differ by more than color: level 1 shows a heart icon and
+"Your heart rate is high", level 2 an alert triangle and "Still high". The colors and the contrast of the text are defined
+once, in [`source/ui.css`](source/ui.css).
+
 ## Table of contents
 
 | Document | Contents |

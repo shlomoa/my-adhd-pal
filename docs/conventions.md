@@ -19,6 +19,14 @@ One log per lane in `docs/work-log/`. Entries follow the format in [`work-log.md
 `## YYYY-MM-DD - <step id> <title>` and the bullets *Issue and PR*, *Changed*, *Validation* and *Open items*.
 `scripts/check-work-log.sh` verifies the format.
 
+## Documentation
+
+[`index.md`](index.md) is the single entry point of the documentation. Every new markdown file under `docs/` must be linked
+from `docs/index.md` (directly, or through a page it links) in the same pull request; the `docs-site` CI job runs
+`scripts/check-docs-index.sh` and builds the site in strict mode, so a document nobody links or a broken link fails the PR.
+Other documents are linked, never copied. `scripts/docs-lint.sh lint` and `format` (and `fix` for the formatting rules)
+check the markdown style.
+
 ## Debug code
 
 Debug-only code (verbose logs, raw biometrics, injected-message receivers, debug log views) lives in

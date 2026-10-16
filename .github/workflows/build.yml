@@ -107,6 +107,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: scripts/test/test-docs-site.sh
 
+      - name: Design images follow the aurora style
+        if: ${{ !cancelled() }}
+        run: scripts/test/test-design-style.sh
+
   # The documentation site (mkdocs.yml, issue #156) is built in strict mode; the result is not published.
   docs-site:
     runs-on: ubuntu-latest

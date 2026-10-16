@@ -40,14 +40,14 @@ the phone only sees alerts.
 ![P10 Phone alert level 1](images/P10-alert-level-1.png)
 
 When an `/alert` arrives the phone raises its own alert ([`biometrics.md`](../plans/biometrics.md) section 4a). Level 1 is a
-full-screen, warm-coloured alert: "Your heart rate is high", the value and the alert level, a breathing circle and one big
+full-screen alert in the aurora style (violet midnight with aurora light): a heart icon, "Your heart rate is high", the value and the alert level, a breathing circle and one big
 "I'm OK" button that ends the episode.
 
 ## P11 Phone alert, level 2
 
 ![P11 Phone alert level 2](images/P11-alert-level-2.png)
 
-Level 2 is the stronger, escalated alert: stronger colour, larger type and button ("Still high. Stop for a moment."), the
+Level 2 is the stronger, escalated alert: a magenta and amber aurora instead of violet, an alert triangle instead of the heart, larger type and button ("Still high. Stop for a moment."), the
 value and the instruction to sit down and breathe slowly. "I'm OK" ends the episode. "Turn off flashing" is always
 available. Level 2 repeats every 2 minutes, at most 6 times.
 

@@ -111,6 +111,8 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-079 | 6.4 | unit | The passive listener forwards data points to the evaluator and registration is redone after boot | fake client receives the config; re-registered |
 | TC-W-080 | 6.7 | CI | Raw biometrics code and logging exist only in `wear/src/debug/` | release has none |
 | TC-W-081 | 6.7 | unit | No release code path logs raw biometric values | log sink in tests receives none |
+| TC-W-084 | 6.5 | unit | The end-episode item from the phone ("I'm OK" on the phone) stops the watch's repeats, closes its alert, and the next breach starts at level 1 | no further alert after the item; the next breach is level 1 (item shape defined by the Shared lane, protocol 1.2) |
+| TC-W-085 | 6.6 | unit | "I'm OK" on the watch's own alert ends the episode and stops the repeats | no further alert; the next breach is level 1 |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
 | TC-W-083 | 6.8 | manual | The real watch registers passive heart rate and an alert reaches the phone | user reports capability and result |
 

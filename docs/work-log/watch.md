@@ -326,3 +326,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/biometrics.md`: the user approved the last two items ("I'm OK" button and the cap of 6 repeats) on 2026-10-16;
   section 8 has nothing open and the document is the confirmed H1 document. H1 flips in a separate one-line PR.
 - Validation: docs lint.
+
+## 2026-10-16 - "I'm OK" on the phone ends the episode on the watch
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55) (decision in the issue body), branch `claude/watch-end-episode`
+- Changed: `docs/plans/biometrics.md` (section 4a and the table in section 7) and `docs/test-plans/watch.md` (TC-W-084, TC-W-085): when the Shared lane
+  defines the phone-to-watch end-episode item (protocol 1.2), the watch stops its repeats on receiving it. Planned with 6.5 and 6.6, tests first.
+- Validation: docs lint. Nothing built; waiting for the item's path and body in `docs/protocol.md`.

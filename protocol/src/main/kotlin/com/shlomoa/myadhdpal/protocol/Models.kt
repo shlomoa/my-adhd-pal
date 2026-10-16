@@ -51,12 +51,23 @@ data class Threshold(val metric: Metric, val direction: Direction, val value: Do
     }
 }
 
-/** Alert thresholds and the alert cooldown, set on the phone and evaluated on the watch. */
+/**
+ * Alert thresholds and the alert cooldown, set on the phone and evaluated on the watch. Since protocol 1.2 the
+ * heart-rate threshold is relative: the resting baseline plus [offsetBpm], and [initialBpm] until the watch has a
+ * baseline. Both have defaults, so a 1.1 body without them still decodes. [thresholds] stay for absolute thresholds.
+ */
 @Serializable
-data class AlertSettings(val thresholds: List<Threshold>, val cooldownSeconds: Int) {
+data class AlertSettings(
+    val thresholds: List<Threshold>,
+    val cooldownSeconds: Int,
+    val offsetBpm: Int = AlertRules.DEFAULT_OFFSET_BPM,
+    val initialBpm: Int = AlertRules.DEFAULT_INITIAL_BPM
+) {
     init {
         require(thresholds.size <= Limits.MAX_THRESHOLDS) { "too many thresholds" }
         require(cooldownSeconds in 0..Limits.MAX_COOLDOWN_SECONDS) { "cooldown out of range" }
+        require(offsetBpm in AlertRules.MIN_OFFSET_BPM..AlertRules.MAX_OFFSET_BPM) { "offset out of range" }
+        require(initialBpm in AlertRules.MIN_BPM..AlertRules.MAX_INITIAL_BPM) { "initial threshold out of range" }
     }
 }
 
@@ -125,12 +136,63 @@ data class Selection(val key: String, val at: Long) : Message {
     }
 }
 
-/** `/alert/<id>`. */
+/**
+ * `/alert/<id>`. Since protocol 1.2, [level] is 1 (first breach) or 2 (escalation, the stronger alert; the default 1
+ * is what a 1.1 body without it means) and [episodeId] groups all alerts of one episode, so [EpisodeEnd] can name it.
+ */
 @Serializable
 @SerialName("alert")
-data class Alert(val metric: Metric, val value: Double, val threshold: Double, val at: Long) : Message {
+data class Alert(
+    val metric: Metric,
+    val value: Double,
+    val threshold: Double,
+    val at: Long,
+    val level: Int = AlertRules.LEVEL_1,
+    val episodeId: String? = null
+) : Message {
     init {
         require(value.isFinite() && threshold.isFinite()) { "alert numbers must be finite" }
+        require(level in AlertRules.LEVEL_1..AlertRules.LEVEL_2) { "alert level must be 1 or 2" }
+        require(episodeId == null || Paths.isValidId(episodeId)) { "episode id must be a canonical UUID" }
+    }
+}
+
+/**
+ * `/episode-end/<id>`, phone to watch: the user tapped "I'm OK" on the phone. [episodeId] is the `episodeId` of the
+ * alert answered; the watch ends that episode and ignores the item when it is unknown or already over. [at] is epoch
+ * milliseconds on the phone clock.
+ */
+@Serializable
+@SerialName("episode-end")
+data class EpisodeEnd(val episodeId: String, val at: Long) : Message {
+    init {
+        require(Paths.isValidId(episodeId)) { "episode id must be a canonical UUID" }
+        require(at >= 0) { "at must not be negative" }
+    }
+}
+
+/** Whether the watch has the heart-rate permission. */
+@Serializable
+enum class HeartRatePermission { GRANTED, DENIED, UNKNOWN }
+
+/**
+ * `/status/watch`, watch to phone, overwritten, not urgent: the resting [baselineBpm] and the resulting [thresholdBpm]
+ * when known, and the permission state, for the phone's settings screen.
+ */
+@Serializable
+@SerialName("watch-status")
+data class WatchStatus(
+    val baselineBpm: Int? = null,
+    val thresholdBpm: Int? = null,
+    val heartRatePermission: HeartRatePermission
+) : Message {
+    init {
+        require(baselineBpm == null || baselineBpm in AlertRules.MIN_BPM..AlertRules.MAX_STATUS_BPM) {
+            "baseline out of range"
+        }
+        require(thresholdBpm == null || thresholdBpm in AlertRules.MIN_BPM..AlertRules.MAX_STATUS_BPM) {
+            "threshold out of range"
+        }
     }
 }
 
