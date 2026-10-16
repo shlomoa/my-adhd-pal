@@ -271,6 +271,24 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: simulated adb changed to the phone's real format first (18 checks red), then fixed: 48 PASS.
 - Open items: TC-W-103 (the user's run on the devices) is NOT yet run.
 
+## 2026-10-15 - Biometric decision document (step 6.2)
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), branch `claude/watch-biometrics-plan`
+- Changed: `docs/plans/biometrics.md` with the user's decisions D1 to D8 (D3 relative threshold resting + 30 bpm with a 20 to 50
+  phone setting, D4 5-minute cooldown with an escalation level, D5 strongest safe alert, D7 permission requested from the phone),
+  the research behind the open points (resting baseline source, phone-triggered permission, Do Not Disturb, Bedtime and
+  vibration-intensity limits, full-screen intent) each marked verified, unverified or proposal, the probe that must run on the
+  watch first, and the changes owed by the Shared and Android lanes.
+- Validation: docs lint. H1 is NOT flipped: it flips in a separate one-line PR after the user confirms the document.
+- Open items: five questions for the user at the end of the document; the real-watch probe (H2).
+
+## 2026-10-15 - Biometric decision document: the user's answers
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), PR #147
+- Changed: `docs/plans/biometrics.md` records the answers: fallback 110 bpm until a baseline exists, alerts every 2 minutes after the
+  5-minute cooldown, the phone must shake and flash too (new section 4a, Android lane), theater mode and full-screen-intent limits accepted.
+- Validation: docs lint. H1 is NOT flipped. Still open: confirmation of the baseline rule and the cap on level-2 repeats.
+
 ## 2026-10-15 - Demo script: wait for the user's tap
 
 - Issue and PR: demo path (coordinator request after the real run `demo-results/20261015-134043`), branch `claude/watch-demo-waitfortap`
@@ -285,3 +303,26 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), branch `claude/watch-h1-flip`
 - Changed: `docs/plans/gates.json`: H1 merged, pr 147 (the biometric decision document, confirmed by the user on 2026-10-16).
 - Validation: `scripts/test/test-gates.sh` no failures, docs lint. Merges only after #147.
+
+## 2026-10-16 - Biometric decision document: baseline is the average
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), PR #147
+- Changed: `docs/plans/biometrics.md`: baseline = the average (the user's word, relayed with the exact words), initial value 110 bpm
+  approved. The data set (average of the hourly lows over 7 days, known after 24 values) is my reading and marked for correction.
+  Cap of 6 repeats and the "I'm OK" button stay proposals.
+- Validation: docs lint. H1 is NOT flipped.
+
+## 2026-10-16 - Biometric decision document: baseline as defined is accepted
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), PR #147
+- Changed: `docs/plans/biometrics.md`: the user corrected the earlier wording and accepted the baseline as defined in the document
+  (hourly low = median of the lowest 3 consecutive samples; baseline = 20th percentile of the hourly values of the last 7 days;
+  known after 24 values); 110 bpm fallback Decided. Cap of 6 repeats and the "I'm OK" button stay proposals.
+- Validation: docs lint. H1 is NOT flipped.
+
+## 2026-10-16 - Biometric decision document confirmed
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), PR #147
+- Changed: `docs/plans/biometrics.md`: the user approved the last two items ("I'm OK" button and the cap of 6 repeats) on 2026-10-16;
+  section 8 has nothing open and the document is the confirmed H1 document. H1 flips in a separate one-line PR.
+- Validation: docs lint.
