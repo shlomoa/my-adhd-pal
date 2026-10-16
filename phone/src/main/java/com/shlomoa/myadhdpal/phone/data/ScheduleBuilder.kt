@@ -18,7 +18,12 @@ object ScheduleBuilder {
             reminders = wire,
             checkpoints = emptyList(),
             snooze = settings.snooze,
-            alerts = AlertSettings(settings.thresholds, settings.cooldownSeconds)
+            alerts = AlertSettings(
+                settings.thresholds,
+                settings.cooldownSeconds,
+                settings.offsetBpm,
+                settings.initialBpm
+            )
         )
     }
 }

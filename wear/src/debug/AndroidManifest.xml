@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Heart-rate probe (step 6.4, debug only): the permissions of docs/research/watch.md section 4. -->
+    <uses-permission android:name="android.permission.BODY_SENSORS" android:maxSdkVersion="35" />
+    <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND" android:maxSdkVersion="35" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
+
     <!-- Debug builds only (docs/conventions.md, Debug code): log sink, log view, injected-message receiver.
          Only `adb shell`, which holds DUMP, can send to the receiver. -->
     <application
@@ -22,6 +28,20 @@
             android:name=".debug.DemoActionReceiver"
             android:exported="true"
             android:permission="android.permission.DUMP" />
+
+        <receiver
+            android:name=".debug.probe.ProbeReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
+
+        <service
+            android:name=".debug.probe.ProbeListenerService"
+            android:exported="true"
+            android:permission="com.google.android.wearable.healthservices.permission.PASSIVE_DATA_BINDING">
+            <intent-filter>
+                <action android:name="hs.passivemonitoring.PASSIVE_LISTENER_SERVICE" />
+            </intent-filter>
+        </service>
 
         <receiver
             android:name=".debug.FireReminderReceiver"

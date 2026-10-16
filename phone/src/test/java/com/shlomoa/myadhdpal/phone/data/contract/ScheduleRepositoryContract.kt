@@ -78,6 +78,22 @@ abstract class ScheduleRepositoryContract {
     }
 
     @Test
+    fun `TC-S-164 schedule repository sends the offset and initial threshold and a change makes a new version`() =
+        runTest {
+            val rig = Rig(this@ScheduleRepositoryContract)
+            rig.seed()
+            rig.repo.publish()
+            assertEquals(30, rig.source.publishedSchedules.last().alerts.offsetBpm)
+            assertEquals(110, rig.source.publishedSchedules.last().alerts.initialBpm)
+            rig.settings.update(rig.settings.settings.first().copy(offsetBpm = 45))
+            assertEquals(PublishOutcome.Published(2), rig.repo.publish())
+            assertEquals(45, rig.source.publishedSchedules.last().alerts.offsetBpm)
+            rig.settings.update(rig.settings.settings.first().copy(initialBpm = 125))
+            assertEquals(PublishOutcome.Published(3), rig.repo.publish())
+            assertEquals(125, rig.source.publishedSchedules.last().alerts.initialBpm)
+        }
+
+    @Test
     fun `TC-S-092 schedule repository a failed publish is reported and the version is not consumed`() = runTest {
         val rig = Rig(this@ScheduleRepositoryContract)
         rig.seed()

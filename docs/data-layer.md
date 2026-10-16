@@ -51,14 +51,16 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 | Setting | Default | Accepted |
 |---|---|---|
 | Heart-rate threshold (above) | 150 (placeholder until step 6.2 agrees the values) | 30 to 220, at most 8 thresholds |
-| Alert cooldown | 600 s | 60 to 86400 s |
+| Alert cooldown | 300 s (decision D4, 5 minutes) | 60 to 86400 s |
+| Alert offset above the resting baseline (`offsetBpm`, protocol 1.2) | 30 bpm | 20 to 50 |
+| Initial alert threshold until the watch has a baseline (`initialBpm`, protocol 1.2) | 110 bpm | 30 to 220 |
 | Snooze | 10 minutes, at most 3 | minutes 1 to 240, count 0 to 10 (the protocol limits) |
 | Reminder cadence | 60 minutes | 5 to 1440 minutes |
 
 ## Settings storage (step 2.2)
 
 `DataStoreSettingsRepository` (`phone/.../data/datastore/`) stores `AppSettings` in Preferences DataStore (keys `thresholds` as a
-JSON list, `cooldown_seconds`, `snooze_minutes`, `snooze_max_count`, `cadence_minutes`). `SettingsValidator` is the one place
+JSON list, `cooldown_seconds`, `snooze_minutes`, `snooze_max_count`, `cadence_minutes`, `offset_bpm`, `initial_bpm`). `SettingsValidator` is the one place
 that decides whether settings are acceptable (the ranges in the table above); the repository validates before it writes and
 returns `Invalid(errors)` without writing. A missing value takes the default of `SettingsDefaults`, and an unreadable file
 or value (including a damaged settings file) also falls back to the defaults instead of crashing. The repository takes a

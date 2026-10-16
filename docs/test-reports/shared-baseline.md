@@ -314,6 +314,10 @@ Red commit: `Protocol12Test` (TC-S-150 to TC-S-156: alert level and episode id, 
 
 Red commit: `DataLayerWatchLinkDataSourceTest` TC-S-165 (status kept as state, newest wins, not an event, own writes and bad bodies ignored, read at start and never deleted), `FakeWatchLinkDataSourceTest` TC-S-165 (`setWatchStatus`) and the new `WatchStatusRepositoryContract` with `DefaultWatchStatusRepositoryTest`, no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'watchStatus'`, `'setWatchStatus'`, `'DefaultWatchStatusRepository'`, `'WatchStatusRepository'`.
 
+## Issue 171, need 3: offset, initial threshold and cooldown 300 in the settings (red)
+
+Red commit: `SettingsRepositoryContract` TC-S-164 (defaults 30, 110 and 300; ranges 20 to 50 and 30 to 220 with `OFFSET_OUT_OF_RANGE` and `INITIAL_OUT_OF_RANGE`), `ScheduleRepositoryContract` TC-S-164 (the schedule carries both and a change publishes a new version), `DataStoreSettingsRepositoryTest` (persists both; the default cooldown expectation changes from 600 to 300 by decision D4), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'offsetBpm'`, `'initialBpm'`, `'OFFSET_BPM'`.
+
 ## Issue 171, need 2: publishing the end of an episode (red)
 
 Red commit: `DataLayerWatchLinkDataSourceTest` TC-S-162 (urgent `EpisodeEnd` at a fresh `/episode-end/<id>`, `Failed` on a failing write) and TC-S-163 (the one-hour cleanup of the phone's own old episode-end items when writing one and once at start), `FakeWatchLinkDataSourceTest` TC-S-162 (records `publishedEpisodeEnds`), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'publishEpisodeEnd'`, `'publishedEpisodeEnds'`.
