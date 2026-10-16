@@ -14,6 +14,6 @@ Overview, gates, stop rule and ownership: [README](README.md). Step ids are from
 | **3.5-3.7** | Haptics and notification actions; urgent `/ack/<id>` with local snooze first; `/prompt/<id>`, selection screen, `/selection/<id>`, expiry | tests against the fake; manual haptics on the watch | G2a | **G5** (with 3.1-3.4) |
 | **3.9** | End-to-end round trip (schedule, reminder, ack, phone history): paired emulators first, then real devices with the phone present, away and Bluetooth toggled | results in the work log; user-run | G3, G4, G5, H2 | **G7** |
 | **5.2-5.3** | Tile: current reminder, primary action, link state; update triggers | tests where possible; manual | G5 | none |
-| **6.2** | Agree biometric metrics and thresholds with the user in an issue | decision doc merged | none (user) | **H1** |
+| **6.2** | Agree biometric metrics and thresholds with the user in an issue | decision recorded in the issue (a repository document of it is separate and does not block H1) | none (user) | **H1** |
 | **6.3-6.8** | Permission flow; passive listener service; threshold + cooldown evaluator as pure logic in `:protocol` (`alerts/`); `/alert/<id>` with numeric value; debug-only raw biometrics; emulator synthetic data then the real watch | evaluator unit tests red -> green first; raw biometrics never logged in release; manual | H1, G2b, 3.8 | none |
 | **W-final (V-last)** | `:wear:check`, all `TC-W-*` PASS, final report, manual checklist | `watch-final.md` via `check-test-cases.sh watch final` | G5, G7, 5.2-5.3, 6.8 | none |
