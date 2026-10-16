@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -27,11 +28,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import com.shlomoa.myadhdpal.phone.R
 import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 private val ALERT_RED = Color(0xFFB00020)
 private val ALERT_DARK = Color(0xFF3B0008)
@@ -54,6 +58,7 @@ class AlertActivity : ComponentActivity() {
         val value = intent.getDoubleExtra(EXTRA_VALUE, 0.0)
         val threshold = intent.getDoubleExtra(EXTRA_THRESHOLD, 0.0)
         val flashMillis = intent.getLongExtra(EXTRA_FLASH_MILLIS, NO_FLASH)
+        val episodeId = intent.getStringExtra(EXTRA_EPISODE_ID)
         setContent {
             MaterialTheme {
                 var bright by remember { mutableStateOf(true) }
@@ -65,15 +70,25 @@ class AlertActivity : ComponentActivity() {
                         }
                     }
                 }
-                AlertScreen(value, threshold, bright, onOk = {
-                    raiser.dismiss()
-                    finish()
-                })
+                AlertScreen(value, threshold, bright, onOk = { imOk(episodeId) })
             }
         }
     }
 
+    /** Stops the alert at once, tells the watch (waiting a few seconds at most), and closes the screen. */
+    private fun imOk(episodeId: String?) {
+        lifecycleScope.launch {
+            val result = withTimeoutOrNull(TELL_WATCH_TIMEOUT_MILLIS) { raiser.dismiss(episodeId) }
+            if (result is DismissResult.NotSent || result == null) {
+                Toast.makeText(applicationContext, R.string.alert_watch_not_told, Toast.LENGTH_LONG).show()
+            }
+            finish()
+        }
+    }
+
     companion object {
+        private const val TELL_WATCH_TIMEOUT_MILLIS = 3_000L
+        private const val EXTRA_EPISODE_ID = "episode_id"
         private const val EXTRA_VALUE = "value"
         private const val EXTRA_THRESHOLD = "threshold"
         private const val EXTRA_FLASH_MILLIS = "flash_millis"
@@ -82,6 +97,7 @@ class AlertActivity : ComponentActivity() {
         fun intent(context: Context, alert: HistoryEntry.AlertRaised, plan: AlertPlan): Intent =
             Intent(context, AlertActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra(EXTRA_EPISODE_ID, alert.episodeId)
                 .putExtra(EXTRA_VALUE, alert.value)
                 .putExtra(EXTRA_THRESHOLD, alert.threshold)
                 .putExtra(EXTRA_FLASH_MILLIS, plan.flash?.cycleMillis ?: NO_FLASH)

@@ -3,6 +3,7 @@ package com.shlomoa.myadhdpal.phone.alert
 import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
 import com.shlomoa.myadhdpal.phone.data.HistoryType
+import com.shlomoa.myadhdpal.phone.data.PublishResult
 
 /** Shows and stops the alert on the device. The Android implementation is [AndroidAlertNotifier]. */
 interface AlertNotifier {
@@ -16,6 +17,18 @@ interface RaisedAlertsStore {
     suspend fun load(): Set<String>?
 
     suspend fun save(ids: Set<String>)
+}
+
+/** What "I'm OK" did beyond stopping the phone's own alert. */
+sealed interface DismissResult {
+    /** The watch was told to end the episode. */
+    data object Sent : DismissResult
+
+    /** The alert carried no episode id (a watch on protocol 1.1), so there was nothing to tell the watch. */
+    data object NoEpisode : DismissResult
+
+    /** The phone's alert is stopped but the watch could not be told. */
+    data class NotSent(val reason: String) : DismissResult
 }
 
 /**
@@ -32,7 +45,8 @@ class AlertRaiser(
     private val store: RaisedAlertsStore,
     private val notifier: AlertNotifier,
     private val prefsProvider: suspend () -> AlertPrefs,
-    private val hasAmplitudeControl: () -> Boolean
+    private val hasAmplitudeControl: () -> Boolean,
+    private val endEpisode: suspend (episodeId: String) -> PublishResult
 ) {
     private var known: Set<String>? = null
 
@@ -40,8 +54,18 @@ class AlertRaiser(
         history.history(HistoryType.ALERT).collect { handle(it.filterIsInstance<HistoryEntry.AlertRaised>()) }
     }
 
-    /** "I'm OK": stops the phone's own alert. Telling the watch is a separate step (protocol 1.2). */
-    fun dismiss() = notifier.stop()
+    /**
+     * "I'm OK": stops the phone's own alert at once, whatever the link does, then tells the watch to end the episode
+     * [episodeId] (protocol 1.2; the watch ignores an episode that is already over).
+     */
+    suspend fun dismiss(episodeId: String?): DismissResult {
+        notifier.stop()
+        if (episodeId == null) return DismissResult.NoEpisode
+        return when (val result = endEpisode(episodeId)) {
+            PublishResult.Sent -> DismissResult.Sent
+            is PublishResult.Failed -> DismissResult.NotSent(result.reason)
+        }
+    }
 
     private suspend fun handle(alerts: List<HistoryEntry.AlertRaised>) {
         val present = alerts.map { it.id }.toSet()
@@ -55,14 +79,9 @@ class AlertRaiser(
         val kept = LinkedHashSet(raisedBefore.filter { it in present }).apply { addAll(fresh.map { it.id }) }
         if (fresh.isNotEmpty()) {
             val newest = fresh.maxBy { it.at }
-            notifier.raise(newest, AlertPlanner.plan(LEVEL_OF_ALERT, prefsProvider(), hasAmplitudeControl()))
+            notifier.raise(newest, AlertPlanner.plan(newest.level, prefsProvider(), hasAmplitudeControl()))
         }
         if (kept != raisedBefore) store.save(kept)
         known = kept
-    }
-
-    private companion object {
-        /** The alert carries no level until protocol 1.2; every alert is level 1 until then. */
-        const val LEVEL_OF_ALERT = 1
     }
 }
