@@ -38,6 +38,8 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
             prefs[SNOOZE_MINUTES] = settings.snooze.minutes
             prefs[SNOOZE_MAX_COUNT] = settings.snooze.maxCount
             prefs[CADENCE_MINUTES] = settings.cadenceMinutes
+            prefs[OFFSET_BPM] = settings.offsetBpm
+            prefs[INITIAL_BPM] = settings.initialBpm
         }
         return SettingsResult.Saved
     }
@@ -57,7 +59,9 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
             thresholds = thresholds,
             cooldownSeconds = prefs[COOLDOWN_SECONDS] ?: defaults.cooldownSeconds,
             snooze = snooze,
-            cadenceMinutes = prefs[CADENCE_MINUTES] ?: defaults.cadenceMinutes
+            cadenceMinutes = prefs[CADENCE_MINUTES] ?: defaults.cadenceMinutes,
+            offsetBpm = prefs[OFFSET_BPM] ?: defaults.offsetBpm,
+            initialBpm = prefs[INITIAL_BPM] ?: defaults.initialBpm
         )
     }
 
@@ -69,5 +73,7 @@ class DataStoreSettingsRepository(private val store: DataStore<Preferences>) : S
         val SNOOZE_MINUTES = intPreferencesKey("snooze_minutes")
         val SNOOZE_MAX_COUNT = intPreferencesKey("snooze_max_count")
         val CADENCE_MINUTES = intPreferencesKey("cadence_minutes")
+        val OFFSET_BPM = intPreferencesKey("offset_bpm")
+        val INITIAL_BPM = intPreferencesKey("initial_bpm")
     }
 }
