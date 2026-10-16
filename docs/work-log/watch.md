@@ -357,3 +357,15 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :protocol:check`.
 - Open items: the episode evaluator (threshold = baseline + offset, escalation, cap, end-episode) is the next PR; the passive
   listener and the alert screens need the real-watch probe first.
+
+## 2026-10-16 - Step 6.4: heart-rate and vibration probe (debug only)
+
+- Issue and PR: step 6.4 ([plan](../plans/watch.md)), branch `claude/watch-6-4-probe`
+- Changed: debug-only probe in `wear/src/debug/.../debug/probe/`: `ProbeReceiver` (adb commands capabilities, start, stop, report, clear,
+  vibrate), `ProbeListenerService` (a `PassiveListenerService` that records arrival time, sample count and screen state, never bpm values),
+  `VibrationProbe` (strongest alarm-usage waveform), `ProbeStats` (pure summary, tested). `androidx.health:health-services-client` 1.1.0
+  as `debugImplementation` only (it resolves and compiles under AGP 9.4 and Kotlin 2.4); the four heart-rate permissions are in the
+  debug manifest. `docs/test-reports/watch-probe-checklist.md` is the user's checklist (one command per step).
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug
+  :wear:assembleRelease checkNoDebugInRelease`. The Health Services calls and the vibration are not unit-tested.
+- NOT yet run: TC-W-136 and TC-W-137 (the user's runs on the watch). Nothing else of 6.4 is built until the answers are in.

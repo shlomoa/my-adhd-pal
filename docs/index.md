@@ -31,6 +31,7 @@ body of the GitHub issue of each step; the documents record what was decided and
   [bootstrap final](test-reports/bootstrap-final.md), [shared baseline](test-reports/shared-baseline.md),
   [Android baseline](test-reports/android-baseline.md), [watch baseline](test-reports/watch-baseline.md),
   [watch end-to-end checklist](test-reports/watch-e2e-checklist.md),
+  [watch probe checklist](test-reports/watch-probe-checklist.md),
   [documentation baseline](test-reports/docs-baseline.md), [documentation final](test-reports/docs-final.md),
   [documentation checks baseline](test-reports/docs-checks-baseline.md),
   [documentation site baseline](test-reports/docs-site-baseline.md),
