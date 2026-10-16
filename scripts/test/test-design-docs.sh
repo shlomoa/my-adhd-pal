@@ -114,6 +114,5 @@ grep -qF '[Documentation](docs.md)' "$root/docs/plans/README.md" || bad=1
 grep -qF 'work-log/docs.md' "$root/docs/work-log.md" || bad=1
 [ "$bad" -eq 0 ]; check "TC-D-010 lane D is set up (plan, gate G-DOC, ownership, work log)" $?
 
-# TC-D-012 (docs lint and link check) is run by CI (`conventions`/`build` jobs, scripts/docs-lint.sh); TC-D-013 (design
-# approval) is manual and reported by the user in docs/work-log/docs.md.
+# TC-D-012 (docs lint and link check) is run by CI (`conventions`/`build` jobs, scripts/docs-lint.sh).
 exit $fail

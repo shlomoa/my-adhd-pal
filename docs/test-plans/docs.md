@@ -4,8 +4,8 @@ Lane D owns `docs/design/**` and its own plan, catalogue, reports and work log (
 Case ids are `TC-D-nnn`; test names embed the id (see [`../plans/README.md`](../plans/README.md), "Validation first and
 last"). The work is issue #154 (step ids D1.x), the documentation of the proposed UI/UX design.
 
-**Kinds:** `script` = shell fixture, `CI` = checked by a CI job, `manual` = run by the user and reported in
-`docs/work-log/docs.md`.
+**Kinds:** `script` = shell fixture, `CI` = checked by a CI job. The user's approval of the design is not a test case:
+it is approval by the user, recorded in issue #154.
 **Evidence:** red baseline in `docs/test-reports/docs-baseline.md`; final in `docs/test-reports/docs-final.md` (each id
 `PASS`, zero skipped). `scripts/test/test-design-docs.sh` runs the script cases; it joins CI with the last content
 step, when its head is green.
@@ -24,7 +24,6 @@ step, when its head is green.
 | TC-D-010 | script | Lane set up | `docs/plans/docs.md`, gate G-DOC (owner D, requires G-BOOT), ownership row, lane table row and a valid `docs/work-log/docs.md` exist |
 | TC-D-011 | script | Lane label | `scripts/check-issues.sh` accepts `lane:D` (`scripts/test/test-conventions.sh`) |
 | TC-D-012 | CI | Doc lint and link check | `scripts/docs-lint.sh markdown` and `links` are green on `docs/design/**` |
-| TC-D-013 | manual | Design approval | the user reads `docs/design/` and approves the design; recorded in the issue body |
 
 ## Documentation checks (issue #157, D3)
 
