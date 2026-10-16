@@ -41,7 +41,9 @@ others; the watch handling is the Watch lane's). The phone side:
   watermark so it is not raised again.
 - It then hands the item to the data source (a new `WatchLinkDataSource` method, `data/`, Shared lane). If the watch is away
   the item is held by the Data Layer and delivered on reconnect; the screen says "sent" only when the data source accepted it.
-- Until protocol 1.2 exists the button does the first point only, and the work log says so.
+- Protocol 1.2 and the data source's `publishEpisodeEnd` exist (step A-alert-1b is built): the screen waits at most 3 s for
+  the item to be accepted, then closes; if the watch could not be told it says so in a short message. An alert without an
+  episode id (a watch on protocol 1.1) only stops the phone.
 
 The pure part (level to vibration timings and amplitudes, the colour schedule, the text) is a plain Kotlin function and
 unit-tested. Android calls are a thin layer.

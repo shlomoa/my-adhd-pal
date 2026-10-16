@@ -128,3 +128,15 @@ e: HomeScreenTest.kt:32:21 No parameter with name 'settings' found.
 ```
 
 TC-A-031 to TC-A-037 and TC-A-110 to TC-A-115 are red until this step lands. TC-A-116 is manual on the devices.
+
+## A-alert-1b "I'm OK" ends the episode on the watch
+
+Red commit: db2ef88 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*alert*'`. Exit 1, the test sources do not compile:
+
+```
+e: AlertRaiserTest.kt:64:13 No parameter with name 'endEpisode' found.
+e: AlertRaiserTest.kt:133:26 Too many arguments for 'fun dismiss(): Unit'.
+e: AlertRaiserTest.kt:154:22 Unresolved reference 'DismissResult'.
+```
+
+TC-A-104 to TC-A-108 are red until this step lands. TC-A-109 is manual on the devices.

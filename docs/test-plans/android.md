@@ -152,6 +152,12 @@ repositories exist (G3).
 | TC-A-101 | The alert screen is declared, not exported, and the permissions it needs are requested | Unit (manifest) | `AlertActivity` not exported; notification, full-screen-intent and vibrate permissions |
 | TC-A-102 | Alert preferences default to sound on and flashing on, and a change survives a restart; the raised-alert ids survive a restart | Unit | DataStore round trips |
 | TC-A-103 | On the A55 with the app closed, an alert from the watch vibrates, wakes the screen and shows the full-screen alert; the Do Not Disturb, silent mode, locked and in-use cases are tried once each | Manual | Result of each case recorded in the work log |
+| TC-A-104 | An alert is raised at its own level: a level 2 alert uses the stronger plan | Unit | Plan level 2 with the longer vibration |
+| TC-A-105 | "I'm OK" stops the phone's alert at once and tells the watch which episode to end | Unit | Notifier stopped; `publishEpisodeEnd` called with the alert's episode id; result Sent |
+| TC-A-106 | "I'm OK" on an alert without an episode id (a watch on protocol 1.1) only stops the phone's alert | Unit | Notifier stopped; nothing sent; result NoEpisode |
+| TC-A-107 | If telling the watch fails, the phone's alert is still stopped and the failure is reported | Unit | Stopped; result NotSent with the reason |
+| TC-A-108 | Tapping "I'm OK" on the alert screen writes the episode end for that episode | Unit (Hilt + Compose, fake Data Layer client) | An `/episode-end/` item is written; the screen closes |
+| TC-A-109 | On the A55 and the Watch6 Classic, "I'm OK" on the phone ends the episode on the watch | Manual | The watch stops repeating its alert |
 | TC-A-110 | The alert offset is shown with its default of 30 and a change within 20 to 50 is saved and published | Unit | Stored; a new schedule version carries it |
 | TC-A-111 | An offset below 20 or above 50 is rejected and the old value kept | Unit | `OFFSET_OUT_OF_RANGE`; nothing published |
 | TC-A-112 | The initial threshold (used until the watch has a baseline) can be changed within its range and is rejected outside it | Unit | Stored, or `INITIAL_OUT_OF_RANGE` with the old value kept |
