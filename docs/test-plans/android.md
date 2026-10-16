@@ -137,6 +137,7 @@ repositories exist (G3).
 | TC-A-077 | A failed publish is returned, not hidden | Unit | `PublishOutcome.Failed` with the reason |
 | TC-A-078 | An offset outside 1 to 1440 minutes is rejected | Unit | `IllegalArgumentException`, nothing stored or sent |
 | TC-A-079 | The receiver is absent from release builds | CI | `checkNoDebugInRelease` green (class lives in a `debug` package) |
+| TC-A-089 | A task can be added, shown and deleted in the app | Unit (Hilt + Compose, fake Data Layer client) | Tasks tab empty message; Add a task, type, Save: the task is listed; Delete removes it |
 | TC-A-080 | The broadcast publishes the schedule on the real devices | Manual | Watch shows the reminder at the set time after the broadcast |
 | TC-A-081 | The publish command logs the published version and the reminder time | Unit | `DEMO published schedule version=<n> reminderAt=<ms>`; `unchanged` when nothing new was sent |
 | TC-A-082 | A failed or invalid publish is logged, not thrown | Unit | `DEMO publish failed reason=<text>` for a Data Layer failure and for minutes_ahead outside 1 to 1440 |

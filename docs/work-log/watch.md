@@ -288,3 +288,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/biometrics.md` records the answers: fallback 110 bpm until a baseline exists, alerts every 2 minutes after the
   5-minute cooldown, the phone must shake and flash too (new section 4a, Android lane), theater mode and full-screen-intent limits accepted.
 - Validation: docs lint. H1 is NOT flipped. Still open: confirmation of the baseline rule and the cap on level-2 repeats.
+
+## 2026-10-15 - Demo script: wait for the user's tap
+
+- Issue and PR: demo path (coordinator request after the real run `demo-results/20261015-134043`), branch `claude/watch-demo-waitfortap`
+- Why: the script pressed Done seconds after the reminder fired, so the notification was gone before the user looked.
+- Changed: `-WaitForTap` and `-TapWaitSec` (default 90) in `run-demo.ps1`: after the Notification stage it asks the user to feel and
+  look, then waits for any action in the watch log (DONE, SNOOZE, START_2_MIN, DISMISS); the Done stage names the action and the Ack
+  stage checks that action in the phone history. The default mode is unchanged. `docs/demo.md` updated.
+- Validation: tests first, 12 red, then 61 PASS, 0 FAIL against the simulated adb. NOT yet run on the devices (TC-W-103).

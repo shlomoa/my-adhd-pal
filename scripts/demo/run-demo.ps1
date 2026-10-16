@@ -18,6 +18,10 @@
     7 Done         the Done action is sent on the watch, as a tap on the notification would (watch log: ack sent)
     8 Ack          the acknowledgement reaches the phone and is stored in its history (phone log: history ack)
 
+  With -WaitForTap the script does not press Done itself: after the Notification stage it asks you to feel and look at the
+  watch and tap an action (Done, Snooze, Start 2 min or Dismiss) within -TapWaitSec seconds (default 90); the Done stage
+  passes when the watch logs that action, and the Ack stage then checks that action in the phone history.
+
   The haptic cannot be read with adb, so it is a "you should feel" line, not a PASS or FAIL. The log lines are written
   by DEBUG builds only (release builds write nothing). The results (results.txt and the per-stage logs, without device
   serials or ip addresses) go to docs/demo/results/<yyyyMMdd-HHmmss>/ and ONLY that folder is committed on a new branch
@@ -31,6 +35,8 @@
   .\scripts\demo\run-demo.ps1 -WatchAddress 192.168.1.57:41203
 .EXAMPLE
   .\scripts\demo\run-demo.ps1 -Phone R58W20ABCDE -Watch 192.168.1.57:41203 -SkipBuild
+.EXAMPLE
+  .\scripts\demo\run-demo.ps1 -WatchAddress 192.168.1.57:41203 -WaitForTap
 #>
 [CmdletBinding()]
 param(
@@ -52,11 +58,15 @@ param(
     [int]$PublishWaitSec = 30,
     [int]$ScheduleWaitSec = 90,
     [int]$AckWaitSec = 90,
+    # With -WaitForTap the script does not press Done itself: the user feels and looks at the watch, then taps an action
+    # (any of Done, Snooze, Start 2 min, Dismiss) within this many seconds.
+    [int]$TapWaitSec = 90,
     # Hard limit for every adb client call; a client that does not return is killed.
     [int]$AdbTimeoutSec = 30,
     [double]$PollSec = 2,
     # Scales the fixed settle delays (1 = real devices; tests use 0).
     [double]$SettleScale = 1,
+    [switch]$WaitForTap,
     [switch]$SkipBuild,
     [switch]$SkipPush
 )
@@ -217,8 +227,8 @@ $Expect = [ordered]@{
     'Schedule'     = 'nothing to see; the schedule arrives on the watch'
     'Reminder'     = 'at the reminder time the watch buzzes once (a short tick) and shows the reminder'
     'Notification' = 'the notification "Demo reminder" with Done, Snooze, Start 2 min and Dismiss is on the watch'
-    'Done'         = 'the notification closes by itself (the script did the tap)'
-    'Ack'          = 'the phone history gets the Done acknowledgement of the demo reminder'
+    'Done'         = 'the notification closes by itself (the script did the tap), or with -WaitForTap when you tap an action'
+    'Ack'          = 'the phone history gets the acknowledgement of the demo reminder (Done unless you tapped another action)'
 }
 function Set-Result([string]$Stage, [string]$Status, [string]$Detail) {
     $Results[$Stage] = [pscustomobject]@{ Status = $Status; Detail = (Remove-Sensitive $Detail) }
@@ -487,10 +497,23 @@ try {
         else { Set-Result 'Notification' 'FAIL' 'dumpsys notification on the watch shows no notification from the app (notification permission? notifications muted?)' }
     }
 
-    # --- Done: the action is sent on the watch -------------------------------------------------------------------------
+    # --- Done: the action is sent on the watch (by the script, or with -WaitForTap by the user's tap) ----------------------
     $sent = $null
+    $sentAction = 'DONE'
     if ($null -eq $fired) {
         Skip-Stage 'Done' 'the reminder did not fire'
+    } elseif ($WaitForTap) {
+        Write-Host ''
+        Write-Host '>>> Feel and look at the watch now, then tap Done (or Snooze, Start 2 min, Dismiss). <<<'
+        Write-Host ''
+        $sent = Wait-Demo $Watch "^ack (sent|not sent) action=(DONE|SNOOZE|START_2_MIN|DISMISS) reminderId=$DemoReminderId" $TapWaitSec
+        if ($null -eq $sent) { Set-Result 'Done' 'FAIL' "nothing was tapped on the watch within ${TapWaitSec}s (no 'ack sent' line; the notification may have been dismissed by swiping?)" }
+        else {
+            [void]($sent.Text -match 'action=(\w+)')
+            $sentAction = $Matches[1]
+            if ($sent.Text -match '^ack not sent') { Set-Result 'Done' 'FAIL' ("you tapped $sentAction but no acknowledgement was sent: " + $sent.Text) }
+            else { Set-Result 'Done' 'PASS' "you tapped $sentAction on the watch and the acknowledgement was sent" }
+        }
     } else {
         Send-Broadcast $Watch $WatchActionAction $WatchActionComponent @('--es', 'action', 'DONE')
         $sent = Wait-Demo $Watch "^ack (sent|not sent) action=DONE reminderId=$DemoReminderId" 15
@@ -504,9 +527,9 @@ try {
         Skip-Stage 'Ack' 'no acknowledgement was sent'
     } else {
         $dumpHistory = { Send-Broadcast $Phone $PhoneHistoryAction $PhoneHistoryComponent }
-        $stored = Wait-Demo $Phone "^history ack id=\S+ action=DONE reminderId=$DemoReminderId occurrenceAt=$reminderAtMs" $AckWaitSec $dumpHistory
-        if ($null -eq $stored) { Set-Result 'Ack' 'FAIL' "the phone history has no Done acknowledgement for the demo reminder after ${AckWaitSec}s (listener service? link?)" }
-        else { Set-Result 'Ack' 'PASS' 'the Done acknowledgement is stored in the phone history' }
+        $stored = Wait-Demo $Phone "^history ack id=\S+ action=$sentAction reminderId=$DemoReminderId occurrenceAt=$reminderAtMs" $AckWaitSec $dumpHistory
+        if ($null -eq $stored) { Set-Result 'Ack' 'FAIL' "the phone history has no $sentAction acknowledgement for the demo reminder after ${AckWaitSec}s (listener service? link?)" }
+        else { Set-Result 'Ack' 'PASS' "the $sentAction acknowledgement is stored in the phone history" }
     }
 } finally {
     foreach ($name in $Expect.Keys) { if (-not $Results.Contains($name)) { Set-Result $name 'NOT RUN' 'the run stopped before this stage' } }

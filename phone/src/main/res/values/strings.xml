@@ -24,5 +24,25 @@
     <string name="history_selected">%1$s: chose option %2$s</string>
     <string name="history_alert">Heart rate %1$.0f (threshold %2$.0f)</string>
     <string name="nav_link">Watch</string>
+    <string name="nav_tasks">Tasks</string>
     <string name="nav_history">History</string>
+    <string name="task_add">Add a task</string>
+    <string name="task_empty">No tasks yet. Add one to get a reminder on your watch.</string>
+    <string name="task_delete">Delete</string>
+    <string name="task_title_label">What do you want to remember?</string>
+    <string name="task_error_blank">Write something first.</string>
+    <string name="task_error_too_long">That is too long. Keep it under 200 characters.</string>
+    <string name="task_save">Save</string>
+    <string name="task_cancel">Cancel</string>
+    <string name="reminder_time_label">Time</string>
+    <string name="reminder_days_label">Days</string>
+    <string name="reminder_error_time">Pick a time.</string>
+    <string name="reminder_error_days">Pick at least one day.</string>
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+    <string name="day_sun">Sun</string>
 </resources>
