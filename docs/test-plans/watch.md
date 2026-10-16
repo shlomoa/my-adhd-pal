@@ -113,6 +113,15 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-081 | 6.7 | unit | No release code path logs raw biometric values | log sink in tests receives none |
 | TC-W-084 | 6.5 | unit | The end-episode item from the phone ("I'm OK" on the phone) stops the watch's repeats, closes its alert, and the next breach starts at level 1 | no further alert after the item; the next breach is level 1 (item shape defined by the Shared lane, protocol 1.2) |
 | TC-W-085 | 6.6 | unit | "I'm OK" on the watch's own alert ends the episode and stops the repeats | no further alert; the next breach is level 1 |
+| TC-W-123 | 6.5 | unit | A reading above baseline + offset starts an episode with a level 1 alert carrying the episode id, the value and the threshold | one alert, level 1, threshold = baseline + offset |
+| TC-W-124 | 6.5 | unit | Until a baseline exists the initial value (110 by default) is the threshold; the offset is a setting from 20 to 50 | thresholds follow `initialBpm` and `offsetBpm` |
+| TC-W-125 | 6.5 | unit | Inside the 5-minute cooldown no further alert is raised | none |
+| TC-W-126 | 6.5 | unit | The first reading above the threshold once the cooldown has elapsed raises a level 2 alert of the same episode | level 2, same episode id |
+| TC-W-127 | 6.5 | unit | Level 2 repeats at most once per 2 minutes while the rate stays above | none at 60 s, one at 120 s |
+| TC-W-128 | 6.5 | unit | At most 6 level 2 alerts per episode | the 7th is not raised |
+| TC-W-129 | 6.5 | unit | A reading at or below the threshold ends the episode; the next breach is a new episode at level 1 | new id, level 1 |
+| TC-W-130 | 6.5 | unit | `endEpisode` with the active id ends the episode (the next breach is level 1 of a new episode); an unknown or finished id is ignored | true then false; no effect |
+| TC-W-131 | 6.5 | unit | Batched and out-of-order readings are evaluated in timestamp order | same alerts as sorted |
 | TC-W-086 | 6.5 | unit | The hourly low of an hour is the lowest median over any 3 consecutive samples of that hour | equals the expected value for a fixed sample series |
 | TC-W-087 | 6.5 | unit | An hour with fewer than 3 samples gives no hourly low | no value for that hour |
 | TC-W-088 | 6.5 | unit | The baseline is unknown with 23 hourly lows and known with 24 | null, then a value |

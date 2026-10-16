@@ -54,6 +54,11 @@ It is derived on the watch from passive samples (no new permission, works withou
 2. The baseline is the **20th percentile of the hourly values of the last 7 days**. Sleep hours and quiet hours dominate it,
    which is what "resting" means here, and one active afternoon cannot move it much.
 3. The baseline needs at least **24 hourly values** to count as known.
+
+   *Worked example (the reading the user accepted):* the samples of one hour are 80, 60, 62, 61, 90 bpm in time order. The
+   windows of 3 consecutive samples are (80, 60, 62), (60, 62, 61) and (62, 61, 90), with medians 62, 61 and 62, so the hourly
+   low is **61**. With 24 hourly lows 51, 52, ..., 74, the 20th percentile by nearest rank is the 5th smallest (ceil(0.2 x 24)),
+   **55**, so the threshold at the default offset of 30 is 85 bpm.
 4. The alert threshold is `baseline + offset` (D3). The phone shows the current baseline and the resulting threshold
    (the watch sends the baseline in `/hello/watch` or a status item: a protocol change, section 7).
 

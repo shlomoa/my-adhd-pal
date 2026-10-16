@@ -313,3 +313,7 @@ Red commit: `Protocol12Test` (TC-S-150 to TC-S-156: alert level and episode id, 
 ## Issue 171, need 2: publishing the end of an episode (red)
 
 Red commit: `DataLayerWatchLinkDataSourceTest` TC-S-162 (urgent `EpisodeEnd` at a fresh `/episode-end/<id>`, `Failed` on a failing write) and TC-S-163 (the one-hour cleanup of the phone's own old episode-end items when writing one and once at start), `FakeWatchLinkDataSourceTest` TC-S-162 (records `publishedEpisodeEnds`), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'publishEpisodeEnd'`, `'publishedEpisodeEnds'`.
+
+## Issue 171, need 1: alert level and episode in the history (red)
+
+Red commit: `HistoryRepositoryContract` TC-S-160 (level and episode kept, a 1.1 alert reads as level 1 without an episode) and `MigrationTest` TC-S-161 (migration 1 to 2 on a database built from `1.json`, existing rows kept, version 2 with exactly one step), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `No parameter with name 'level' found`, `'episodeId'`.

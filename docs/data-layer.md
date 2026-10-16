@@ -84,12 +84,14 @@ the Android lane's step 2.7. The settings, schedule, prompt and link-status repo
 - The schema is exported to `phone/schemas/<database class>/<version>.json` by the Room Gradle plugin and **committed**;
   a schema change without its new JSON file fails review, and `SchemaTest` (TC-S-097) fails when a version file is missing.
 - Every version bump adds exactly one `Migration(from, to)` to `AppDatabase.MIGRATIONS` (in order) and a migration test that
-  opens the old schema with `MigrationTestHelper`, migrates it and checks the data; `SchemaTest` fails when a step has no
+  builds the old database from the committed schema JSON of the old version (its `createSql` statements), opens it through
+  Room with the migrations, and checks the data (`MigrationTest`; Room validates the result against the new schema); `SchemaTest` fails when a step has no
   migration.
 - Migrations are **never destructive**: no `fallbackToDestructiveMigration`, no dropping a table that holds user data
   (tasks, reminders, history). A column that must change is added next to the old one, copied, and only dropped in a
   later version once the copy is verified.
-- Version 1 has no migration; `MIGRATIONS` is empty.
+- Version 1 has no migration. **Version 2** (protocol 1.2, issue 171) adds `level` (`INTEGER NOT NULL DEFAULT 1`) and
+  `episodeId` (`TEXT`, nullable) to `history`: old alerts read as level 1 without an episode, no row is touched.
 
 ## Real Data Layer source (step 2.4)
 
