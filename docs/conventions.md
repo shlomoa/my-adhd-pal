@@ -45,3 +45,25 @@ your machine, run `./gradlew spotlessApply --rerun-tasks --no-build-cache`. Exte
 
 Shared configuration (`applicationId`, SDK levels) is defined once: the `[versions]` block of
 `gradle/libs.versions.toml`, applied to both apps by the root `build.gradle.kts`. Module scripts must not redefine it.
+
+### When lint itself crashes
+
+Android lint sometimes stops with `Unexpected failure during lint analysis of <file>.kt`, a
+`KotlinIllegalArgumentExceptionWithAttachments` from `LLFirModuleLazyDeclarationResolver.handleExceptionFromResolve`
+(stack through `SymbolLightClassForClassOrObject.isRecord` and `UElementVisitor.visitFile`). That is a crash of lint's
+Kotlin Analysis API, not a lint finding about the code. It was seen with AGP 9.4.1 and Kotlin 2.4.x, mostly on the
+first `check` after a merge or a failed build that changed Kotlin or resource files, and an identical second run
+passes. We could not reproduce it from a clean state or from a merge in five full runs. The same signature is reported
+in [bluecard issue 227](https://github.com/bryancassell/bluecard/issues/227) (AGP 9.4.1, Kotlin 2.4.20, also
+intermittent after edits, no fix named); no fix is documented in the AGP release notes seen so far.
+
+What to do:
+
+1. Run the same command again once. If it passes, the code is fine; do not change code or baselines to chase it.
+2. If it fails a second time, or lint reports a finding with a file and line, it is a real failure.
+3. When it happens, save the first 40 lines of the task output and `build/reports/lint-results-*` so a report to
+   Google (the [AGP bug-report guide](https://developer.android.com/studio/report-bugs)) has the full trace.
+4. Do not add a retry to CI: a repeat that hides a real second failure is worse than one manual rerun.
+
+When the Android Gradle plugin or Kotlin version in `gradle/libs.versions.toml` changes, check whether this note is
+still needed.

@@ -312,3 +312,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `SettingsDefaults` no longer has the 150 bpm heart-rate threshold (`thresholds` is empty); `docs/data-layer.md` settings table. The `thresholds` list in `AppSettings`, its validation and the protocol `AlertSettings.thresholds` field stay: 1.1 watches still read that field and the protocol is additive, so removing it would be a major change.
 - Validation: TC-S-098 changed first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
 - Open items: none for this change; the Android lane stops showing or using the 150 value.
+
+## 2026-10-16 - Lint crash note
+
+- Issue and PR: follow-up to the intermittent `:phone:lintAnalyzeDebugUnitTest` first-run failure; PR linked from the coordinator message.
+- Changed: `docs/conventions.md` section "When lint itself crashes" (signature, what to do, sources). No code, no CI retry.
+- Validation: not reproducible here in five full runs (clean state, and a checkout from 777853d to main); the Android lane's trace is the Kotlin Analysis API crash also reported in bluecard issue 227. Docs lint green.
+- Open items: no upstream fix found (searched AGP 9.2 to 9.3 release notes and the Kotlin and Android trackers); revisit on the next AGP or Kotlin bump.
