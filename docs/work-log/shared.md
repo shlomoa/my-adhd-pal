@@ -285,6 +285,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: TC-S-164 (settings and schedule contracts) and the DataStore expectations written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
 - Open items: need 4 of #171 (read of the last `/status/watch`); the Android lane adds the offset field to the settings screen (4.3).
 
+## 2026-10-16 - Issue 171, need 2: publishing the end of an episode
+
+- Issue and PR: #171 (need 2 of 4); PR linked from the coordinator message.
+- Changed: `WatchLinkDataSource.publishEpisodeEnd(episodeId)` (the source builds `EpisodeEnd(episodeId, at)` with its clock and a fresh item id, urgent, `/episode-end/<id>`); `DataLayerWatchLinkDataSource` implements it and deletes the phone's own `/episode-end/<id>` items older than one hour when one is written and once at start (`EpisodeEndCleaner`, `PendingItems` moved out of the class for detekt); `FakeWatchLinkDataSource` records `publishedEpisodeEnds` and can fail them; `docs/data-layer.md`.
+- Validation: TC-S-162 and TC-S-163 written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green. A KDoc containing `/*` opens a nested comment in Kotlin, which ktlint reported as "Missing }": paths in comments are written as `<id>`.
+- Open items: needs 3 and 4 of #171.
+
 ## 2026-10-16 - Issue 171, need 1: alert level and episode in the history
 
 - Issue and PR: #171 (need 1 of 4); PR linked from the coordinator message.
