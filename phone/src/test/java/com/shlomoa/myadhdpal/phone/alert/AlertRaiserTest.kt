@@ -54,15 +54,14 @@ class AlertRaiserTest {
     private fun alert(id: String, at: Long, level: Int = 1, episodeId: String? = null) =
         WatchEvent.AlertReceived(id, at, Alert(Metric.HEART_RATE, 138.0, 110.0, at, level, episodeId))
 
-    private fun raiser(store: RaisedAlertsStore = this.store, prefs: AlertPrefs = AlertPrefs()) =
-        AlertRaiser(
-            history,
-            store,
-            notifier,
-            prefsProvider = { prefs },
-            hasAmplitudeControl = { true },
-            endEpisode = source::publishEpisodeEnd
-        )
+    private fun raiser(store: RaisedAlertsStore = this.store, prefs: AlertPrefs = AlertPrefs()) = AlertRaiser(
+        history,
+        store,
+        notifier,
+        prefsProvider = { prefs },
+        hasAmplitudeControl = { true },
+        endEpisode = source::publishEpisodeEnd
+    )
 
     private fun ids() = notifier.raised.map { it.first.id }
 

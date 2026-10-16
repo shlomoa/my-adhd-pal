@@ -11,6 +11,7 @@ import com.shlomoa.myadhdpal.phone.alert.DataStoreAlertPreferences
 import com.shlomoa.myadhdpal.phone.alert.DataStoreRaisedAlerts
 import com.shlomoa.myadhdpal.phone.alert.RaisedAlertsStore
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
+import com.shlomoa.myadhdpal.phone.data.WatchLinkDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -54,12 +55,14 @@ object AlertModule {
         history: HistoryRepository,
         raised: RaisedAlertsStore,
         notifier: AndroidAlertNotifier,
-        preferences: DataStoreAlertPreferences
+        preferences: DataStoreAlertPreferences,
+        source: WatchLinkDataSource
     ): AlertRaiser = AlertRaiser(
         history,
         raised,
         notifier,
         prefsProvider = { preferences.prefs.first() },
-        hasAmplitudeControl = notifier::hasAmplitudeControl
+        hasAmplitudeControl = notifier::hasAmplitudeControl,
+        endEpisode = source::publishEpisodeEnd
     )
 }

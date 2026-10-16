@@ -47,6 +47,7 @@
     <string name="day_sun">Sun</string>
     <string name="alert_title">Heart rate alert</string>
     <string name="alert_text">Heart rate %1$.0f (threshold %2$.0f)</string>
+    <string name="alert_watch_not_told">Your watch could not be told. Its alert may continue.</string>
     <string name="alert_ok">I\'m OK</string>
     <string name="alert_channel_sound">Heart rate alerts (with sound)</string>
     <string name="alert_channel_silent">Heart rate alerts (silent)</string>

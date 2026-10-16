@@ -116,3 +116,15 @@ e: AlertPlannerTest.kt:51:66 Unresolved reference 'cycleMillis'.
 ```
 
 TC-A-090 to TC-A-102 are red until this step lands. TC-A-103 is manual on the A55.
+
+## A-alert-1b "I'm OK" ends the episode on the watch
+
+Red commit: db2ef88 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*alert*'`. Exit 1, the test sources do not compile:
+
+```
+e: AlertRaiserTest.kt:64:13 No parameter with name 'endEpisode' found.
+e: AlertRaiserTest.kt:133:26 Too many arguments for 'fun dismiss(): Unit'.
+e: AlertRaiserTest.kt:154:22 Unresolved reference 'DismissResult'.
+```
+
+TC-A-104 to TC-A-108 are red until this step lands. TC-A-109 is manual on the devices.

@@ -133,3 +133,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Open items: the lane S issue lists four needs in order: the level and episode id in the history rows (Room migration), `WatchLinkDataSource.publishEpisodeEnd` and its cleanup, the offset and initial threshold in `AppSettings` and `ScheduleBuilder`, a read of the last watch status. Lane A continues with the reminder list (4.1c) and 4.2 meanwhile.
 
 BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
+
+## 2026-10-16 - A-alert-1b "I'm OK" ends the episode on the watch
+
+- Issue and PR: lane A step of the phone alert (requirement #55, design `docs/phone-alert.md`); needs from the Shared lane were issue #171 (done: #175 to #178).
+- Changed: `AlertRaiser` raises each alert at its own level (the stored `level`) and `dismiss(episodeId)` stops the phone's alert first, whatever the link does, then calls `WatchLinkDataSource.publishEpisodeEnd` and returns `Sent`, `NoEpisode` (a watch on protocol 1.1 sent no episode id) or `NotSent(reason)`. `AlertActivity` carries the episode id, waits at most 3 s for the item to be accepted, shows a short message if the watch could not be told, and closes. Design note updated.
+- Validation: tests first, red (`docs/test-reports/android-baseline.md`), now green: `AlertRaiserTest` 12 (TC-A-104 to 107 new), `AlertActivityTest` 1 (TC-A-108: the real Hilt graph, the Play services client faked; the episode end is written urgently with that episode id and the screen closes); `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green. Two things on the way: Android lint crashed once on the new test file right after the red build, and the identical rerun passed (third time this pattern after a failing build; CI builds clean); and my first version of TC-A-108 waited for the scenario to reach `DESTROYED`, which Robolectric does not report promptly, so it now checks `isFinishing`.
+- Open items: manual TC-A-109 (on the A55 with the Watch6 Classic, "I'm OK" on the phone ends the episode on the watch; needs the watch side of #6.x). The offset setting comes with the settings screen (4.3).
