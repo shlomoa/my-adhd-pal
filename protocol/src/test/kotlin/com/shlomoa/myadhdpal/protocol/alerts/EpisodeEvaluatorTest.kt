@@ -2,7 +2,9 @@ package com.shlomoa.myadhdpal.protocol.alerts
 
 import com.shlomoa.myadhdpal.protocol.AlertRules
 import com.shlomoa.myadhdpal.protocol.AlertSettings
+import com.shlomoa.myadhdpal.protocol.Direction
 import com.shlomoa.myadhdpal.protocol.Metric
+import com.shlomoa.myadhdpal.protocol.Threshold
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -129,5 +131,24 @@ class EpisodeEvaluatorTest {
         )
         assertEquals(listOf(AlertRules.LEVEL_1, AlertRules.LEVEL_2), shuffled.map { it.level })
         assertEquals(listOf(t0, t0 + 300_000), shuffled.map { it.at })
+    }
+
+    @Test
+    fun `TC-W-138 absolute thresholds in the schedule settings are ignored`() {
+        val absolute = listOf(
+            Threshold(Metric.HEART_RATE, Direction.ABOVE, 150.0),
+            Threshold(Metric.HEART_RATE, Direction.ABOVE, 50.0),
+            Threshold(Metric.HEART_RATE, Direction.BELOW, 200.0)
+        )
+        val withAbsolute = EpisodeEvaluator(
+            AlertSettings(absolute, AlertRules.DEFAULT_COOLDOWN_SECONDS, offsetBpm = 30, initialBpm = 110),
+            newEpisodeId = { ids.removeFirst() }
+        )
+        // no baseline: only initialBpm 110 counts, not the 150 / 50 / below 200 thresholds
+        assertTrue(withAbsolute.feed(100.0, 0, base = null).isEmpty())
+        val alert = withAbsolute.feed(120.0, 10, base = null).single()
+        assertEquals(110.0, alert.threshold, 0.0)
+        // with a baseline: only baseline + offset counts
+        assertEquals(90.0, withAbsolute.thresholdBpm(60.0), 0.0)
     }
 }
