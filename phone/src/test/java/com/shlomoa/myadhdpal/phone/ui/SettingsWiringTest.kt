@@ -1,10 +1,12 @@
 package com.shlomoa.myadhdpal.phone.ui
 
+import android.os.Looper
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import com.shlomoa.myadhdpal.phone.MainActivity
@@ -22,6 +24,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /** Step 4.3 in the app: the Settings tab on the real graph (Room, DataStore), only the Play services client faked. */
@@ -45,7 +48,19 @@ class SettingsWiringTest {
         compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty()
     }
 
-    private fun storedOffset() = runBlocking { settings.settings.first().offsetBpm }
+    /**
+     * DataStore runs a write's transform in the caller's context, and the ViewModel's is the main thread, so the main
+     * looper (paused in Robolectric) must run before the stored value can change. On a device it simply runs.
+     */
+    private fun storedOffset(): Int {
+        shadowOf(Looper.getMainLooper()).idle()
+        return runBlocking { settings.settings.first().offsetBpm }
+    }
+
+    /** The button is below the fields in a scrolling column; a user scrolls to it, so the test does too. */
+    private fun save() {
+        compose.onNodeWithText("Save settings").performScrollTo().performClick()
+    }
 
     private fun setOffset(text: String) {
         val field = compose.onNode(hasText("Alert offset (bpm)"))
@@ -60,11 +75,11 @@ class SettingsWiringTest {
         waitForText("The watch has not reported yet")
 
         setOffset("40")
-        compose.onNodeWithText("Save settings").performClick()
+        save()
         compose.waitUntil(timeoutMillis = TIMEOUT_MILLIS) { storedOffset() == 40 }
 
         setOffset("99")
-        compose.onNodeWithText("Save settings").performClick()
+        save()
         waitForText("Choose a number from 20 to 50")
         assertEquals(40, storedOffset())
     }
