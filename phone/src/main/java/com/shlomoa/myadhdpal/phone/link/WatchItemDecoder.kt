@@ -11,9 +11,16 @@ import com.shlomoa.myadhdpal.protocol.ItemPath
 import com.shlomoa.myadhdpal.protocol.Paths
 import com.shlomoa.myadhdpal.protocol.Selection
 import com.shlomoa.myadhdpal.protocol.Side
+import com.shlomoa.myadhdpal.protocol.WatchStatus
 
 /** What one watch-written item became: an [event] (null when dropped) and, for a hello, the version it carried. */
-data class Decoded(val event: WatchEvent?, val helloVersion: String? = null, val isHello: Boolean = false)
+data class Decoded(
+    val event: WatchEvent?,
+    val helloVersion: String? = null,
+    val isHello: Boolean = false,
+    val status: WatchStatus? = null,
+    val statusAt: Long = 0L
+)
 
 /** Pure decoding of watch-written items into [WatchEvent]s; anything not valid and compatible is dropped. */
 object WatchItemDecoder {
@@ -21,6 +28,7 @@ object WatchItemDecoder {
     fun decode(item: RemoteItem): Decoded? = when (val path = Paths.parse(item.path)) {
         is ItemPath.Ack, is ItemPath.Selection, is ItemPath.Alert -> Decoded(event(item))
         is ItemPath.Hello -> if (path.side == Side.WATCH) hello(item) else null
+        ItemPath.WatchStatus -> status(item)
         else -> null
     }
 
@@ -34,6 +42,13 @@ object WatchItemDecoder {
             is Alert -> WatchEvent.AlertReceived(id, at, message)
             else -> null
         }
+    }
+
+    /** The watch status is state: [Decoded.status] is set, there is no event, and nothing is ever deleted. */
+    private fun status(item: RemoteItem): Decoded {
+        val decoded = Codec.decodeIfCompatible(item.path, item.envelope) as? DecodeResult.Ok
+        val status = decoded?.item?.message as? WatchStatus
+        return Decoded(null, status = status, statusAt = decoded?.item?.timestamp ?: 0L)
     }
 
     /**

@@ -11,6 +11,7 @@ import com.shlomoa.myadhdpal.protocol.Codec
 import com.shlomoa.myadhdpal.protocol.DecodeResult
 import com.shlomoa.myadhdpal.protocol.Envelope
 import com.shlomoa.myadhdpal.protocol.EpisodeEnd
+import com.shlomoa.myadhdpal.protocol.HeartRatePermission
 import com.shlomoa.myadhdpal.protocol.Hello
 import com.shlomoa.myadhdpal.protocol.ItemPath
 import com.shlomoa.myadhdpal.protocol.LinkState
@@ -26,6 +27,7 @@ import com.shlomoa.myadhdpal.protocol.Schedule
 import com.shlomoa.myadhdpal.protocol.Selection
 import com.shlomoa.myadhdpal.protocol.Side
 import com.shlomoa.myadhdpal.protocol.SnoozeSettings
+import com.shlomoa.myadhdpal.protocol.WatchStatus
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
@@ -37,6 +39,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -152,6 +155,43 @@ class DataLayerWatchLinkDataSourceTest {
         assertEquals(promptId, put.envelope.id)
         source.removePrompt(promptId)
         assertEquals(listOf(client.localNodeId to Paths.prompt(promptId)), client.deletes)
+    }
+
+    @Test
+    fun `TC-S-165 the watch status is kept as state, the newest wins, and it is not an event`() = runTest {
+        assertNull(source.watchStatus.value)
+        val first = WatchStatus(baselineBpm = 58, thresholdBpm = 88, heartRatePermission = HeartRatePermission.GRANTED)
+        val second = WatchStatus(heartRatePermission = HeartRatePermission.DENIED)
+        source.ingest(listOf(item(Paths.STATUS_WATCH, "123e4567-e89b-42d3-a456-426614174021", first, 1000)))
+        assertEquals(first, source.watchStatus.value)
+        assertEquals(now, source.lastSync.value)
+        source.ingest(listOf(item(Paths.STATUS_WATCH, "123e4567-e89b-42d3-a456-426614174022", second, 2000)))
+        assertEquals(second, source.watchStatus.value)
+        source.ingest(listOf(item(Paths.STATUS_WATCH, "123e4567-e89b-42d3-a456-426614174023", first, 1500)))
+        assertEquals("an older item does not replace a newer one", second, source.watchStatus.value)
+        source.ingest(listOf(item(Paths.ack(ackId), ackId, ack)))
+        assertEquals("only the ack is an event", listOf(ackId), source.events.take(1).toList().map { it.id })
+    }
+
+    @Test
+    fun `TC-S-165 a status written by this phone or with a bad body or another major is ignored`() = runTest {
+        val good = WatchStatus(heartRatePermission = HeartRatePermission.GRANTED)
+        source.ingest(
+            listOf(item(Paths.STATUS_WATCH, "123e4567-e89b-42d3-a456-426614174021", good, node = client.localNodeId))
+        )
+        source.ingest(listOf(RemoteItem(watchNode, Paths.STATUS_WATCH, Envelope(1, ackId, 1, "not json"))))
+        source.ingest(listOf(RemoteItem(watchNode, Paths.STATUS_WATCH, Envelope(2, ackId, 1, "{}"))))
+        assertNull(source.watchStatus.value)
+    }
+
+    @Test
+    fun `TC-S-165 start reads a status that was written while the phone was away and never deletes it`() = runTest {
+        val status = WatchStatus(baselineBpm = 60, heartRatePermission = HeartRatePermission.GRANTED)
+        client.items = listOf(item(Paths.STATUS_WATCH, "123e4567-e89b-42d3-a456-426614174021", status, 1000))
+        source.start(backgroundScope)
+        runCurrent()
+        assertEquals(status, source.watchStatus.value)
+        assertTrue(client.deletes.isEmpty())
     }
 
     @Test
