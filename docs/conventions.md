@@ -8,7 +8,7 @@ Rules every lane follows. The architecture and step ids are in [`plan.md`](plan.
 - One GitHub issue per `plan.md` step, titled with the step id (`0a.8 Cloud bootstrap script`). Create it from the
   *Plan step* issue template, which starts with a **Validation plan** section: what is checked, how (test case ids), and
   the pass criteria.
-- Labels: exactly one `milestone:<0a, 0b, 1, 2, 3, 4, 5, 6, 7>` and exactly one `lane:<S, A, W>`.
+- Labels: exactly one `milestone:<0a, 0b, 1, 2, 3, 4, 5, 6, 7>` and exactly one `lane:<S, A, W, D>`.
 - Each pull request closes its issue and begins with `Requires:` and `Produces:` lines (see the stop rule).
 - `scripts/check-issues.sh` verifies that every step has exactly one issue with these properties; the *Conventions*
   workflow runs it with the repository's issues.

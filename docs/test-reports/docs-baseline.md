@@ -1,7 +1,7 @@
 # Documentation lane baseline (red)
 
 Evidence that the cases of `docs/test-plans/docs.md` fail before any implementation exists.
-Red commit: see the first commit of the PR `claude/docs-lane-setup` (tests and catalogue only, no implementation).
+Red commit: 4e6de0e (tests and catalogue only, no implementation).
 
 ## Script cases
 

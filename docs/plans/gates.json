@@ -158,6 +158,16 @@
       "pr": null
     },
     {
+      "id": "G-DOC",
+      "name": "D1 UI/UX design documentation in docs/design",
+      "owner": "D",
+      "requires": [
+        "G-BOOT"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
       "id": "H1",
       "name": "biometric metrics and thresholds agreed (human)",
       "owner": "user",

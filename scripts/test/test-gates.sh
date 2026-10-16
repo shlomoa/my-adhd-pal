@@ -55,7 +55,7 @@ done
 
 # --- lane plans only name gates that exist
 bad=""
-for f in "$root"/docs/plans/shared.md "$root"/docs/plans/android.md "$root"/docs/plans/watch.md; do
+for f in "$root"/docs/plans/shared.md "$root"/docs/plans/android.md "$root"/docs/plans/watch.md "$root"/docs/plans/docs.md; do
   for g in $(grep -oE '\bG(-[A-Z]+[0-9]*|[0-9]+[ab]?)\b' "$f" | sort -u); do
     printf '%s\n' "$ids" | grep -qx "$g" || bad="$bad $(basename "$f"):$g"
   done
