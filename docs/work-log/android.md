@@ -103,3 +103,17 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `ui/reminders/ReminderEditViewModel` (create for a `taskId`, or edit by `reminderId`; the time and days survive recreation; a new reminder repeats every day; a missing or out-of-range time and an empty, out-of-range or repeated day are rejected; days are stored sorted; delete), stateless `ReminderEditScreen` (24-hour `TimeInput`, day chips, Save/Cancel/Delete), strings. `AccessibilityTest` covers the form with both errors shown. No change to `data/`: an existing reminder is read through `remindersOf`.
 - Validation: `ReminderEditViewModelTest` (TC-A-018 to 022) red first (did not compile, `docs/test-reports/android-baseline.md`), now 5 of 5 PASS; accessibility tests 2 of 2; `./gradlew detekt spotlessCheck check assembleDebug` green.
 - Open items: not reachable in the app yet. Next small PRs: the reminder list inside the task form, 4.2 (publish the schedule from the UI), 4.3, 4.4; then the phone-side alert (design note first, after the H1 decision in #55).
+
+## 2026-10-15 - Phone alert: design note
+
+- Issue and PR: requirement from #55 (H1) and the decision document (PR #147, section 4a); the coordinator asked for a note before any code. No plan.md step id.
+- Changed: `docs/phone-alert.md`: where the alert runs (an `AlertRaiser` started from the application class reading the stored alert rows, so no change to `data/` or `link/`), what the alert is, what can suppress it (each cause marked verified, from the decision document, or unverified), the phone onboarding screen, the offset setting, the steps with what each needs from the other lanes, four questions for the user.
+- Validation: docs lint. Read for this note: the Android notifications page (heads-up instead of full screen while the device is in use; `POST_NOTIFICATIONS` from Android 13) and the AOSP full-screen-intent page (default grant only to calling and alarm apps on Android 14, `ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT`, `canUseFullScreenIntent()`, 60 s heads-up without the permission). The `VibrationEffect` reference page did not load, so amplitude and Do Not Disturb behaviour stay marked unverified.
+- Open items: the four questions in section 7 for the user. Needs from other lanes: protocol 1.2 (`Alert.level`, `offsetBpm`) and `wear-remote-interactions` (Shared), the watch permission activity and granted-state report (Watch, Shared). No code until the questions are answered and protocol 1.2 exists for the parts that need it; level 1 does not.
+
+## 2026-10-16 - Phone alert: design note updated with the user's answers
+
+- Issue and PR: PR #151 (the note), requirement in #55.
+- Changed: `docs/phone-alert.md` records the four answers: sound on by default (a setting turns it off), flashing at most 3 per second with an off switch, "I'm OK" on the phone also ends the episode on the watch (new section 2a; needs the phone-to-watch item in protocol 1.2, Shared, handled on the watch, Watch), and no repeat count on the phone. A-alert-1b (send the episode end) is a separate step after A-alert-1.
+- Validation: docs lint.
+- Open items: A-alert-1 next, tests first; A-alert-1b and A-alert-3 wait for protocol 1.2.
