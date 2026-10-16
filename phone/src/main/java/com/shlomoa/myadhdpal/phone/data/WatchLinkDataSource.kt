@@ -56,6 +56,14 @@ interface WatchLinkDataSource {
 
     suspend fun publishHello(hello: Hello): PublishResult
 
+    /**
+     * Tells the watch the user answered "I'm OK" for the alert episode [episodeId] (protocol 1.2). The source builds
+     * the `EpisodeEnd` with its clock and a fresh item id and writes it urgently; the watch ends that episode or
+     * ignores it. The phone's own `/episode-end/<id>` items older than one hour are deleted when one is written and
+     * once at start.
+     */
+    suspend fun publishEpisodeEnd(episodeId: String): PublishResult
+
     /** Deletes the phone's own prompt item (the answer arrived or it expired; writer owns cleanup). */
     suspend fun removePrompt(id: String)
 
