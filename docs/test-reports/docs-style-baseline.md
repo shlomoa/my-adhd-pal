@@ -1,6 +1,6 @@
 # Aurora restyle baseline (red), issue #164
 
-Evidence that TC-D-031..038 fail before the restyle. Red commit: the first commit of the PR `claude/docs-style-tests`
+Evidence that TC-D-031..038 fail before the restyle. Red commit: 93adb71 (first commit of the PR `claude/docs-style-tests`)
 (tests and catalogue only; images and sources unchanged).
 
 Command: `scripts/test/test-design-style.sh`. Exit 1.
