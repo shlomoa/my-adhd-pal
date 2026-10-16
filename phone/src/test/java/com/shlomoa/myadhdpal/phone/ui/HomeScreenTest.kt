@@ -28,7 +28,8 @@ class HomeScreenTest {
                     history = HistoryUiState(null, ListState.Empty),
                     onFilter = {},
                     onRetry = {},
-                    tasks = {}
+                    tasks = {},
+                    settings = {}
                 )
             }
         }

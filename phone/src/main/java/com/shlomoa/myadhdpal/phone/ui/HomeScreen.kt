@@ -23,9 +23,13 @@ import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
 
 private const val TAB_LINK = 0
 private const val TAB_TASKS = 1
-private const val TAB_HISTORY = 2
+private const val TAB_SETTINGS = 2
+private const val TAB_HISTORY = 3
 
-/** Stateless apart from the selected tab. [tasks] is the Tasks tab; later screens of steps 4.1 to 4.4 add tabs. */
+/**
+ * Stateless apart from the selected tab. [tasks] and [settings] are the Tasks and Settings tabs; later screens of
+ * steps 4.1 to 4.4 add tabs.
+ */
 @Composable
 fun HomeScreen(
     link: LinkStateUiState,
@@ -33,6 +37,7 @@ fun HomeScreen(
     onFilter: (HistoryType?) -> Unit,
     onRetry: () -> Unit,
     tasks: @Composable () -> Unit,
+    settings: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var tab by rememberSaveable { mutableIntStateOf(TAB_LINK) }
@@ -53,6 +58,12 @@ fun HomeScreen(
                     label = { Text(stringResource(R.string.nav_tasks)) }
                 )
                 NavigationBarItem(
+                    selected = tab == TAB_SETTINGS,
+                    onClick = { tab = TAB_SETTINGS },
+                    icon = {},
+                    label = { Text(stringResource(R.string.nav_settings)) }
+                )
+                NavigationBarItem(
                     selected = tab == TAB_HISTORY,
                     onClick = { tab = TAB_HISTORY },
                     icon = {},
@@ -64,6 +75,7 @@ fun HomeScreen(
         Box(Modifier.padding(padding)) {
             when (tab) {
                 TAB_TASKS -> tasks()
+                TAB_SETTINGS -> settings()
                 TAB_HISTORY -> HistoryScreen(history, onFilter, onRetry)
                 else -> LinkStateScreen(link)
             }

@@ -117,6 +117,18 @@ e: AlertPlannerTest.kt:51:66 Unresolved reference 'cycleMillis'.
 
 TC-A-090 to TC-A-102 are red until this step lands. TC-A-103 is manual on the A55.
 
+## 4.3 Settings screen (with the alert offset, the watch status and the alert switches)
+
+Red commits: 60280b4 (ViewModel tests) and 3626012 (Settings tab wiring test), tests only. Command: `./gradlew :phone:testDebugUnitTest --tests '*Settings*'`. Exit 1, the test sources do not compile:
+
+```
+e: SettingsViewModelTest.kt:103:12 Unresolved reference 'save'.
+e: SettingsViewModelTest.kt:113:29 Unresolved reference 'uiState'.
+e: HomeScreenTest.kt:32:21 No parameter with name 'settings' found.
+```
+
+TC-A-031 to TC-A-037 and TC-A-110 to TC-A-115 are red until this step lands. TC-A-116 is manual on the devices.
+
 ## A-alert-1b "I'm OK" ends the episode on the watch
 
 Red commit: db2ef88 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*alert*'`. Exit 1, the test sources do not compile:

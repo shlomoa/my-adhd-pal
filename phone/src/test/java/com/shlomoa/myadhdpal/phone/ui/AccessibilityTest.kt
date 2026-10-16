@@ -13,9 +13,12 @@ import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
+import com.shlomoa.myadhdpal.phone.alert.AlertPrefs
 import com.shlomoa.myadhdpal.phone.alert.AlertScreen
 import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryType
+import com.shlomoa.myadhdpal.phone.data.SettingsDefaults
+import com.shlomoa.myadhdpal.phone.data.SettingsError
 import com.shlomoa.myadhdpal.phone.data.Task
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryScreen
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryUiState
@@ -25,12 +28,16 @@ import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditScreen
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditUiState
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderError
+import com.shlomoa.myadhdpal.phone.ui.settings.SettingsScreen
+import com.shlomoa.myadhdpal.phone.ui.settings.SettingsUiState
 import com.shlomoa.myadhdpal.phone.ui.tasks.TaskEditScreen
 import com.shlomoa.myadhdpal.phone.ui.tasks.TaskEditUiState
 import com.shlomoa.myadhdpal.phone.ui.tasks.TaskListScreen
 import com.shlomoa.myadhdpal.phone.ui.tasks.TitleError
 import com.shlomoa.myadhdpal.protocol.AckAction
+import com.shlomoa.myadhdpal.protocol.HeartRatePermission
 import com.shlomoa.myadhdpal.protocol.LinkState
+import com.shlomoa.myadhdpal.protocol.WatchStatus
 import java.time.Duration
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -96,13 +103,33 @@ class AccessibilityTest {
         },
         "alert bright" to { AlertScreen(138.0, 110.0, bright = true, onOk = {}) },
         "alert dark" to { AlertScreen(138.0, 110.0, bright = false, onOk = {}) },
+        "settings with watch status" to {
+            SettingsScreen(
+                SettingsUiState(
+                    SettingsDefaults.settings,
+                    setOf(SettingsError.OFFSET_OUT_OF_RANGE),
+                    WatchStatus(62, 92, HeartRatePermission.GRANTED),
+                    AlertPrefs()
+                ),
+                onSave = {},
+                onAlertPrefs = {}
+            )
+        },
+        "settings before the watch reports" to {
+            SettingsScreen(
+                SettingsUiState(SettingsDefaults.settings, emptySet(), null, AlertPrefs()),
+                onSave = {},
+                onAlertPrefs = {}
+            )
+        },
         "home with tabs" to {
             HomeScreen(
                 link = LinkStateUiState(LinkState.AWAY, LastSync.Never),
                 history = HistoryUiState(null, ListState.Empty),
                 onFilter = {},
                 onRetry = {},
-                tasks = {}
+                tasks = {},
+                settings = {}
             )
         },
         "history failed" to {
@@ -142,9 +169,12 @@ class AccessibilityTest {
         forEachScreen { name, nodes ->
             for (node in nodes) {
                 // The touch area, not the drawn size: Material enlarges small controls to the minimum touch target.
+                // A node scrolled out of view has an empty touch area (its scroll container clips it); for that one
+                // the layout size is all there is to measure.
                 val touch = node.touchBoundsInRoot
-                assertTrue("$name: touch target ${touch.width}x${touch.height}px is under 48 dp", touch.height >= min)
-                assertTrue("$name: touch target ${touch.width}x${touch.height}px is under 48 dp", touch.width >= min)
+                val width = if (touch.isEmpty) node.size.width.toFloat() else touch.width
+                val height = if (touch.isEmpty) node.size.height.toFloat() else touch.height
+                assertTrue("$name: touch target ${width}x${height}px is under 48 dp", height >= min && width >= min)
             }
         }
     }

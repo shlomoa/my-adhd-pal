@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.shlomoa.myadhdpal.phone.alert.AlertPreferences
 import com.shlomoa.myadhdpal.phone.alert.AlertRaiser
 import com.shlomoa.myadhdpal.phone.alert.AndroidAlertNotifier
 import com.shlomoa.myadhdpal.phone.alert.DataStoreAlertPreferences
@@ -40,6 +41,9 @@ object AlertModule {
     @Singleton
     fun alertPreferences(@AlertStore store: DataStore<Preferences>): DataStoreAlertPreferences =
         DataStoreAlertPreferences(store)
+
+    @Provides
+    fun alertPreferencesInterface(preferences: DataStoreAlertPreferences): AlertPreferences = preferences
 
     @Provides
     @Singleton
