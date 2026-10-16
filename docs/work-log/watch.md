@@ -313,3 +313,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   (hourly low = median of the lowest 3 consecutive samples; baseline = 20th percentile of the hourly values of the last 7 days;
   known after 24 values); 110 bpm fallback Decided. Cap of 6 repeats and the "I'm OK" button stay proposals.
 - Validation: docs lint. H1 is NOT flipped.
+
+## 2026-10-16 - Biometric decision document confirmed
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), PR #147
+- Changed: `docs/plans/biometrics.md`: the user approved the last two items ("I'm OK" button and the cap of 6 repeats) on 2026-10-16;
+  section 8 has nothing open and the document is the confirmed H1 document. H1 flips in a separate one-line PR.
+- Validation: docs lint.

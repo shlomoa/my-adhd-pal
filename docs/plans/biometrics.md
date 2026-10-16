@@ -1,7 +1,8 @@
 # Biometric alerts: decisions (step 6.2, gate H1)
 
 Decision document for step 6.2 ([issue #55](https://github.com/shlomoa/my-adhd-pal/issues/55)). The user's answers to the
-proposal are in the body of the issue (section "Decisions"). Gate **H1 flips only after the user confirms this document**, in a
+proposal are in the body of the issue (section "Decisions"). **Confirmed by the user on 2026-10-16, with the last two items:**
+"the two remaing items: "I'm OK" and the cap of 6 repeats is approved". Nothing in section 8 is open. Gate H1 flips in a
 separate one-line PR. Research notes: [`../research/watch.md`](../research/watch.md) sections 3 to 5. Steps 6.3 to 6.8 in
 [`watch.md`](watch.md) follow once H1 and G2b are merged.
 
@@ -16,8 +17,8 @@ on the real watch (section 6).
 | D1 | Metrics | Decided | Heart rate only. |
 | D2 | Direction | Decided | Above the threshold only. The evaluator also supports below, unused in v1. |
 | D3 | Threshold | Decided | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. The baseline is the **20th percentile of the hourly lows of the last 7 days** (Decided, section 2); until a baseline exists the threshold is an absolute **110 bpm** (Decided). |
-| D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again; after that, **every 2 minutes** while the rate stays above (Decided). Details: section 3. |
-| D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. **The phone raises the same kind of alert** (it vibrates and flashes a full-screen alert, not only the watch). Sections 4 and 4a. |
+| D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again; after that, **every 2 minutes** while the rate stays above, at most **6 repeats** per episode (Decided). Details: section 3. |
+| D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. **The phone raises the same kind of alert** (it vibrates and flashes a full-screen alert, not only the watch). The full-screen alert has an **"I'm OK"** button that ends the episode (Decided). Sections 4 and 4a. |
 | D6 | Latency | Decided | Best effort. Readings are batched by the system at an interval the app is not told (section 6). No maximum delay is promised. |
 | D7 | Permission | Decided, feasibility checked | Requested from the **phone** app (onboarding). Section 5. |
 | D8 | Privacy | Decided | Raw readings are never logged in release builds; raw feed only in `wear/src/debug/`. `/alert` carries the numeric value (already accepted). |
@@ -78,9 +79,10 @@ Decided by the user:
 - Batching can make the 2-minute rhythm irregular: an alert can only follow a reading, and readings may arrive late or in
   groups (section 6). The rhythm is "at most one alert per 2 minutes, as soon as a reading above the threshold is evaluated".
 
-Still a proposal (the user did not answer this part): level 2 stops after **6 repeats** per episode (12 minutes at 2-minute
-intervals), and the full-screen alert has an "I'm OK" button that ends the episode early. Without a limit a high rate during
-exercise would alarm the user for as long as it lasts. Say if you want no limit or another number.
+Decided by the user (2026-10-16: "the two remaing items: "I'm OK" and the cap of 6 repeats is approved"): level 2 stops after **6
+repeats** per episode (12 minutes at 2-minute intervals), and the full-screen alert on the watch and on the phone has an
+**"I'm OK" button** that ends the episode early. Without these a high rate during exercise would alarm the user for as long
+as it lasts.
 
 ## 4. How strong an alert can be (D5)
 
@@ -196,8 +198,12 @@ Answered by the user (2026-10-15 in this lane's session; 2026-10-16 relayed by t
    them: **accepted**.
 5. The full-screen-intent permission step and the later Play declaration: **accepted**.
 
-Still open (Proposal, unanswered):
+Approved by the user on 2026-10-16 (their words, relayed by the coordinator): "the two remaing items: "I'm OK" and the cap of 6
+repeats is approved".
 
-- The cap on level-2 repeats (proposed 6), or no limit.
-- The "I'm OK" button that ends an episode early.
-- Once the user confirms this document, the one-line PR that flips H1 follows.
+- Cap of **6 level-2 repeats** per episode: **Decided** (section 3).
+- **"I'm OK" button** that ends an episode early, on the watch and the phone: **Decided** (sections 3 and 4a).
+
+**Nothing is open.** This is the user's confirmed document for step 6.2 (confirmed 2026-10-16). The remaining "Proposal" marks in
+section 4 (exact vibration patterns, screen and sound details) are implementation details that tests in 6.6 pin down, not
+questions for the user. The one-line PR that flips H1 follows.
