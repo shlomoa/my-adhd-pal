@@ -65,6 +65,7 @@ class DataStoreSettingsRepositoryTest : SettingsRepositoryContract() {
     fun `TC-S-098 a fresh store has the documented defaults for thresholds, cooldown, snooze and cadence`() = runTest {
         val settings = open().settings.first()
         assertEquals(SettingsDefaults.settings, settings)
+        assertEquals("no absolute threshold", emptyList<Threshold>(), settings.thresholds)
         assertEquals(300, settings.cooldownSeconds)
         assertEquals(30, settings.offsetBpm)
         assertEquals(110, settings.initialBpm)
