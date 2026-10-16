@@ -84,6 +84,22 @@ class TaskViewModelsTest {
     }
 
     @Test
+    fun `TC-A-121 after saving, the state names the task, new id for a new task and the same id when editing`() =
+        runTest {
+            val created = editor()
+            assertNull(created.uiState.value.taskId)
+            created.setTitle("Take the pills")
+            created.save()
+            assertEquals("task-1", created.uiState.value.taskId)
+
+            repo.save(Task("t-9", "Old"))
+            val edited = editor(SavedStateHandle(mapOf("taskId" to "t-9")))
+            edited.setTitle("New")
+            edited.save()
+            assertEquals("t-9", edited.uiState.value.taskId)
+        }
+
+    @Test
     fun `TC-A-023 an unsaved edit survives recreation`() {
         val handle = SavedStateHandle()
         editor(handle).setTitle("Half typed")

@@ -165,6 +165,11 @@ repositories exist (G3).
 | TC-A-114 | The alert sound and flashing switches default to on and a change is kept | Unit | Preferences store updated |
 | TC-A-115 | The Settings tab in the app saves a changed offset and says so when the value is out of range | Unit (Hilt + Compose, fake Data Layer client) | Valid value stays after Save; invalid shows the error and keeps the old value |
 | TC-A-116 | On the A55 and the Watch6 Classic, a changed offset reaches the watch: the watch's reported threshold follows baseline plus the new offset | Manual | Settings screen shows the new threshold after the watch reports |
+| TC-A-117 | A task's reminders are listed in time order, and only that task's | Unit | Sorted by minute of day; other tasks' reminders absent |
+| TC-A-118 | A task without reminders shows the Empty state | Unit | `ListState.Empty` |
+| TC-A-119 | In the app: save a task, add a reminder to it, see it listed, open it and delete it | Unit (Hilt + Compose, fake Data Layer client) | Reminder shown as time and days; gone after Delete |
+| TC-A-120 | A reminder is summarised as its time (24 hours) and its days: every day, weekdays, or the listed days | Unit | `09:00` + EveryDay; `[1..5]` Weekdays; others as a sorted list |
+| TC-A-121 | After a task is saved its id is in the edit state, so reminders can be added to a new task | Unit | New id for a new task; the same id when editing |
 | TC-A-080 | The broadcast publishes the schedule on the real devices | Manual | Watch shows the reminder at the set time after the broadcast |
 | TC-A-081 | The publish command logs the published version and the reminder time | Unit | `DEMO published schedule version=<n> reminderAt=<ms>`; `unchanged` when nothing new was sent |
 | TC-A-082 | A failed or invalid publish is logged, not thrown | Unit | `DEMO publish failed reason=<text>` for a Data Layer failure and for minutes_ahead outside 1 to 1440 |

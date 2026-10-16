@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -56,16 +58,20 @@ fun TaskListScreen(
     }
 }
 
-/** Stateless create or edit form. */
+/** Stateless create or edit form; [below] is room for the task's reminders once the task exists. */
 @Composable
 fun TaskEditScreen(
     state: TaskEditUiState,
     onTitle: (String) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    below: @Composable () -> Unit = {}
 ) {
-    Column(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier.padding(16.dp).verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         OutlinedTextField(
             value = state.title,
             onValueChange = onTitle,
@@ -86,5 +92,6 @@ fun TaskEditScreen(
             Button(onSave) { Text(stringResource(R.string.task_save)) }
             TextButton(onCancel) { Text(stringResource(R.string.task_cancel)) }
         }
+        below()
     }
 }

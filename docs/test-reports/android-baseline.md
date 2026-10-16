@@ -140,3 +140,7 @@ e: AlertRaiserTest.kt:154:22 Unresolved reference 'DismissResult'.
 ```
 
 TC-A-104 to TC-A-108 are red until this step lands. TC-A-109 is manual on the devices.
+
+## 4.1c Reminders inside the task form
+
+Red commit: 56c7230 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*reminders*'`. Exit 1, the test sources do not compile (`Unresolved reference 'summary'`, `Unresolved reference 'DaysSummary'`, `Unresolved reference 'TaskRemindersViewModel'`, `Unresolved reference 'taskId'`). TC-A-117 to TC-A-121 are red until this step lands.
