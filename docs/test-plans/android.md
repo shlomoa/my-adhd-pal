@@ -152,6 +152,13 @@ repositories exist (G3).
 | TC-A-101 | The alert screen is declared, not exported, and the permissions it needs are requested | Unit (manifest) | `AlertActivity` not exported; notification, full-screen-intent and vibrate permissions |
 | TC-A-102 | Alert preferences default to sound on and flashing on, and a change survives a restart; the raised-alert ids survive a restart | Unit | DataStore round trips |
 | TC-A-103 | On the A55 with the app closed, an alert from the watch vibrates, wakes the screen and shows the full-screen alert; the Do Not Disturb, silent mode, locked and in-use cases are tried once each | Manual | Result of each case recorded in the work log |
+| TC-A-110 | The alert offset is shown with its default of 30 and a change within 20 to 50 is saved and published | Unit | Stored; a new schedule version carries it |
+| TC-A-111 | An offset below 20 or above 50 is rejected and the old value kept | Unit | `OFFSET_OUT_OF_RANGE`; nothing published |
+| TC-A-112 | The initial threshold (used until the watch has a baseline) can be changed within its range and is rejected outside it | Unit | Stored, or `INITIAL_OUT_OF_RANGE` with the old value kept |
+| TC-A-113 | The watch's baseline, threshold and heart-rate permission are shown, and "not reported yet" before the watch has sent them | Unit | State follows the watch status repository |
+| TC-A-114 | The alert sound and flashing switches default to on and a change is kept | Unit | Preferences store updated |
+| TC-A-115 | The Settings tab in the app saves a changed offset and says so when the value is out of range | Unit (Hilt + Compose, fake Data Layer client) | Valid value stays after Save; invalid shows the error and keeps the old value |
+| TC-A-116 | On the A55 and the Watch6 Classic, a changed offset reaches the watch: the watch's reported threshold follows baseline plus the new offset | Manual | Settings screen shows the new threshold after the watch reports |
 | TC-A-080 | The broadcast publishes the schedule on the real devices | Manual | Watch shows the reminder at the set time after the broadcast |
 | TC-A-081 | The publish command logs the published version and the reminder time | Unit | `DEMO published schedule version=<n> reminderAt=<ms>`; `unchanged` when nothing new was sent |
 | TC-A-082 | A failed or invalid publish is logged, not thrown | Unit | `DEMO publish failed reason=<text>` for a Data Layer failure and for minutes_ahead outside 1 to 1440 |
