@@ -83,4 +83,8 @@ sed 's/^## 2026-10-11 - /## /' "$tmp/log-good.md" > "$tmp/log-nohead.md"
 run scripts/check-work-log.sh "$tmp/log-nohead.md"; rc=$?
 [ "$rc" -eq 1 ] && says heading; check "TC-S-025 an entry heading without date and step fails" 0 $?
 run scripts/check-work-log.sh docs/work-log/shared.md; check "TC-S-025 the shared work log follows the format" 0 $?
+
+# TC-D-011 lane D (documentation) label is accepted
+jq 'map(if .number == 3 then .labels = [{"name":"milestone:4"},{"name":"lane:D"}] else . end)' "$tmp/good.json" > "$tmp/laned.json"
+run scripts/check-issues.sh "$tmp/laned.json" "$tmp/plan.md"; check "TC-D-011 a lane:D label is accepted" 0 $?
 exit $fail
