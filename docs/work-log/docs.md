@@ -32,3 +32,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `scripts/test/test-design-docs.sh` TC-D-001..010 PASS, docs lint (markdown, links) green.
 - Open items: canvas says 2 to 4 prompt options, the data-layer contract 2 to 6; the tile primary action is undecided.
   D4 final run and the user's approval (TC-D-013).
+
+## 2026-10-16 - D1.3 Rename of lane D steps
+
+- Issue and PR: #154; coordinator message (naming clash): D1 #154 design, D2 #156 index, D3 #157 lint.
+- Changed: plan steps renamed D1.1 setup, D1.2 images, D1.3 sections, D1.4 final; rows D2 and D3 and gate G-INDEX
+  (D2, requires G-DOC) added to `docs/plans/docs.md`, `docs/plans/README.md` and `gates.json`. Entries above keep the
+  step names they were written with (D1, D2, D3 mean D1.1, D1.2, D1.3).
+- Validation: `scripts/test/test-gates.sh` and `scripts/check-work-log.sh docs/work-log/docs.md`.
+- Open items: TC-D ids for issues #156 and #157 come in their own red-first PRs after D1.

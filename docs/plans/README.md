@@ -61,6 +61,7 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 | **G6** | Phone features: 4.1-4.4 and 4.6 (tasks, schedule builder, settings, prompt publishing, states) | A | G4, G3 |
 | **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded | W + user | G3, G4, G5, H2 |
 | **G-DOC** | D1 design documentation: `docs/design/` with overview, four sections, solution diagrams and screen images; design approved by the user (recorded in issue #154) | D | G-BOOT |
+| **G-INDEX** | D2 documentation index `docs/index.md` and generated site in CI (issue #156), user approves the structure | D | G-DOC |
 | **H1** (human) | 6.2 biometric metrics and thresholds agreed by the user, recorded in the issue | user | none |
 | **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed by the user, recorded in the issue | user | none |
 
@@ -111,10 +112,10 @@ gate start immediately; a lane with nothing unblocked stops.
 | Wave | Shared and data (S) | Android (A) | Watch (W) | Documentation (D) |
 |---|---|---|---|---|
 | 0 | **S0** bootstrap -> G-BOOT (lanes launch after merge) | | | |
-| 1 | S1a catalogue; **0a.8** -> G-ENV | A1a catalogue | W1a catalogue; W1b research (3.4, 5.1, 6.1) | D1 lane setup, catalogue |
-| 2 | **0a.1-0a.7** -> G0 | ■G0 | ■G0 | D2 images |
-| 3 | 0b.1 -> G-LIB; 0b.2a (user run) -> G-SPK1 | A2 phone skeleton checks | 3.1 manifest; 3.8 debug set (G0) | D3 sections and solution |
-| 4 | 1.1-1.3 -> G1; 0b.2b (user run, ■H2) -> G-DEC | | W1c red baseline (■G1) | D4 final run, user approval (H) -> G-DOC |
+| 1 | S1a catalogue; **0a.8** -> G-ENV | A1a catalogue | W1a catalogue; W1b research (3.4, 5.1, 6.1) | D1.1 lane setup, catalogue |
+| 2 | **0a.1-0a.7** -> G0 | ■G0 | ■G0 | D1.2 images |
+| 3 | 0b.1 -> G-LIB; 0b.2a (user run) -> G-SPK1 | A2 phone skeleton checks | 3.1 manifest; 3.8 debug set (G0) | D1.3 sections and solution |
+| 4 | 1.1-1.3 -> G1; 0b.2b (user run, ■H2) -> G-DEC | | W1c red baseline (■G1) | D1.4 final run, user approval (H) -> G-DOC; then D2 -> G-INDEX, D3 |
 | 5 | 1.4, 1.6, 1.7, 1.8a -> G2a (■G1, parallel to wave 4); 1.5, 1.8b -> G2b (■G-DEC) | | | |
 | 6 | 2.3 + repository interfaces -> G3a (■G2a) | A1b red baseline (■G3a) | | |
 | 7 | 2.1, 2.2 (■G3a); 2.4, 2.5 -> G3 (■G2b) | 2.7, 2.6, 4.5 -> G4 | 3.2-3.7 -> G5 (■G2a) | |
