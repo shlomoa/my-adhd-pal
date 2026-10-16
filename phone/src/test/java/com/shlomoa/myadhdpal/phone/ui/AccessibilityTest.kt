@@ -102,7 +102,8 @@ class AccessibilityTest {
                 history = HistoryUiState(null, ListState.Empty),
                 onFilter = {},
                 onRetry = {},
-                tasks = {}
+                tasks = {},
+                settings = {}
             )
         },
         "history failed" to {

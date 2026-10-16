@@ -1,7 +1,7 @@
 package com.shlomoa.myadhdpal.phone.ui.settings
 
-import com.shlomoa.myadhdpal.phone.alert.AlertPrefs
 import com.shlomoa.myadhdpal.phone.alert.AlertPreferences
+import com.shlomoa.myadhdpal.phone.alert.AlertPrefs
 import com.shlomoa.myadhdpal.phone.data.AppSettings
 import com.shlomoa.myadhdpal.phone.data.SettingsDefaults
 import com.shlomoa.myadhdpal.phone.data.SettingsError
@@ -143,7 +143,8 @@ class SettingsViewModelTest {
     @Test
     fun `TC-A-113 the watch status is shown, and nothing before the watch has sent it`() = runTest {
         assertNull(vm.uiState.value.watchStatus)
-        statuses.current.value = WatchStatus(baselineBpm = 62, thresholdBpm = 92, heartRatePermission = HeartRatePermission.GRANTED)
+        statuses.current.value =
+            WatchStatus(baselineBpm = 62, thresholdBpm = 92, heartRatePermission = HeartRatePermission.GRANTED)
         assertEquals(62, vm.uiState.value.watchStatus?.baselineBpm)
         assertEquals(92, vm.uiState.value.watchStatus?.thresholdBpm)
         assertEquals(HeartRatePermission.GRANTED, vm.uiState.value.watchStatus?.heartRatePermission)

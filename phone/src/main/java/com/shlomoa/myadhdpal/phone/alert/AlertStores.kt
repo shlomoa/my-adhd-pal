@@ -9,13 +9,20 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
+/** The alert switches the user can change. */
+interface AlertPreferences {
+    val prefs: Flow<AlertPrefs>
+
+    suspend fun update(prefs: AlertPrefs)
+}
+
 /** The alert switches on Preferences DataStore. Missing values read as the defaults: sound and flashing on. */
-class DataStoreAlertPreferences(private val store: DataStore<Preferences>) {
-    val prefs: Flow<AlertPrefs> = store.data.map {
+class DataStoreAlertPreferences(private val store: DataStore<Preferences>) : AlertPreferences {
+    override val prefs: Flow<AlertPrefs> = store.data.map {
         AlertPrefs(soundOn = it[SOUND] ?: true, flashOn = it[FLASH] ?: true)
     }
 
-    suspend fun update(prefs: AlertPrefs) {
+    override suspend fun update(prefs: AlertPrefs) {
         store.edit {
             it[SOUND] = prefs.soundOn
             it[FLASH] = prefs.flashOn
