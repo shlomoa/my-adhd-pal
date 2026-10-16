@@ -178,6 +178,7 @@ Build fails before any test runs.
 
 ```
 e: protocol/src/test/.../alerts/EpisodeEvaluatorTest.kt:28:9 Unresolved reference 'EpisodeEvaluator'.
+```
 
 ## Resting baseline (TC-W-086 to TC-W-089, TC-W-120 to TC-W-122; `protocol/src/test/.../alerts/BaselineTrackerTest.kt`)
 
