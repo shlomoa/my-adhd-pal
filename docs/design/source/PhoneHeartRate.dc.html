@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Allow heart rate</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph">
+<div class="bar"><button type="button" class="ib" aria-label="Back"><i class="ic i-back" aria-hidden="true"></i></button><h1>Heart rate</h1></div>
+<div class="body">
+<div class="card" style="align-items: center; text-align: center; padding: 28px 20px; gap: 12px">
+<i class="ic i-heart" aria-hidden="true" style="width: 56px; height: 56px; color: #0B6E78"></i>
+<h2 class="t1" style="font-size: 24px">Allow heart rate on your watch</h2>
+<p class="t2">Your watch will ask once. Tap Allow on the watch. It stays on the watch: this phone only sees alerts.</p>
+</div>
+<div class="card" style="background: #FFF0DC; border-color: #FFF0DC"><div class="row"><i class="ic i-clock" aria-hidden="true"></i><p class="t2 grow" style="color: #5C3300">Waiting for you on the watch.</p></div></div>
+<p class="sec-h">Status</p>
+<div class="card" style="gap: 14px">
+<div class="row"><i class="ic i-check" aria-hidden="true"></i><p class="t2 grow">Watch reached</p></div>
+<div class="row"><i class="ic i-clock" aria-hidden="true"></i><p class="t2 grow"><b>Heart rate: waiting</b></p></div>
+<div class="row"><i class="ic i-away" aria-hidden="true"></i><p class="t2 grow">Background heart rate: not asked yet</p></div>
+</div>
+<div style="flex: 1"></div>
+<p class="cap">If you tap Don't allow, alerts stay off and this screen says so. You can try again here.</p>
+<button type="button" class="btn pri" style="width: 100%"><i class="ic i-watch" aria-hidden="true"></i>Open on watch</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

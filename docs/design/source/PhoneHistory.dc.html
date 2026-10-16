@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>History tab</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph">
+<div class="bar"><h1>History</h1></div>
+<div class="body">
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<span class="chip on">All</span><span class="chip">Answers</span><span class="chip">Choices</span><span class="chip">Alerts</span>
+</div>
+<p class="hist-h">Today</p>
+<div class="card"><div class="row"><i class="ic i-check" aria-hidden="true"></i><div class="grow"><p class="t1">Reminder: Take the pills</p><p class="t2">Done</p></div><p class="cap">08:02</p></div></div>
+<div class="card"><div class="row"><i class="ic i-heart" aria-hidden="true"></i><div class="grow"><p class="t1">Heart rate 118 (threshold 92)</p><p class="t2">Alert, level 2. You tapped I'm OK.</p></div><p class="cap">07:41</p></div></div>
+<div class="card"><div class="row"><i class="ic i-tasks" aria-hidden="true"></i><div class="grow"><p class="t1">What next?: chose Break</p><p class="t2">Choice</p></div><p class="cap">07:15</p></div></div>
+<p class="hist-h">Yesterday</p>
+<div class="card"><div class="row"><i class="ic i-clock" aria-hidden="true"></i><div class="grow"><p class="t1">Reminder: Start the report</p><p class="t2">Snoozed</p></div><p class="cap">14:03</p></div></div>
+<div class="card"><div class="row"><i class="ic i-clock" aria-hidden="true"></i><div class="grow"><p class="t1">Reminder: Start the report</p><p class="t2">Started 2 minutes</p></div><p class="cap">10:00</p></div></div>
+</div>
+<div class="nav">
+<button type="button"><i class="ic i-watch" aria-hidden="true"></i>Watch</button>
+<button type="button"><i class="ic i-tasks" aria-hidden="true"></i>Tasks</button>
+<button type="button" class="on"><i class="ic i-history" aria-hidden="true"></i>History</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
