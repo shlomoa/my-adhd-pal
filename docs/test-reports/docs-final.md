@@ -1,6 +1,6 @@
 # Documentation lane final report (D1, issue #154)
 
-Base: cf0b097 (`main` after PR 159). Commands run from the repository root. Status of the user's approval is below:
+Base: cf0b097 (`main` after PR 159); TC-D-014..020 (issue #157) were run on branch `claude/docs-checks`. Commands run from the repository root. Status of the user's approval is below:
 the report is **not complete** until TC-D-013 is reported by the user.
 
 | Id | Result | Evidence |
@@ -18,5 +18,12 @@ the report is **not complete** until TC-D-013 is reported by the user.
 | TC-D-011 | PASS | `scripts/test/test-conventions.sh`: no FAIL lines |
 | TC-D-012 | PASS | `scripts/docs-lint.sh markdown` 0 issues, `links` exit 0; CI green on PR 159 (all five jobs) |
 | TC-D-013 | PENDING | manual: the user reads `docs/design/` and approves; not yet reported |
+| TC-D-014 | PASS | `scripts/test/test-doc-checks.sh` (issue #157): format check fails on a format fixture, lint does not report it |
+| TC-D-015 | PASS | same script: lint check fails on a lint fixture, format does not report it |
+| TC-D-016 | PASS | same script: `docs-lint.sh markdown` catches both |
+| TC-D-017 | PASS | same script: violations in `docs/design/` and in the root `README.md` are caught |
+| TC-D-018 | PASS | same script: `docs-lint.sh fix` repairs the format fixture and leaves the lint violation |
+| TC-D-019 | PASS | same script: lint, format and markdown pass on the repository documents |
+| TC-D-020 | PASS | same script: `check` calls `docs-lint.sh markdown`; `script-tests` runs the script (CI run of the PR pending) |
 
 `scripts/test/test-gates.sh`: no FAIL lines.

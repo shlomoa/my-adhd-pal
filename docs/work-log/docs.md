@@ -50,3 +50,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   locally. `check-test-cases.sh docs final` fails only because TC-D-013 is not PASS.
 - Open items: the user reads `docs/design/` and approves or asks for changes (TC-D-013); the decision goes in the issue
   body. Gate G-DOC flips only after that. D2 (#156) and D3 (#157) follow.
+
+## 2026-10-16 - D3 Documentation lint and format checks (issue #157)
+
+- Issue and PR: #157; PR `claude/docs-checks`. Gap list and the option B proposal are in the issue body.
+- Changed: `scripts/docs-lint.sh` has `lint`, `format` and `fix` modes next to `markdown` (which runs both, so Gradle and CI
+  are unchanged); `scripts/test/test-doc-checks.sh` (TC-D-014..020, negative fixtures) runs in the `script-tests` job;
+  `docs/test-plans/docs.md`, `docs/test-reports/docs-checks-baseline.md` and `docs-final.md` updated. No document was
+  rewritten. `scripts/**` edited because the issue is about those checks (coordinator asked to start D3).
+- Validation: red baseline commit b2c6ca2, then `scripts/test/test-doc-checks.sh` all PASS, `docs-lint.sh markdown` and
+  `links` green. Gradle-based checks (TC-S-015, TC-S-016) cannot run in this cloud session (no Android SDK); CI runs them.
+- Open items: the user may switch the format check to option A (Prettier, would rewrite 28 files) in the issue body.

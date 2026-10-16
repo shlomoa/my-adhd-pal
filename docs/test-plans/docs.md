@@ -25,3 +25,18 @@ step, when its head is green.
 | TC-D-011 | script | Lane label | `scripts/check-issues.sh` accepts `lane:D` (`scripts/test/test-conventions.sh`) |
 | TC-D-012 | CI | Doc lint and link check | `scripts/docs-lint.sh markdown` and `links` are green on `docs/design/**` |
 | TC-D-013 | manual | Design approval | the user reads `docs/design/` and approves the design; recorded in the issue body |
+
+## Documentation checks (issue #157, D3)
+
+`scripts/test/test-doc-checks.sh` runs these cases with negative fixtures that exist only while it runs; it joins the
+`script-tests` CI job with the implementation.
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-D-014 | script | Format check | trailing spaces, extra blank lines and a missing final newline fail `scripts/docs-lint.sh format` naming the file; `lint` does not report them |
+| TC-D-015 | script | Lint check | a skipped heading level fails `scripts/docs-lint.sh lint` naming the file; `format` does not report it |
+| TC-D-016 | script | One entry point | `scripts/docs-lint.sh markdown` fails on a format violation and on a lint violation (both checks run) |
+| TC-D-017 | script | Coverage | a violation in `docs/design/` and one in the root `README.md` are caught |
+| TC-D-018 | script | Fix command | `scripts/docs-lint.sh fix` makes the format check pass and does not hide a lint violation |
+| TC-D-019 | script | Clean documents | lint, format and markdown pass on the repository documents once the fixtures are removed |
+| TC-D-020 | script | CI | `./gradlew check` calls `docs-lint.sh markdown`, and the `script-tests` job runs `test-doc-checks.sh` |

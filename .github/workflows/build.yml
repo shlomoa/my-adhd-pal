@@ -98,3 +98,7 @@ jobs:
       - name: Design documentation
         if: ${{ !cancelled() }}
         run: scripts/test/test-design-docs.sh
+
+      - name: Documentation lint and format checks
+        if: ${{ !cancelled() }}
+        run: scripts/test/test-doc-checks.sh
