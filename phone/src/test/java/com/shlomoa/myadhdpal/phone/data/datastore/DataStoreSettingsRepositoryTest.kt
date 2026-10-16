@@ -70,7 +70,6 @@ class DataStoreSettingsRepositoryTest : SettingsRepositoryContract() {
         assertEquals(30, settings.offsetBpm)
         assertEquals(110, settings.initialBpm)
         assertEquals(60, settings.cadenceMinutes)
-        assertEquals(listOf(Threshold(Metric.HEART_RATE, Direction.ABOVE, 150.0)), settings.thresholds)
     }
 
     @Test

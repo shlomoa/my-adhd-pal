@@ -328,4 +328,4 @@ Red commit: `HistoryRepositoryContract` TC-S-160 (level and episode kept, a 1.1 
 
 ## No absolute heart-rate threshold in the defaults (issue 55 decision, red)
 
-Red commit: `DataStoreSettingsRepositoryTest` TC-S-098 now expects `SettingsDefaults.settings.thresholds` to be empty, no implementation. `./gradlew :phone:testDebugUnitTest --tests '*DataStoreSettingsRepositoryTest*'`: `AssertionError` at `DataStoreSettingsRepositoryTest.kt:65` (the default still held the 150 bpm threshold).
+Red commit: `DataStoreSettingsRepositoryTest` TC-S-098 now expects `SettingsDefaults.settings.thresholds` to be empty, no implementation. `./gradlew :phone:testDebugUnitTest --tests '*DataStoreSettingsRepositoryTest*'`: `AssertionError` at `DataStoreSettingsRepositoryTest.kt:65` (the new assertion; the old one, which expected the 150 bpm threshold, was removed in the green commit).
