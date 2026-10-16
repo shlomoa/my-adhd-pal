@@ -333,3 +333,15 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/biometrics.md` (section 4a and the table in section 7) and `docs/test-plans/watch.md` (TC-W-084, TC-W-085): when the Shared lane
   defines the phone-to-watch end-episode item (protocol 1.2), the watch stops its repeats on receiving it. Planned with 6.5 and 6.6, tests first.
 - Validation: docs lint. Nothing built; waiting for the item's path and body in `docs/protocol.md`.
+
+## 2026-10-16 - Step 6.5, part 2: the episode evaluator
+
+- Issue and PR: step 6.5, branch `claude/watch-6-5b`
+- Changed: `EpisodeEvaluator` in `:protocol` (`alerts/`): threshold = baseline + offset (initial value until a baseline exists), level 1
+  at the first breach, level 2 after the 5-minute cooldown and then every 2 minutes, at most 6 level 2 alerts, the episode ends on a
+  reading at or below the threshold or on `endEpisode` ("I'm OK" on either device; unknown or finished ids ignored). TC-W-123 to 131.
+  `docs/plans/biometrics.md` section 2 has the worked example of the baseline.
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :protocol:check`.
+- Open items: after "I'm OK" a reading still above the threshold starts a new episode at level 1 at once (the document says "the next
+  breach starts again at level 1"); a pause after "I'm OK" is not decided. The old `AlertEvaluator` (absolute thresholds, TC-W-070 to
+  076) stays until the listener wiring replaces it. Passive listener and alert screens need the real-watch probe.
