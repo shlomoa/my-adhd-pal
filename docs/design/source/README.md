@@ -9,4 +9,7 @@ page with `ui.css`, and screenshots it with Chromium at device scale 2 (phone 39
 overview 1200x640). The Atkinson Hyperlegible web font was not reachable when rendering, so the images use the system
 sans-serif fallback; text widths can differ slightly from the canvas.
 
+The image of screen W4 is not rendered from a board: it is the approved aurora reference image supplied by the user (issue #164),
+and the render manifest marks it as the reference.
+
 Run: `node render.mjs <dir holding project/ from the canvas> <output dir>` (needs `playwright-core` and a Chromium).
