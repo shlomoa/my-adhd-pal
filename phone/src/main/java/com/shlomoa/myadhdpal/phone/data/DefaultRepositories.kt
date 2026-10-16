@@ -69,3 +69,7 @@ class DefaultLinkStatusRepository(source: WatchLinkDataSource) : LinkStatusRepos
     override val linkState = source.linkState
     override val lastSync = source.lastSync
 }
+
+class DefaultWatchStatusRepository(source: WatchLinkDataSource) : WatchStatusRepository {
+    override val status = source.watchStatus
+}

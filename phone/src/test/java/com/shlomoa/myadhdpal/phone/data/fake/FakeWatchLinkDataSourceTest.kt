@@ -5,12 +5,14 @@ import com.shlomoa.myadhdpal.phone.data.WatchEvent
 import com.shlomoa.myadhdpal.protocol.AckAction
 import com.shlomoa.myadhdpal.protocol.Acknowledgement
 import com.shlomoa.myadhdpal.protocol.AlertSettings
+import com.shlomoa.myadhdpal.protocol.HeartRatePermission
 import com.shlomoa.myadhdpal.protocol.Hello
 import com.shlomoa.myadhdpal.protocol.LinkState
 import com.shlomoa.myadhdpal.protocol.Protocol
 import com.shlomoa.myadhdpal.protocol.Schedule
 import com.shlomoa.myadhdpal.protocol.Side
 import com.shlomoa.myadhdpal.protocol.SnoozeSettings
+import com.shlomoa.myadhdpal.protocol.WatchStatus
 import java.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -28,6 +30,15 @@ class FakeWatchLinkDataSourceTest {
     private val schedule = Schedule(1, emptyList(), emptyList(), SnoozeSettings(10, 3), AlertSettings(emptyList(), 600))
 
     private fun ack(id: String, at: Long) = WatchEvent.AckReceived(id, at, Acknowledgement(AckAction.DONE, at))
+
+    @Test
+    fun `TC-S-165 the fake holds the last watch status the test sets`() = runTest {
+        val source = FakeWatchLinkDataSource()
+        assertEquals(null, source.watchStatus.value)
+        val status = WatchStatus(thresholdBpm = 90, heartRatePermission = HeartRatePermission.GRANTED)
+        source.setWatchStatus(status)
+        assertEquals(status, source.watchStatus.value)
+    }
 
     @Test
     fun `TC-S-090 the fake emits what the test publishes, in order`() = runTest {

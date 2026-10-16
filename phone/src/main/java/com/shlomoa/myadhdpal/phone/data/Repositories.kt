@@ -2,6 +2,7 @@ package com.shlomoa.myadhdpal.phone.data
 
 import com.shlomoa.myadhdpal.protocol.LinkState
 import com.shlomoa.myadhdpal.protocol.Schedule
+import com.shlomoa.myadhdpal.protocol.WatchStatus
 import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 
@@ -64,6 +65,11 @@ interface ScheduleRepository {
 interface PromptRepository {
     /** Validates, gives the prompt a fresh id, and publishes it. [optionLabels] get the keys "1", "2", ... */
     suspend fun publish(title: String, optionLabels: List<String>, expiresAt: Instant?): PromptPublishResult
+}
+
+/** The watch's last report of its baseline, threshold and heart-rate permission (protocol 1.2), or null before it. */
+interface WatchStatusRepository {
+    val status: Flow<WatchStatus?>
 }
 
 /** What the link-state screen shows. */

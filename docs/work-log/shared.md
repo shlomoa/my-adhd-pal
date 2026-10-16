@@ -277,3 +277,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `:protocol` `Alert.level` and `episodeId`, `AlertSettings.offsetBpm` and `initialBpm`, `AlertRules` constants, `EpisodeEnd` with `/episode-end/<id>` (phone to watch), `WatchStatus` with `/status/watch`, `Protocol.VERSION` 1.2; `docs/protocol.md` (catalog, models, version history, the "I'm OK" rule, alert flow diagram); test plan rows TC-S-150 to TC-S-156.
 - Validation: `Protocol12Test` and the version assertion written first and red (`shared-baseline.md`), then green; spotless, detekt and doc lint green. The existing codec, path, compatibility and spec tests stay green; 1.1 bodies decode (tested).
 - Open items: tell the Watch lane (evaluator 6.5, status writer, episode end handling) and the Android lane (the phone writes `/episode-end/<id>` on "I'm OK" and deletes its old ones) when merged; whether `/status/watch` stays in 1.2 is an open question in #168.
+
+## 2026-10-16 - Issue 171, need 4: the last watch status
+
+- Issue and PR: #171 (need 4 of 4); PR linked from the coordinator message.
+- Changed: `WatchLinkDataSource.watchStatus: StateFlow<WatchStatus?>` (state, not an event: never deleted by the phone, read again at start, the newest item by `ts` wins via `LatestStatus`, `lastSync` updates), `WatchItemDecoder` decodes `/status/watch`, `WatchStatusRepository` and `DefaultWatchStatusRepository` (Hilt in `StorageModule`), `FakeWatchLinkDataSource.setWatchStatus`; `docs/data-layer.md`.
+- Validation: TC-S-165 (source, fake and the new `WatchStatusRepositoryContract`) written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
+- Open items: #171 is complete with this PR and #175, #176, #177; lane A shows the status on the settings screen and in the onboarding (A-alert-2).

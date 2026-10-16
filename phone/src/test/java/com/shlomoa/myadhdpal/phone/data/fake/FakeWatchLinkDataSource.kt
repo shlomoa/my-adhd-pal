@@ -7,6 +7,7 @@ import com.shlomoa.myadhdpal.protocol.Hello
 import com.shlomoa.myadhdpal.protocol.LinkState
 import com.shlomoa.myadhdpal.protocol.Prompt
 import com.shlomoa.myadhdpal.protocol.Schedule
+import com.shlomoa.myadhdpal.protocol.WatchStatus
 import java.time.Instant
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,8 @@ class FakeWatchLinkDataSource(private val now: () -> Instant = { Instant.now() }
 
     override val linkState: StateFlow<LinkState> = state
     override val lastSync: StateFlow<Instant?> = sync
+    private val status = MutableStateFlow<WatchStatus?>(null)
+    override val watchStatus: StateFlow<WatchStatus?> = status
     override val events: Flow<WatchEvent> = channel.receiveAsFlow()
 
     val publishedSchedules = mutableListOf<Schedule>()
@@ -39,6 +42,11 @@ class FakeWatchLinkDataSource(private val now: () -> Instant = { Instant.now() }
     /** Makes the item come from the watch. */
     fun emit(event: WatchEvent) {
         if (flowing()) deliver(event) else held += event
+    }
+
+    /** Makes the watch report this status. */
+    fun setWatchStatus(newStatus: WatchStatus?) {
+        status.value = newStatus
     }
 
     fun connect(nearby: Boolean) = setLinkState(if (nearby) LinkState.NEARBY else LinkState.RELAYED)

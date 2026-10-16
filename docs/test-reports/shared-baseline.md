@@ -309,3 +309,7 @@ Not reproduced locally: with `cancel()` only, the new 100-round reopen test and 
 ## Protocol 1.2 (issue 168, red)
 
 Red commit: `Protocol12Test` (TC-S-150 to TC-S-156: alert level and episode id, relative threshold fields and constants, `EpisodeEnd` and its path, `WatchStatus`, version 1.2 and compatibility) and `ConstantsTest` expecting `Protocol.VERSION` 1.2, no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'level'`, `'episodeId'`, `'AlertRules'`, `'EpisodeEnd'`, `'WatchStatus'`, `'episodeEnd'`.
+
+## Issue 171, need 4: the last watch status (red)
+
+Red commit: `DataLayerWatchLinkDataSourceTest` TC-S-165 (status kept as state, newest wins, not an event, own writes and bad bodies ignored, read at start and never deleted), `FakeWatchLinkDataSourceTest` TC-S-165 (`setWatchStatus`) and the new `WatchStatusRepositoryContract` with `DefaultWatchStatusRepositoryTest`, no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'watchStatus'`, `'setWatchStatus'`, `'DefaultWatchStatusRepository'`, `'WatchStatusRepository'`.

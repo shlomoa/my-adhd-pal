@@ -7,6 +7,7 @@ import com.shlomoa.myadhdpal.protocol.LinkState
 import com.shlomoa.myadhdpal.protocol.Prompt
 import com.shlomoa.myadhdpal.protocol.Schedule
 import com.shlomoa.myadhdpal.protocol.Selection
+import com.shlomoa.myadhdpal.protocol.WatchStatus
 import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +47,13 @@ interface WatchLinkDataSource {
 
     /** When an item from the watch last arrived, or null if none has. */
     val lastSync: StateFlow<Instant?>
+
+    /**
+     * The last `/status/watch` item (protocol 1.2): baseline, threshold and heart-rate permission, or null until the
+     * watch has reported. It is state, not an event: the watch overwrites the item and the phone never deletes it, so
+     * it survives a restart (the source reads it again at start).
+     */
+    val watchStatus: StateFlow<WatchStatus?>
 
     /** Items from the watch, each delivered once to the single collector, in order, until [markStored] is called. */
     val events: Flow<WatchEvent>

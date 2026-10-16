@@ -8,6 +8,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.shlomoa.myadhdpal.phone.data.DefaultLinkStatusRepository
 import com.shlomoa.myadhdpal.phone.data.DefaultPromptRepository
 import com.shlomoa.myadhdpal.phone.data.DefaultScheduleRepository
+import com.shlomoa.myadhdpal.phone.data.DefaultWatchStatusRepository
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
 import com.shlomoa.myadhdpal.phone.data.LinkStatusRepository
 import com.shlomoa.myadhdpal.phone.data.PromptRepository
@@ -16,6 +17,7 @@ import com.shlomoa.myadhdpal.phone.data.ScheduleVersionStore
 import com.shlomoa.myadhdpal.phone.data.SettingsRepository
 import com.shlomoa.myadhdpal.phone.data.TaskRepository
 import com.shlomoa.myadhdpal.phone.data.WatchLinkDataSource
+import com.shlomoa.myadhdpal.phone.data.WatchStatusRepository
 import com.shlomoa.myadhdpal.phone.data.datastore.DataStoreScheduleVersionStore
 import com.shlomoa.myadhdpal.phone.data.datastore.DataStoreSettingsRepository
 import com.shlomoa.myadhdpal.phone.data.db.AppDatabase
@@ -110,6 +112,10 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun linkStatus(source: WatchLinkDataSource): LinkStatusRepository = DefaultLinkStatusRepository(source)
+
+    @Provides
+    @Singleton
+    fun watchStatus(source: WatchLinkDataSource): WatchStatusRepository = DefaultWatchStatusRepository(source)
 
     @Provides
     @Singleton

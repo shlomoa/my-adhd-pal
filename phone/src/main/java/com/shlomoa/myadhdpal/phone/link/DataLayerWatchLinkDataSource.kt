@@ -13,6 +13,7 @@ import com.shlomoa.myadhdpal.protocol.Message
 import com.shlomoa.myadhdpal.protocol.Paths
 import com.shlomoa.myadhdpal.protocol.Prompt
 import com.shlomoa.myadhdpal.protocol.Schedule
+import com.shlomoa.myadhdpal.protocol.WatchStatus
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID
@@ -52,6 +53,8 @@ class DataLayerWatchLinkDataSource(
 
     override val linkState: StateFlow<LinkState> = state
     override val lastSync: StateFlow<Instant?> = sync
+    private val latestStatus = LatestStatus()
+    override val watchStatus: StateFlow<WatchStatus?> = latestStatus.state
     override val events: Flow<WatchEvent> = channel.receiveAsFlow()
 
     /**
@@ -83,6 +86,7 @@ class DataLayerWatchLinkDataSource(
         for (item in items.filter { it.nodeId != local }) {
             val decoded = WatchItemDecoder.decode(item) ?: continue
             if (decoded.isHello) watchHelloVersion = decoded.helloVersion
+            decoded.status?.let { if (latestStatus.accept(it, decoded.statusAt)) sync.value = clock.instant() }
             decoded.event?.let { deliver(it, item) }
         }
     }

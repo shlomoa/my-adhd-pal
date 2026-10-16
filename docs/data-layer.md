@@ -27,6 +27,7 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 | `ScheduleRepository` | builds `/schedule` from tasks, reminders and settings, publishes with a growing version | `InMemoryScheduleRepository` + `InMemoryScheduleVersionStore` |
 | `PromptRepository` | validates and publishes `/prompt/<id>` with a fresh id | `InMemoryPromptRepository` |
 | `LinkStatusRepository` | link state and last sync for the link-state screen | `InMemoryLinkStatusRepository` |
+| `WatchStatusRepository` | the watch's last report of baseline, threshold and heart-rate permission (`status: Flow<WatchStatus?>`, protocol 1.2) | `FakeWatchLinkDataSource.setWatchStatus` |
 
 `ScheduleBuilder.build` (main sources) is the pure function from the phone's data to the wire `Schedule`; every
 `ScheduleRepository` uses it.
@@ -126,3 +127,11 @@ of `ItemKeys` (`v` int, `id`, `ts` long, `body`), the same as on the watch.
 - **Wiring** (Hilt, `phone/.../di/`): `StorageModule` (Room, the two DataStores, task, history and settings
   repositories), `RepositoryModule` (schedule, prompt, link-status repositories and the processor), `LinkModule` (the
   Data Layer client and source); `MyAdhdPalApp` starts the processor and the source.
+
+## Watch status (protocol 1.2, issue 171)
+
+`WatchLinkDataSource.watchStatus` holds the last `/status/watch` item (`WatchStatus`: baseline, threshold, heart-rate
+permission) as **state**, not as an event: the watch overwrites that single item and the phone never deletes it, so it
+survives a restart (the source reads it again at start). The newest item by its `ts` wins, an older one arriving late is
+ignored, and an item from this phone, with a bad body or another major version is dropped. `WatchStatusRepository.status`
+exposes it to the UI (settings screen and onboarding).
