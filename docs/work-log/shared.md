@@ -263,3 +263,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: both DataStore tests close the store with `cancelAndJoin()` before reopening the same file (DataStore frees the file when the scope job completes; `cancel()` does not wait); a 100-round reopen test.
 - Validation: not reproduced locally with the old code (see `shared-baseline.md`), the class passes with the fix; `detekt spotlessCheck check` green. No test skipped.
 - Open items: none.
+
+## 2026-10-16 - Human gates flip on the user's decision
+
+- Issue and PR: user decision relayed by the coordinator; no issue; PR linked from the coordinator message.
+- Changed: `docs/plans/README.md` (H1 and H2 rows no longer wait for a merged document or a PR; a rule under the risks: a human gate flips when the user decides, recorded in the issue body, and a repository document of the decision is a separate deliverable that does not block the gate), `docs/plans/watch.md` (step 6.2 validation). `docs/plan.md` and the other lane plans did not describe H1 or the human gates in that way.
+- Validation: `scripts/test/test-gates.sh` (TC-S-143, README Requires equal to `gates.json`) and doc lint green.
+- Open items: none.

@@ -59,8 +59,8 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 | **G5** | Watch core: 3.1-3.7 (manifest, link client, schedule receive, scheduler, haptics, acks, selections) | W | G2a |
 | **G6** | Phone features: 4.1-4.4 and 4.6 (tasks, schedule builder, settings, prompt publishing, states) | A | G4, G3 |
 | **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded | W + user | G3, G4, G5, H2 |
-| **H1** (human) | 6.2 biometric metrics and thresholds agreed in an issue; decision doc merged | user | none |
-| **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed (PR flips the gate) | user | none |
+| **H1** (human) | 6.2 biometric metrics and thresholds agreed by the user, recorded in the issue | user | none |
+| **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed by the user, recorded in the issue | user | none |
 
 **Why G2 is split.** Gates are checked by `scripts/test/test-gates.sh` (TC-S-143). Only the five-state link function
 (1.5) and the diagrams of the link state machine and the alert flow (1.8b) depend on what the real devices report
@@ -163,5 +163,7 @@ graph LR
   their baselines after merging `main`.
 - **Tool incompatibility with AGP 9.4 / Kotlin 2.4** (0a.5, 0b.1): the thread stops and asks (`plan.md` rule).
 - **Human gates** (H1, H2, spike runs, gate PR merges) can idle a lane; `BLOCKED` entries in the work log make it visible.
+  A human gate flips when the user decides, and the decision is recorded in the issue body. A repository document of the
+  decision is a separate deliverable, tracked in the work log, and does not block the gate.
 - **Cloud sessions without the Android SDK**: G-ENV (0a.8) is the first gate for exactly this reason.
 - **Red-first on a shared `main`**: red evidence is a branch artifact; `main` receives only green heads.
