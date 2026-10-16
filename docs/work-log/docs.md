@@ -31,7 +31,7 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   and `docs/plan.md`; `test-design-docs.sh` runs in the `script-tests` CI job.
 - Validation: `scripts/test/test-design-docs.sh` TC-D-001..010 PASS, docs lint (markdown, links) green.
 - Open items: canvas says 2 to 4 prompt options, the data-layer contract 2 to 6; the tile primary action is undecided.
-  D4 final run and the user's approval (TC-D-013).
+  D4 final run and the user's approval (recorded in issue #154).
 
 ## 2026-10-16 - D1.3 Rename of lane D steps
 
@@ -45,10 +45,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 ## 2026-10-16 - D1.4 Final run
 
 - Issue and PR: #154; PR `claude/docs-final`.
-- Changed: `docs/test-reports/docs-final.md` with TC-D-001..012 PASS on `main` (cf0b097) and TC-D-013 PENDING.
+- Changed: `docs/test-reports/docs-final.md` with TC-D-001..012 PASS on `main` (cf0b097).
 - Validation: `scripts/test/test-design-docs.sh`, `test-conventions.sh`, `test-gates.sh`, docs lint (markdown, links), all green
-  locally. `check-test-cases.sh docs final` fails only because TC-D-013 is not PASS.
-- Open items: the user reads `docs/design/` and approves or asks for changes (TC-D-013); the decision goes in the issue
+  locally. `check-test-cases.sh docs final` needs every id PASS in the report.
+- Open items: the user reads `docs/design/` and approves or asks for changes (approval by the user, recorded in issue #154); the decision goes in the issue
   body. Gate G-DOC flips only after that. D2 (#156) and D3 (#157) follow.
 
 ## 2026-10-16 - D3 Documentation lint and format checks (issue #157)
@@ -73,3 +73,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red baseline commit 1e16149, then `scripts/test/test-docs-site.sh` all PASS, docs lint (markdown, links) green.
 - Open items: approval step: the user approves the index structure and the built site (gate G-INDEX, recorded in the issue body); the Design section of the index
   after G-DOC; publishing the site is a separate decision for the user.
+
+## 2026-10-16 - D1.4 Approval is not a test case
+
+- Issue and PR: #154; PR `claude/docs-approval-step`. User rule relayed by the coordinator: a human approval is never a test case.
+- Changed: removed the approval from the test catalogue, the baseline and final reports, `scripts/test/test-design-docs.sh` and the
+  plan row of D1.4; the approval is described as approval by the user, recorded in
+  issue #154. `docs-final.md` lists each case as `TC-D-nnn PASS` so `check-test-cases.sh docs final` can read it. Other ids are not renumbered.
+- Validation: `scripts/check-test-cases.sh docs final` and `baseline` exit 0, `scripts/test/test-design-docs.sh` 10 PASS,
+  docs lint (markdown, links) green.
+- Open items: G-DOC flips only after the user approves the design (recorded in issue #154).

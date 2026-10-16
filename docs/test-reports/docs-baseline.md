@@ -29,6 +29,6 @@ FAIL TC-D-011 a lane:D label is accepted (expected 0, got 1)
 ## Not run here
 
 - TC-D-012 runs in CI once `docs/design/**` exists (doc lint and link check).
-- TC-D-013 is manual: the user approves the design; recorded in issue #154.
+- The design approval is approval by the user, recorded in issue #154.
 
 `scripts/check-test-cases.sh docs baseline` exits 0 (every id appears in a test source).
