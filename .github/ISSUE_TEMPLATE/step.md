@@ -15,4 +15,4 @@ labels: ""
 
 plan.md step <id>. Lane <S, A or W>. Requires <gate ids or none>. Part of gate <id, if any>.
 
-Labels: one `milestone:<0a, 0b, 1-7>` and one `lane:<S, A or W>`.
+Labels: one `milestone:<0a, 0b, 1-7>` and one `lane:<S, A, W or D>`.

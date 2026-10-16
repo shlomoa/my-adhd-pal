@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watch tab</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph">
+<div class="bar"><h1>Watch</h1><button type="button" class="ib" aria-label="Settings"><i class="ic i-gear" aria-hidden="true"></i></button></div>
+<div class="body">
+<div class="card" style="padding: 20px; gap: 12px">
+<div class="row"><span class="dot d-ok"></span><h2 class="t1" style="font-size: 24px">Watch nearby</h2></div>
+<p class="t2">Reminders reach your watch right away.</p>
+<p class="cap">Last sync 2 min ago</p>
+</div>
+<div class="card">
+<div class="row"><i class="ic i-clock" aria-hidden="true"></i><div class="grow"><p class="t1">On your watch now</p><p class="t2">4 reminders for 3 tasks</p></div></div>
+</div>
+<div class="card">
+<div class="row"><i class="ic i-heart" aria-hidden="true"></i><div class="grow"><p class="t1">Heart-rate alerts</p><p class="t2">On. Alert above 92 bpm.</p></div><i class="ic i-chev" aria-hidden="true"></i></div>
+</div>
+</div>
+<div class="nav">
+<button type="button" class="on"><i class="ic i-watch" aria-hidden="true"></i>Watch</button>
+<button type="button"><i class="ic i-tasks" aria-hidden="true"></i>Tasks</button>
+<button type="button"><i class="ic i-history" aria-hidden="true"></i>History</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

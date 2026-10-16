@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watch link states</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="wf">
+<div class="minis">
+<div class="mini"><i class="ic i-watch" aria-hidden="true" style="color: #5CC8D2"></i>Phone nearby</div>
+<div class="mini"><i class="ic i-cloud" aria-hidden="true" style="color: #5CC8D2"></i>Phone via internet</div>
+<div class="mini"><i class="ic i-away" aria-hidden="true" style="color: #FFB84D"></i>Phone away</div>
+<div class="mini"><i class="ic i-update" aria-hidden="true" style="color: #FF9A6B"></i>Update the app</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":340,"height":340}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

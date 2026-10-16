@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reminder edit</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph">
+<div class="bar"><button type="button" class="ib" aria-label="Back"><i class="ic i-back" aria-hidden="true"></i></button><h1>Reminder</h1></div>
+<div class="body">
+<p class="sec-h">Time</p>
+<div class="card" style="align-items: center; padding: 24px"><p class="big">10:00</p><p class="cap">24-hour time</p></div>
+<p class="sec-h">Days</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<span class="chip on">Mon</span><span class="chip on">Tue</span><span class="chip on">Wed</span><span class="chip on">Thu</span><span class="chip on">Fri</span><span class="chip">Sat</span><span class="chip">Sun</span>
+</div>
+<div style="flex: 1"></div>
+<button type="button" class="btn out" style="color: #A3360C; border-color: #A3360C"><i class="ic i-trash" aria-hidden="true"></i>Delete reminder</button>
+<div class="row"><button type="button" class="btn out grow">Cancel</button><button type="button" class="btn pri grow">Save</button></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

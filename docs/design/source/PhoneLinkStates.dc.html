@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The five link states</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph">
+<div class="bar"><h1>Link states</h1></div>
+<div class="body" style="gap: 10px">
+<div class="card"><div class="row"><i class="ic i-watch" aria-hidden="true"></i><div class="grow"><p class="t1">Watch nearby</p><p class="t2">Reminders reach it right away.</p></div></div></div>
+<div class="card"><div class="row"><i class="ic i-cloud" aria-hidden="true"></i><div class="grow"><p class="t1">Watch connected through the cloud</p><p class="t2">Works, a little slower.</p></div></div></div>
+<div class="card"><div class="row"><i class="ic i-away" aria-hidden="true"></i><div class="grow"><p class="t1">Watch away</p><p class="t2">Your watch keeps working with its last schedule. Changes arrive when it is back.</p></div></div></div>
+<div class="card"><div class="row"><i class="ic i-nowatch" aria-hidden="true"></i><div class="grow"><p class="t1">Watch has no ADHD Pal app</p><p class="t2">Install ADHD Pal on your watch.</p></div></div></div>
+<div class="card"><div class="row"><i class="ic i-update" aria-hidden="true"></i><div class="grow"><p class="t1">Watch app needs an update</p><p class="t2">Update ADHD Pal on your watch.</p></div></div></div>
+<p class="cap">Every state also shows when the last sync was. No state has controls.</p>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

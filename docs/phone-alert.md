@@ -25,11 +25,23 @@ the Galaxy A55 5G before anyone relies on it).
 | Part | Design | Status |
 |---|---|---|
 | Notification | Own channel `alerts`, importance high, category alarm, with a full-screen intent to `AlertActivity` | Channel and category: standard API. Whether category alarm lets it through Do Not Disturb: **Unverified** |
-| Full screen | `AlertActivity` with show-when-locked and turn-screen-on, a large word and number ("Heart rate 138"), one big button "I'm OK" that stops the vibration | Mechanism **Verified**: see section 3 |
+| Full screen | `AlertActivity` with show-when-locked and turn-screen-on, a large word and number ("Heart rate 138"), one big button "I'm OK" that stops the vibration and sound on the phone and ends the episode on the watch (section 2a) | Mechanism **Verified**: see section 3 |
 | Vibration | Waveform at amplitude 255 when `Vibrator.hasAmplitudeControl()`, else on/off timing; alarm usage attributes. Level 1: about 15 s with short pauses. Level 2: about 30 s, no pause over 0.3 s | Amplitude range and `hasAmplitudeControl`: general API knowledge, **Unverified** here (the reference page did not load). Numbers are from the decision document |
-| Flashing | The screen alternates two high-contrast colours **at most 3 times per second** (the usual photosensitivity limit); a setting turns flashing off | Limit: standard accessibility guidance, **Unverified** here |
-| Sound | A setting, off by default | Decision document |
-| Level | `Alert.level` (1 or 2) once protocol 1.2 has it; until then every alert is level 1 | Protocol change owed by the Shared lane |
+| Flashing | The screen alternates two high-contrast colours **at most 3 times per second** (the usual photosensitivity limit); a setting turns flashing off | **Decided (user, 2026-10-15)**; the limit itself is standard accessibility guidance, **Unverified** here |
+| Sound | **On by default**; a setting turns it off. Played with alarm audio attributes at the alarm volume | **Decided (user, 2026-10-15)** |
+| Level | `Alert.level` (1 or 2) once protocol 1.2 has it; until then every alert is level 1. The phone only reacts to what arrives: **no repeat count and no timer on the phone** | Protocol change owed by the Shared lane; **Decided (user, 2026-10-15)** |
+
+## 2a. "I'm OK" ends the episode on the watch too (decided)
+
+**Decided (user, 2026-10-15):** tapping "I'm OK" on the phone also ends the episode on the watch. That needs a new item from
+the phone to the watch (protocol 1.2, Shared lane: it names the alert it answers, so it is idempotent by id like the
+others; the watch handling is the Watch lane's). The phone side:
+
+- "I'm OK" stops the phone's vibration and sound at once, whatever the link does, and marks that alert as handled in the
+  watermark so it is not raised again.
+- It then hands the item to the data source (a new `WatchLinkDataSource` method, `data/`, Shared lane). If the watch is away
+  the item is held by the Data Layer and delivered on reconnect; the screen says "sent" only when the data source accepted it.
+- Until protocol 1.2 exists the button does the first point only, and the work log says so.
 
 The pure part (level to vibration timings and amplitudes, the colour schedule, the text) is a plain Kotlin function and
 unit-tested. Android calls are a thin layer.
@@ -69,15 +81,17 @@ shows the resulting threshold once the watch reports its baseline.
 
 | Step | Work | Needs from others |
 |---|---|---|
-| A-alert-1 | Pure alert plan (level to vibration and colours), `AlertRaiser` and the watermark, channel, `AlertActivity`; tests with the in-memory history and a fake notifier; manual on the A55 | Nothing for level 1. `Alert.level`: Shared lane (protocol 1.2) |
+| A-alert-1 | Pure alert plan (level to vibration, sound and colours), `AlertRaiser` and the watermark, channel, `AlertActivity`; "I'm OK" stops the phone's own alert; tests with the in-memory history and a fake notifier; manual on the A55 | Nothing for level 1. `Alert.level`: Shared lane (protocol 1.2) |
+| A-alert-1b | "I'm OK" also sends the episode-end item to the watch | The item and the `WatchLinkDataSource` method: Shared lane (protocol 1.2); handling on the watch: Watch lane |
 | A-alert-2 | Onboarding screen (sections 4.1 and 4.2 first, then 4.3) | `androidx.wear:wear-remote-interactions` in `phone/build.gradle.kts` (Shared lane); the watch's permission activity with the `adhdpal://permission/heart-rate` filter and a granted-state report (Watch and Shared lanes) |
 | A-alert-3 | Offset field on the settings screen | `offsetBpm` in the schedule and settings (Shared lane, protocol 1.2) |
 | 7.x | Play declaration for the full-screen intent | Part of the release checklist |
 
-## 7. Open questions for the user
+## 7. Questions for the user: answered 2026-10-15
 
-1. Phone alert **sound** off by default, as proposed?
-2. Flashing: at most 3 per second with an off switch, as proposed?
-3. Does "I'm OK" on the phone only stop the phone's vibration, or must it also end the episode on the watch (a protocol item
-   from phone to watch, the Shared and Watch lanes)? Without it the watch keeps its own rhythm.
-4. The decision document's open cap of 6 level-2 repeats: does the phone follow the watch's count or only react to what arrives?
+1. Phone alert sound: **on by default**, a setting turns it off (changed from the proposal).
+2. Flashing: at most 3 per second, with an off switch: **yes**.
+3. "I'm OK" on the phone also ends the episode on the watch: **yes** (section 2a; protocol 1.2, Shared lane; handling on the
+   watch, Watch lane).
+4. The cap of 6 level-2 repeats: **the phone only reacts to what arrives**, with no repeat count on the phone. The cap, if it
+   stays, is the watch's.

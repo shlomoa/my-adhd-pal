@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Loading, empty and error</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph">
+<div class="bar"><h1>States</h1></div>
+<div class="body" style="gap: 16px">
+<p class="sec-h">Loading</p>
+<div class="card" style="gap: 12px"><p class="t2">Loading…</p><div class="sk" style="width: 70%"></div><div class="sk" style="width: 90%"></div><div class="sk" style="width: 55%"></div></div>
+<p class="sec-h">Empty (Tasks)</p>
+<div class="card" style="align-items: center; text-align: center; padding: 24px; gap: 12px"><i class="ic i-tasks" aria-hidden="true" style="width: 40px; height: 40px; color: #4A5B6B"></i><p class="t2">No tasks yet. Add one to get a reminder on your watch.</p><button type="button" class="btn pri"><i class="ic i-plus" aria-hidden="true"></i>Add a task</button></div>
+<p class="sec-h">Empty (History)</p>
+<div class="card" style="align-items: center; text-align: center; padding: 24px"><p class="t2">Nothing from your watch yet. Answers and alerts appear here.</p></div>
+<p class="sec-h">Error</p>
+<div class="card" style="gap: 12px"><div class="row"><i class="ic i-alert" aria-hidden="true" style="color: #A3360C"></i><p class="t2 grow">Something went wrong: could not read your tasks.</p></div><button type="button" class="btn out" style="align-self: flex-start">Try again</button></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
