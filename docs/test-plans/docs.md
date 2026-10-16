@@ -40,3 +40,21 @@ step, when its head is green.
 | TC-D-018 | script | Fix command | `scripts/docs-lint.sh fix` makes the format check pass and does not hide a lint violation |
 | TC-D-019 | script | Clean documents | lint, format and markdown pass on the repository documents once the fixtures are removed |
 | TC-D-020 | script | CI | `./gradlew check` calls `docs-lint.sh markdown`, and the `script-tests` job runs `test-doc-checks.sh` |
+
+## Documentation index and generated site (issue #156, D2)
+
+`scripts/test/test-docs-site.sh` runs these cases (the build needs Python 3 and network access for the pinned tools).
+The decision (option A, MkDocs with the Material theme) is in the issue body.
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-D-021 | script | No orphan | every `docs/**/*.md` is reachable from `docs/index.md` through relative links (`scripts/check-docs-index.sh`) |
+| TC-D-022 | script | Index sections | `docs/index.md` has the sections Plan and lanes, Protocol and data layer, Test plans and reports, Spikes and research, Setup and demo |
+| TC-D-023 | script | Generator config | `mkdocs.yml` sets `docs_dir: docs`, `strict: true`, the Material theme and a Mermaid fence |
+| TC-D-024 | script | Pinned tools | `tools/docs-site/requirements.txt` pins mkdocs and mkdocs-material, and every line, with `==` |
+| TC-D-025 | script | Strict build | `scripts/docs-site.sh` builds the site with `mkdocs build --strict`, exit 0, and the site has an index page |
+| TC-D-026 | script | Broken link | a relative link to a missing file fails the strict build and names the file; removing it is green |
+| TC-D-027 | script | Built site | the index page shows the sections and the Mermaid diagrams of `protocol.md` are rendered as diagrams |
+| TC-D-028 | script | Orphan detected | a document not linked from the index makes `check-docs-index.sh` exit 1 and name it |
+| TC-D-029 | CI | CI build | the `build` workflow runs `scripts/docs-site.sh`, the `script-tests` job runs `test-docs-site.sh`, and the generated site is ignored by git |
+| TC-D-030 | manual | Structure approval | the user approves the structure of the index and the built site; recorded in issue #156 |
