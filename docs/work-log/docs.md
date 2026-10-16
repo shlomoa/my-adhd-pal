@@ -95,3 +95,16 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   until D4.2; docs lint (markdown, links) green and `test-design-docs.sh` green.
 - Open items: D4.2 restyles `ui.css` and the boards, re-renders the images and updates the color wording; the user's approval
   of the look is recorded in issue #164.
+
+## 2026-10-16 - D4.2 Aurora restyle of the screens (issue #164)
+
+- Issue and PR: #164; PR `claude/docs-style` (stacked on D4.1, PR 165).
+- Changed: `docs/design/source/ui.css` is the aurora palette and components (variables, gradient ring, aurora faces, gradient
+  pills, play, pause and forward icons); all boards restyled (alert levels now differ by text and icon, also on the watch);
+  `render.mjs` renders watch boards as the round face only (1254x1254, transparent outside) and writes
+  `render-manifest.json`; the 21 other images and the overview are re-rendered (W4 stays the reference file); the section texts
+  and `docs/design/README.md` describe the aurora style and no old color wording is left; `test-design-style.sh` joins the
+  `script-tests` CI job; the new report is linked from `docs/index.md`.
+- Validation: `scripts/test/test-design-style.sh` TC-D-031..038 all PASS (red baseline commit 93adb71), `test-design-docs.sh`
+  10 PASS, `check-docs-index.sh`, docs lint (markdown, links), `check-test-cases.sh docs final` green.
+- Open items: approval by the user of the look, recorded in issue #164; the font is still the system sans-serif fallback.
