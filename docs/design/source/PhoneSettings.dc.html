@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph" style="height: 1000px">
+<div class="bar"><button type="button" class="ib" aria-label="Back"><i class="ic i-back" aria-hidden="true"></i></button><h1>Settings</h1></div>
+<div class="body">
+<p class="sec-h">Heart-rate alerts</p>
+<div class="card">
+<div class="row"><p class="t1 grow">Alerts on</p><span class="sw"></span></div>
+<p class="t2">Alert when your heart rate is this far above your resting rate.</p>
+<div class="row" style="margin-top: 6px"><p class="t1 grow">Above resting</p><p class="t1">+30 bpm</p></div>
+<div class="track" style="margin: 12px 0"><i style="width: 33%"></i><b style="left: calc(33% - 12px)"></b></div>
+<div class="row"><p class="cap grow">20</p><p class="cap">50</p></div>
+</div>
+<div class="card">
+<div class="row"><div class="grow"><p class="t1">Your resting rate</p><p class="t2">62 bpm (last 7 days)</p></div></div>
+<div class="row"><div class="grow"><p class="t1">Alert at</p><p class="t2">92 bpm</p></div></div>
+<p class="cap">Until your watch has learned your resting rate (about a day), the alert is at 110 bpm.</p>
+</div>
+<div class="card">
+<div class="row"><p class="t1 grow">Wait between alerts</p><p class="t1">5 min</p></div>
+<p class="t2">If your heart rate stays high, a stronger alert follows, then repeats every 2 minutes, at most 6 times.</p>
+</div>
+<p class="sec-h">On this phone</p>
+<div class="card">
+<div class="row"><p class="t1 grow">Alert sound</p><span class="sw off"></span></div>
+<div class="row"><p class="t1 grow">Flashing screen</p><span class="sw"></span></div>
+<p class="cap">Flashes at most 3 times a second.</p>
+</div>
+<div class="card"><div class="row"><i class="ic i-heart" aria-hidden="true"></i><div class="grow"><p class="t1">Heart rate on your watch</p><p class="t2">Allowed</p></div><i class="ic i-chev" aria-hidden="true"></i></div></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

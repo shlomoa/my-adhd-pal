@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ADHD Pal: overview</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 1200px; height: 640px; background: #F3F6F9; padding: 56px 64px; display: flex; flex-direction: column; gap: 20px">
+<h1 style="font-size: 44px; font-weight: 700">ADHD Pal: screen designs</h1>
+<p class="t2" style="font-size: 20px">Draft for your approval. Once agreed, these screens become the plan-on-record (POR) contract.</p>
+<div style="display: flex; gap: 48px; margin-top: 12px">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 10px">
+<h2 style="font-size: 22px">Phone app (13 screens)</h2>
+<p class="t2">P1 Watch tab: link state and last sync (step 2.6)</p>
+<p class="t2">P2 to P4 Tasks, task edit, reminder edit (4.1)</p>
+<p class="t2">P5 Schedule: review and send to the watch (4.2)</p>
+<p class="t2">P6 History of answers, choices and alerts (4.5)</p>
+<p class="t2">P7 Settings: heart-rate alert, phone alert (4.3, H1)</p>
+<p class="t2">P8 Ask your watch: prompt with options (4.4)</p>
+<p class="t2">P9 Allow heart rate from the phone (H1, D7)</p>
+<p class="t2">P10 and P11 Phone alert, levels 1 and 2 (H1, section 4a)</p>
+<p class="t2">P12 Loading, empty and error states (4.6)</p>
+<p class="t2">P13 The five link states (2.6)</p>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 10px">
+<h2 style="font-size: 22px">Watch app (9 screens)</h2>
+<p class="t2">W1 Home: link state and last sync (3.2)</p>
+<p class="t2">W2 The four link states on the watch (3.2)</p>
+<p class="t2">W3 Reminder: Done, Snooze, Start 2 min, Dismiss (3.5)</p>
+<p class="t2">W4 Choice: options from the phone (3.7)</p>
+<p class="t2">W5 and W6 Tile: next reminder, with and without (5.2)</p>
+<p class="t2">W7 and W8 Heart-rate alert, levels 1 and 2 (H1)</p>
+<p class="t2">W9 Allow heart rate on the watch (H1, D7)</p>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1200,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
