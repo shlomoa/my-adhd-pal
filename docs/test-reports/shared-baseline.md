@@ -309,3 +309,7 @@ Not reproduced locally: with `cancel()` only, the new 100-round reopen test and 
 ## Protocol 1.2 (issue 168, red)
 
 Red commit: `Protocol12Test` (TC-S-150 to TC-S-156: alert level and episode id, relative threshold fields and constants, `EpisodeEnd` and its path, `WatchStatus`, version 1.2 and compatibility) and `ConstantsTest` expecting `Protocol.VERSION` 1.2, no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'level'`, `'episodeId'`, `'AlertRules'`, `'EpisodeEnd'`, `'WatchStatus'`, `'episodeEnd'`.
+
+## Issue 171, need 1: alert level and episode in the history (red)
+
+Red commit: `HistoryRepositoryContract` TC-S-160 (level and episode kept, a 1.1 alert reads as level 1 without an episode) and `MigrationTest` TC-S-161 (migration 1 to 2 on a database built from `1.json`, existing rows kept, version 2 with exactly one step), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `No parameter with name 'level' found`, `'episodeId'`.

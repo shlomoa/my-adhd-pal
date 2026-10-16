@@ -41,7 +41,9 @@ sealed interface HistoryEntry {
         override val at: Long,
         val metric: Metric,
         val value: Double,
-        val threshold: Double
+        val threshold: Double,
+        val level: Int = 1,
+        val episodeId: String? = null
     ) : HistoryEntry
 }
 
