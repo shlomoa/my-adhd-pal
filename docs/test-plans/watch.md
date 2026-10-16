@@ -113,6 +113,13 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-081 | 6.7 | unit | No release code path logs raw biometric values | log sink in tests receives none |
 | TC-W-084 | 6.5 | unit | The end-episode item from the phone ("I'm OK" on the phone) stops the watch's repeats, closes its alert, and the next breach starts at level 1 | no further alert after the item; the next breach is level 1 (item shape defined by the Shared lane, protocol 1.2) |
 | TC-W-085 | 6.6 | unit | "I'm OK" on the watch's own alert ends the episode and stops the repeats | no further alert; the next breach is level 1 |
+| TC-W-086 | 6.5 | unit | The hourly low of an hour is the lowest median over any 3 consecutive samples of that hour | equals the expected value for a fixed sample series |
+| TC-W-087 | 6.5 | unit | An hour with fewer than 3 samples gives no hourly low | no value for that hour |
+| TC-W-088 | 6.5 | unit | The baseline is unknown with 23 hourly lows and known with 24 | null, then a value |
+| TC-W-089 | 6.5 | unit | The baseline is the 20th percentile (nearest rank) of the hourly lows | equals the expected value |
+| TC-W-120 | 6.5 | unit | Only the hourly lows of the last 7 days count; older ones are dropped | an old low does not change the baseline |
+| TC-W-121 | 6.5 | unit | Batched and out-of-order samples within one hour give the same hourly low as sorted ones | equal results |
+| TC-W-122 | 6.5 | unit | The hourly lows (derived values only) can be saved and restored | restored baseline equals the original |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
 | TC-W-083 | 6.8 | manual | The real watch registers passive heart rate and an alert reaches the phone | user reports capability and result |
 

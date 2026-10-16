@@ -333,3 +333,15 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/biometrics.md` (section 4a and the table in section 7) and `docs/test-plans/watch.md` (TC-W-084, TC-W-085): when the Shared lane
   defines the phone-to-watch end-episode item (protocol 1.2), the watch stops its repeats on receiving it. Planned with 6.5 and 6.6, tests first.
 - Validation: docs lint. Nothing built; waiting for the item's path and body in `docs/protocol.md`.
+
+## 2026-10-16 - Step 6.5, part 1: the resting baseline
+
+- Issue and PR: step 6.5 ([plan](../plans/watch.md)), branch `claude/watch-6-5`
+- Changed: `BaselineTracker` and `HourlyLow` in `:protocol` (`alerts/`), pure logic: hourly low = lowest median over 3 consecutive
+  samples of an hour, baseline = 20th percentile (nearest rank) of the hourly lows of the last 7 days, known from 24 lows; only the
+  derived hourly lows are saved and restored. TC-W-086 to 089 and TC-W-120 to 122 added to the catalogue.
+- Reading of the decision: "median of the lowest 3 consecutive samples" is implemented as the lowest median over any 3 consecutive
+  samples of the hour. The nearest-rank percentile and UTC whole hours are my choices; both are in the class comment.
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :protocol:check`.
+- Open items: the episode evaluator (threshold = baseline + offset, escalation, cap, end-episode) is the next PR; the passive
+  listener and the alert screens need the real-watch probe first.
