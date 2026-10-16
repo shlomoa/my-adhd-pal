@@ -325,3 +325,7 @@ Red commit: `DataLayerWatchLinkDataSourceTest` TC-S-162 (urgent `EpisodeEnd` at 
 ## Issue 171, need 1: alert level and episode in the history (red)
 
 Red commit: `HistoryRepositoryContract` TC-S-160 (level and episode kept, a 1.1 alert reads as level 1 without an episode) and `MigrationTest` TC-S-161 (migration 1 to 2 on a database built from `1.json`, existing rows kept, version 2 with exactly one step), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `No parameter with name 'level' found`, `'episodeId'`.
+
+## No absolute heart-rate threshold in the defaults (issue 55 decision, red)
+
+Red commit: `DataStoreSettingsRepositoryTest` TC-S-098 now expects `SettingsDefaults.settings.thresholds` to be empty, no implementation. `./gradlew :phone:testDebugUnitTest --tests '*DataStoreSettingsRepositoryTest*'`: `AssertionError` at `DataStoreSettingsRepositoryTest.kt:65` (the new assertion; the old one, which expected the 150 bpm threshold, was removed in the green commit).

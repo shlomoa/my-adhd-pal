@@ -50,7 +50,7 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 
 | Setting | Default | Accepted |
 |---|---|---|
-| Heart-rate threshold (above) | 150 (placeholder until step 6.2 agrees the values) | 30 to 220, at most 8 thresholds |
+| Absolute thresholds (kept for protocol 1.1 watches) | none (the rule is baseline plus offset, issue 55) | 30 to 220, at most 8 thresholds |
 | Alert cooldown | 300 s (decision D4, 5 minutes) | 60 to 86400 s |
 | Alert offset above the resting baseline (`offsetBpm`, protocol 1.2) | 30 bpm | 20 to 50 |
 | Initial alert threshold until the watch has a baseline (`initialBpm`, protocol 1.2) | 110 bpm | 30 to 220 |

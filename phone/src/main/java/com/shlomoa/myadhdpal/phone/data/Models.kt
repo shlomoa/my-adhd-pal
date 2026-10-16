@@ -79,12 +79,12 @@ object SettingsLimits {
 }
 
 /**
- * Defaults on first run. The heart-rate threshold is a placeholder until the metrics and thresholds are agreed with
- * the user (step 6.2).
+ * Defaults on first run. There is no absolute heart-rate threshold: the only rule is the resting baseline plus
+ * [AppSettings.offsetBpm], with [AppSettings.initialBpm] until the watch has a baseline (issue 55).
  */
 object SettingsDefaults {
     val settings = AppSettings(
-        thresholds = listOf(Threshold(Metric.HEART_RATE, Direction.ABOVE, 150.0)),
+        thresholds = emptyList(),
         cooldownSeconds = AlertRules.DEFAULT_COOLDOWN_SECONDS,
         snooze = SnoozeSettings(minutes = 10, maxCount = 3),
         cadenceMinutes = 60
