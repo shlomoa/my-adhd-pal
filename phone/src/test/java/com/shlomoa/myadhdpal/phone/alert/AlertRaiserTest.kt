@@ -3,6 +3,7 @@ package com.shlomoa.myadhdpal.phone.alert
 import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryType
 import com.shlomoa.myadhdpal.phone.data.WatchEvent
+import com.shlomoa.myadhdpal.phone.data.fake.FakeWatchLinkDataSource
 import com.shlomoa.myadhdpal.phone.data.fake.InMemoryHistoryRepository
 import com.shlomoa.myadhdpal.protocol.Alert
 import com.shlomoa.myadhdpal.protocol.Metric
@@ -14,6 +15,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+
+private const val EPISODE = "6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f"
 
 private class RecordingNotifier : AlertNotifier {
     val raised = mutableListOf<Pair<HistoryEntry.AlertRaised, AlertPlan>>()
@@ -46,11 +49,20 @@ class AlertRaiserTest {
     private val notifier = RecordingNotifier()
     private val store = MemoryRaisedStore()
 
-    private fun alert(id: String, at: Long) =
-        WatchEvent.AlertReceived(id, at, Alert(Metric.HEART_RATE, 138.0, 110.0, at))
+    private val source = FakeWatchLinkDataSource()
+
+    private fun alert(id: String, at: Long, level: Int = 1, episodeId: String? = null) =
+        WatchEvent.AlertReceived(id, at, Alert(Metric.HEART_RATE, 138.0, 110.0, at, level, episodeId))
 
     private fun raiser(store: RaisedAlertsStore = this.store, prefs: AlertPrefs = AlertPrefs()) =
-        AlertRaiser(history, store, notifier, prefsProvider = { prefs }, hasAmplitudeControl = { true })
+        AlertRaiser(
+            history,
+            store,
+            notifier,
+            prefsProvider = { prefs },
+            hasAmplitudeControl = { true },
+            endEpisode = source::publishEpisodeEnd
+        )
 
     private fun ids() = notifier.raised.map { it.first.id }
 
@@ -118,8 +130,44 @@ class AlertRaiserTest {
 
     @Test
     fun `TC-A-099 I'm OK stops the notifier`() = runTest {
-        raiser().dismiss()
+        raiser().dismiss(null)
         assertEquals(1, notifier.stops)
+    }
+
+    @Test
+    fun `TC-A-104 an alert is raised at its own level`() = runTest {
+        val job = launch(UnconfinedTestDispatcher(testScheduler)) { raiser().run() }
+        history.store(alert("a-1", 1_000, level = 1, episodeId = EPISODE))
+        history.store(alert("a-2", 2_000, level = 2, episodeId = EPISODE))
+        assertEquals(listOf(1, 2), notifier.raised.map { it.second.level })
+        assertTrue(
+            notifier.raised[1].second.vibration.timings.sum() > notifier.raised[0].second.vibration.timings.sum()
+        )
+        job.cancel()
+    }
+
+    @Test
+    fun `TC-A-105 I'm OK stops the phone and tells the watch which episode to end`() = runTest {
+        val result = raiser().dismiss(EPISODE)
+        assertEquals(1, notifier.stops)
+        assertEquals(listOf(EPISODE), source.publishedEpisodeEnds)
+        assertEquals(DismissResult.Sent, result)
+    }
+
+    @Test
+    fun `TC-A-106 I'm OK without an episode id only stops the phone`() = runTest {
+        val result = raiser().dismiss(null)
+        assertEquals(1, notifier.stops)
+        assertTrue(source.publishedEpisodeEnds.isEmpty())
+        assertEquals(DismissResult.NoEpisode, result)
+    }
+
+    @Test
+    fun `TC-A-107 a failure to tell the watch still stops the phone and is reported`() = runTest {
+        source.failNextPublish("link down")
+        val result = raiser().dismiss(EPISODE)
+        assertEquals(1, notifier.stops)
+        assertEquals(DismissResult.NotSent("link down"), result)
     }
 
     @Test
