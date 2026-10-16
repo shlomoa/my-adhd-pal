@@ -162,8 +162,8 @@
       "name": "biometric metrics and thresholds agreed (human)",
       "owner": "user",
       "requires": [],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 147
     },
     {
       "id": "H2",

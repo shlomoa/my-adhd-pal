@@ -279,3 +279,9 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   look, then waits for any action in the watch log (DONE, SNOOZE, START_2_MIN, DISMISS); the Done stage names the action and the Ack
   stage checks that action in the phone history. The default mode is unchanged. `docs/demo.md` updated.
 - Validation: tests first, 12 red, then 61 PASS, 0 FAIL against the simulated adb. NOT yet run on the devices (TC-W-103).
+
+## 2026-10-16 - Gate H1 flip
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), branch `claude/watch-h1-flip`
+- Changed: `docs/plans/gates.json`: H1 merged, pr 147 (the biometric decision document, confirmed by the user on 2026-10-16).
+- Validation: `scripts/test/test-gates.sh` no failures, docs lint. Merges only after #147.
