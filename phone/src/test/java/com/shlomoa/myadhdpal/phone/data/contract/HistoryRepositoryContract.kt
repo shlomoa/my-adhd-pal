@@ -45,6 +45,30 @@ abstract class HistoryRepositoryContract {
     }
 
     @Test
+    fun `TC-S-160 history repository keeps the alert level and episode of protocol 1_2`() = runTest {
+        val repo = create()
+        val episode = "223e4567-e89b-42d3-a456-426614174001"
+        repo.store(
+            WatchEvent.AlertReceived(
+                l1,
+                200,
+                Alert(Metric.HEART_RATE, 170.0, 140.0, 200, level = 2, episodeId = episode)
+            )
+        )
+        repo.store(WatchEvent.AlertReceived(a1, 100, Alert(Metric.HEART_RATE, 150.0, 140.0, 100)))
+        val entries = repo.history(HistoryType.ALERT).first()
+        assertEquals(
+            HistoryEntry.AlertRaised(l1, 200, Metric.HEART_RATE, 170.0, 140.0, level = 2, episodeId = episode),
+            entries[0]
+        )
+        assertEquals(
+            "a 1.1 alert is level 1 without an episode",
+            HistoryEntry.AlertRaised(a1, 100, Metric.HEART_RATE, 150.0, 140.0, 1, null),
+            entries[1]
+        )
+    }
+
+    @Test
     fun `TC-S-092 history repository keeps which reminder and occurrence an acknowledgement answers`() = runTest {
         val repo = create()
         val answered = Acknowledgement(AckAction.SNOOZE, at = 100, reminderId = "r1", occurrenceAt = 90)

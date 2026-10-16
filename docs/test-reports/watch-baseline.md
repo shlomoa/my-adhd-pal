@@ -171,6 +171,15 @@ the parser did not strip the prefix); after the fix 48 PASS, 0 FAIL.
 Tests and simulated-adb tap injection (`FAKE_TAP=ACTION:MS`) written first. Against the script without the switch: 12 checks FAIL
 (the parameter does not exist, exit 1). After: 61 PASS, 0 FAIL (tap Done, tap Snooze, no tap, and the unchanged default mode).
 
+## Episode evaluator (TC-W-123 to TC-W-131; `protocol/src/test/.../alerts/EpisodeEvaluatorTest.kt`)
+
+Step 6.5 second part. Red commit: the first commit of branch `claude/watch-6-5b` (tests only). Command: `./gradlew :protocol:test`.
+Build fails before any test runs.
+
+```
+e: protocol/src/test/.../alerts/EpisodeEvaluatorTest.kt:28:9 Unresolved reference 'EpisodeEvaluator'.
+```
+
 ## Resting baseline (TC-W-086 to TC-W-089, TC-W-120 to TC-W-122; `protocol/src/test/.../alerts/BaselineTrackerTest.kt`)
 
 Step 6.5 first part. Red commit: the first commit of branch `claude/watch-6-5` (tests only). Command: `./gradlew :protocol:test`.

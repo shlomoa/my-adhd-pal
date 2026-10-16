@@ -64,7 +64,7 @@ class RoomHistoryRepository(private val db: AppDatabase) : HistoryRepository {
             )
 
             is WatchEvent.AlertReceived -> with(event.alert) {
-                HistoryEntity.alert(event.id, at, metric.name, value, threshold)
+                HistoryEntity.alert(event.id, at, metric.name, value, threshold, level, episodeId)
             }
 
             is WatchEvent.HelloReceived -> return StoreResult.Ignored
@@ -82,7 +82,15 @@ class RoomHistoryRepository(private val db: AppDatabase) : HistoryRepository {
         HistoryEntity.TYPE_SELECTION -> HistoryEntry.Selected(e.id, e.at, e.key.orEmpty(), e.promptTitle)
 
         HistoryEntity.TYPE_ALERT ->
-            HistoryEntry.AlertRaised(e.id, e.at, Metric.valueOf(e.metric.orEmpty()), e.value ?: 0.0, e.threshold ?: 0.0)
+            HistoryEntry.AlertRaised(
+                e.id,
+                e.at,
+                Metric.valueOf(e.metric.orEmpty()),
+                e.value ?: 0.0,
+                e.threshold ?: 0.0,
+                e.level,
+                e.episodeId
+            )
 
         else -> HistoryEntry.Acknowledged(
             e.id,

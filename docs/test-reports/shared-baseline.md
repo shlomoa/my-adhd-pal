@@ -313,3 +313,7 @@ Red commit: `Protocol12Test` (TC-S-150 to TC-S-156: alert level and episode id, 
 ## Issue 171, need 3: offset, initial threshold and cooldown 300 in the settings (red)
 
 Red commit: `SettingsRepositoryContract` TC-S-164 (defaults 30, 110 and 300; ranges 20 to 50 and 30 to 220 with `OFFSET_OUT_OF_RANGE` and `INITIAL_OUT_OF_RANGE`), `ScheduleRepositoryContract` TC-S-164 (the schedule carries both and a change publishes a new version), `DataStoreSettingsRepositoryTest` (persists both; the default cooldown expectation changes from 600 to 300 by decision D4), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'offsetBpm'`, `'initialBpm'`, `'OFFSET_BPM'`.
+
+## Issue 171, need 1: alert level and episode in the history (red)
+
+Red commit: `HistoryRepositoryContract` TC-S-160 (level and episode kept, a 1.1 alert reads as level 1 without an episode) and `MigrationTest` TC-S-161 (migration 1 to 2 on a database built from `1.json`, existing rows kept, version 2 with exactly one step), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `No parameter with name 'level' found`, `'episodeId'`.

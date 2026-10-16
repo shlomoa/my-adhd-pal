@@ -284,3 +284,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `AppSettings.offsetBpm` (20 to 50, default 30) and `initialBpm` (30 to 220, default 110), `SettingsLimits`, the errors `OFFSET_OUT_OF_RANGE` and `INITIAL_OUT_OF_RANGE`, the DataStore keys `offset_bpm` and `initial_bpm` (the in-memory repository shares the validator), `ScheduleBuilder` puts both into `AlertSettings` so a change makes a new schedule version, the cooldown default is 300 s (decision D4); `docs/data-layer.md`. The absolute `thresholds` list and its 150 bpm default are unchanged: the Watch lane decides how the evaluator combines them with the relative threshold.
 - Validation: TC-S-164 (settings and schedule contracts) and the DataStore expectations written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
 - Open items: need 4 of #171 (read of the last `/status/watch`); the Android lane adds the offset field to the settings screen (4.3).
+
+## 2026-10-16 - Issue 171, need 1: alert level and episode in the history
+
+- Issue and PR: #171 (need 1 of 4); PR linked from the coordinator message.
+- Changed: `HistoryEntry.AlertRaised` gets `level` (default 1) and `episodeId` (default null); `HistoryEntity` columns `level` and `episodeId`; Room database version 2 with `MIGRATION_1_2` (`ALTER TABLE history ADD COLUMN`, old alerts level 1, no episode) and the committed `2.json`; `RoomHistoryRepository` and the in-memory fake pass the fields through (the decoder already carries them in `Alert`); `docs/data-layer.md` migration policy text.
+- Validation: TC-S-160 (contract) and TC-S-161 (`MigrationTest`) written first and red (`shared-baseline.md`), then green; `MigrationTest` builds the version 1 database from the committed `1.json` because `MigrationTestHelper` could not find the schema assets under Robolectric; `detekt spotlessCheck check` green.
+- Open items: needs 2 to 4 of #171 (episode end publishing and cleanup, offset and initial threshold in the settings, the watch status); Android lane reads `level` in `AlertRaiser` after this merges.
