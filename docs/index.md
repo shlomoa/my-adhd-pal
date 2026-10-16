@@ -20,6 +20,8 @@ body of the GitHub issue of each step; the documents record what was decided and
 - [Watch-phone protocol](protocol.md): item catalog, format, versioning, link states, diagrams and the transport
   verification results.
 - [Phone data layer contract](data-layer.md): repositories, storage, the Data Layer source and the contract tests.
+- [Phone alert design](phone-alert.md): how the phone vibrates and shows a full-screen alert for a biometric alert from the
+  watch, what can suppress it, and the steps.
 
 ## Test plans and reports
 
