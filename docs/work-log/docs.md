@@ -41,3 +41,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   step names they were written with (D1, D2, D3 mean D1.1, D1.2, D1.3).
 - Validation: `scripts/test/test-gates.sh` and `scripts/check-work-log.sh docs/work-log/docs.md`.
 - Open items: TC-D ids for issues #156 and #157 come in their own red-first PRs after D1.
+
+## 2026-10-16 - D1.4 Final run
+
+- Issue and PR: #154; PR `claude/docs-final`.
+- Changed: `docs/test-reports/docs-final.md` with TC-D-001..012 PASS on `main` (cf0b097) and TC-D-013 PENDING.
+- Validation: `scripts/test/test-design-docs.sh`, `test-conventions.sh`, `test-gates.sh`, docs lint (markdown, links), all green
+  locally. `check-test-cases.sh docs final` fails only because TC-D-013 is not PASS.
+- Open items: the user reads `docs/design/` and approves or asks for changes (TC-D-013); the decision goes in the issue
+  body. Gate G-DOC flips only after that. D2 (#156) and D3 (#157) follow.
