@@ -108,3 +108,5 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `scripts/test/test-design-style.sh` TC-D-031..038 all PASS (red baseline commit 93adb71), `test-design-docs.sh`
   10 PASS, `check-docs-index.sh`, docs lint (markdown, links), `check-test-cases.sh docs final` green.
 - Open items: approval by the user of the look, recorded in issue #164; the font is still the system sans-serif fallback.
+- Also in this PR (coordinator request): `docs/conventions.md` has a Documentation section: every new markdown file under `docs/`
+  is linked from `docs/index.md` in the same PR (enforced by the `docs-site` job).
