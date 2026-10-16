@@ -278,6 +278,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `Protocol12Test` and the version assertion written first and red (`shared-baseline.md`), then green; spotless, detekt and doc lint green. The existing codec, path, compatibility and spec tests stay green; 1.1 bodies decode (tested).
 - Open items: tell the Watch lane (evaluator 6.5, status writer, episode end handling) and the Android lane (the phone writes `/episode-end/<id>` on "I'm OK" and deletes its old ones) when merged; whether `/status/watch` stays in 1.2 is an open question in #168.
 
+## 2026-10-16 - Issue 171, need 3: offset, initial threshold and cooldown 300 in the settings
+
+- Issue and PR: #171 (need 3 of 4); PR linked from the coordinator message.
+- Changed: `AppSettings.offsetBpm` (20 to 50, default 30) and `initialBpm` (30 to 220, default 110), `SettingsLimits`, the errors `OFFSET_OUT_OF_RANGE` and `INITIAL_OUT_OF_RANGE`, the DataStore keys `offset_bpm` and `initial_bpm` (the in-memory repository shares the validator), `ScheduleBuilder` puts both into `AlertSettings` so a change makes a new schedule version, the cooldown default is 300 s (decision D4); `docs/data-layer.md`. The absolute `thresholds` list and its 150 bpm default are unchanged: the Watch lane decides how the evaluator combines them with the relative threshold.
+- Validation: TC-S-164 (settings and schedule contracts) and the DataStore expectations written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
+- Open items: need 4 of #171 (read of the last `/status/watch`); the Android lane adds the offset field to the settings screen (4.3).
+
 ## 2026-10-16 - Issue 171, need 2: publishing the end of an episode
 
 - Issue and PR: #171 (need 2 of 4); PR linked from the coordinator message.

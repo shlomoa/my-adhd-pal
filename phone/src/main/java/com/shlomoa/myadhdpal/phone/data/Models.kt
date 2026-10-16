@@ -1,6 +1,7 @@
 package com.shlomoa.myadhdpal.phone.data
 
 import com.shlomoa.myadhdpal.protocol.AckAction
+import com.shlomoa.myadhdpal.protocol.AlertRules
 import com.shlomoa.myadhdpal.protocol.Direction
 import com.shlomoa.myadhdpal.protocol.Limits
 import com.shlomoa.myadhdpal.protocol.Metric
@@ -62,7 +63,9 @@ data class AppSettings(
     val thresholds: List<Threshold>,
     val cooldownSeconds: Int,
     val snooze: SnoozeSettings,
-    val cadenceMinutes: Int
+    val cadenceMinutes: Int,
+    val offsetBpm: Int = AlertRules.DEFAULT_OFFSET_BPM,
+    val initialBpm: Int = AlertRules.DEFAULT_INITIAL_BPM
 )
 
 /** Accepted ranges. */
@@ -70,6 +73,8 @@ object SettingsLimits {
     val THRESHOLD_VALUE: ClosedFloatingPointRange<Double> = 30.0..220.0
     val COOLDOWN_SECONDS: IntRange = 60..86_400
     val CADENCE_MINUTES: IntRange = 5..1_440
+    val OFFSET_BPM: IntRange = AlertRules.MIN_OFFSET_BPM..AlertRules.MAX_OFFSET_BPM
+    val INITIAL_BPM: IntRange = AlertRules.MIN_BPM..AlertRules.MAX_INITIAL_BPM
     const val MAX_THRESHOLDS: Int = Limits.MAX_THRESHOLDS
 }
 
@@ -80,7 +85,7 @@ object SettingsLimits {
 object SettingsDefaults {
     val settings = AppSettings(
         thresholds = listOf(Threshold(Metric.HEART_RATE, Direction.ABOVE, 150.0)),
-        cooldownSeconds = 600,
+        cooldownSeconds = AlertRules.DEFAULT_COOLDOWN_SECONDS,
         snooze = SnoozeSettings(minutes = 10, maxCount = 3),
         cadenceMinutes = 60
     )
@@ -95,10 +100,19 @@ object SettingsValidator {
         }
         if (settings.cooldownSeconds !in SettingsLimits.COOLDOWN_SECONDS) add(SettingsError.COOLDOWN_OUT_OF_RANGE)
         if (settings.cadenceMinutes !in SettingsLimits.CADENCE_MINUTES) add(SettingsError.CADENCE_OUT_OF_RANGE)
+        if (settings.offsetBpm !in SettingsLimits.OFFSET_BPM) add(SettingsError.OFFSET_OUT_OF_RANGE)
+        if (settings.initialBpm !in SettingsLimits.INITIAL_BPM) add(SettingsError.INITIAL_OUT_OF_RANGE)
     }
 }
 
-enum class SettingsError { THRESHOLD_OUT_OF_RANGE, TOO_MANY_THRESHOLDS, COOLDOWN_OUT_OF_RANGE, CADENCE_OUT_OF_RANGE }
+enum class SettingsError {
+    THRESHOLD_OUT_OF_RANGE,
+    TOO_MANY_THRESHOLDS,
+    COOLDOWN_OUT_OF_RANGE,
+    CADENCE_OUT_OF_RANGE,
+    OFFSET_OUT_OF_RANGE,
+    INITIAL_OUT_OF_RANGE
+}
 
 sealed interface SettingsResult {
     data object Saved : SettingsResult
