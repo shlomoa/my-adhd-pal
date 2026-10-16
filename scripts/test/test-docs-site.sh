@@ -67,4 +67,5 @@ rm -f docs/zz-fixture-orphan.md; fixtures=()
 grep -q 'scripts/docs-site.sh' .github/workflows/build.yml; check "TC-D-029 the build workflow runs scripts/docs-site.sh" $?
 grep -q 'scripts/test/test-docs-site.sh' .github/workflows/build.yml; check "TC-D-029 the script-tests job runs test-docs-site.sh" $?
 git check-ignore -q "$site/index.html"; check "TC-D-029 the generated site is ignored by git" $?
+# TC-D-030 (the user approves the structure of the index and the built site) is manual: recorded by the user in issue #156.
 exit $fail
