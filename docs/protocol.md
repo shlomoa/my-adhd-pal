@@ -1,6 +1,6 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.1; steps 1.1 to 1.8 are done). This file is the single source of
+Status: **skeleton** (protocol 1.2; steps 1.1 to 1.8 are done). This file is the single source of
 truth; the constants, models, codec, compatibility rule, schedule logic and transport abstraction in `:protocol` follow
 it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b)
 complete gate G2b. The transport verification below comes first in time and changes the cleanup rule.
@@ -17,6 +17,8 @@ replaces or deletes an item (writer-owns-cleanup rule, see below).
 | `/ack/<id>` | watch to phone | `Acknowledgement` | yes | watch deletes it after a delay, or the phone after storing it |
 | `/selection/<id>` | watch to phone | `Selection` | yes | same as `/ack/<id>` |
 | `/alert/<id>` | watch to phone | `Alert` | yes | same as `/ack/<id>` |
+| `/episode-end/<id>` | phone to watch | `EpisodeEnd` | yes | phone deletes its own old ones (older than one hour) when it starts and when it writes a new one; the watch never deletes it |
+| `/status/watch` | watch to phone | `WatchStatus` | no | overwritten |
 | `/hello/phone` | phone to watch | `Hello` | no | overwritten at start |
 | `/hello/watch` | watch to phone | `Hello` | no | overwritten at start |
 | `/debug/biometrics` | watch to phone | `BiometricSamples` | no | debug builds only; overwritten |
@@ -49,11 +51,13 @@ Bodies (field names are the JSON keys):
 
 | Model | Fields |
 |---|---|
-| `Schedule` | `version` (long, monotonic), `reminders` (`id`, `title`, `minuteOfDay` 0-1439, `days` 1-7 with 1 = Monday), `checkpoints` (`id`, `label`, `minuteOfDay`), `snooze` (`minutes`, `maxCount`), `alerts` (`thresholds` of `metric`, `direction`, `value`; `cooldownSeconds`) |
+| `Schedule` | `version` (long, monotonic), `reminders` (`id`, `title`, `minuteOfDay` 0-1439, `days` 1-7 with 1 = Monday), `checkpoints` (`id`, `label`, `minuteOfDay`), `snooze` (`minutes`, `maxCount`), `alerts` (`thresholds` of `metric`, `direction`, `value`; `cooldownSeconds`; `offsetBpm` 20-50, default 30, and `initialBpm` 30-220, default 110, protocol 1.2) |
 | `Prompt` | `title`, `options` (1 to 6 of `key`, `label`; keys unique), `expiresAt` (optional) |
 | `Acknowledgement` | `action` (`DONE`, `SNOOZE`, `START_2_MIN`, `DISMISS`), `at`, optional `reminderId` (the `Reminder.id` it answers, 1 to 32 characters), optional `occurrenceAt` (epoch milliseconds on the watch clock of the scheduled fire time it answers, not negative; protocol 1.1) |
 | `Selection` | `key` (an option key of the prompt with the same id), `at` |
-| `Alert` | `metric` (`HEART_RATE`), `value`, `threshold`, `at` |
+| `Alert` | `metric` (`HEART_RATE`), `value`, `threshold`, `at`, `level` (1 or 2, default 1; protocol 1.2), optional `episodeId` (canonical UUID shared by all alerts of one episode; protocol 1.2) |
+| `EpisodeEnd` | `episodeId` (the `episodeId` of the alert the user answered "I'm OK" to), `at` (epoch milliseconds on the phone clock, not negative); protocol 1.2 |
+| `WatchStatus` | optional `baselineBpm` and `thresholdBpm` (30 to 250), `heartRatePermission` (`GRANTED`, `DENIED`, `UNKNOWN`); protocol 1.2 |
 | `Hello` | `side` (`PHONE`, `WATCH`), `protocolVersion` (for example `1.0`), `appVersion` |
 | `BiometricSamples` | `samples` (`at`, `heartRate`), at most 500 |
 
@@ -78,6 +82,17 @@ Version history: **1.0** is the first version. **1.1** adds the optional `remind
 path id of `/ack/<id>` stays a fresh UUID per acknowledgement. Absent optional fields are not written, so a 1.0 body
 without them still decodes and a 1.1 body is read by a 1.0 receiver, which ignores the extra fields. This is a minor
 bump: paths, keys and the other models are unchanged.
+
+**1.2** (issue 168, the biometric alerts of [`plans/biometrics.md`](plans/biometrics.md)) adds `Alert.level` and
+`Alert.episodeId`, `AlertSettings.offsetBpm` and `initialBpm` (the threshold is the resting baseline plus the offset,
+`initialBpm` until a baseline exists), the phone-to-watch item `/episode-end/<id>` (`EpisodeEnd`) and the watch-to-phone
+item `/status/watch` (`WatchStatus`). All new fields have defaults or are optional, so 1.1 bodies decode and a 1.1
+receiver ignores the new fields and the two new paths. Minor bump again; the constants of the alerts live in
+`AlertRules` (cooldown 300 s, escalation repeat 120 s, at most 6 level-2 repeats per episode).
+
+**"I'm OK" on the phone** ends the episode on the watch: the phone writes `/episode-end/<id>` with the `episodeId` of the
+alert answered. The watch ends that episode and ignores the item when the episode is unknown or already over, so a late
+item cannot end a newer episode. The watch owns the count of level-2 repeats; the phone only reacts to what arrives.
 
 The rule is `Compatibility` in `:protocol`. `Compatibility.ofMajor(v)` is Compatible only when `v` equals
 `Protocol.MAJOR_VERSION`. `Compatibility.ofHello(text)` parses the hello's `protocolVersion` (`major.minor`, optionally
@@ -287,7 +302,7 @@ sequenceDiagram
     H->>W: heart rate reading
     W->>W: compare with the thresholds from the schedule
     alt threshold breached and not in cooldown
-        W->>D: put /alert/id with metric, value, threshold, time (urgent)
+        W->>D: put /alert/id with metric, value, threshold, time, level and episode (urgent)
         W->>W: start the cooldown for that threshold
         D-->>P: item changed (the listener service starts the app process if it is closed)
         P->>P: validate and check the version, store once (idempotent by id), record in history
@@ -295,6 +310,11 @@ sequenceDiagram
         P->>D: delete /alert/id (after storing)
     else in cooldown or within limits
         W->>W: nothing is sent
+    end
+    opt user taps I'm OK on the phone
+        P->>D: put /episode-end/id with the episode id (urgent)
+        D-->>W: item changed
+        W->>W: end that episode if it is still running, otherwise ignore
     end
     Note over W,P: while the link is Away the item waits in the Data Layer and arrives when the link is back
 ```
