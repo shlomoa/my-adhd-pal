@@ -4,7 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-/** The arrival-time probe of step 6.4 (`docs/plans/biometrics.md` section 6): counts and times only, never bpm values. */
+/** The arrival-time probe of step 6.4 (biometrics.md section 6): counts and times only, never bpm values. */
 class ProbeStatsTest {
     private fun batch(second: Long, samples: Int, interactive: Boolean = true) =
         ProbeBatch(second * 1000, samples, interactive)
