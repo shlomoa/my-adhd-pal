@@ -270,3 +270,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/README.md` (H1 and H2 rows no longer wait for a merged document or a PR; a rule under the risks: a human gate flips when the user decides, recorded in the issue body, and a repository document of the decision is a separate deliverable that does not block the gate), `docs/plans/watch.md` (step 6.2 validation). `docs/plan.md` and the other lane plans did not describe H1 or the human gates in that way.
 - Validation: `scripts/test/test-gates.sh` (TC-S-143, README Requires equal to `gates.json`) and doc lint green.
 - Open items: none.
+
+## 2026-10-16 - Protocol 1.2: alert level and episode, relative threshold, end of episode, watch status
+
+- Issue and PR: #168 (proposal in the issue body); PR linked from the coordinator message.
+- Changed: `:protocol` `Alert.level` and `episodeId`, `AlertSettings.offsetBpm` and `initialBpm`, `AlertRules` constants, `EpisodeEnd` with `/episode-end/<id>` (phone to watch), `WatchStatus` with `/status/watch`, `Protocol.VERSION` 1.2; `docs/protocol.md` (catalog, models, version history, the "I'm OK" rule, alert flow diagram); test plan rows TC-S-150 to TC-S-156.
+- Validation: `Protocol12Test` and the version assertion written first and red (`shared-baseline.md`), then green; spotless, detekt and doc lint green. The existing codec, path, compatibility and spec tests stay green; 1.1 bodies decode (tested).
+- Open items: tell the Watch lane (evaluator 6.5, status writer, episode end handling) and the Android lane (the phone writes `/episode-end/<id>` on "I'm OK" and deletes its old ones) when merged; whether `/status/watch` stays in 1.2 is an open question in #168.

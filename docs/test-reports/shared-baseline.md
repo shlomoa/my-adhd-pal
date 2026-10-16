@@ -305,3 +305,7 @@ Red commit: `DefaultRepositoriesTest` (the existing contract tests TC-S-092 for 
 ## DataStore reopen flake (TC-S-099)
 
 Not reproduced locally: with `cancel()` only, the new 100-round reopen test and the whole class passed on this machine. CI failed once with `IllegalStateException` at `FileStorage.kt:52` (two active DataStores for one file). Cause, by construction: DataStore frees the file when its scope's job has completed, and `cancel()` does not wait for that, so reopening right after it can race. The new test `reopening the file right after closing it works every time` uses `cancelAndJoin()` (both DataStore tests), which removes the race.
+
+## Protocol 1.2 (issue 168, red)
+
+Red commit: `Protocol12Test` (TC-S-150 to TC-S-156: alert level and episode id, relative threshold fields and constants, `EpisodeEnd` and its path, `WatchStatus`, version 1.2 and compatibility) and `ConstantsTest` expecting `Protocol.VERSION` 1.2, no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'level'`, `'episodeId'`, `'AlertRules'`, `'EpisodeEnd'`, `'WatchStatus'`, `'episodeEnd'`.

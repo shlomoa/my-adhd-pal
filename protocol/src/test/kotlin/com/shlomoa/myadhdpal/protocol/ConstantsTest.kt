@@ -11,6 +11,6 @@ class ConstantsTest {
         assertEquals("ts", ItemKeys.TIMESTAMP)
         assertEquals("body", ItemKeys.BODY)
         assertEquals(1, Protocol.MAJOR_VERSION)
-        assertEquals("1.1", Protocol.VERSION)
+        assertEquals("1.2", Protocol.VERSION)
     }
 }

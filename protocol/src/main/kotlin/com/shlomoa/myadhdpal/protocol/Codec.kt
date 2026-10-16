@@ -35,6 +35,8 @@ object Codec {
         is Acknowledgement -> json.encodeToString(Acknowledgement.serializer(), message)
         is Selection -> json.encodeToString(Selection.serializer(), message)
         is Alert -> json.encodeToString(Alert.serializer(), message)
+        is EpisodeEnd -> json.encodeToString(EpisodeEnd.serializer(), message)
+        is WatchStatus -> json.encodeToString(WatchStatus.serializer(), message)
         is Hello -> json.encodeToString(Hello.serializer(), message)
         is BiometricSamples -> json.encodeToString(BiometricSamples.serializer(), message)
     }
@@ -55,6 +57,8 @@ object Codec {
             is ItemPath.Ack -> Acknowledgement.serializer()
             is ItemPath.Selection -> Selection.serializer()
             is ItemPath.Alert -> Alert.serializer()
+            is ItemPath.EpisodeEnd -> EpisodeEnd.serializer()
+            ItemPath.WatchStatus -> WatchStatus.serializer()
             is ItemPath.Hello -> Hello.serializer()
             ItemPath.DebugBiometrics -> BiometricSamples.serializer()
         }
