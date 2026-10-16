@@ -334,6 +334,30 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   defines the phone-to-watch end-episode item (protocol 1.2), the watch stops its repeats on receiving it. Planned with 6.5 and 6.6, tests first.
 - Validation: docs lint. Nothing built; waiting for the item's path and body in `docs/protocol.md`.
 
+## 2026-10-16 - Step 6.5, part 2: the episode evaluator
+
+- Issue and PR: step 6.5, branch `claude/watch-6-5b`
+- Changed: `EpisodeEvaluator` in `:protocol` (`alerts/`): threshold = baseline + offset (initial value until a baseline exists), level 1
+  at the first breach, level 2 after the 5-minute cooldown and then every 2 minutes, at most 6 level 2 alerts, the episode ends on a
+  reading at or below the threshold or on `endEpisode` ("I'm OK" on either device; unknown or finished ids ignored). TC-W-123 to 131.
+  `docs/plans/biometrics.md` section 2 has the worked example of the baseline.
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :protocol:check`.
+- Open items: after "I'm OK" a reading still above the threshold starts a new episode at level 1 at once (the document says "the next
+  breach starts again at level 1"); a pause after "I'm OK" is not decided. The old `AlertEvaluator` (absolute thresholds, TC-W-070 to
+  076) stays until the listener wiring replaces it. Passive listener and alert screens need the real-watch probe.
+
+## 2026-10-16 - Step 6.5, part 1: the resting baseline
+
+- Issue and PR: step 6.5 ([plan](../plans/watch.md)), branch `claude/watch-6-5`
+- Changed: `BaselineTracker` and `HourlyLow` in `:protocol` (`alerts/`), pure logic: hourly low = lowest median over 3 consecutive
+  samples of an hour, baseline = 20th percentile (nearest rank) of the hourly lows of the last 7 days, known from 24 lows; only the
+  derived hourly lows are saved and restored. TC-W-086 to 089 and TC-W-120 to 122 added to the catalogue.
+- Reading of the decision: "median of the lowest 3 consecutive samples" is implemented as the lowest median over any 3 consecutive
+  samples of the hour. The nearest-rank percentile and UTC whole hours are my choices; both are in the class comment.
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :protocol:check`.
+- Open items: the episode evaluator (threshold = baseline + offset, escalation, cap, end-episode) is the next PR; the passive
+  listener and the alert screens need the real-watch probe first.
+
 ## 2026-10-16 - Step 6.4: heart-rate and vibration probe (debug only)
 
 - Issue and PR: step 6.4 ([plan](../plans/watch.md)), branch `claude/watch-6-4-probe`

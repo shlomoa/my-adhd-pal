@@ -138,6 +138,20 @@ repositories exist (G3).
 | TC-A-078 | An offset outside 1 to 1440 minutes is rejected | Unit | `IllegalArgumentException`, nothing stored or sent |
 | TC-A-079 | The receiver is absent from release builds | CI | `checkNoDebugInRelease` green (class lives in a `debug` package) |
 | TC-A-089 | A task can be added, shown and deleted in the app | Unit (Hilt + Compose, fake Data Layer client) | Tasks tab empty message; Add a task, type, Save: the task is listed; Delete removes it |
+| TC-A-090 | The level 1 plan vibrates at full amplitude for about 15 s with short pauses; without amplitude control it is on/off only | Unit | Timings sum to 13 to 17 s; amplitudes 255 or none |
+| TC-A-091 | The level 2 plan is stronger: about 30 s, no pause over 0.3 s, more total vibration than level 1 | Unit | Timings sum to 28 to 32 s; every pause at most 300 ms |
+| TC-A-092 | Flashing is at most 3 per second at both levels, faster at level 2, and absent when switched off | Unit | Cycle at least 334 ms; none when off |
+| TC-A-093 | Sound is on by default and follows the setting | Unit | Plan sound true by default, false when switched off |
+| TC-A-094 | A stored alert is raised once; the same alert again is not raised again | Unit | One call to the notifier |
+| TC-A-095 | Several alerts arriving together raise only the newest and mark all as raised | Unit | One call, with the newest |
+| TC-A-096 | An alert with an older watch time that arrives after a newer one is still raised | Unit | Raised although its time is older |
+| TC-A-097 | Alerts already in the history when the feature first runs are not raised; the next one is | Unit | No call for old ones; one for the new |
+| TC-A-098 | After a restart nothing raised before is raised again, and an alert stored but not raised is | Unit | Same store, new raiser |
+| TC-A-099 | "I'm OK" stops the notifier | Unit | `stop` called |
+| TC-A-100 | The notifier posts an alarm-category notification with a full-screen intent on a high-importance channel; sound off uses the silent channel | Unit (Robolectric) | Channel importance high; category alarm; full-screen intent present; silent channel when the plan has no sound |
+| TC-A-101 | The alert screen is declared, not exported, and the permissions it needs are requested | Unit (manifest) | `AlertActivity` not exported; notification, full-screen-intent and vibrate permissions |
+| TC-A-102 | Alert preferences default to sound on and flashing on, and a change survives a restart; the raised-alert ids survive a restart | Unit | DataStore round trips |
+| TC-A-103 | On the A55 with the app closed, an alert from the watch vibrates, wakes the screen and shows the full-screen alert; the Do Not Disturb, silent mode, locked and in-use cases are tried once each | Manual | Result of each case recorded in the work log |
 | TC-A-080 | The broadcast publishes the schedule on the real devices | Manual | Watch shows the reminder at the set time after the broadcast |
 | TC-A-081 | The publish command logs the published version and the reminder time | Unit | `DEMO published schedule version=<n> reminderAt=<ms>`; `unchanged` when nothing new was sent |
 | TC-A-082 | A failed or invalid publish is logged, not thrown | Unit | `DEMO publish failed reason=<text>` for a Data Layer failure and for minutes_ahead outside 1 to 1440 |

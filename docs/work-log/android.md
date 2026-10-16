@@ -117,3 +117,19 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/phone-alert.md` records the four answers: sound on by default (a setting turns it off), flashing at most 3 per second with an off switch, "I'm OK" on the phone also ends the episode on the watch (new section 2a; needs the phone-to-watch item in protocol 1.2, Shared, handled on the watch, Watch), and no repeat count on the phone. A-alert-1b (send the episode end) is a separate step after A-alert-1.
 - Validation: docs lint.
 - Open items: A-alert-1 next, tests first; A-alert-1b and A-alert-3 wait for protocol 1.2.
+
+## 2026-10-16 - A-alert-1 Phone alert (level 1)
+
+- Issue and PR: requirement from #55 (H1); design in `docs/phone-alert.md` (PR #151, with the user's answers). No plan.md step id.
+- Changed: package `phone/alert`: `AlertPlanner` (pure: level to vibration, flashing, sound), `AlertRaiser` (reads the stored alert rows, raises each new alert once, only the newest of several, told apart by id, started from the application class so it also runs in a process the listener service started), `DataStoreAlertPreferences` and `DataStoreRaisedAlerts` (own DataStore file, outside `data/`), `AndroidAlertNotifier` (alarm-category notification with a full-screen intent on a high-importance channel, sound or silent, plus the vibration with alarm attributes), `AlertActivity` (shown over the lock screen, screen on, big "I'm OK" that stops the phone's alert, background flashing at most 3 per second), manifest entries and `AlertModule`. Defaults: sound on, flashing on. Every alert is level 1 until protocol 1.2 carries a level.
+- Validation: tests first, red (`docs/test-reports/android-baseline.md`), now green: `AlertPlannerTest` 5, `AlertRaiserTest` 8, `AlertStoresTest` 2, `AndroidAlertNotifierTest` 4 (TC-A-090 to 102), accessibility tests 2 of 2 with the alert screen added; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green. Two test slips on the way: my range check for the plan length used `coerceIn` and only passed for an exact sum (fixed to a real range), and detekt's line length in comments.
+- Open items: manual TC-A-103 on the A55 (alert arrives with the app closed: vibrates, wakes the screen, shows the full-screen alert; try Do Not Disturb, silent mode, locked and in use, once each). **Before that test, grant the notification permission** (Settings, Apps, ADHD Pal, Notifications; or `adb shell pm grant com.shlomoa.myadhdpal android.permission.POST_NOTIFICATIONS`): the onboarding screen that asks for it is A-alert-2, so for now Android 13 and later shows no alert without it. Not yet: "I'm OK" telling the watch (A-alert-1b, protocol 1.2), the sound and flashing switches on the settings screen (4.3), the onboarding (A-alert-2).
+
+## 2026-10-16 - A-alert-1b and A-alert-3: blocked on the phone data layer
+
+- Issue and PR: lane S issue for the phone data layer; protocol 1.2 is #168 and #169.
+- Changed: nothing in code. Checked main at b834195: protocol 1.2 changed only `:protocol` and the docs; nothing under `phone/**/data/**` or `phone/**/link/**` knows `Alert.level`, `Alert.episodeId`, `AlertSettings.offsetBpm` and `initialBpm`, `EpisodeEnd` or `WatchStatus`, and those paths are the Shared lane's.
+- Validation: none, no code written for these steps. `claude/android-alert-1` (#170) merged with main: `detekt spotlessCheck check lintDocs assembleDebug` still green.
+- Open items: the lane S issue lists four needs in order: the level and episode id in the history rows (Room migration), `WatchLinkDataSource.publishEpisodeEnd` and its cleanup, the offset and initial threshold in `AppSettings` and `ScheduleBuilder`, a read of the last watch status. Lane A continues with the reminder list (4.1c) and 4.2 meanwhile.
+
+BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)

@@ -13,6 +13,7 @@ import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
+import com.shlomoa.myadhdpal.phone.alert.AlertScreen
 import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryType
 import com.shlomoa.myadhdpal.phone.data.Task
@@ -93,6 +94,8 @@ class AccessibilityTest {
                 onCancel = {}
             )
         },
+        "alert bright" to { AlertScreen(138.0, 110.0, bright = true, onOk = {}) },
+        "alert dark" to { AlertScreen(138.0, 110.0, bright = false, onOk = {}) },
         "home with tabs" to {
             HomeScreen(
                 link = LinkStateUiState(LinkState.AWAY, LastSync.Never),

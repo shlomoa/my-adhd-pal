@@ -106,7 +106,7 @@ class InMemoryHistoryRepository : HistoryRepository {
         is WatchEvent.SelectionReceived -> HistoryEntry.Selected(event.id, event.selection.at, event.selection.key)
 
         is WatchEvent.AlertReceived ->
-            with(event.alert) { HistoryEntry.AlertRaised(event.id, at, metric, value, threshold) }
+            with(event.alert) { HistoryEntry.AlertRaised(event.id, at, metric, value, threshold, level, episodeId) }
 
         is WatchEvent.HelloReceived -> null
     }
