@@ -4,7 +4,7 @@ Status: **approved**, aligned to the merged [`../plan.md`](../plan.md) (mileston
 authority for architecture, decisions and step definitions; these files only say **who does which step, in what
 order, and how parallel work is kept safe**. Step ids such as `0a.8` or `3.4` are `plan.md` step ids.
 
-Lane plans: [shared and data](shared.md), [Android](android.md), [watch](watch.md).
+Lane plans: [shared and data](shared.md), [Android](android.md), [watch](watch.md), [Documentation](docs.md).
 
 ## Lanes
 
@@ -13,8 +13,9 @@ Lane plans: [shared and data](shared.md), [Android](android.md), [watch](watch.m
 | **S** Shared and data | tooling, restructure, spikes, `docs/protocol.md`, `:protocol`, phone data layer | 0a.1-0a.8, 0b.1-0b.3, 1.1-1.8, 2.1-2.5 |
 | **A** Android | phone UI, DI wiring, phone features, Play readiness | 2.6, 2.7, 4.1-4.6, 7.1-7.6 |
 | **W** Watch | everything in `:wear`, tile, biometrics (including the pure-logic evaluator 6.5 in `:protocol`) | 3.1-3.9, 5.1-5.3, 6.1-6.8 |
+| **D** Documentation | UI/UX design documentation in `docs/design/` (proposed design, issue #154) | none (documents steps 2.6, 3.2-3.7, 4.1-4.6, 5.2, H1) |
 
-The three lanes run in parallel. Work that a lane cannot start is blocked by a gate (below) and the lane stops.
+The four lanes run in parallel. Work that a lane cannot start is blocked by a gate (below) and the lane stops.
 
 ## Working assumptions (confirm on review)
 
@@ -59,6 +60,7 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 | **G5** | Watch core: 3.1-3.7 (manifest, link client, schedule receive, scheduler, haptics, acks, selections) | W | G2a |
 | **G6** | Phone features: 4.1-4.4 and 4.6 (tasks, schedule builder, settings, prompt publishing, states) | A | G4, G3 |
 | **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded | W + user | G3, G4, G5, H2 |
+| **G-DOC** | D1 design documentation: `docs/design/` with overview, four sections, solution diagrams and screen images; design approved by the user (recorded in issue #154) | D | G-BOOT |
 | **H1** (human) | 6.2 biometric metrics and thresholds agreed by the user, recorded in the issue | user | none |
 | **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed by the user, recorded in the issue | user | none |
 
@@ -95,9 +97,10 @@ The scripts are covered by the 19 cases in [`../test-plans/bootstrap.md`](../tes
 | S | root `build.gradle.kts`, `settings.gradle.kts`, `gradle/**`, `.github/**`, `scripts/**`, `docs/protocol.md`, `protocol/**`, `phone/build.gradle.kts`, `phone/src/**/data/**` |
 | A | `phone/src/**/ui/**`, `phone/src/main/AndroidManifest.xml`, DI wiring, `docs/phone.md`, final `README.md` |
 | W | `wear/src/**`, `wear/build.gradle.kts` (after G0), `docs/watch.md`, `protocol/src/**/alerts/**` (6.5 only) |
+| D | `docs/design/**`, `docs/plans/docs.md`, `docs/test-plans/docs.md`, `docs/test-reports/docs-*.md`, `docs/work-log/docs.md` |
 | each | own `docs/test-plans/<lane>.md`, `docs/test-reports/<lane>-*.md`, own `docs/work-log/<lane>.md`; catalog additions under a `# <lane>` comment in `gradle/libs.versions.toml` |
 
-Before G0, A and W touch no build file. Branches: `claude/shared-*`, `claude/android-*`, `claude/watch-*`; each thread
+Before G0, A and W touch no build file. Branches: `claude/shared-*`, `claude/android-*`, `claude/watch-*`, `claude/docs-*`; each thread
 merges `origin/main` before every step.
 
 ## Schedule
@@ -105,19 +108,19 @@ merges `origin/main` before every step.
 Waves are ordering, not calendar time. `■G` = blocked until gate `G` is merged. Within a wave, steps with no unmet
 gate start immediately; a lane with nothing unblocked stops.
 
-| Wave | Shared and data (S) | Android (A) | Watch (W) |
-|---|---|---|---|
-| 0 | **S0** bootstrap -> G-BOOT (lanes launch after merge) | | |
-| 1 | S1a catalogue; **0a.8** -> G-ENV | A1a catalogue | W1a catalogue; W1b research (3.4, 5.1, 6.1) |
-| 2 | **0a.1-0a.7** -> G0 | ■G0 | ■G0 |
-| 3 | 0b.1 -> G-LIB; 0b.2a (user run) -> G-SPK1 | A2 phone skeleton checks | 3.1 manifest; 3.8 debug set (G0) |
-| 4 | 1.1-1.3 -> G1; 0b.2b (user run, ■H2) -> G-DEC | | W1c red baseline (■G1) |
-| 5 | 1.4, 1.6, 1.7, 1.8a -> G2a (■G1, parallel to wave 4); 1.5, 1.8b -> G2b (■G-DEC) | | |
-| 6 | 2.3 + repository interfaces -> G3a (■G2a) | A1b red baseline (■G3a) | |
-| 7 | 2.1, 2.2 (■G3a); 2.4, 2.5 -> G3 (■G2b) | 2.7, 2.6, 4.5 -> G4 | 3.2-3.7 -> G5 (■G2a) |
-| 8 | | 4.1-4.4, 4.6 -> G6 | 3.9 (■G3, G4, G5, H2) -> G7; 5.2-5.3 tile (■G5) |
-| 9 | | 7.x Play readiness (■G6, G7) | 6.2 (H1), 6.3-6.8 (■H1, 3.8, G2b) |
-| last | S-final | A-final | W-final |
+| Wave | Shared and data (S) | Android (A) | Watch (W) | Documentation (D) |
+|---|---|---|---|---|
+| 0 | **S0** bootstrap -> G-BOOT (lanes launch after merge) | | | |
+| 1 | S1a catalogue; **0a.8** -> G-ENV | A1a catalogue | W1a catalogue; W1b research (3.4, 5.1, 6.1) | D1 lane setup, catalogue |
+| 2 | **0a.1-0a.7** -> G0 | ■G0 | ■G0 | D2 images |
+| 3 | 0b.1 -> G-LIB; 0b.2a (user run) -> G-SPK1 | A2 phone skeleton checks | 3.1 manifest; 3.8 debug set (G0) | D3 sections and solution |
+| 4 | 1.1-1.3 -> G1; 0b.2b (user run, ■H2) -> G-DEC | | W1c red baseline (■G1) | D4 final run, user approval (H) -> G-DOC |
+| 5 | 1.4, 1.6, 1.7, 1.8a -> G2a (■G1, parallel to wave 4); 1.5, 1.8b -> G2b (■G-DEC) | | | |
+| 6 | 2.3 + repository interfaces -> G3a (■G2a) | A1b red baseline (■G3a) | | |
+| 7 | 2.1, 2.2 (■G3a); 2.4, 2.5 -> G3 (■G2b) | 2.7, 2.6, 4.5 -> G4 | 3.2-3.7 -> G5 (■G2a) | |
+| 8 | | 4.1-4.4, 4.6 -> G6 | 3.9 (■G3, G4, G5, H2) -> G7; 5.2-5.3 tile (■G5) | |
+| 9 | | 7.x Play readiness (■G6, G7) | 6.2 (H1), 6.3-6.8 (■H1, 3.8, G2b) | |
+| last | S-final | A-final | W-final | |
 
 ```mermaid
 graph LR

@@ -5,6 +5,7 @@ on:
     paths:
       - docs/plan.md
       - docs/work-log/shared.md
+      - docs/work-log/docs.md
       - scripts/check-issues.sh
       - scripts/check-work-log.sh
       - .github/workflows/conventions.yml
@@ -32,4 +33,4 @@ jobs:
           scripts/check-issues.sh "$RUNNER_TEMP/issues.json"
 
       - name: Work log format
-        run: scripts/check-work-log.sh docs/work-log/shared.md
+        run: scripts/check-work-log.sh docs/work-log/shared.md docs/work-log/docs.md
