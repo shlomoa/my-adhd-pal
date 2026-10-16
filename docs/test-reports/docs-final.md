@@ -1,6 +1,6 @@
 # Documentation lane final report (D1, issue #154)
 
-Base: cf0b097 (`main` after PR 159); TC-D-014..020 (issue #157) were run on branch `claude/docs-checks`; TC-D-021..030 (issue #156) on branch `claude/docs-site`. Commands run from the repository root. Status of the user's approval is below:
+Base: cf0b097 (`main` after PR 159); TC-D-014..020 (issue #157) were run on branch `claude/docs-checks`; TC-D-021..029 (issue #156) on branch `claude/docs-site`. Commands run from the repository root. Status of the user's approval is below:
 the report is **not complete** until TC-D-013 is reported by the user.
 
 | Id | Result | Evidence |
@@ -34,6 +34,5 @@ the report is **not complete** until TC-D-013 is reported by the user.
 | TC-D-027 | PASS | same script: index sections shown, Mermaid rendered in `protocol/index.html` |
 | TC-D-028 | PASS | same script: an orphan document is reported by name |
 | TC-D-029 | PASS | same script: workflow runs the build and the test, `build/` ignored (CI run of the PR pending) |
-| TC-D-030 | PENDING | manual: the user approves the structure of the index and the built site; not yet reported |
 
 `scripts/test/test-gates.sh`: no FAIL lines.

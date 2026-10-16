@@ -71,5 +71,5 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   that left `docs/` now point to the GitHub URL of `scripts/demo/run-demo.ps1` (a strict build treats them as unresolved).
   The design pages are reachable through `plan.md`; the Design section of the index is added after G-DOC.
 - Validation: red baseline commit 1e16149, then `scripts/test/test-docs-site.sh` all PASS, docs lint (markdown, links) green.
-- Open items: TC-D-030, the user's approval of the index structure and the built site; the Design section of the index
+- Open items: approval step: the user approves the index structure and the built site (gate G-INDEX, recorded in the issue body); the Design section of the index
   after G-DOC; publishing the site is a separate decision for the user.

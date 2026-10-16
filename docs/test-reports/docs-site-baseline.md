@@ -1,7 +1,7 @@
 # Documentation site baseline (red), issue #156
 
 Evidence that TC-D-021..029 fail before the implementation. Red commit: 1e16149 (first commit of the PR `claude/docs-site`)
-(tests and catalogue only; no index, no `mkdocs.yml`, no scripts). TC-D-030 is manual.
+(tests and catalogue only; no index, no `mkdocs.yml`, no scripts).
 
 Command: `scripts/test/test-docs-site.sh`. Exit 1.
 

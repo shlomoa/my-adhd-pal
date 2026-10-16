@@ -44,7 +44,8 @@ step, when its head is green.
 ## Documentation index and generated site (issue #156, D2)
 
 `scripts/test/test-docs-site.sh` runs these cases (the build needs Python 3 and network access for the pinned tools).
-The decision (option A, MkDocs with the Material theme) is in the issue body.
+The decision (option A, MkDocs with the Material theme) is in the issue body. The user's approval of the structure is
+an approval step of the plan (gate G-INDEX), not a test case.
 
 | Id | Kind | Case | Pass criteria |
 |---|---|---|---|
@@ -57,4 +58,3 @@ The decision (option A, MkDocs with the Material theme) is in the issue body.
 | TC-D-027 | script | Built site | the index page shows the sections and the Mermaid diagrams of `protocol.md` are rendered as diagrams |
 | TC-D-028 | script | Orphan detected | a document not linked from the index makes `check-docs-index.sh` exit 1 and name it |
 | TC-D-029 | CI | CI build | the `build` workflow runs `scripts/docs-site.sh`, the `script-tests` job runs `test-docs-site.sh`, and the generated site is ignored by git |
-| TC-D-030 | manual | Structure approval | the user approves the structure of the index and the built site; recorded in issue #156 |

@@ -10,7 +10,7 @@ it; only then is it the plan-on-record.
 | **D1.2** | Images: each board of the design canvas rendered to `docs/design/images/<screen id>-<name>.png` (device scale 2), board sources in `docs/design/source/` | TC-D-003, TC-D-008 | G-BOOT | none |
 | **D1.3** | `docs/design/README.md` (overview and table of contents), four section files, `solution.md` (data flow and event flow, Mermaid, each described); links from `docs/plan.md` and `README.md`; `test-design-docs.sh` joins CI | TC-D-001..007, 009; doc lint and link check green | G-BOOT | none |
 | **D1.4 (V-last)** | Run everything, `docs-final.md` via `scripts/check-test-cases.sh docs final`; the user reads `docs/design/` and approves it (recorded in issue #154) | all `TC-D-*` PASS; TC-D-013 manual | G-BOOT | **G-DOC** (after the user approves) |
-| **D2** | Issue #156: `docs/index.md` as the single entry point linking every document, documentation site generator (tool proposal and decisions in the issue body) built in CI; `TC-D-*` ids added in its own red-first PR | per issue #156 | G-DOC | **G-INDEX** |
+| **D2** | Issue #156: `docs/index.md` as the single entry point linking every document, documentation site generator (tool proposal and decisions in the issue body) built in CI; `TC-D-*` ids added in its own red-first PR | per issue #156; approval step: the user approves the structure of the index and the built site (recorded in the issue body) | G-DOC | **G-INDEX** |
 | **D3** | Issue #157: markdown lint and format checks cover all central documentation and run in CI; `TC-D-*` ids added in its own red-first PR | per issue #157 | G-BOOT | none |
 
 ## Sections (from issue #154)
