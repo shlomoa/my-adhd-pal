@@ -2,7 +2,7 @@
 
 For the user. Cases TC-W-090 to TC-W-093 and TC-W-103 are **NOT yet run**; this step is not done, and G7 is not flipped, until
 the results below are reported and copied into [`../work-log/watch.md`](../work-log/watch.md). Everything the script can check
-is checked by [`scripts/demo/run-demo.ps1`](../../scripts/demo/run-demo.ps1) (see [`../demo.md`](../demo.md)); the rest is
+is checked by [`scripts/demo/run-demo.ps1`](https://github.com/shlomoa/my-adhd-pal/blob/main/scripts/demo/run-demo.ps1) (see [`../demo.md`](../demo.md)); the rest is
 for your eyes and hands.
 
 ## A. Real devices, phone present (TC-W-091, TC-W-103)

@@ -2,7 +2,7 @@
 
 One command runs the whole round trip on the Galaxy A55 5G and the Galaxy Watch6 Classic, with no taps: the phone publishes
 a reminder, the watch receives it, buzzes and shows it, the script presses Done for you, and the acknowledgement arrives in
-the phone's history. Script: [`scripts/demo/run-demo.ps1`](../scripts/demo/run-demo.ps1).
+the phone's history. Script: [`scripts/demo/run-demo.ps1`](https://github.com/shlomoa/my-adhd-pal/blob/main/scripts/demo/run-demo.ps1).
 
 ## Run it
 
