@@ -21,7 +21,7 @@ class AlertPlannerTest {
     @Test
     fun `TC-A-090 level 1 vibrates at full amplitude for about 15 s, or on and off only without amplitude control`() {
         val withControl = plan(1).vibration
-        assertEquals(15_000L, withControl.timings.sum().coerceIn(13_000L, 17_000L))
+        assertTrue("about 15 s", withControl.timings.sum() in 13_000L..17_000L)
         assertTrue(withControl.amplitudes!!.all { it == 0 || it == 255 })
         assertTrue(withControl.amplitudes!!.any { it == 255 })
         assertEquals(withControl.timings.size, withControl.amplitudes!!.size)
@@ -36,7 +36,7 @@ class AlertPlannerTest {
     fun `TC-A-091 level 2 is stronger with about 30 s and no pause over 0_3 s`() {
         val one = plan(1).vibration
         val two = plan(2).vibration
-        assertEquals(30_000L, two.timings.sum().coerceIn(28_000L, 32_000L))
+        assertTrue("about 30 s", two.timings.sum() in 28_000L..32_000L)
         assertTrue(pauses(two.timings).all { it <= 300L })
         assertTrue(onTime(two.timings) > onTime(one.timings))
         assertTrue(plan(2).durationMillis > plan(1).durationMillis)

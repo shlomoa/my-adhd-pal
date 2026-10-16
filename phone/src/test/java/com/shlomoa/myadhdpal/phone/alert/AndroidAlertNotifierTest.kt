@@ -60,10 +60,14 @@ class AndroidAlertNotifierTest {
         val activity = info.activities!!.single { it.name == "com.shlomoa.myadhdpal.phone.alert.AlertActivity" }
         assertFalse(activity.exported)
         val requested = info.requestedPermissions!!.toList()
-        assertTrue(requested.containsAll(listOf(
-            "android.permission.POST_NOTIFICATIONS",
-            "android.permission.USE_FULL_SCREEN_INTENT",
-            "android.permission.VIBRATE"
-        )))
+        assertTrue(
+            requested.containsAll(
+                listOf(
+                    "android.permission.POST_NOTIFICATIONS",
+                    "android.permission.USE_FULL_SCREEN_INTENT",
+                    "android.permission.VIBRATE"
+                )
+            )
+        )
     }
 }

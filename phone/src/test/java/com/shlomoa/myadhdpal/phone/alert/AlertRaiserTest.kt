@@ -36,7 +36,10 @@ private class MemoryRaisedStore(var ids: Set<String>? = null) : RaisedAlertsStor
     }
 }
 
-/** What `AlertRaiser` raises, from the stored alert rows. The watch time is `at`; the arrival order is the order stored. */
+/**
+ * What `AlertRaiser` raises, from the stored alert rows. The watch time is `at`; the arrival order is the order
+ * stored.
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AlertRaiserTest {
     private val history = InMemoryHistoryRepository()
@@ -85,31 +88,33 @@ class AlertRaiserTest {
     }
 
     @Test
-    fun `TC-A-097 alerts already in the history when the feature first runs are not raised, the next one is`() = runTest {
-        history.store(alert("before-1", 1_000))
-        history.store(alert("before-2", 2_000))
-        val job = launch(UnconfinedTestDispatcher(testScheduler)) { raiser().run() }
-        assertEquals(emptyList<String>(), ids())
-        history.store(alert("after", 3_000))
-        assertEquals(listOf("after"), ids())
-        job.cancel()
-    }
+    fun `TC-A-097 alerts already in the history when the feature first runs are not raised, the next one is`() =
+        runTest {
+            history.store(alert("before-1", 1_000))
+            history.store(alert("before-2", 2_000))
+            val job = launch(UnconfinedTestDispatcher(testScheduler)) { raiser().run() }
+            assertEquals(emptyList<String>(), ids())
+            history.store(alert("after", 3_000))
+            assertEquals(listOf("after"), ids())
+            job.cancel()
+        }
 
     @Test
-    fun `TC-A-098 after a restart nothing raised before is raised again, and an alert stored but not raised is`() = runTest {
-        val first = launch(UnconfinedTestDispatcher(testScheduler)) { raiser().run() }
-        history.store(alert("a-1", 1_000))
-        first.cancel()
-        assertEquals(listOf("a-1"), ids())
+    fun `TC-A-098 after a restart nothing raised before is raised again, and an alert stored but not raised is`() =
+        runTest {
+            val first = launch(UnconfinedTestDispatcher(testScheduler)) { raiser().run() }
+            history.store(alert("a-1", 1_000))
+            first.cancel()
+            assertEquals(listOf("a-1"), ids())
 
-        // The process died after the row was stored and before the alert was raised.
-        history.store(alert("a-2", 2_000))
+            // The process died after the row was stored and before the alert was raised.
+            history.store(alert("a-2", 2_000))
 
-        val second = launch(UnconfinedTestDispatcher(testScheduler)) { raiser().run() }
-        assertEquals(listOf("a-1", "a-2"), ids())
-        second.cancel()
-        assertEquals(1, history.history(HistoryType.ALERT).first().count { it.id == "a-1" })
-    }
+            val second = launch(UnconfinedTestDispatcher(testScheduler)) { raiser().run() }
+            assertEquals(listOf("a-1", "a-2"), ids())
+            second.cancel()
+            assertEquals(1, history.history(HistoryType.ALERT).first().count { it.id == "a-1" })
+        }
 
     @Test
     fun `TC-A-099 I'm OK stops the notifier`() = runTest {
