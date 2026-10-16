@@ -113,6 +113,12 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-081 | 6.7 | unit | No release code path logs raw biometric values | log sink in tests receives none |
 | TC-W-084 | 6.5 | unit | The end-episode item from the phone ("I'm OK" on the phone) stops the watch's repeats, closes its alert, and the next breach starts at level 1 | no further alert after the item; the next breach is level 1 (item shape defined by the Shared lane, protocol 1.2) |
 | TC-W-085 | 6.6 | unit | "I'm OK" on the watch's own alert ends the episode and stops the repeats | no further alert; the next breach is level 1 |
+| TC-W-132 | 6.4 | unit | The probe summary counts batches and samples and reports the min, median and max gap between batches | expected numbers |
+| TC-W-133 | 6.4 | unit | An empty or single-batch list has no gaps | no gap values |
+| TC-W-134 | 6.4 | unit | The report has one line for all batches and one per screen state, in seconds, with no bpm values | exact lines |
+| TC-W-135 | 6.4 | unit | A probe record is one line and reads back; a malformed line is skipped | round trip, null for bad lines |
+| TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | user reports the three report lines (`docs/test-reports/watch-probe-checklist.md`) |
+| TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
 | TC-W-083 | 6.8 | manual | The real watch registers passive heart rate and an alert reaches the phone | user reports capability and result |
 

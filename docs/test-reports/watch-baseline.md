@@ -171,6 +171,16 @@ the parser did not strip the prefix); after the fix 48 PASS, 0 FAIL.
 Tests and simulated-adb tap injection (`FAKE_TAP=ACTION:MS`) written first. Against the script without the switch: 12 checks FAIL
 (the parameter does not exist, exit 1). After: 61 PASS, 0 FAIL (tap Done, tap Snooze, no tap, and the unchanged default mode).
 
+## Heart-rate probe statistics (TC-W-132 to TC-W-135; `wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt`)
+
+Step 6.4 probe. Red commit: the first commit of branch `claude/watch-6-4-probe` (tests only). Command: `./gradlew :wear:testDebugUnitTest`.
+Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:15:23 Unresolved reference 'ProbeBatch'.
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:16:23 Unresolved reference 'summarize'.
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
