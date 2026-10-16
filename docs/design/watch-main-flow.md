@@ -1,7 +1,7 @@
 # Watch main flow (proposed design)
 
 Part of the [UI/UX design](README.md), a **proposed design** until the user approves it. Screens W1-W4 are the watch app
-itself: the home screen, its link states, a reminder and a choice. The watch face is round (300 px of 340 px board).
+itself: the home screen, its link states, a reminder and a choice. The watch face is round with a gradient ring and the aurora on midnight blue ([style](README.md#style-aurora)); the images are the round face only, transparent outside the circle.
 
 ## W1 Home
 
@@ -14,7 +14,7 @@ controls (step 3.2).
 
 ![W2 Link states](images/W2-link-states.png)
 
-The watch shows four states: Phone nearby, Phone via internet, Phone away and Update the app. The phone's fifth state, No
+The watch shows four states as tiles inside the round face: Phone nearby, Phone via internet, Phone away and Update the app. The phone's fifth state, No
 watch app, does not exist on the watch: the watch calls the same function and shows No phone app as Away
 ([`../protocol.md`](../protocol.md), "Link states").
 
@@ -30,5 +30,5 @@ expiry rules, and the choice is reported to the phone as an acknowledgement (`/a
 
 ![W4 Choice](images/W4-choice.png)
 
-An option prompt from the phone (P8): the question and the options as buttons, and a line saying when it asks again
+An option prompt from the phone (P8). This image is the approved aurora reference supplied by the user, and the other screens follow its style: the question and the options as large pills with an icon on the left, Start (mint to turquoise, play icon), Break (yellow to amber, pause icon) and Skip (lavender to violet, forward icon), and a line saying when it asks again
 ("Asks again in 10 min"). The tap is reported as a selection (`/selection`). A prompt past its expiry is hidden.

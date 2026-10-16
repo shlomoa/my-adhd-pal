@@ -155,7 +155,7 @@ grep -qi 'undecided' docs/design/watch-tile-alerts.md || bad=1
 
 # TC-D-038 the old palette is gone from the sources
 bad=0
-for hex in F3F6F9 0B6E78 FFE3B8 B24A0C 3A2A08 5CC8D2 0B1218; do
+for hex in F3F6F9 0B6E78 FFE3B8 B24A0C 3A2A08 5CC8D2 0B1218 DDF0F2 FFF0DC 5C3300 A3360C 4A5B6B 7A2F05 2B1700 08545C; do
   grep -rqi "#$hex" "$src"/ui.css "$src"/*.dc.html && { echo "  legacy color #$hex is still in the sources"; bad=1; }
 done
 [ "$bad" -eq 0 ]; check "TC-D-038 the legacy palette is gone from ui.css and the boards" $?

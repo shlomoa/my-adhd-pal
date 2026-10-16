@@ -1,6 +1,6 @@
 # Documentation lane final report (D1, issue #154)
 
-Base: cf0b097 (`main` after PR 159); TC-D-014..020 (issue #157) were run on branch `claude/docs-checks` and merged in PR 161; TC-D-021..029 (issue #156) on branch `claude/docs-site`.
+Base: cf0b097 (`main` after PR 159); TC-D-014..020 (issue #157) were run on branch `claude/docs-checks` and merged in PR 161; TC-D-021..029 (issue #156) on branch `claude/docs-site`, merged in PR 162; TC-D-031..038 (issue #164) on branch `claude/docs-style`.
 Commands run from the repository root. The design is a proposal until the user approves it (approval by the user,
 recorded in issue #154).
 
@@ -32,5 +32,13 @@ recorded in issue #154).
 - TC-D-027 PASS: same script: index sections shown, Mermaid rendered in `protocol/index.html`
 - TC-D-028 PASS: same script: an orphan document is reported by name
 - TC-D-029 PASS: same script: the workflow runs the build and the test, `build/` is ignored
+- TC-D-031 PASS: `scripts/test/test-design-style.sh` (issue #164): W4 is the approved reference file, 1254x1254 RGBA, transparent corners
+- TC-D-032 PASS: same script: every screen image and the overview have the expected pixel size
+- TC-D-033 PASS: same script: W1-W9 are transparent outside the circle
+- TC-D-034 PASS: same script: every image was rendered from the current board and `ui.css` (render manifest)
+- TC-D-035 PASS: same script: text contrast pairs of the stylesheet meet 4.5:1
+- TC-D-036 PASS: same script: alert levels 1 and 2 differ by text and icon (phone and watch)
+- TC-D-037 PASS: same script: texts say aurora, keep "proposed design" and the undecided tile action, no old color wording
+- TC-D-038 PASS: same script: the legacy palette is gone from the sources
 
 `scripts/test/test-gates.sh`: no FAIL lines.
