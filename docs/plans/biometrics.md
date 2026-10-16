@@ -15,7 +15,7 @@ on the real watch (section 6).
 |---|---|---|---|
 | D1 | Metrics | Decided | Heart rate only. |
 | D2 | Direction | Decided | Above the threshold only. The evaluator also supports below, unused in v1. |
-| D3 | Threshold | Decided | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. The baseline is the **average** (Decided, the user's word); until a baseline exists the threshold is an absolute **110 bpm** (Decided). Which values are averaged: section 2. |
+| D3 | Threshold | Decided | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. The baseline is the **20th percentile of the hourly lows of the last 7 days** (Decided, section 2); until a baseline exists the threshold is an absolute **110 bpm** (Decided). |
 | D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again; after that, **every 2 minutes** while the rate stays above (Decided). Details: section 3. |
 | D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. **The phone raises the same kind of alert** (it vibrates and flashes a full-screen alert, not only the watch). Sections 4 and 4a. |
 | D6 | Latency | Decided | Best effort. Readings are batched by the system at an interval the app is not told (section 6). No maximum delay is promised. |
@@ -44,22 +44,19 @@ on the real watch (section 6).
   [thread](https://eu.community.samsung.com/t5/wearables/resting-hr-is-recording-but-missing-on-some-days-while-min-max/td-p/7829821)).
   These are secondhand and possibly outdated.
 
-**Baseline (Decided: it is the average; the data set is my reading, correct me).** The user said: "The baseline is defined with
-taking the average and using 110 as the initial value is approved." The user did not say over which values. My reading, derive
-the baseline on the watch from passive samples (no new permission, works without Samsung Health):
+**Baseline (Decided).** The user accepted the baseline as defined here (2026-10-16): "The baseline as you defined it is accepted by me."
+It is derived on the watch from passive samples (no new permission, works without Samsung Health):
 
 1. For each hour with at least 3 samples, keep the **median of the lowest 3 consecutive samples**. Keep only these hourly
    numbers (and their timestamps) for the last 7 days: they are a derived statistic, not raw readings, and are never logged
    in release builds (D8).
-2. The baseline is the **average of the hourly values of the last 7 days**. *My reading of "average", correct me:* an average
-   of **all** samples would sit well above the resting rate (waking and active hours would dominate it) and the threshold
-   would then be too high; averaging the hourly lows keeps it close to a resting rate. This replaces the average I
-   proposed earlier.
+2. The baseline is the **20th percentile of the hourly values of the last 7 days**. Sleep hours and quiet hours dominate it,
+   which is what "resting" means here, and one active afternoon cannot move it much.
 3. The baseline needs at least **24 hourly values** to count as known.
 4. The alert threshold is `baseline + offset` (D3). The phone shows the current baseline and the resulting threshold
    (the watch sends the baseline in `/hello/watch` or a status item: a protocol change, section 7).
 
-**Initial value until a baseline exists (Decided, approved by the user):** an absolute **110 bpm**, used from the first run
+**Initial value until a baseline exists (Decided):** an absolute **110 bpm**, used from the first run
 until the watch has the 24 hourly values above. Once the baseline exists the threshold becomes `baseline + offset` and 110 is
 no longer used.
 
@@ -190,9 +187,9 @@ A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
 Answered by the user (2026-10-15 in this lane's session; 2026-10-16 relayed by the coordinator with the user's exact words):
 
 1. Initial value until a baseline exists: **110 bpm** (Decided, section 2).
-2. Baseline rule: "The baseline is defined with taking the average and using 110 as the initial value is approved." (Decided:
-   **average**; section 2). Only the choice of values to average is mine: the hourly lows over the last 7 days, known after 24
-   hourly values. Marked "my reading of 'average', correct me".
+2. Baseline rule: "The baseline as you defined it is accepted by me." (Decided, section 2: hourly low = median of the lowest 3
+   consecutive samples per hour; baseline = 20th percentile of the hourly values of the last 7 days; known after 24 hourly
+   values.) An earlier relayed wording, "the baseline is defined with taking the average", was withdrawn by the user.
 3. Escalation: after the 5-minute cooldown, alerts every **2 minutes** while above the threshold (Decided, section 3). The
    alert must shake and flash the **phone** too and act like an alert there (Decided, section 4a).
 4. Theater mode, and possibly the watch's vibration-intensity setting, can silence the alert, and nothing in an app overrides

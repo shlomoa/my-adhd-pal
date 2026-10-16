@@ -305,3 +305,11 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   approved. The data set (average of the hourly lows over 7 days, known after 24 values) is my reading and marked for correction.
   Cap of 6 repeats and the "I'm OK" button stay proposals.
 - Validation: docs lint. H1 is NOT flipped.
+
+## 2026-10-16 - Biometric decision document: baseline as defined is accepted
+
+- Issue and PR: [#55](https://github.com/shlomoa/my-adhd-pal/issues/55), PR #147
+- Changed: `docs/plans/biometrics.md`: the user corrected the earlier wording and accepted the baseline as defined in the document
+  (hourly low = median of the lowest 3 consecutive samples; baseline = 20th percentile of the hourly values of the last 7 days;
+  known after 24 values); 110 bpm fallback Decided. Cap of 6 repeats and the "I'm OK" button stay proposals.
+- Validation: docs lint. H1 is NOT flipped.
