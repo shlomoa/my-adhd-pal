@@ -168,6 +168,16 @@
       "pr": null
     },
     {
+      "id": "G-INDEX",
+      "name": "D2 documentation index and generated site in CI",
+      "owner": "D",
+      "requires": [
+        "G-DOC"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
       "id": "H1",
       "name": "biometric metrics and thresholds agreed (human)",
       "owner": "user",

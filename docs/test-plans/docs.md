@@ -2,7 +2,7 @@
 
 Lane D owns `docs/design/**` and its own plan, catalogue, reports and work log ([`../plans/docs.md`](../plans/docs.md)).
 Case ids are `TC-D-nnn`; test names embed the id (see [`../plans/README.md`](../plans/README.md), "Validation first and
-last"). The work is issue #154, the documentation of the proposed UI/UX design.
+last"). The work is issue #154 (step ids D1.x), the documentation of the proposed UI/UX design.
 
 **Kinds:** `script` = shell fixture, `CI` = checked by a CI job, `manual` = run by the user and reported in
 `docs/work-log/docs.md`.

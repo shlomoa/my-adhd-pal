@@ -94,3 +94,7 @@ jobs:
       - name: Spike apps and runners
         if: ${{ !cancelled() }}
         run: scripts/test/test-spike.sh
+
+      - name: Design documentation
+        if: ${{ !cancelled() }}
+        run: scripts/test/test-design-docs.sh

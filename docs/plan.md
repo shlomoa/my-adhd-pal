@@ -3,6 +3,8 @@
 Status: **approved** in a section-by-section review (2026-10-11) that merged the architecture thread's plan with the
 watch thread's hand-off. Documentation only; no code changes accompany this document.
 
+Screen designs (a proposed design until the user approves it): [`design/README.md`](design/README.md).
+
 ## 1. Context
 
 `my-adhd-pal` started as a single-module Wear OS app (Kotlin + Compose, `com.shlomoa.myadhdpal`, minSdk 30,
