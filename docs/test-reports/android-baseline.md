@@ -104,3 +104,15 @@ e: ReminderEditViewModelTest.kt:32:12 Unresolved reference 'setMinuteOfDay'.
 ```
 
 TC-A-018 to TC-A-022 are red until this step lands.
+
+## A-alert-1 Phone alert
+
+Red commit: 46955cd (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*alert*'`. Exit 1, the test sources do not compile:
+
+```
+e: AlertPlannerTest.kt:11:25 Unresolved reference 'AlertPrefs'.
+e: AlertPlannerTest.kt:14:9 Unresolved reference 'AlertPlanner'.
+e: AlertPlannerTest.kt:51:66 Unresolved reference 'cycleMillis'.
+```
+
+TC-A-090 to TC-A-102 are red until this step lands. TC-A-103 is manual on the A55.

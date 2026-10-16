@@ -178,6 +178,15 @@ Build fails before any test runs.
 
 ```
 e: protocol/src/test/.../alerts/EpisodeEvaluatorTest.kt:28:9 Unresolved reference 'EpisodeEvaluator'.
+
+## Resting baseline (TC-W-086 to TC-W-089, TC-W-120 to TC-W-122; `protocol/src/test/.../alerts/BaselineTrackerTest.kt`)
+
+Step 6.5 first part. Red commit: the first commit of branch `claude/watch-6-5` (tests only). Command: `./gradlew :protocol:test`.
+Build fails before any test runs.
+
+```
+e: protocol/src/test/.../alerts/BaselineTrackerTest.kt:27:23 Unresolved reference 'BaselineTracker'.
+e: protocol/src/test/.../alerts/BaselineTrackerTest.kt:30:29 Unresolved reference 'HourlyLow'.
 ```
 
 ## Not yet written (later steps)
