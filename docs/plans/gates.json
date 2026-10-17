@@ -203,5 +203,42 @@
       "status": "merged",
       "pr": 124
     }
+  ],
+  "deferred": [
+    {
+      "step": "3.3",
+      "gate": "G5",
+      "reason": "Deferred by the user on 2026-10-17: schedule, scheduler, schedule builder and task work is de-prioritized."
+    },
+    {
+      "step": "3.4",
+      "gate": "G5",
+      "reason": "Deferred by the user on 2026-10-17: schedule, scheduler, schedule builder and task work is de-prioritized."
+    },
+    {
+      "step": "3.9",
+      "gate": "G7",
+      "reason": "Deferred by the user on 2026-10-17: schedule, scheduler, schedule builder and task work is de-prioritized."
+    },
+    {
+      "step": "4.1",
+      "gate": "G6",
+      "reason": "Deferred by the user on 2026-10-17: schedule, scheduler, schedule builder and task work is de-prioritized."
+    },
+    {
+      "step": "4.2",
+      "gate": "G6",
+      "reason": "Deferred by the user on 2026-10-17: schedule, scheduler, schedule builder and task work is de-prioritized."
+    },
+    {
+      "step": "5.2",
+      "gate": null,
+      "reason": "Deferred by the user on 2026-10-17: schedule, scheduler, schedule builder and task work is de-prioritized. Tile step; it is in no gate."
+    },
+    {
+      "step": "5.3",
+      "gate": null,
+      "reason": "Deferred by the user on 2026-10-17: schedule, scheduler, schedule builder and task work is de-prioritized. Tile step; it is in no gate."
+    }
   ]
 }

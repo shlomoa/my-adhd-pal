@@ -354,3 +354,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: new `docs/research/tooling.md` (every pin in `gradle/libs.versions.toml`, the wrapper, `tools/docs/package.json`, `tools/docs-site/requirements.txt` and the workflows against the latest stable release, with sources and the read date, and a recommendation per row); link in `docs/index.md`. Nothing upgraded.
 - Validation: docs only, no script checks this page; markdownlint, links and the docs index check pass.
 - Open items: the user decides on upgrades (recommendation: none now; the GitHub Actions majors in one later PR). No newer stable AGP, Kotlin or Gradle exists, so none fixes the lint crash.
+
+## 2026-10-17 - Deferred steps in the gate graph
+
+- Issue and PR: wave 0 row C3 of the user-approved execution plan; PR linked from the coordinator message.
+- Changed: `docs/plans/gates.json` gets a top-level `deferred` array (`step`, `gate`, `reason`): 3.3 and 3.4 (G5), 4.1 and 4.2 (G6), 3.9 (G7), 5.2 and 5.3 (no gate). No gate id, owner, status or `requires` changes, so the README table in `docs/plans/README.md` stays equal to `gates.json` and G6 closes on 4.3, 4.4 and 4.6; the text in `docs/plans/*.md` and `docs/plan.md` is the Docs lane's. `scripts/test/test-gates.sh` checks the array.
+- Validation: TC-S-183 written first and red (`shared-baseline.md`), then green; `test-gates.sh` and `test-scripts.sh` pass.
+- Open items: the Docs lane states the deferral in `docs/plans/README.md` (G5, G6, G7 rows); 5.2 and 5.3 belong to no gate, so they carry `"gate": null`.
