@@ -66,7 +66,7 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-043 | 1.2 | unit | Path parsers | each builder output parses back to its kind and id; unknown paths and empty ids return null |
 | TC-S-044 | 1.2 | unit | Path edge cases | ids with `/`, whitespace or non-UUID text are rejected; trailing slash is rejected |
 | TC-S-045 | 1.2 | unit | Keys and version constants | `v`, `id`, `ts`, `body` and the protocol major version equal the spec values |
-| TC-S-046 | 1.3 | unit | Round trip: schedule | encode then decode equals the original, including thresholds, cooldown and version |
+| TC-S-046 | 1.3 | unit | Round trip: schedule | encode then decode equals the original, including the alert settings, cooldown and version |
 | TC-S-047 | 1.3 | unit | Round trip: prompt | with and without expiry, one to n options |
 | TC-S-048 | 1.3 | unit | Round trip: acknowledgement | each action (Done, Snooze, Start 2 min, Dismiss) |
 | TC-S-049 | 1.3 | unit | Round trip: selection | chosen key and time |

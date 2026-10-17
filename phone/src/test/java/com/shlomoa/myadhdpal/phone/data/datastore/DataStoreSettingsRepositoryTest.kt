@@ -59,14 +59,15 @@ class DataStoreSettingsRepositoryTest : SettingsRepositoryContract() {
     override fun create(): SettingsRepository = open()
 
     @Test
-    fun `TC-S-098 a fresh store has the documented defaults for cooldown, snooze, cadence and the alert offset`() = runTest {
-        val settings = open().settings.first()
-        assertEquals(SettingsDefaults.settings, settings)
-        assertEquals(300, settings.cooldownSeconds)
-        assertEquals(30, settings.offsetBpm)
-        assertEquals(110, settings.initialBpm)
-        assertEquals(60, settings.cadenceMinutes)
-    }
+    fun `TC-S-098 a fresh store has the documented defaults for cooldown, snooze, cadence and the alert offset`() =
+        runTest {
+            val settings = open().settings.first()
+            assertEquals(SettingsDefaults.settings, settings)
+            assertEquals(300, settings.cooldownSeconds)
+            assertEquals(30, settings.offsetBpm)
+            assertEquals(110, settings.initialBpm)
+            assertEquals(60, settings.cadenceMinutes)
+        }
 
     @Test
     fun `TC-S-099 a written value is still there after the store is closed and opened again`() = runTest {

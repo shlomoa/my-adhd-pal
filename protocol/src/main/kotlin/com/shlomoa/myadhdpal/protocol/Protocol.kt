@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 /** Protocol version. The major version is the compatibility boundary (see `docs/protocol.md`). */
 object Protocol {
     const val MAJOR_VERSION = 1
-    const val VERSION = "1.2"
+    const val VERSION = "1.3"
 }
 
 /** Keys of a Data Layer item. The `DataMap` adapters in `:wear` and `:phone` use exactly these. */
@@ -20,7 +20,6 @@ object ItemKeys {
 object Limits {
     const val MAX_REMINDERS = 100
     const val MAX_CHECKPOINTS = 24
-    const val MAX_THRESHOLDS = 8
     const val MAX_OPTIONS = 6
     const val MAX_TEXT_LENGTH = 200
     const val MAX_KEY_LENGTH = 32

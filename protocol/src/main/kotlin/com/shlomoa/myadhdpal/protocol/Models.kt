@@ -10,9 +10,6 @@ sealed interface Message
 enum class Metric { HEART_RATE }
 
 @Serializable
-enum class Direction { ABOVE, BELOW }
-
-@Serializable
 enum class AckAction { DONE, SNOOZE, START_2_MIN, DISMISS }
 
 /** A reminder at a minute of the day (0 to 1439) on the given days (1 = Monday to 7 = Sunday). */
@@ -44,27 +41,19 @@ data class SnoozeSettings(val minutes: Int, val maxCount: Int) {
     }
 }
 
-@Serializable
-data class Threshold(val metric: Metric, val direction: Direction, val value: Double) {
-    init {
-        require(value.isFinite()) { "threshold must be finite" }
-    }
-}
-
 /**
- * Alert thresholds and the alert cooldown, set on the phone and evaluated on the watch. Since protocol 1.2 the
- * heart-rate threshold is relative: the resting baseline plus [offsetBpm], and [initialBpm] until the watch has a
- * baseline. Both have defaults, so a 1.1 body without them still decodes. [thresholds] stay for absolute thresholds.
+ * The alert cooldown and the heart-rate threshold, set on the phone and evaluated on the watch. The threshold is
+ * relative (since protocol 1.2): the resting baseline plus [offsetBpm], and [initialBpm] until the watch has a
+ * baseline. Both have defaults, so a 1.1 body without them still decodes. Protocol 1.3 dropped the absolute
+ * thresholds list; a body that still has one decodes and the list is ignored.
  */
 @Serializable
 data class AlertSettings(
-    val thresholds: List<Threshold>,
     val cooldownSeconds: Int,
     val offsetBpm: Int = AlertRules.DEFAULT_OFFSET_BPM,
     val initialBpm: Int = AlertRules.DEFAULT_INITIAL_BPM
 ) {
     init {
-        require(thresholds.size <= Limits.MAX_THRESHOLDS) { "too many thresholds" }
         require(cooldownSeconds in 0..Limits.MAX_COOLDOWN_SECONDS) { "cooldown out of range" }
         require(offsetBpm in AlertRules.MIN_OFFSET_BPM..AlertRules.MAX_OFFSET_BPM) { "offset out of range" }
         require(initialBpm in AlertRules.MIN_BPM..AlertRules.MAX_INITIAL_BPM) { "initial threshold out of range" }

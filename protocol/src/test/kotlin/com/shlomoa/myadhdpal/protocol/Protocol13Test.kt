@@ -35,6 +35,6 @@ class Protocol13Test {
         for (peer in listOf("1.0", "1.1", "1.2", Protocol.VERSION)) {
             assertEquals(peer, Compatibility.Compatible, Compatibility.ofHello(peer))
         }
-        assertEquals(Compatibility.Incompatible, Compatibility.ofHello("2.0"))
+        assertTrue(Compatibility.ofHello("2.0") is Compatibility.Incompatible)
     }
 }
