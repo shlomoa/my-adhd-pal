@@ -99,13 +99,6 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 
 | Id | Step | Kind | Case | Pass criteria |
 |---|---|---|---|---|
-| TC-W-070 | 6.5 | unit | A reading above the threshold produces an alert | one alert with metric, value, threshold, time |
-| TC-W-071 | 6.5 | unit | A reading at or below the threshold produces none | no alert |
-| TC-W-072 | 6.5 | unit | A second breach inside the cooldown is suppressed | one alert in total |
-| TC-W-073 | 6.5 | unit | A breach after the cooldown alerts again | two alerts |
-| TC-W-074 | 6.5 | unit | A low-side threshold (below limit) alerts when the metric supports it | alert on low breach |
-| TC-W-075 | 6.5 | unit | Thresholds and cooldown come from the synced schedule settings | evaluator uses the schedule values |
-| TC-W-076 | 6.5 | unit | Out-of-order or batched samples are evaluated by their timestamps | alerts follow the sample time order |
 | TC-W-077 | 6.6 | unit | An alert is sent as urgent `/alert/<id>` with a unique id and the numeric value | one item, fields as above |
 | TC-W-078 | 6.3 | unit | The permission flow requests the API-appropriate permissions and handles denial | denied state exposed, no registration |
 | TC-W-079 | 6.4 | unit | The passive listener forwards data points to the evaluator and registration is redone after boot | fake client receives the config; re-registered |

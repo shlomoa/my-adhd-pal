@@ -229,7 +229,7 @@ Probe step 1 and 2, as reported by the user through the coordinator. Verified on
 | Phone onboarding screen for the permission, the full-screen-intent step and the offset setting | Android lane | D3, D7 |
 | End-episode item phone to watch (path, body, urgent), protocol 1.2 | Shared lane | "I'm OK" on the phone ends the episode on the watch (section 4a) |
 | Phone raises its own alert when an `/alert` arrives: alarm-channel notification, repeating maximum vibration, flashing full-screen alert, level 2 stronger (section 4a) | Android lane | D5 |
-| `AlertEvaluator` (in `:protocol`, `alerts/`): resting-relative threshold, escalation level, episode end | Watch lane (6.5), tests first; the existing TC-W-070 to TC-W-076 stay valid for absolute thresholds and get new cases | D3, D4 |
+| `EpisodeEvaluator` and `BaselineTracker` (in `:protocol`, `alerts/`): resting-relative threshold, escalation level, episode end (replace the first `AlertEvaluator` with absolute thresholds, deleted) | Watch lane (6.5), tests first (TC-W-086 to 089, 120 to 131, 138) | D3, D4 |
 | Passive listener, baseline store (hourly values), alert activity with full-screen intent, vibration patterns | Watch lane (6.3, 6.4, 6.6) | D5 |
 | Play declaration for the full-screen intent | Step 7.x | section 4 |
 

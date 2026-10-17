@@ -440,3 +440,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   (`ProbeAlarmRoutes`), with a full-screen target activity; checklist step 4b for the user.
 - Validation: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint, docs index. No unit test: the
   commands only call Android notification and alarm APIs; their outcome is the user's measurement (TC-W-137, NOT yet complete).
+
+## 2026-10-17 - Cleanup: catalogue rows of the deleted alert evaluator
+
+- Issue and PR: step 6.5 cleanup, branch `claude/watch-cleanup-alert-evaluator` (reduced after #194)
+- #194 deleted `AlertEvaluator`, its test, `Threshold`, `Direction` and `AlertSettings.thresholds`. What remains here: the seven catalogue rows
+  TC-W-070 to TC-W-076 (their tests no longer exist) and the decision document's section 7 text.
+- Validation: docs lint, links and index.
