@@ -46,7 +46,8 @@ param(
     # A little longer than a phase, so the screen does not time out before the phase report.
     [int]$ScreenOffTimeoutMs = 720000,
     [switch]$Unattended,
-    [switch]$AllowCharging
+    [switch]$AllowCharging,
+    [switch]$SkipPush
 )
 
 . (Join-Path $PSScriptRoot 'probe-common.ps1')
@@ -87,7 +88,8 @@ try {
 } finally {
     Stop-ProbeService
     if ($savedTimeout) { Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', $savedTimeout) | Out-Null }
-    Log ("screen timeout restored to $savedTimeout; result file: $script:LogFile")
+    Log ("screen timeout restored to $savedTimeout; result file: $(Split-Path -Leaf $script:LogFile)")
 }
+Publish-Result 'e1'
 if ($failed) { exit 1 }
 exit 0

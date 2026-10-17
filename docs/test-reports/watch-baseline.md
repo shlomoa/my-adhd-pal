@@ -281,6 +281,19 @@ FAIL TC-W-161 a full E3 run exits 0 (expected 0, got 64)
 FAIL TC-W-165 a full E6 run exits 0 (expected 0, got 64)
 ```
 
+## Publishing the probe result files (TC-W-168 to TC-W-172; `scripts/probe/test-publish.sh`)
+
+The user does not paste results, so `run-e1.ps1`, `run-e3.ps1` and `run-e6.ps1` publish their result file as the branch `<prefix>-results/<stamp>` (one file, one commit, built with
+git plumbing and a temporary index; the checkout is untouched), through `Publish-Result` in `scripts/probe/probe-common.ps1`. Red commit: the first commit of branch
+`claude/watch-e1-publish` (tests only). Command: `PWSH=pwsh scripts/probe/test-publish.sh` (simulated adb, throwaway git repository with a bare origin). 10 checks FAIL before publishing
+exists, for example:
+
+```
+FAIL TC-W-168 branch e1-results/<stamp> is on origin (expected 0, got 1)
+FAIL TC-W-168 the script prints PUSHED <branch> (expected 0, got 1)
+FAIL TC-W-172 E3 publishes e3-results/<stamp> (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

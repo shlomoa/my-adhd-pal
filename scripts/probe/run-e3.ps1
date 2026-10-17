@@ -42,7 +42,8 @@ param(
     [double]$AvailableTimeoutSec = 120,
     [double]$ReportWaitSec = 3,
     [switch]$Unattended,
-    [switch]$AllowCharging
+    [switch]$AllowCharging,
+    [switch]$SkipPush
 )
 
 . (Join-Path $PSScriptRoot 'probe-common.ps1')
@@ -90,7 +91,8 @@ try {
     Log "FAILED: $_"
 } finally {
     Stop-ProbeService
-    Log "result file: $script:LogFile"
+    Log "result file: $(Split-Path -Leaf $script:LogFile)"
 }
+Publish-Result 'e3'
 if ($failed) { exit 1 }
 exit 0
