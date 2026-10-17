@@ -60,7 +60,7 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 | **G3** | **Done (PR #138).** 2.1-2.5: Room, DataStore, real `WatchLinkDataSource`, background listener service, repositories | S | G3a, G-LIB, G2b |
 | **G4** | **Done (PR #117).** Phone core: 2.7 DI, 2.6 link-state screen, 4.5 history screen | A | G3a, G-LIB |
 | **G5** | **Done (PR #112).** Watch core: 3.1-3.7 (manifest, link client, schedule receive and scheduler deferred, haptics, acks, selections) | W | G2a |
-| **G6** | Phone features: 4.1-4.4 and 4.6 (tasks and schedule builder deferred, settings, prompt publishing, states) | A | G4, G3 |
+| **G6** | **Done (PR #199).** Phone features: 4.1-4.4 and 4.6 (tasks and schedule builder deferred, settings, prompt publishing, states) | A | G4, G3 |
 | **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded (deferred) | W + user | G3, G4, G5, H2 |
 | **G-DOC** | Waits for the user's approval. D1 design documentation: `docs/design/` with overview, four sections, solution diagrams and screen images; design approved by the user (recorded in issue #154) | D | G-BOOT |
 | **G-INDEX** | Waits for the user's approval. D2 documentation index `docs/index.md` and generated site in CI (issue #156), user approves the structure | D | G-DOC |

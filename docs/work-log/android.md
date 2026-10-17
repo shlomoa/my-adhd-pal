@@ -176,3 +176,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Validation: `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green; no red run, see `docs/test-reports/android-baseline.md` (existing behaviour). `scripts/check-test-cases.sh android final` still lists these ids without a test: TC-A-024 to 027 (retired: duplicates of the Shared lane's TC-S-092 and TC-S-164, decision of the coordinator), (the manual TC-A-088, 103, 109 and 116 are now listed in `ManualCases`).
 - Open items: asked the coordinator how TC-A-024 to 027 should be traced. Manual 060 and 061 (large font, TalkBack, dark theme) belong to the user.
 - Update: TC-A-024..027 retired, covered by TC-S-092 and TC-S-164 (rows deleted from the catalogue).
+
+## 2026-10-17 - G6 flip
+
+- Issue and PR: gate flip after #180 (4.3 settings), #199 (4.4 prompt publishing, the last of them) and #123, #200 (4.6 states) merged.
+- Changed: `docs/plans/gates.json`: G6 to `merged`, `pr` 199; `docs/plans/README.md`: G6 row marked done. The `deferred` list is untouched: 4.1 and 4.2 stay deferred and are not part of the exit criteria.
+- Validation: `scripts/test/test-gates.sh` and `scripts/check-pr-gates.sh` with `Requires: G3,G4` and `Produces: G6`.
+- Open items: manual TC-A-044, 088, 103, 109 and 116 still wait for the user; they are not part of the gate. #66 and #68 stay open until then.
