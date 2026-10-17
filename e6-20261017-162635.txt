@@ -1,0 +1,64 @@
+2026-10-17 16:26:35 e6 result file: e6-20261017-162635.txt
+2026-10-17 16:26:35 == normal : vibrate
+2026-10-17 16:26:35 PROBE vibrate amplitudeControl=true
+2026-10-17 16:26:35 Did you feel it? Answer none, weak or strong.
+2026-10-17 16:26:35 answer: strong
+2026-10-17 16:26:35 Do Not Disturb is now ON (priority).
+2026-10-17 16:26:35 == Do Not Disturb : vibrate
+2026-10-17 16:26:35 PROBE vibrate amplitudeControl=true
+2026-10-17 16:26:35 Did you feel it? Answer none, weak or strong.
+2026-10-17 16:26:35 answer: strong
+2026-10-17 16:26:35 == Do Not Disturb : notify-alarm
+2026-10-17 16:26:36 PROBE notify-alarm posted channel=probe_alarm
+2026-10-17 16:26:36 Did the watch vibrate (none, weak or strong) and did the screen wake with a big "Probe alert" (yes or no)?
+2026-10-17 16:26:36 answer: strong
+2026-10-17 16:26:36 == Do Not Disturb : alarm-clock (fires after about 15 seconds, keep the watch still)
+2026-10-17 16:26:37 PROBE alarm-clock scheduled in 15 s
+2026-10-17 16:26:37 PROBE alarm-clock fired
+2026-10-17 16:26:37 PROBE alert screen shown
+2026-10-17 16:26:37 Did the watch vibrate (none, weak or strong) and did the screen wake with a big "Probe alert" (yes or no)?
+2026-10-17 16:26:37 answer: strong
+2026-10-17 16:26:37 Turn Bedtime mode ON on the watch now.
+2026-10-17 16:26:37 == Bedtime mode : vibrate
+2026-10-17 16:26:37 PROBE vibrate amplitudeControl=true
+2026-10-17 16:26:37 Did you feel it? Answer none, weak or strong.
+2026-10-17 16:26:37 answer: strong
+2026-10-17 16:26:37 == Bedtime mode : notify-alarm
+2026-10-17 16:26:37 PROBE notify-alarm posted channel=probe_alarm
+2026-10-17 16:26:37 Did the watch vibrate (none, weak or strong) and did the screen wake with a big "Probe alert" (yes or no)?
+2026-10-17 16:26:37 answer: strong
+2026-10-17 16:26:37 == Bedtime mode : alarm-clock (fires after about 15 seconds, keep the watch still)
+2026-10-17 16:26:38 PROBE alarm-clock scheduled in 15 s
+2026-10-17 16:26:38 PROBE alarm-clock fired
+2026-10-17 16:26:38 PROBE alert screen shown
+2026-10-17 16:26:38 Did the watch vibrate (none, weak or strong) and did the screen wake with a big "Probe alert" (yes or no)?
+2026-10-17 16:26:38 answer: strong
+2026-10-17 16:26:38 Turn Bedtime mode OFF on the watch now.
+2026-10-17 16:26:38 Turn Theater mode ON on the watch now.
+2026-10-17 16:26:38 == Theater mode : vibrate
+2026-10-17 16:26:38 PROBE vibrate amplitudeControl=true
+2026-10-17 16:26:38 Did you feel it? Answer none, weak or strong.
+2026-10-17 16:26:38 answer: strong
+2026-10-17 16:26:38 == Theater mode : notify-alarm
+2026-10-17 16:26:39 PROBE notify-alarm posted channel=probe_alarm
+2026-10-17 16:26:39 Did the watch vibrate (none, weak or strong) and did the screen wake with a big "Probe alert" (yes or no)?
+2026-10-17 16:26:39 answer: strong
+2026-10-17 16:26:39 == Theater mode : alarm-clock (fires after about 15 seconds, keep the watch still)
+2026-10-17 16:26:40 PROBE alarm-clock scheduled in 15 s
+2026-10-17 16:26:40 PROBE alarm-clock fired
+2026-10-17 16:26:40 PROBE alert screen shown
+2026-10-17 16:26:40 Did the watch vibrate (none, weak or strong) and did the screen wake with a big "Probe alert" (yes or no)?
+2026-10-17 16:26:40 answer: strong
+2026-10-17 16:26:40 Turn Theater mode OFF on the watch now.
+2026-10-17 16:26:40 Set the watch vibration intensity to the LOWEST in the watch settings now.
+2026-10-17 16:26:40 == vibration intensity lowest : vibrate
+2026-10-17 16:26:40 PROBE vibrate amplitudeControl=true
+2026-10-17 16:26:40 Did you feel it? Answer none, weak or strong.
+2026-10-17 16:26:40 answer: strong
+2026-10-17 16:26:40 Set the watch vibration intensity to the HIGHEST in the watch settings now.
+2026-10-17 16:26:40 == vibration intensity highest : vibrate
+2026-10-17 16:26:40 PROBE vibrate amplitudeControl=true
+2026-10-17 16:26:40 Did you feel it? Answer none, weak or strong.
+2026-10-17 16:26:40 answer: strong
+2026-10-17 16:26:40 Put the watch vibration intensity back to your usual value.
+2026-10-17 16:26:40 Do Not Disturb switched off; result file: e6-20261017-162635.txt
