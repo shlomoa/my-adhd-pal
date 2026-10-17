@@ -464,3 +464,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   reading is above the threshold, the highest warranted level, repeats and cap counted in alert time; plus the second open question (pause after "I'm OK"). No code.
 - Validation: docs lint, links and index (documentation only).
 - Open items: the user decides both questions (via the coordinator); then tests first (new catalogue rows) and the `EpisodeEvaluator` change.
+
+## 2026-10-17 - D9: measure only while the app runs (research and proposal)
+
+- Issue and PR: step 6.5 (documentation), branch `claude/watch-live-measure`; decision recorded in the body of issue #55
+- Changed: `docs/plans/biometrics.md` decision D9, a three-line summary at the top, new section 11 (MeasureClient route, foreground service and ongoing activity,
+  permissions, effect on the baseline and on proposal 3a, battery, a probe design, what the user must do); D6 text updated. No code, no tests.
+- Validation: docs lint, links and index (documentation only).
+- Open items: the user confirms the "monitoring" state on the phone, the baseline option (c) and whether the app runs at night; the probe code
+  (`measure-*` commands) follows in a separate debug-only change; TC-W-136 and 137 stay NOT complete.
