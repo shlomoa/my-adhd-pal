@@ -112,7 +112,7 @@ class WatchEventProcessorTest {
             prompts.add(id2, null)
             val failing = object : HistoryRepository {
                 val real = InMemoryHistoryRepository()
-                override fun history(): Flow<List<HistoryEntry>> = real.history()
+                override fun history(type: HistoryType?): Flow<List<HistoryEntry>> = real.history(type)
 
                 override suspend fun store(event: WatchEvent): StoreResult =
                     if (event.id == id2) error("disk full") else real.store(event)
