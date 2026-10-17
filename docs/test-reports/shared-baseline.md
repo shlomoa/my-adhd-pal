@@ -329,3 +329,7 @@ Red commit: `HistoryRepositoryContract` TC-S-160 (level and episode kept, a 1.1 
 ## No absolute heart-rate threshold in the defaults (issue 55 decision, red)
 
 Red commit: `DataStoreSettingsRepositoryTest` TC-S-098 now expects `SettingsDefaults.settings.thresholds` to be empty, no implementation. `./gradlew :phone:testDebugUnitTest --tests '*DataStoreSettingsRepositoryTest*'`: `AssertionError` at `DataStoreSettingsRepositoryTest.kt:65` (the new assertion; the old one, which expected the 150 bpm threshold, was removed in the green commit).
+
+## Script tests after the merge (issue 190, red)
+
+Red commit: `scripts/test/test-post-merge.sh` (TC-S-170 to TC-S-174: no `script-tests` job in `build.yml`, the post-merge workflow, no script test lost, the runner, the `main-red` issue handler with a fake `gh`), no implementation. `scripts/test/test-post-merge.sh`: `FAIL TC-S-170 build.yml has no script-tests job`, `FAIL TC-S-171 post-merge.yml exists`, `FAIL TC-S-173 a failing test makes the runner exit 1 (expected 1, got 127)` (the runner does not exist), `FAIL TC-S-174 red with no open issue creates one labelled main-red`; 14 of the 19 checks fail.
