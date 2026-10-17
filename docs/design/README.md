@@ -19,9 +19,14 @@ a continuous gradient ring from mint and cyan (upper left) through blue to viole
 large, spaced pills with gentle gradients: mint to turquoise for the primary action (dark play or check icon), sunny
 yellow to amber for the second (dark pause icon), lavender to violet for the third (dark forward icon). Headings are bold
 white, button labels and icons are deep midnight navy, supporting text is soft white or pale cool gray, icons sit on the
-left and labels are centered. The two heart-rate alert levels differ by more than color: level 1 shows a heart icon and
-"Your heart rate is high", level 2 an alert triangle and "Still high". The colors and the contrast of the text are defined
-once, in [`source/ui.css`](source/ui.css).
+left and labels are centered. The two heart-rate alert levels differ by more than color: on the phone level 1 shows a heart icon and
+"Your heart rate is high", level 2 an alert triangle and "Still high. Stop for a moment."; on the watch level 1 shows a
+heart icon and "Heart rate high", level 2 an alert triangle and "Still high".
+
+Where the images come from: the phone screens and the overview are rendered from the boards in [`source/`](source/README.md), whose
+stylesheet [`source/ui.css`](source/ui.css) defines the colors and the text contrast once. All nine watch screens are
+artwork supplied by the user in the same look (W4 is the approved reference image, the others were generated in the W4 agent);
+they are not rendered from the boards. All watch images are the round face only, transparent outside the circle.
 
 ## Table of contents
 

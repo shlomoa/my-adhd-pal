@@ -9,11 +9,11 @@ body of the GitHub issue of each step; the documents record what was decided and
 - [Plan](plan.md): architecture, decisions, milestones and step definitions (the authority).
 - [Execution plans and gates](plans/README.md): lanes, gates, stop rule, file ownership and schedule. Lane plans:
   [shared and data](plans/shared.md), [Android](plans/android.md), [watch](plans/watch.md),
-  [documentation](plans/docs.md), and the [biometric alert decisions](plans/biometrics.md).
+  [documentation](plans/docs.md), [validation](plans/validation.md), and the [biometric alert decisions](plans/biometrics.md).
 - [Conventions](conventions.md): issues, labels, work log, debug code and checks every lane follows.
 - [Work log](work-log.md): the format and one log per lane:
   [shared](work-log/shared.md), [Android](work-log/android.md), [watch](work-log/watch.md),
-  [documentation](work-log/docs.md), [planning](work-log/planning.md).
+  [documentation](work-log/docs.md), [validation](work-log/validation.md), [planning](work-log/planning.md).
 
 ## Protocol and data layer
 
@@ -26,7 +26,7 @@ body of the GitHub issue of each step; the documents record what was decided and
 ## Test plans and reports
 
 - Test-case catalogues: [bootstrap](test-plans/bootstrap.md), [shared](test-plans/shared.md),
-  [Android](test-plans/android.md), [watch](test-plans/watch.md), [documentation](test-plans/docs.md).
+  [Android](test-plans/android.md), [watch](test-plans/watch.md), [documentation](test-plans/docs.md), [validation](test-plans/validation.md).
 - Baselines and final reports: [bootstrap baseline](test-reports/bootstrap-baseline.md),
   [bootstrap final](test-reports/bootstrap-final.md), [shared baseline](test-reports/shared-baseline.md),
   [Android baseline](test-reports/android-baseline.md), [watch baseline](test-reports/watch-baseline.md),
@@ -35,7 +35,8 @@ body of the GitHub issue of each step; the documents record what was decided and
   [documentation baseline](test-reports/docs-baseline.md), [documentation final](test-reports/docs-final.md),
   [documentation checks baseline](test-reports/docs-checks-baseline.md),
   [documentation site baseline](test-reports/docs-site-baseline.md),
-  [aurora style baseline](test-reports/docs-style-baseline.md).
+  [aurora style baseline](test-reports/docs-style-baseline.md),
+  [generated watch images baseline](test-reports/docs-fix-baseline.md).
 
 ## Spikes and research
 
