@@ -277,10 +277,10 @@ Every step becomes a GitHub issue labelled with its milestone, starting with its
 ### 6. Biometric alerts
 
 - **6.1 Research:** passive monitoring, permission names for API 36, and whether passive heart rate is supported on the
-  Galaxy Watch6 Classic. **6.2** Agree metrics and thresholds with the user in an issue. **6.3** Permission flow.
-  **6.4** Passive listener service. **6.5** Threshold and cooldown evaluation as pure logic in `:protocol`.
-  **6.6** `/alert/<id>` with the numeric value. **6.7** Debug-only raw biometrics. **6.8** Emulator synthetic data, then
-  the real watch. *Validate each:* unit tests, then manual.
+  Galaxy Watch6 Classic. **6.2** Agree metrics and thresholds with the user in an issue. **6.3** Permission flow (C10).
+  **6.4** Live measure service (C4), replaces "Passive listener service". **6.5** Threshold and cooldown evaluator fed continuously (C5; the evaluator exists).
+  **6.6** `/alert/<id>` with the numeric value (unchanged). **6.7** Debug-only raw biometrics (unchanged). **6.8** Emulator synthetic data, then
+  the real watch, with the E7 latency. *Validate each:* unit tests, then manual.
 
 ### 7. Play readiness
 

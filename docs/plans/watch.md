@@ -15,5 +15,22 @@ Overview, gates, stop rule and ownership: [README](README.md). Step ids are from
 | **3.9** | **Deferred (user, 2026-10-17).** End-to-end round trip (schedule, reminder, ack, phone history): paired emulators first, then real devices with the phone present, away and Bluetooth toggled | results in the work log; user-run | G3, G4, G5, H2 | **G7** |
 | **5.2-5.3** | **Deferred (user, 2026-10-17).** Tile: current reminder, primary action, link state; update triggers | tests where possible; manual | G5 | none |
 | **6.2** | Agree biometric metrics and thresholds with the user in an issue | decision recorded in the issue (a repository document of it is separate and does not block H1) | none (user) | **H1** |
-| **6.3-6.8** | Permission flow; passive listener service; threshold + cooldown evaluator as pure logic in `:protocol` (`alerts/`); `/alert/<id>` with numeric value; debug-only raw biometrics; emulator synthetic data then the real watch | evaluator unit tests red -> green first; raw biometrics never logged in release; manual | H1, G2b, 3.8 | none |
+| **6.3-6.8** | Permission flow (6.3, C10); live measure service (6.4, C4; replaces the passive listener service); threshold + cooldown evaluator as pure logic in `:protocol` (`alerts/`); `/alert/<id>` with numeric value; debug-only raw biometrics; emulator synthetic data then the real watch | evaluator unit tests red -> green first; raw biometrics never logged in release; manual | H1, G2b, 3.8 | none |
 | **W-final (V-last)** | `:wear:check`, all `TC-W-*` PASS, final report, manual checklist | `watch-final.md` via `check-test-cases.sh watch final` | G5, G7, 5.2-5.3, 6.8 | none |
+
+## Live route work (user-approved plan, 2026-10-17)
+
+Experiments: results are recorded in [`biometrics.md`](biometrics.md) section 12.3 and the watch probe checklist, reported by the user; they have no test-case id. Changes: tests first, per the lane rules.
+
+| ID | Type | What | Depends on | Lane |
+|---|---|---|---|---|
+| **E1** | Experiment | Live route, worn: screen on 10 min untouched ("step 25"), dim/always-on 10 min, screen off 10 min; battery drop; notification visible; cause of the 60 s gap | build of #210 installed | user, W |
+| **E2** | Change | Record the E1 result against the user's definition (measured: does the live route meet "continuously" and "immediately", per screen state). No user decision is asked: the definition decides. If it fails, the failing measurement is reported to the user as an item needing attention | E1 | D, W |
+| **E3** | Experiment | Service started from the visible app without the background permission; survives 30 min; effect of Bedtime and battery saver | E1 | user, W |
+| **E4** | Experiment | App stays top app and window: ambient behaviour, screen timeout, keep-screen-on | E1 | user, W |
+| **E5** | Experiment | Steps and activity state on the live route (replaces the passive step probe, biometrics.md section 10) | E2 | user, W |
+| **E6** | Experiment | Do Not Disturb routes (notify-alarm, alarm-clock), Bedtime, Theater, vibration intensity (unchanged, still open) | none | user, W |
+| **E7** | Experiment | End-to-end urgent alert latency, watch to phone: time from high reading to phone alert, repeated; fills the 'alert to phone' row of the latency table | C4, C5 | user, W, A |
+| **C4** | Change | Live measure foreground service (MeasureClient, type health, ongoing notification) replaces the passive listener (6.4); home screen 'Monitoring' as the always-visible top window | E2, E3, E4 | W |
+| **C5** | Change | Evaluator fed continuously by live readings; local response unchanged (EpisodeEvaluator, BaselineTracker stay) | C4 | W |
+| **C10** | Change | Permission flow: drop the background-permission prompt if E3 shows it is not needed; phone onboarding text | E3, C4 | W, A |

@@ -141,6 +141,19 @@ tests use `FakeLink` (two `FakeNode`s), which behaves like DataItems:
 If the hardware spike requires `MessageClient` for urgent alerts, it is added behind this interface; no path, key or model
 changes.
 
+### Urgent alerts and the queue
+
+What the sections above and [`data-layer.md`](data-layer.md) already say, stated for `/alert/<id>`:
+
+- `/alert/<id>` is an urgent item (item catalog). The writer stores it at once and the other node receives it when the link is Nearby, Relayed or Incompatible.
+- Queueing and delivery in order on reconnect applies only while the link is Away or there is No watch app. That is the exception path, not the normal one.
+
+The user's words (2026-10-17), verbatim:
+
+> It is expected that when the app is executed it stays on, it continuously measures pulse and other biometrics (to be discussed) and transmits / receives urgent events immediately.
+>
+> The "batch" [...] is reserved to exceptions: disconnects, phone down, watch down, pairing down, network down, etc.
+
 ## Link states
 
 The phone shows one of five states for the watch link. `LinkStateLogic.derive` in `:protocol` (step 1.5) derives it from
