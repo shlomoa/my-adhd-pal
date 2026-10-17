@@ -164,7 +164,7 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | Id | Kind | Case | Pass criteria |
 |---|---|---|---|
 | TC-S-170 | script | The pull request workflow has no `script-tests` job | `build.yml` keeps `build`, `external-links` and `docs-site` and has no `script-tests` |
-| TC-S-171 | script | The post-merge workflow | `post-merge.yml` runs on `push` to `main` and `workflow_dispatch`, never on pull requests, can write issues, and calls the runner and the issue handler |
-| TC-S-172 | script | No script test is lost | every `scripts/test/test-*.sh` is run by a workflow or by `scripts/ci-post-merge/run-tests.sh` |
+| TC-S-171 | script | Retired (workflow removed, see TC-V-004) | the post-merge workflow existed only briefly; the validation lane runs the tests itself |
+| TC-S-172 | script | No script test is lost | every `scripts/test/test-*.sh` is run by a pull request workflow or by `scripts/ci-post-merge/run-tests.sh` |
 | TC-S-173 | script | The runner | runs every listed test even after a failure, exits 1 on any failure, and writes a report naming the failing script and case (and no passing script) |
-| TC-S-174 | script | The `main-red` issue handler (fake `gh`) | red with no open issue creates one labelled `main-red` with the failing case and the run link; red with an open issue edits it and opens no second one; green closes the open one; green with none does nothing |
+| TC-S-174 | script | Retired (handler removed, see TC-V-005) | lane V opens, updates and closes the `main-red` issue itself with its issue tool |
