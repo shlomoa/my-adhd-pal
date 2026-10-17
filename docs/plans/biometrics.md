@@ -6,10 +6,10 @@ proposal are in the body of the issue (section "Decisions"). **Confirmed by the 
 separate one-line PR. Research notes: [`../research/watch.md`](../research/watch.md) sections 3 to 5. Steps 6.3 to 6.8 in
 [`watch.md`](watch.md) follow once H1 and G2b are merged.
 
-**In short (PROPOSAL, no decision yet):**
-Section 11 explores measuring heart rate only while the watch app is running (a live `MeasureClient` route) instead of the passive background route.
-It could give a reading about every second and alerts within seconds, but this is research: nothing is decided or built.
-Not yet proven on the real watch: readings with the screen dim or off, battery cost, and what the user must do (section 11).
+**In short (D9, 2026-10-17, user decision):**
+heart rate is measured only while the watch app is running, because the user started it; there is no always-on background service.
+That should give a reading about every second and an alert within seconds, instead of the 10-minute batches measured on the passive route.
+Still to prove on the real watch: that readings keep coming with the screen dim or off, the battery cost, and what the user must do (section 11).
 
 Every statement below is marked **Decided** (the user said so), **Verified** (a cited source says so), **Unverified** (not
 confirmed, or secondhand) or **Proposal** (my suggestion, needs the user's yes). Nothing unverified is built before the probe
@@ -24,10 +24,10 @@ on the real watch (section 6).
 | D3 | Threshold | Decided | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. The baseline is the **20th percentile of the hourly lows of the last 7 days** (Decided, section 2); until a baseline exists the threshold is an absolute **110 bpm** (Decided). |
 | D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again; after that, **every 2 minutes** while the rate stays above, at most **6 repeats** per episode (Decided). Details: section 3. |
 | D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. **The phone raises the same kind of alert** (it vibrates and flashes a full-screen alert, not only the watch). The full-screen alert has an **"I'm OK"** button that ends the episode (Decided). Sections 4 and 4a. |
-| D6 | Latency | Decided | Best effort. On the passive route readings arrived in batches of up to about 10 minutes (section 6). A live route (section 11, proposal only) might give seconds; unverified. No maximum delay is promised. |
+| D6 | Latency | Decided | Best effort. On the passive route readings arrived in batches of up to about 10 minutes (section 6). With D9 the expected latency is seconds, unverified until the probe in section 11.5 has run. No maximum delay is promised. |
 | D7 | Permission | Decided, feasibility checked | Requested from the **phone** app (onboarding). Section 5. |
 | D8 | Privacy | Decided | Raw readings are never logged in release builds; raw feed only in `wear/src/debug/`. `/alert` carries the numeric value (already accepted). |
-| D9 | When it measures | **Proposal, not decided** | Measure only while the watch app is running (section 11). Research and options only; the user has not decided. |
+| D9 | When it measures | Decided (2026-10-17) | Heart rate is measured **only while the watch app is running**, started by the user; not as an always-on background service. Consequences and open points: section 11. |
 
 ## 2. The resting baseline (D3)
 
@@ -97,7 +97,7 @@ as it lasts.
 
 ### 3a. PROPOSAL, user decision pending: what a late batch raises
 
-If the live route of section 11 (a proposal, not decided) is adopted, deliveries are expected to be live, one reading at a time, and this proposal would mostly fall away. It stays as the fallback if a probe shows batching while the screen is dim or off.
+With D9 (section 11) deliveries are expected to be live, one reading at a time, so this proposal mostly falls away. It stays as the fallback if the probe in section 11.5 shows batching while the screen is dim or off.
 
 Not decided and not built. The evaluator today (`EpisodeEvaluator`) walks the readings of a delivery one by one, so a batch that holds a long
 high stretch (up to about 10 minutes, section 6) can raise level 1 and level 2 in the same delivery, and the phone would vibrate twice within a
@@ -446,10 +446,10 @@ Threshold (resting + offset), cooldown (5 min), level 2 every 2 min up to 6 repe
 3. With Samsung's automatic workout detection switched on and a detected workout running, `getCurrentExerciseInfoAsync()` from a probe command: does it answer `OTHER_APP_IN_PROGRESS`.
 4. Optional, if steps miss too much: a short foreground accelerometer-variance measurement for the same activities, with the battery drop noted.
 
-## 11. Measuring only while the app runs (D9, research and PROPOSAL, 2026-10-17)
+## 11. Measuring only while the app runs (D9, research and proposal, 2026-10-17)
 
-**Not decided.** The idea (raised by the coordinator, 2026-10-17, not yet confirmed by the user): heart rate is measured **only while the watch app is running**, started
-by the user, not as an always-on background service. This section is research and proposals only; nothing below is decided or built.
+Decided by the user (2026-10-17, via the coordinator): heart rate is measured **only while the watch app is running**, started by the user,
+not as an always-on background service. Nothing below is built. Where something is open it is marked **Proposal**.
 
 ### 11.1 The live route: `MeasureClient`
 
@@ -491,15 +491,15 @@ by the user, not as an always-on background service. This section is research an
 - **What the user must do (Proposal, to be confirmed by the probe):** start the app once from the watch app list; leave the ongoing notification in place; keep the
   watch worn; do not use the watch's "stop" or swipe-away on it; keep Bedtime mode and battery saver off if they stop it. The app shows one big state on its home
   screen: "Monitoring" or "Not monitoring".
-- **When Android kills it:** the service does not restart by itself in a useful way, since in this idea the user starts it. **Proposal:** the watch writes a
+- **When Android kills it:** the service does not restart by itself in a useful way, since D9 says the user starts it. **Proposal:** the watch writes a
   "monitoring" state with its time into `/status/watch` (Shared lane, protocol change) and renews it every few minutes; the phone shows "watch not monitoring" when
   the state is stale or off, so the user learns it stopped. No alert is raised for that on the watch.
 - Effect on permissions (D7, section 5): only the foreground heart-rate permission is needed, so the second "background" prompt disappears. The notification
   permission (`POST_NOTIFICATIONS`, API 33 and up) is probably needed for the ongoing notification to show: Unverified.
 
-### 11.3 What would change in the decided design
+### 11.3 What changes in the decided design
 
-| Item | Before (passive route) | If adopted |
+| Item | Before (passive route) | With D9 |
 |---|---|---|
 | Latency | Batches of up to about 10 minutes (section 6) | Expected seconds (Unverified until probed); batching in ambient mode possible |
 | Late-batch proposal 3a | Needed | Mostly falls away; kept as fallback |
@@ -507,7 +507,7 @@ by the user, not as an always-on background service. This section is research an
 | Baseline (20th percentile of hourly lows, 7 days, after 24 values) | Accumulates around the clock | Accumulates **only while the app runs** |
 | Fallback 110 bpm | Until 24 hourly values | Until 24 hourly values exist; longer in calendar time |
 
-**The baseline if adopted.** An hourly value needs at least 3 consecutive samples in a clock hour. So the baseline is known once the app has run, with the watch worn,
+**The baseline under D9.** An hourly value needs at least 3 consecutive samples in a clock hour. So the baseline is known once the app has run, with the watch worn,
 in 24 distinct clock hours within the last 7 days. Running 8 hours a day takes three days; running 2 hours a day takes twelve days, and the 7-day window then
 never holds 24 values (at most 14), so **the 110 bpm fallback would stay forever**. Daily use must therefore cover at least 4 hours a day for the baseline to be
 reached at all.
@@ -541,7 +541,6 @@ states, or the exact behaviour per state is recorded; the service survives 30 mi
 
 ### 11.6 What I need from the user
 
-0. First: whether this idea is wanted at all (the decision is the user's; the coordinator is asking).
 1. Confirm the proposal of 11.2 (the "monitoring" state shown on the phone) and of 11.3 (option c for the baseline), or choose another option.
 2. Run the 30-minute probe of 11.5 when its code is merged.
 3. State whether the app should also run at night.
