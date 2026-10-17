@@ -305,6 +305,21 @@ FAIL TC-W-174 a full E4 run exits 0 (expected 0, got 64)
 FAIL TC-W-176 the result is published as e4-results/<stamp> (expected 0, got 1)
 ```
 
+## Probe test harness guard (TC-W-179; `scripts/probe/test-harness-guard.sh`)
+
+Since #244 the probe run scripts publish their result file by default, and `test-run-e1.sh` and `test-run-e3-e6.sh` ran them inside the real checkout, so simulated results were pushed to the real
+origin (39 branches `e1-`, `e3-`, `e6-results/` on 2026-10-17, all simulated, listed in the body of issue #228). The tests now run a copy of the scripts in a throwaway repository with an
+unreachable origin (`scripts/probe/test-lib.sh`, `make_repo`) and pass `-SkipPush`; the guard test fails when a test runs a script outside such a repository. Red commit: the first commit of branch
+`claude/watch-test-harness` (guard test only). Command: `scripts/probe/test-harness-guard.sh`. Fails before the fix:
+
+```
+FAIL TC-W-179 every test that runs a run script runs it inside a throwaway repository (expected 0, got 1)
+runs outside a throwaway repository: test-run-e1.sh, test-run-e3-e6.sh
+FAIL TC-W-179 the shared helper make_repo exists (expected 0, got 2)
+```
+
+After the fix the three suites pass (38, 32 and 17 checks) and the number of `e*-results/` branches on the real origin is unchanged (39 before and after).
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

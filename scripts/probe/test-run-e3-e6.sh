@@ -9,6 +9,7 @@ PWSH="${PWSH:-pwsh}"
 fail=0
 check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi; }
 E3="$here/run-e3.ps1"; E6="$here/run-e6.ps1"
+. "$here/test-lib.sh"
 
 for f in "$E3" "$E6"; do
   SCRIPT_FILE="$f" "$PWSH" -NoProfile -Command '$e=$null; [System.Management.Automation.Language.Parser]::ParseFile($env:SCRIPT_FILE,[ref]$null,[ref]$e) | Out-Null; if ($e) { $e | ForEach-Object { $_.ToString() }; exit 1 }' >/dev/null 2>&1
@@ -17,10 +18,11 @@ done
 
 # run SCRIPT [extra args]  -> sets $rc, $tmp ($tmp/state = simulation, $tmp/out = result folder); answers come from stdin
 run() {
-  local script="$1"; shift
-  tmp="$(mktemp -d)"; mkdir -p "$tmp/state" "$tmp/out"
-  yes strong | head -80 | FAKE_DIR="$tmp/state" PATH="$here/fake:$PATH" timeout "${RUN_TIMEOUT:-180}" "$PWSH" -NoProfile -File "$script" \
-    -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -ReportWaitSec 0.2 "$@" > "$tmp/stdout" 2>&1
+  local script
+  script="$(basename "$1")"; shift
+  make_repo
+  yes strong | head -80 | FAKE_DIR="$tmp/state" PATH="$tmp/repo/scripts/probe/fake:$PATH" timeout "${RUN_TIMEOUT:-180}" "$PWSH" -NoProfile -File "$tmp/repo/scripts/probe/$script" \
+    -SkipPush -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -ReportWaitSec 0.2 "$@" > "$tmp/stdout" 2>&1
   rc=${PIPESTATUS[2]}
   result="$(ls "$tmp/out"/e[36]-*.txt 2>/dev/null | head -1)"
 }

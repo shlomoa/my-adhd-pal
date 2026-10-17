@@ -9,6 +9,7 @@ PWSH="${PWSH:-pwsh}"
 fail=0
 check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi; }
 SCRIPT="$here/run-e1.ps1"
+. "$here/test-lib.sh"
 
 SCRIPT_FILE="$SCRIPT" "$PWSH" -NoProfile -Command '$e=$null; [System.Management.Automation.Language.Parser]::ParseFile($env:SCRIPT_FILE,[ref]$null,[ref]$e) | Out-Null; if ($e) { $e | ForEach-Object { $_.ToString() }; exit 1 }' >/dev/null 2>&1
 check "TC-W-153 run-e1.ps1 parses without errors" 0 $?
@@ -16,9 +17,9 @@ check "TC-W-153 run-e1.ps1 parses without errors" 0 $?
 # run NAME [extra script args]  -> sets $rc, $tmp ($tmp/state = simulation, $tmp/out = result folder)
 run() {
   shift
-  tmp="$(mktemp -d)"; mkdir -p "$tmp/state" "$tmp/out"
-  FAKE_DIR="$tmp/state" PATH="$here/fake:$PATH" timeout "${RUN_TIMEOUT:-120}" "$PWSH" -NoProfile -File "$SCRIPT" \
-    -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -PhaseSec 1 -ReportWaitSec 0.2 -AvailableTimeoutSec 4 -Unattended "$@" > "$tmp/stdout" 2>&1 < /dev/null
+  make_repo
+  FAKE_DIR="$tmp/state" PATH="$tmp/repo/scripts/probe/fake:$PATH" timeout "${RUN_TIMEOUT:-120}" "$PWSH" -NoProfile -File "$tmp/repo/scripts/probe/run-e1.ps1" \
+    -SkipPush -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -PhaseSec 1 -ReportWaitSec 0.2 -AvailableTimeoutSec 4 -Unattended "$@" > "$tmp/stdout" 2>&1 < /dev/null
   rc=$?
   result="$(ls "$tmp/out"/e1-*.txt 2>/dev/null | head -1)"
 }
@@ -85,8 +86,8 @@ FAKE_FAIL=nonotif run nonotif ""
 grep -q 'notification visible: False' "$result"; check "TC-W-154 a missing notification is reported as False" 0 $?
 
 # without -Unattended the script asks about the Always-on display before phase B and phase C
-tmp="$(mktemp -d)"; mkdir -p "$tmp/state" "$tmp/out"
-printf '\n\n' | FAKE_DIR="$tmp/state" PATH="$here/fake:$PATH" timeout 120 "$PWSH" -NoProfile -File "$SCRIPT" -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -PhaseSec 1 -ReportWaitSec 0.2 -AvailableTimeoutSec 4 > "$tmp/stdout" 2>&1
+make_repo
+printf '\n\n' | FAKE_DIR="$tmp/state" PATH="$tmp/repo/scripts/probe/fake:$PATH" timeout 120 "$PWSH" -NoProfile -File "$tmp/repo/scripts/probe/run-e1.ps1" -SkipPush -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -PhaseSec 1 -ReportWaitSec 0.2 -AvailableTimeoutSec 4 > "$tmp/stdout" 2>&1
 [ "$(grep -ci 'Always-on display' "$tmp/stdout")" -ge 2 ]; check "TC-W-158 the script asks the user about the Always-on display twice (on before B, off before C)" 0 $?
 
 # the documentation of the script states what the simulation cannot prove
