@@ -68,14 +68,41 @@ adb shell am broadcast -n $P --es cmd vibrate
 
 | # | State | Felt / strength |
 |---|---|---|
-| a | Normal | |
-| b | Do Not Disturb on | |
+| a | Normal | felt, between weak and strong (reported) |
+| b | Do Not Disturb on | nothing (reported) |
 | c | Bedtime mode on | |
 | d | Theater mode on | |
 | e | Normal, watch vibration intensity set to the lowest in the watch settings | |
 | f | Normal, watch vibration intensity set to the highest | |
 
 Also report the `PROBE vibrate amplitudeControl=...` line (`adb logcat -d -s PROBE:I`). Put every setting back afterwards.
+
+## 4b. Can anything get through Do Not Disturb? (10 minutes)
+
+Two routes to try with Do Not Disturb on (`adb shell cmd notification set_dnd priority`; remember to turn it off afterwards with
+`adb shell cmd notification set_dnd off`). First allow notifications once:
+
+```powershell
+adb shell pm grant com.shlomoa.myadhdpal android.permission.POST_NOTIFICATIONS
+```
+
+Route 1, an alarm notification that asks to bypass Do Not Disturb with a full-screen alert. Run it, say whether the watch vibrated and the
+screen woke with a big "Probe alert", and copy the `PROBE notify-alarm posted ...` line:
+
+```powershell
+adb shell am broadcast -n $P --es cmd notify-alarm; Start-Sleep 5; adb logcat -d -s PROBE:I
+```
+
+Then on the watch open Settings and look for the Do Not Disturb exceptions or "Override Do Not Disturb for" and allow the app "ADHD Pal"
+(say if no such setting exists), and run the same command again.
+
+Route 2, an alarm clock that fires after 15 seconds (keep the watch still and wait):
+
+```powershell
+adb shell am broadcast -n $P --es cmd alarm-clock; Start-Sleep 25; adb logcat -d -s PROBE:I
+```
+
+Report for each: felt or not, strength, whether the screen woke, and the `PROBE` lines (`alarm-clock fired`, `alert screen shown`).
 
 ## 5. Stop the probe
 
