@@ -29,7 +29,7 @@ class ReminderActionHandlerTest {
     private var now = Instant.parse("2026-10-14T08:30:05Z")
     private val occurrence = Instant.parse("2026-10-14T08:30:00Z")
     private val water = Reminder("water", "Drink water", 8 * 60 + 30, listOf(1, 2, 3, 4, 5, 6, 7))
-    private val schedule = Schedule(1, listOf(water), emptyList(), SnoozeSettings(10, 2), AlertSettings(emptyList(), 0))
+    private val schedule = Schedule(1, listOf(water), emptyList(), SnoozeSettings(10, 2), AlertSettings(0))
     private val alarms = FakeAlarmPort()
     private val snoozes = InMemorySnoozeStore()
     private val scheduler = ReminderScheduler({ schedule }, alarms, snoozes, { now }, ZoneId.of("UTC"))

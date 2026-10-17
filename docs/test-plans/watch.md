@@ -121,7 +121,7 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-128 | 6.5 | unit | At most 6 level 2 alerts per episode | the 7th is not raised |
 | TC-W-129 | 6.5 | unit | A reading at or below the threshold ends the episode; the next breach is a new episode at level 1 | new id, level 1 |
 | TC-W-130 | 6.5 | unit | `endEpisode` with the active id ends the episode (the next breach is level 1 of a new episode); an unknown or finished id is ignored | true then false; no effect |
-| TC-W-138 | 6.5 | unit | Absolute thresholds in the schedule settings are ignored: only baseline + offset (initial value until a baseline exists) counts | alert threshold is the relative one |
+| TC-W-138 | 6.5 | unit | The alert settings carry no absolute threshold: only baseline + offset (initial value until a baseline exists) counts | alert threshold is the relative one |
 | TC-W-131 | 6.5 | unit | Batched and out-of-order readings are evaluated in timestamp order | same alerts as sorted |
 | TC-W-086 | 6.5 | unit | The hourly low of an hour is the lowest median over any 3 consecutive samples of that hour | equals the expected value for a fixed sample series |
 | TC-W-087 | 6.5 | unit | An hour with fewer than 3 samples gives no hourly low | no value for that hour |

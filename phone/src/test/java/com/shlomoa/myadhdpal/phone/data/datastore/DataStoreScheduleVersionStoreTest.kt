@@ -40,7 +40,7 @@ class DataStoreScheduleVersionStoreTest {
         listOf(Reminder("r1", "Meds", 8 * 60, listOf(1, 2, 3))),
         emptyList(),
         SnoozeSettings(10, 3),
-        AlertSettings(emptyList(), 600)
+        AlertSettings(600)
     )
 
     @Test

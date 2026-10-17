@@ -32,7 +32,7 @@ class ScheduleReceiverTest {
         reminders.toList(),
         emptyList(),
         SnoozeSettings(minutes = 10, maxCount = 3),
-        AlertSettings(emptyList(), cooldownSeconds = 0)
+        AlertSettings(cooldownSeconds = 0)
     )
 
     private val standUp = Reminder("r1", "Stand up", minuteOfDay = 9 * 60, days = listOf(1, 2, 3, 4, 5, 6, 7))

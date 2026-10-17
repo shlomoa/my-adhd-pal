@@ -51,7 +51,8 @@ abstract class ScheduleRepositoryContract {
         assertEquals(1L, sent.version)
         assertEquals(listOf("Take medication"), sent.reminders.map { it.title })
         val settings: AppSettings = rig.settings.settings.first()
-        assertEquals(settings.thresholds, sent.alerts.thresholds)
+        assertEquals(settings.offsetBpm, sent.alerts.offsetBpm)
+        assertEquals(settings.initialBpm, sent.alerts.initialBpm)
         assertEquals(settings.cooldownSeconds, sent.alerts.cooldownSeconds)
         assertEquals(1L, rig.repo.lastPublishedVersion.first())
     }

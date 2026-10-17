@@ -22,7 +22,7 @@ class TileModelTest {
     private val link = LinkView(LinkState.RELAYED, Instant.parse("2026-10-14T07:45:00Z"))
 
     private fun schedule(vararg reminders: Reminder) =
-        Schedule(1, reminders.toList(), emptyList(), SnoozeSettings(10, 2), AlertSettings(emptyList(), 0))
+        Schedule(1, reminders.toList(), emptyList(), SnoozeSettings(10, 2), AlertSettings(0))
 
     @Test
     fun `TC-W-060 the tile shows the next reminder with its title and time`() {

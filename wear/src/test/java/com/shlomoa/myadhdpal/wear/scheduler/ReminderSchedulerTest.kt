@@ -30,7 +30,7 @@ class ReminderSchedulerTest {
     private val snoozes = InMemorySnoozeStore()
 
     private fun schedule(version: Long, vararg reminders: Reminder, snooze: SnoozeSettings = SnoozeSettings(10, 2)) =
-        Schedule(version, reminders.toList(), emptyList(), snooze, AlertSettings(emptyList(), 0))
+        Schedule(version, reminders.toList(), emptyList(), snooze, AlertSettings(0))
 
     private fun scheduler(store: SnoozeStore = snoozes) = ReminderScheduler({ schedule }, alarms, store, { now }, zone)
 

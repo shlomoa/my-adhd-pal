@@ -53,7 +53,7 @@ Pass criterion: every case PASS, zero skipped (`docs/test-reports/android-final.
 | TC-A-024 | Builder lists reminders in time order | Unit | Sorted by next occurrence with a fixed clock |
 | TC-A-025 | Publish sends a `/schedule` item | Unit | Fake data source receives one schedule |
 | TC-A-026 | Published version is higher than the previous | Unit | Monotonic version, also after restart |
-| TC-A-027 | Published schedule includes thresholds and cooldown | Unit | Settings values appear in the published model |
+| TC-A-027 | Published schedule includes the cooldown, offset and initial threshold | Unit | Settings values appear in the published model |
 | TC-A-028 | Publish failure is reported and not counted as sent | Unit | Error state; version unchanged |
 | TC-A-029 | Publishing an unchanged schedule is a no-op | Unit | No new item; user is told nothing changed |
 | TC-A-030 | Schedule round trip to the watch | Manual | Reminder created on the phone fires on the watch |
@@ -62,9 +62,9 @@ Pass criterion: every case PASS, zero skipped (`docs/test-reports/android-final.
 
 | Id | Case | How | Pass criteria |
 |---|---|---|---|
-| TC-A-031 | Defaults shown on first run | Unit | Default thresholds, cooldown and cadence |
-| TC-A-032 | Change an alert threshold | Unit | Stored through the settings repository |
-| TC-A-033 | Threshold out of range is rejected | Unit | Validation error; old value kept |
+| TC-A-031 | Defaults shown on first run | Unit | Default cooldown, cadence and alert offset |
+| TC-A-032 | Change the alert offset | Unit | Stored through the settings repository |
+| TC-A-033 | Offset out of range is rejected | Unit | Validation error; old value kept |
 | TC-A-034 | Change the alert cooldown | Unit | Stored |
 | TC-A-035 | Cooldown out of range is rejected | Unit | Validation error |
 | TC-A-036 | Change the reminder cadence | Unit | Stored |
