@@ -156,3 +156,13 @@ e: ScheduleSyncViewModelTest.kt:34:48 Unresolved reference 'SyncStatus'.
 ```
 
 TC-A-122 to TC-A-127 are red until this step lands.
+
+## 4.4 Ask the watch a question (prompt publishing)
+
+Red commit: the first commit of the 4.4 PR (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*PromptCompose*' --tests '*PromptWiring*'`. Exit 1, the test sources do not compile:
+
+```
+e: PromptComposeViewModelTest.kt:27:30 Unresolved reference 'PromptComposeViewModel'.
+```
+
+TC-A-128 to TC-A-135 are red until this step lands.
