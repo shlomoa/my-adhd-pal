@@ -606,6 +606,6 @@ and whether the "Probe: measuring heart rate" notification is visible (the user 
 1. The live route in a foreground service is the candidate that meets the definition; prove it with the live probe (checklist step 6): screen dim, screen off, 30 minutes, battery,
    the notification, the 60 s gap.
 2. Until the route is decided, nothing is built on the passive background route.
-3. Open decisions for the user (issue #55, D9): show a "monitoring" state of the watch on the phone; how the baseline is kept when the app is not running; whether the app also
+3. Deferred, low priority (notes only, user, 2026-10-17): other biometrics, and the "monitoring" status item. Open decisions for the user (issue #55, D9): show a "monitoring" state of the watch on the phone; how the baseline is kept when the app is not running; whether the app also
    runs at night.
 4. The Watch, Android and Shared lanes are stopped by the user until the route is decided; their open pull requests are not merged.
