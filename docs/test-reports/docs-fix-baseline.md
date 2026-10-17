@@ -20,3 +20,12 @@ images: W8 is supplied artwork too" (tests and catalogue only):
 FAIL TC-D-034 images from boards were rendered from the current sources; supplied artwork is listed as supplied (render manifest)
 FAIL TC-D-039 no board is left for supplied artwork, and the source README says which images are supplied
 ```
+
+Cleanup rule (coordinator, standing rule of the user): what a change makes unused is deleted in the same PR. The watch rules of `ui.css`, the
+icons of the removed W4 board and the leftovers of the canvas stylesheet were unused; TC-D-041 guards it. Red commit: the commit "Design
+images: TC-D-041, no dead style rules" (tests and catalogue only):
+
+```
+  unused class in ui.css: .a1 .a2 .accent .d-away .d-none .d-relay .d-upd .danger .err .i-forward .i-pause .i-play .lav .n .p .ring .s .sun .tile .tiles .w .warm .wb .wf .wide .wl .wrow (one line each)
+FAIL TC-D-041 every class defined in ui.css is used by a board (no dead style rules)
+```
