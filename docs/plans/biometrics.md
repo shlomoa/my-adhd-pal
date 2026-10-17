@@ -230,8 +230,8 @@ A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
 1. `getCapabilitiesAsync()` reports passive `HEART_RATE_BPM`.
 2. Register a passive listener; record arrival times and sample counts with the screen on, off and while the watch sits on a
    desk, for at least 24 hours (done as far as needed: the results below show the passive route cannot give "immediately"; the live route replaces it, section 11). This gives the measured latency (D6) and shows whether the 24-hourly-values baseline in section 2
-   is reachable. If readings arrive only every several minutes, or not at all in the background, the user decides whether
-   biometric alerts are still worth building (Samsung may restrict third-party background heart rate:
+   is reachable. Result: readings arrive about every 10 minutes (section 12.3), which fails "immediately"; the live route is used instead
+   (Samsung may restrict third-party background heart rate:
    [forum thread](https://forum.developer.samsung.com/t/read-heart-rate-every-5-minutes-in-background-service-on-wear-os/34328),
    secondhand).
 3. The vibration/DND/Bedtime/intensity checks of section 4, and the remote permission flow of section 5.
@@ -319,7 +319,7 @@ repeats is approved".
 - Cap of **6 level-2 repeats** per episode: **Decided** (section 3).
 - **"I'm OK" button** that ends an episode early, on the watch and the phone: **Decided** (sections 3 and 4a).
 
-**Nothing is open.** This is the user's confirmed document for step 6.2 (confirmed 2026-10-16). The remaining "Proposal" marks in
+This was the user's confirmed document for step 6.2 (confirmed 2026-10-16). Section 11 stays research and proposal until E2 is recorded. The remaining "Proposal" marks in
 section 4 (exact vibration patterns, screen and sound details) are implementation details that tests in 6.6 pin down, not
 questions for the user. The one-line PR that flips H1 follows.
 
