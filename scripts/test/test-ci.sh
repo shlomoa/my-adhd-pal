@@ -25,7 +25,7 @@ has '^  build:' "$wf" && has 'run: \./gradlew check assembleDebug' "$wf"; check 
 has '^  external-links:' "$wf" && has 'run: \./gradlew checkExternalLinks' "$wf"; check "TC-S-018 external-links job runs ./gradlew checkExternalLinks" 0 $?
 ! has 'run: .*(markdownlint|remark|ktlint|detekt|spotless)' "$wf"; check "TC-S-018 workflow carries no tool list" 0 $?
 
-# TC-S-018 the watch lane debug-separation script runs after the build; the other lane scripts run after each merge (post-merge.yml)
+# TC-S-018 the watch lane debug-separation script runs after the build; the other lane scripts run after each merge, run by the validation lane
 has 'run: wear/src/test/scripts/test-debug-separation.sh' "$wf"; check "TC-S-018 build job runs the watch debug-separation script" 0 $?
 
 # TC-S-019 the external job never blocks: failures are tolerated and turned into a warning annotation
