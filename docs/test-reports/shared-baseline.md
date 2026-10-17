@@ -345,3 +345,7 @@ Red commit: `PromptCleanerTest` (TC-S-190, TC-S-191), `WatchEventProcessorTest` 
 ## Deferred steps in the gate graph (wave 0 row C3, red)
 
 Red commit: `scripts/test/test-gates.sh` (TC-S-183: a `deferred` array in `gates.json` with step, gate and reason; the seven steps; G5, G6 and G7 deferrals; no requirement changes), no implementation. `scripts/test/test-gates.sh`: `FAIL TC-S-183 gates.json has a deferred array`, `FAIL ... G6 defers 4.1 and 4.2 only, so 4.3, 4.4 and 4.6 can close it (expected '4.1,4.2', got '')`; 6 checks fail.
+
+## Gates for the live route (wave 0 row C3, issue 223, red)
+
+Red commit: `scripts/test/test-gates.sh` (TC-S-184: gates `G-E2` and `G-LIVE` with their owners, requirements and open status, the deferred list unchanged), no implementation. `scripts/test/test-gates.sh`: `FAIL TC-S-143 TC-S-184 G-E2 (live route verified against the user's definition) requires G5 and H2 (expected 'G5,H2', got '')` and the same for owner, status and `G-LIVE`; 6 checks fail.

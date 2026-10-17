@@ -188,3 +188,9 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | Id | Kind | Case | Pass criteria |
 |---|---|---|---|
 | TC-S-183 | script | `gates.json` lists the deferred steps | a top-level `deferred` array of `{step, gate, reason}`; steps 3.3 and 3.4 (G5), 4.1 and 4.2 (G6), 3.9 (G7), 5.2 and 5.3 (no gate); 4.3, 4.4 and 4.6 are not deferred, so G6 can close on them; no gate's `requires` changes (the README table stays equal to `gates.json`) |
+
+## Gates for the live route (wave 0, row C3, issue 223)
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-S-184 | script | `gates.json` has the gates `G-E2` (live route verified against the user's definition, issue 229) and `G-LIVE` (live measure service, 6.4, issue 57) | `G-E2` is owned by D + W, requires G5 and H2, is open; `G-LIVE` is owned by W, requires G-E2 and G5, is open; the deferred list is unchanged; the README table has a row for each (checked by the existing README case) |
