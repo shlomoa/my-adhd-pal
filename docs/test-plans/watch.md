@@ -150,6 +150,14 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-157 | 6.4 | script | A watch on its charger is refused (the battery drop would be hidden) unless `-AllowCharging` | exit code, no start |
 | TC-W-158 | 6.4 | script | Without `-Unattended` the script asks about the Always-on display before phase B and before phase C | prompt text twice |
 | TC-W-159 | 6.4 | script | The script header says what is untested on the watch | text |
+| TC-W-160 | 6.4 | script | `scripts/probe/run-e3.ps1` and `run-e6.ps1` parse | PowerShell parser, no errors |
+| TC-W-161 | 6.4 | script | A full E3 run against a simulated adb: background permission revoked and never granted, screen timeout untouched, seven reports (30-minute block, Bedtime, battery saver) each after adb connect and logcat -c, service-running and readings-grew lines, battery before and after, one result file | order of the adb calls, content of the result file |
+| TC-W-162 | 6.4 | script | A service that disappears or whose readings stop growing is a result in the file (running False, grew False), not a script failure | result file, exit 0 |
+| TC-W-163 | 6.4 | script | E3: a service that never reports AVAILABLE fails the run and is stopped; a watch on its charger is refused | exit code, call log |
+| TC-W-164 | 6.4 | script | Without `-Unattended` E3 asks the user to turn Bedtime and battery saver on and off | prompt text |
+| TC-W-165 | 6.6 | script | A full E6 run: vibrate in six states, both Do Not Disturb routes under Do Not Disturb, Bedtime and Theater, Do Not Disturb set and switched off again, the user's answers and the PROBE lines in one result file | call log, result file |
+| TC-W-166 | 6.6 | script | E6 asks the user to set Theater mode and the vibration intensity | prompt text |
+| TC-W-167 | 6.4 | script | The E3 and E6 script headers say what is untested on the watch | text |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
