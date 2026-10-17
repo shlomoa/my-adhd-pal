@@ -101,7 +101,7 @@ The scripts are covered by the 19 cases in [`../test-plans/bootstrap.md`](../tes
 | A | `phone/src/**/ui/**`, `phone/src/main/AndroidManifest.xml`, DI wiring, `docs/phone.md`, final `README.md` |
 | W | `wear/src/**`, `wear/build.gradle.kts` (after G0), `docs/watch.md`, `protocol/src/**/alerts/**` (6.5 only) |
 | D | `docs/design/**`, `docs/plans/docs.md`, `docs/test-plans/docs.md`, `docs/test-reports/docs-*.md`, `docs/work-log/docs.md` |
-| V | `.github/workflows/post-merge.yml`, `scripts/ci-post-merge/**`, `docs/plans/validation.md`, `docs/test-plans/validation.md`, `docs/test-reports/validation-*.md`, `docs/work-log/validation.md` |
+| V | `scripts/ci-post-merge/**`, `docs/plans/validation.md`, `docs/test-plans/validation.md`, `docs/test-reports/validation-*.md`, `docs/work-log/validation.md` |
 | each | own `docs/test-plans/<lane>.md`, `docs/test-reports/<lane>-*.md`, own `docs/work-log/<lane>.md`; catalog additions under a `# <lane>` comment in `gradle/libs.versions.toml` |
 
 Before G0, A and W touch no build file. Branches: `claude/shared-*`, `claude/android-*`, `claude/watch-*`, `claude/docs-*`; each thread
