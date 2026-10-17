@@ -181,7 +181,8 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-195 | android | `PublishedPrompts` contract (in memory and DataStore) | add, list, remove, replace; the DataStore version survives a new store on the same file |
 | TC-S-196 | script | No fixed `/tmp` file names in scripts | no script under `scripts/` writes a file with a fixed name in `/tmp` or `$TMPDIR` (a second run on the machine would share it); `mktemp` is used |
 | TC-S-197 | script | Script fixtures leave no directory behind | after `test-checks.sh` removed its fixtures, `wear/src`, `phone/src` and `protocol/src` hold no empty directory that was not there before |
-| TC-S-198 | script | The TC-S-017 check starts on a fresh Gradle daemon | `test-checks.sh` runs `./gradlew --stop` on the line before `gradle check --rerun-tasks` (issue 205) |
+| TC-S-198 | script | The TC-S-017 check runs on a fresh Gradle JVM | `test-checks.sh` runs `gradle check --rerun-tasks` with `--no-daemon` (issue 205; replaces the `--stop` of #218, issue 237) |
+| TC-S-199 | script | No script stops the Gradle daemons | no line of `scripts/**/*.sh` runs `gradlew --stop`: it ends every daemon of the user, including those building for the other post-merge groups (issue 237) |
 
 ## Deferred steps in the gate graph (wave 0, row C3)
 
