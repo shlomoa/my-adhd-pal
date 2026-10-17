@@ -1,8 +1,10 @@
 # ADHD Pal: UI/UX design (proposed design)
 
-Status: **proposed design**, for the user's approval. Until the user approves it (recorded in
-[issue #154](https://github.com/shlomoa/my-adhd-pal/issues/154)) it is a proposal, not the plan-on-record. Once agreed,
-these screens become the contract for the screen steps of [`../plan.md`](../plan.md): 2.6, 3.2-3.7, 4.1-4.6, 5.2 and H1.
+Status: **proposed design**, for the user's approval. The visual style (aurora, below) is approved as is by the user
+([issue #164](https://github.com/shlomoa/my-adhd-pal/issues/164), 2026-10-17). The design document itself (screens, flows and
+sections) and the two open design points below still wait for the user's approval, recorded in
+[issue #154](https://github.com/shlomoa/my-adhd-pal/issues/154); until then it is a proposal, not the plan-on-record. Once
+agreed, these screens become the contract for the screen steps of [`../plan.md`](../plan.md): 2.6, 3.2-3.7, 4.1-4.6, 5.2 and H1.
 
 The designs come from the design canvas
 [ADHD Pal screen designs](https://claude.ai/artifact/MREz2fe1cVjhLqmoRtACPV): 13 phone screens (P1-P13) and 9 watch
@@ -12,7 +14,7 @@ screens (W1-W9). The images are in [`images/`](images) and their sources in [`so
 
 ## Style: aurora
 
-The proposed design has one visual language on the phone and on the watch, taken from the approved reference image of
+The proposed design has one visual language on the phone and on the watch, approved as is by the user (issue #164) and taken from the approved reference image of
 W4 ([Watch main flow](watch-main-flow.md)). The background is deep midnight blue with smooth, flowing aurora light
 (teal, cobalt, violet, a little magenta) near the edges, kept dark and quiet behind the text. The watch face is round with
 a continuous gradient ring from mint and cyan (upper left) through blue to violet and magenta (lower right). Buttons are
