@@ -1,0 +1,8 @@
+2026-10-17 16:25:06 e3 result file: e3-20261017-162506.txt
+2026-10-17 16:25:07 battery before: 68
+2026-10-17 16:25:08 PROBE measure capabilities heartRateMeasure=true
+2026-10-17 16:25:08 permission: android.permission.health.READ_HEART_RATE: granted=true
+2026-10-17 16:25:08 permission: android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND: granted=false
+2026-10-17 16:25:12 FAILED: the service did not report AVAILABLE within 4 s (is the watch worn, is the permission granted?)
+2026-10-17 16:25:12 battery after: 67
+2026-10-17 16:25:12 result file: e3-20261017-162506.txt
