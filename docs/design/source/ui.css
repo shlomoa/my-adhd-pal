@@ -4,7 +4,6 @@
   --text:#FFFFFF;--text-soft:#C9D3EE;--ink:#0A1038;--accent:#5CF2C8;
   --mint-1:#5BF5B4;--mint-2:#4FE0E4;--sun-1:#FFE45C;--sun-2:#FFA52E;--lav-1:#D2B0FF;--lav-2:#9A5BFF;
   --alert1-bg:#2A1766;--alert2-bg:#7A1048;
-  --ring:linear-gradient(135deg,#5CFFD6 0%,#3E9BFF 45%,#8A4DFF 75%,#E04DFF 100%);
   --mint:linear-gradient(90deg,var(--mint-1),var(--mint-2));
   --sun:linear-gradient(180deg,var(--sun-1),var(--sun-2));
   --lav:linear-gradient(180deg,var(--lav-1),var(--lav-2));
@@ -30,9 +29,6 @@ button{font:inherit;color:inherit}
 .i-update{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v10M8 10l4 4 4-4M5 20h14'/%3E%3C/svg%3E")}
 .i-clock{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E")}
 .i-nowatch{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='6' y='6' width='12' height='12' rx='3'/%3E%3Cpath d='M9 10l6 6M15 10l-6 6'/%3E%3C/svg%3E")}
-.i-play{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 4.500v15a1 1 0 0 0 1.500.9l12-7.500a1 1 0 0 0 0-1.700l-12-7.500A1 1 0 0 0 7 4.500z' fill='black'/%3E%3C/svg%3E")}
-.i-pause{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5.500' y='4' width='4.500' height='16' rx='1.500' fill='black'/%3E%3Crect x='14' y='4' width='4.500' height='16' rx='1.500' fill='black'/%3E%3C/svg%3E")}
-.i-forward{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5.500v13a1 1 0 0 0 1.500.9l8-6.500a1 1 0 0 0 0-1.600l-8-6.500A1 1 0 0 0 3 5.500zM12 5.500v13a1 1 0 0 0 1.500.9l8-6.500a1 1 0 0 0 0-1.600l-8-6.500A1 1 0 0 0 12 5.500z' fill='black'/%3E%3C/svg%3E")}
 
 /* phone */
 .ph{width:390px;height:844px;display:flex;flex-direction:column;overflow:hidden;color:var(--text);
@@ -61,13 +57,12 @@ button{font:inherit;color:inherit}
 .field{min-height:56px;border:1.5px solid #5566B8;border-radius:14px;background:var(--card);padding:8px 14px;display:flex;flex-direction:column;justify-content:center}
 .field small{font-size:13px;color:var(--text-soft)}
 .field span{font-size:18px;color:var(--text)}
-.err{color:#FF9DB5;font-size:14px;font-weight:800}
 .nav{display:flex;background:#0E1546;border-top:1px solid var(--card-line);padding:8px 8px 14px}
 .nav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;font-size:14px;color:var(--text-soft);min-height:56px}
 .nav button.on{color:var(--accent);font-weight:800}
 .nav button.on .ic{background:var(--accent)}
 .dot{width:14px;height:14px;border-radius:50%;flex:none}
-.d-ok{background:var(--mint-1)}.d-relay{background:var(--mint-2);box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--mint-2)}.d-away{background:var(--sun-2)}.d-none{background:var(--card);border:3px solid var(--text-soft)}.d-upd{background:#FF6F91}
+.d-ok{background:var(--mint-1)}
 .fab{position:absolute;right:20px;bottom:96px}
 .rel{position:relative}
 .sw{width:52px;height:30px;border-radius:15px;background:var(--mint);position:relative;flex:none}
@@ -80,45 +75,3 @@ button{font:inherit;color:inherit}
 .hist-h{font-size:14px;font-weight:800;color:var(--accent);padding-top:6px}
 .note{background:rgba(91,245,180,.14);border-color:#2E7F86}
 .note-warm{background:rgba(255,165,46,.16);border-color:#8A6A2E}
-.accent{color:var(--accent)}.warm{color:var(--sun-1)}.danger{color:#FF9DB5}
-
-/* watch: a round face; the ring is a gradient border, the inside is the aurora on midnight, quiet behind the text */
-.wf{width:340px;height:340px;display:grid;place-items:center}
-.w{width:300px;height:300px;border-radius:50%;color:var(--text);border:8px solid transparent;
-  background:
-    radial-gradient(circle at 50% 50%,rgba(10,16,56,.94) 0 46%,rgba(10,16,56,0) 74%) padding-box,
-    radial-gradient(ellipse 80% 55% at 12% 12%,rgba(0,222,200,.60),transparent 70%) padding-box,
-    radial-gradient(ellipse 70% 50% at 100% 30%,rgba(42,96,255,.60),transparent 70%) padding-box,
-    radial-gradient(ellipse 85% 55% at 70% 100%,rgba(150,70,255,.70),transparent 70%) padding-box,
-    radial-gradient(ellipse 50% 30% at 100% 88%,rgba(255,70,200,.45),transparent 70%) padding-box,
-    linear-gradient(var(--bg),var(--bg)) padding-box,
-    var(--ring) border-box;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:26px 40px;text-align:center;overflow:hidden}
-.w h2{font-size:24px;line-height:1.1;font-weight:800}
-.w .s{font-size:15px;color:var(--text-soft);line-height:1.25}
-.w .n{font-size:46px;font-weight:800;line-height:1}
-.wl{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800}
-.wb{position:relative;min-height:44px;width:100%;border:0;border-radius:24px;padding:0 18px;background:var(--lav);color:var(--ink);font-weight:800;font-size:17px;display:inline-flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 2px 6px rgba(0,0,0,.35)}
-.wb .ic{position:absolute;left:18px;width:20px;height:20px}
-.wb.p{background:var(--mint)}
-.wb.sun{background:var(--sun)}
-.wb.lav{background:var(--lav)}
-.wb.text{background:none;box-shadow:none;color:var(--text-soft);min-height:34px;font-size:15px}
-.wb.wide{width:100%}
-.wrow{display:flex;gap:8px;width:100%}
-.wrow .wb{flex:1;padding:0 6px;font-size:15px}
-.w.a1{border-color:transparent;
-  background:radial-gradient(circle at 50% 50%,rgba(42,23,102,.95) 0 46%,rgba(42,23,102,0) 76%) padding-box,
-    radial-gradient(ellipse 80% 55% at 12% 14%,rgba(138,77,255,.65),transparent 70%) padding-box,
-    radial-gradient(ellipse 80% 55% at 95% 95%,rgba(255,92,214,.50),transparent 70%) padding-box,
-    linear-gradient(var(--alert1-bg),var(--alert1-bg)) padding-box,
-    linear-gradient(135deg,#B58CFF,#6A6CFF 50%,#FF8AE8) border-box}
-.w.a2{border-color:transparent;
-  background:radial-gradient(circle at 50% 50%,rgba(122,16,72,.96) 0 46%,rgba(122,16,72,0) 78%) padding-box,
-    radial-gradient(ellipse 80% 55% at 12% 14%,rgba(255,150,46,.65),transparent 70%) padding-box,
-    radial-gradient(ellipse 80% 55% at 95% 95%,rgba(255,60,120,.65),transparent 70%) padding-box,
-    linear-gradient(var(--alert2-bg),var(--alert2-bg)) padding-box,
-    linear-gradient(135deg,#FFE45C,#FF8A3D 50%,#FF3D8F) border-box}
-.ring{width:92px;height:92px;border-radius:50%;border:8px solid var(--sun-1);display:grid;place-items:center;font-size:20px;font-weight:800;color:var(--sun-1)}
-.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%}
-.tile{border-radius:18px;background:rgba(21,28,82,.92);border:1.5px solid rgba(160,176,255,.40);padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:72px;font-size:13px;font-weight:800;line-height:1.15;text-align:center}
