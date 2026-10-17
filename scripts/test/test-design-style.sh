@@ -88,8 +88,8 @@ done
 python3 -I - "$src" "$img" <<'PY'
 import hashlib, json, os, re, sys
 src, img = sys.argv[1], sys.argv[2]
-boards = {'P1':'PhoneWatch','P2':'PhoneTasks','P3':'PhoneTaskEdit','P4':'PhoneReminderEdit','P5':'PhoneSchedule','P6':'PhoneHistory','P7':'PhoneSettings','P8':'PhonePrompt','P9':'PhoneHeartRate','P10':'PhoneAlert1','P11':'PhoneAlert2','P12':'PhoneStates','P13':'PhoneLinkStates','W8':'WatchAlert2','overview':'Main'}
-supplied = ['W1','W2','W3','W4','W5','W6','W7','W9']
+boards = {'P1':'PhoneWatch','P2':'PhoneTasks','P3':'PhoneTaskEdit','P4':'PhoneReminderEdit','P5':'PhoneSchedule','P6':'PhoneHistory','P7':'PhoneSettings','P8':'PhonePrompt','P9':'PhoneHeartRate','P10':'PhoneAlert1','P11':'PhoneAlert2','P12':'PhoneStates','P13':'PhoneLinkStates','overview':'Main'}
+supplied = ['W1','W2','W3','W4','W5','W6','W7','W8','W9']
 try:
     m = json.load(open(os.path.join(src, 'render-manifest.json')))
 except Exception as e:
@@ -114,10 +114,10 @@ check "TC-D-034 images from boards were rendered from the current sources; suppl
 
 # TC-D-039 supplied artwork is not pretended to come from a board: no board file is left for it
 bad=0
-for b in WatchHome WatchLinks WatchReminder WatchSelection WatchTile WatchTileEmpty WatchAlert1 WatchPermission; do
+for b in WatchHome WatchLinks WatchReminder WatchSelection WatchTile WatchTileEmpty WatchAlert1 WatchAlert2 WatchPermission; do
   [ -e "$src/$b.dc.html" ] && { echo "  stale board $b.dc.html for a supplied image"; bad=1; }
 done
-for b in PhoneWatch PhoneAlert1 WatchAlert2 Main; do [ -f "$src/$b.dc.html" ] || { echo "  missing board $b.dc.html"; bad=1; }; done
+for b in PhoneWatch PhoneAlert1 Main; do [ -f "$src/$b.dc.html" ] || { echo "  missing board $b.dc.html"; bad=1; }; done
 grep -q 'supplied' "$src/README.md" || { echo "  the source README does not say which images are supplied"; bad=1; }
 [ "$bad" -eq 0 ]; check "TC-D-039 no board is left for supplied artwork, and the source README says which images are supplied" $?
 

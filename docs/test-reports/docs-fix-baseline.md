@@ -11,3 +11,12 @@ FAIL TC-D-034 images from boards were rendered from the current sources; supplie
 FAIL TC-D-039 no board is left for supplied artwork, and the source README says which images are supplied
 FAIL TC-D-040 the overview board shows all 22 screen images
 ```
+
+After commit e37407d (new generated W8, coordinator addition to D4.3) the expectations were changed again before the fix: W8 is supplied
+artwork too (all nine watch images), so only P1-P13 and the overview come from boards. Red commit of this change: the commit "Design
+images: W8 is supplied artwork too" (tests and catalogue only):
+
+```
+FAIL TC-D-034 images from boards were rendered from the current sources; supplied artwork is listed as supplied (render manifest)
+FAIL TC-D-039 no board is left for supplied artwork, and the source README says which images are supplied
+```
