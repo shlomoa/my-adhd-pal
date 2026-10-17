@@ -9,7 +9,7 @@ class MeasureStatsTest {
     private fun reading(second: Long, display: String) = MeasureReading(second * 1000, display)
 
     @Test
-    fun `TC-W-144 the measure report gives readings per minute and the gaps between readings, overall and per screen state`() {
+    fun `TC-W-144 the measure report gives readings per minute and the gaps, overall and per screen state`() {
         val readings = listOf(
             reading(1, "on"),
             reading(2, "on"),
@@ -37,13 +37,16 @@ class MeasureStatsTest {
             measureReport(emptyList(), emptyList(), startMs = 0, nowMs = 60_000)
         )
         assertEquals(
-            listOf("PROBE measure screen=all readings=1 perMin=none gapSec none"),
+            listOf(
+                "PROBE measure screen=all readings=1 perMin=none gapSec none",
+                "PROBE measure screen=on readings=1 gapSec none"
+            ),
             measureReport(listOf(reading(1, "on")), emptyList(), startMs = 5_000, nowMs = 5_000)
         )
     }
 
     @Test
-    fun `TC-W-146 availability changes are written and read back, listed in time order, and a malformed line is skipped`() {
+    fun `TC-W-146 availability changes and readings read back, are listed in time order, and bad lines are skipped`() {
         val change = AvailabilityEvent(30_000, "ACQUIRING")
         assertEquals("30000|ACQUIRING", change.toLine())
         assertEquals(change, parseAvailability("30000|ACQUIRING"))

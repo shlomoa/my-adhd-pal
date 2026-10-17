@@ -37,7 +37,7 @@ private const val STATE_OFF = 1
 private const val STATE_ON = 2
 private const val STATE_DOZE = 3
 private const val STATE_DOZE_SUSPEND = 4
-private val DISPLAYS = listOf("on", "doze", "off", "other")
+internal val DISPLAYS = listOf("on", "doze", "off", "other")
 
 /** The name of an `android.view.Display` state: the always-on display is doze. */
 fun displayName(state: Int): String = when (state) {
@@ -74,7 +74,7 @@ fun parseBatch(line: String): ProbeBatch? {
     }
 }
 
-private fun median(sorted: List<Long>): Long? = when {
+internal fun median(sorted: List<Long>): Long? = when {
     sorted.isEmpty() -> null
     sorted.size % PAIR == 1 -> sorted[sorted.size / PAIR]
     else -> (sorted[sorted.size / PAIR - 1] + sorted[sorted.size / PAIR]) / PAIR

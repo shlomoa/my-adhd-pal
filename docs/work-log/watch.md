@@ -464,3 +464,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   reading is above the threshold, the highest warranted level, repeats and cap counted in alert time; plus the second open question (pause after "I'm OK"). No code.
 - Validation: docs lint, links and index (documentation only).
 - Open items: the user decides both questions (via the coordinator); then tests first (new catalogue rows) and the `EpisodeEvaluator` change.
+
+## 2026-10-17 - Live heart-rate probe (D9)
+
+- Issue and PR: step 6.4, branch `claude/watch-measure-probe`
+- Changed: debug-only probe for the live `MeasureClient` route (`wear/src/debug/.../probe/`): `MeasureStats` (pure: report lines, percentile, battery drop),
+  `MeasureLog`, `ProbeMeasureService` (foreground service of type `health` with an ongoing notification, records only arrival times, display state and
+  availability changes), `ProbeMeasureActivity` (starts it from a visible activity), receiver commands `measure-capabilities`, `measure-stop`,
+  `measure-report`, `measure-clear`; debug manifest permissions; checklist step 6 (30 minutes worn). The display-state lookup of `ProbeListenerService` now uses `MeasureLog.displayNow`.
+  Not probed: `OngoingActivity` (needs a new dependency; the plain ongoing notification is probed first).
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
+- Open items: TC-W-149 is a manual case for the user (NOT yet run); TC-W-136 and 137 stay NOT complete. Lint reports a stale entry in `wear/lint-baseline.xml` and `phone/lint-baseline.xml` ("listed in the baseline but not found"): to be reported to the coordinator.
