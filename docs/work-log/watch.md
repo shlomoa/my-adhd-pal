@@ -449,3 +449,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   The first result's sample rate (0.7 per second) is marked as superseded.
 - Open items: wrist state between 10:29 and 11:25 unknown; a clean worn run (checklist step 2) is still open. TC-W-136 and 137 stay NOT complete.
 - Validation: docs lint, links and index (documentation only).
+
+## 2026-10-17 - Cleanup: catalogue rows of the deleted alert evaluator
+
+- Issue and PR: step 6.5 cleanup, branch `claude/watch-cleanup-alert-evaluator` (reduced after #194)
+- #194 deleted `AlertEvaluator`, its test, `Threshold`, `Direction` and `AlertSettings.thresholds`. What remains here: the seven catalogue rows
+  TC-W-070 to TC-W-076 (their tests no longer exist) and the decision document's section 7 text.
+- Validation: docs lint, links and index.
