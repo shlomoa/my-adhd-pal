@@ -132,11 +132,13 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-122 | 6.5 | unit | The hourly lows (derived values only) can be saved and restored | restored baseline equals the original |
 | TC-W-132 | 6.4 | unit | The probe summary counts batches and samples and reports the min, median and max gap between batches | expected numbers |
 | TC-W-133 | 6.4 | unit | An empty or single-batch list has no gaps | no gap values |
-| TC-W-134 | 6.4 | unit | The report has one line for all batches and one per screen state, in seconds, with no bpm values | exact lines |
+| TC-W-134 | 6.4 | unit | The report has one line for all batches and one per display state (on, doze, off), in seconds, with the age of the newest sample and no bpm values | exact lines |
 | TC-W-135 | 6.4 | unit | A probe record is one line and reads back; a malformed line is skipped | round trip, null for bad lines |
 | TC-W-139 | 6.4 | unit | The probe needs the health permissions on Wear OS 6 and later, the body sensor ones on API 33 to 35 | expected lists |
 | TC-W-140 | 6.4 | unit | The permission report names every granted and missing permission | exact lines |
 | TC-W-141 | 6.4 | unit | The probe starts only when no permission is missing | empty missing list |
+| TC-W-142 | 6.4 | unit | A display state is named on, doze (always-on display), off or other | expected names |
+| TC-W-143 | 6.4 | unit | The age of the newest sample and the span of a batch come from the sample times | expected numbers |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | user reports the three report lines (`docs/test-reports/watch-probe-checklist.md`) |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
