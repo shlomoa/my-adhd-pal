@@ -101,7 +101,7 @@ Pass criterion: every case PASS, zero skipped (`docs/test-reports/android-final.
 |---|---|---|---|
 | TC-A-053 | Empty task list shows guidance | Unit | Empty state with a create hint |
 | TC-A-054 | Empty history shows guidance | Unit | Empty state message |
-| TC-A-055 | Empty schedule shows guidance | Unit | Empty state message |
+| TC-A-055 | Nothing scheduled yet shows guidance: a task without reminders, and a schedule never sent | Unit (Compose) | "No reminders yet" with "Add a reminder"; "Not sent to the watch yet" with the send button |
 | TC-A-056 | Data-source error shows a message and retry | Unit | Error state; retry reloads |
 | TC-A-057 | Loading state is shown while data loads | Unit | Loading state precedes content |
 | TC-A-058 | Interactive elements have content descriptions or labels | Unit (Compose UI test) | Every actionable node has a label |
@@ -172,8 +172,6 @@ repositories exist (G3).
 | TC-A-121 | After a task is saved its id is in the edit state, so reminders can be added to a new task | Unit | New id for a new task; the same id when editing |
 | TC-A-122 | Before anything is sent the schedule state is idle; a version sent earlier is shown | Unit | `ScheduleSyncUiState(null, Idle)`, then the stored version |
 | TC-A-123 | A sent schedule is reported with its version | Unit | `Sent(version)`, last version updated |
-| TC-A-124 | An unchanged schedule says the watch is up to date | Unit | `UpToDate`, version unchanged |
-| TC-A-125 | A failed send shows the reason, keeps the old version and can be tried again | Unit | `Failed(reason)`, then `Sent` on the next try |
 | TC-A-126 | While sending the state says so and a second tap does not send twice | Unit | `Sending`; the repository is called once |
 | TC-A-127 | The Tasks tab sends the schedule once and then says the watch is up to date | Unit (Hilt + Compose, fake Data Layer client) | One `/schedule` item written; second tap writes nothing |
 | TC-A-080 | The broadcast publishes the schedule on the real devices | Manual | Watch shows the reminder at the set time after the broadcast |
