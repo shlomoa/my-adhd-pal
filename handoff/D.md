@@ -4,7 +4,7 @@ Written 2026-10-17 by the outgoing lane D session, for the new lane D session st
 (session_01SicxwYxR11J2rccj3we8WY). Base: origin/main 69feaa5 (Docs: date the statements that Google's pages define no batch, #220).
 Repo: shlomoa/my-adhd-pal. No secrets in this file.
 
-Earlier, shorter status note, unchanged: [D-status.md](D-status.md). Where it differs from this file, this file wins (its PR numbers for D2, D3 and D4.1/D4.2 are off by one: D3 is #161, D2 is #162, D4.1 is #165, D4.2 is #166).
+Earlier, shorter status note, unchanged: [D-status.md](D-status.md). It agrees with this file.
 
 ## 1. Status
 

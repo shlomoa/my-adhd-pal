@@ -26,10 +26,10 @@ Lane session: this one (repo shlomoa/my-adhd-pal). Previous coordinator: session
 - Issue #55 body re-read after the coordinator's edit: clean.
 
 ## History of merged lane D PRs
-- Design documentation (issue #154, steps D1.1 to D1.4): #155, #158, #159, #160, #161, #162, #163 - lane setup and test catalogue, phone and watch boards P1-P13 and W1-W9, section documents, solution diagrams (data flow, event flow), final run. Stray fixture removed in a follow-up after a release-no-debug CI failure.
-- Index and site (issue #156, D2): #165 - `docs/index.md`, MkDocs strict build (`scripts/docs-site.sh`), `scripts/check-docs-index.sh`; baseline reports linked.
-- Lint and format (issue #157, D3): #166 - `scripts/docs-lint.sh` (markdown, lint, format, fix, links, external).
-- Aurora restyle (issue #164, D4): #187, #195, #204 - palette, generated watch images (W1-W9 supplied artwork, W4 approved reference), style tests `scripts/test/test-design-style.sh`; the look was approved by the user (issue #164 closed).
+- Design documentation (issue #154, steps D1.1 to D1.4): #155 (setup), #158 (images), #159 (sections and solution), #160 (final report), #163 (approval is the user's, not a test case) - lane setup and test catalogue, phone and watch boards P1-P13 and W1-W9, section documents, solution diagrams (data flow, event flow), final run. Stray fixture removed in a follow-up after a release-no-debug CI failure.
+- Index and site (issue #156, D2): #162 - `docs/index.md`, MkDocs strict build (`scripts/docs-site.sh`), `scripts/check-docs-index.sh`; baseline reports linked.
+- Lint and format (issue #157, D3): #161 - `scripts/docs-lint.sh` (markdown, lint, format, fix, links, external).
+- Aurora restyle (issue #164, D4): #165 (D4.1 tests and W4 reference), #166 (D4.2 restyle), #187, #195, #204 - palette, generated watch images (W1-W9 supplied artwork, W4 approved reference), style tests `scripts/test/test-design-style.sh`; the look was approved by the user (issue #164 closed).
 - Conventions: documentation and cleanup rules in `docs/conventions.md` (PR body needs a "Cleanup:" line).
 - Wave 0 (user-approved plan, relayed by the previous coordinator): #217 - D6 "Measured latency", baseline sentence verbatim, schedule/scheduler/schedule builder/tasks steps marked deferred in plan.md and docs/plans/*.md (gates.json untouched, lane S).
 - Wave 1: #219 - urgent alerts and the queue (C6, docs/protocol.md section "Urgent alerts and the queue", pointer in data-layer.md); passive route marked "measured, not used for alerts" (biometrics.md sections 6 and 10, research/watch.md section 3); TC-W-132..136 and 139..143 noted as retired later (137 and 138 are not probe cases); 6.4 is the live measure service; rows C4, C5, C10, E1-E7 in docs/plans/watch.md; plan.md 6.3-6.8 rewritten.
