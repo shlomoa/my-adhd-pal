@@ -3,6 +3,7 @@ package com.shlomoa.myadhdpal.phone.ui.prompts
 import com.shlomoa.myadhdpal.phone.data.PromptError
 import com.shlomoa.myadhdpal.phone.data.fake.FakeWatchLinkDataSource
 import com.shlomoa.myadhdpal.phone.data.fake.InMemoryPromptRepository
+import com.shlomoa.myadhdpal.phone.data.fake.InMemoryPublishedPrompts
 import com.shlomoa.myadhdpal.phone.ui.FIXED_CLOCK
 import com.shlomoa.myadhdpal.phone.ui.MainDispatcherRule
 import com.shlomoa.myadhdpal.phone.ui.NOW
@@ -23,7 +24,7 @@ class PromptComposeViewModelTest {
 
     private val source = FakeWatchLinkDataSource { NOW }
     private val ids = SequentialIds("prompt")
-    private val repo = InMemoryPromptRepository(source, { NOW }, ids::next)
+    private val repo = InMemoryPromptRepository(source, InMemoryPublishedPrompts(), { NOW }, ids::next)
     private val vm by lazy { PromptComposeViewModel(repo, FIXED_CLOCK) }
 
     private fun fill(title: String, vararg options: String) {
