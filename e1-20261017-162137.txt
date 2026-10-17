@@ -1,0 +1,8 @@
+2026-10-17 16:21:37 e1 result file: e1-20261017-162137.txt
+2026-10-17 16:21:37 battery before: 68
+2026-10-17 16:21:37 screen timeout was 30000, set to 0
+2026-10-17 16:21:38 PROBE measure capabilities heartRateMeasure=true
+2026-10-17 16:21:38 (unattended) Check that the Always-on display is ON in the watch settings (phase B needs it).
+2026-10-17 16:21:42 FAILED: the service did not report AVAILABLE within 4 s (is the watch worn, is the permission granted?)
+2026-10-17 16:21:42 battery after: 67
+2026-10-17 16:21:42 screen timeout restored to 30000; result file: e1-20261017-162137.txt
