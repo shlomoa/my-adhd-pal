@@ -44,7 +44,7 @@ class ScheduleSyncViewModelTest {
     }
 
     @Test
-    fun `TC-A-124 an unchanged schedule says the watch is up to date`() = runTest {
+    fun `TC-A-029 an unchanged schedule says the watch is up to date`() = runTest {
         schedule.version.value = 2
         schedule.next = { PublishOutcome.Unchanged }
         vm.send()
@@ -52,7 +52,7 @@ class ScheduleSyncViewModelTest {
     }
 
     @Test
-    fun `TC-A-125 a failed send shows the reason, keeps the old version, and can be tried again`() = runTest {
+    fun `TC-A-028 a failed send shows the reason, keeps the old version, and can be tried again`() = runTest {
         schedule.version.value = 2
         schedule.next = { PublishOutcome.Failed("watch not reachable") }
         vm.send()
