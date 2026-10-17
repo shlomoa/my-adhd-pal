@@ -6,11 +6,14 @@
 #      scripts/ci-post-merge/run-tests.sh --groups   prints the groups and exits.
 # POST_MERGE_GROUPS (groups separated by |, tests by spaces) and POST_MERGE_TEST_DIR (run the tests of that directory in
 # place, no worktrees) override the defaults; the tests use them. A test whose log shows the known lint crash is rerun once.
+# A unit `test-x.sh@arg` runs test-x.sh with POST_MERGE_ARG=arg and logs to test-x@arg.log, so one slow test can be split
+# over groups. The groups are balanced by measured time (longest first): each unit prints "== <unit> took Ns".
 set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 out="${POST_MERGE_OUT:-$root/build/post-merge}"
-groups="${POST_MERGE_GROUPS:-test-structure.sh test-ci.sh|test-checks.sh test-pairing.sh|test-protocol-spec.sh test-gates.sh \
-test-spike.sh test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh test-post-merge.sh}"
+groups="${POST_MERGE_GROUPS:-test-checks.sh|test-structure.sh test-ci.sh test-pairing.sh|test-spike.sh@test-run-0b2a|\
+test-spike.sh@test-run-0b2b test-design-style.sh test-doc-checks.sh test-docs-site.sh test-design-docs.sh \
+test-protocol-spec.sh test-gates.sh test-post-merge.sh}"
 IFS='|' read -r -a group_list <<<"$groups"
 if [ "${1:-}" = "--groups" ]; then
   for i in "${!group_list[@]}"; do echo "group $((i + 1)): $(echo ${group_list[$i]})"; done
@@ -20,18 +23,27 @@ mkdir -p "$out"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
-run_test() { # test-dir test
-  local log="$out/${2%.sh}.log"
-  echo "== $2"
-  if ! bash "$1/$2" >"$log" 2>&1; then
+log_of() { # unit: test-x.sh -> test-x.log, test-x.sh@arg -> test-x@arg.log
+  local test="${1%%@*}"
+  [ "$test" = "$1" ] && echo "$out/${test%.sh}.log" || echo "$out/${test%.sh}@${1#*@}.log"
+}
+
+run_test() { # test-dir unit
+  local unit="$2" test="${2%%@*}" arg="" log start=$SECONDS rc=0
+  [ "$test" = "$unit" ] || arg="${unit#*@}"
+  log="$(log_of "$unit")"
+  echo "== $unit"
+  if ! POST_MERGE_ARG="$arg" bash "$1/$test" >"$log" 2>&1; then
     if grep -q 'Unexpected failure during lint analysis' "$log"; then
-      echo "== $2 hit the known lint crash, rerun once"
-      mv "$log" "$out/${2%.sh}.first.log"
-      bash "$1/$2" >"$log" 2>&1 || return 1
+      echo "== $unit hit the known lint crash, rerun once"
+      mv "$log" "${log%.log}.first.log"
+      POST_MERGE_ARG="$arg" bash "$1/$test" >"$log" 2>&1 || rc=1
     else
-      return 1
+      rc=1
     fi
   fi
+  echo "== $unit took $((SECONDS - start))s"
+  return $rc
 }
 
 run_group() { # index tests
@@ -44,7 +56,7 @@ run_group() { # index tests
   fi
   for t in $2; do
     run_test "$dir" "$t" || echo "$t" >>"$work/failed-$1"
-    tail -n 3 "$out/${t%.sh}.log"
+    tail -n 3 "$(log_of "$t")"
   done
   [ -z "$wt" ] || git -C "$root" worktree remove --force "$wt"
 }
@@ -68,7 +80,7 @@ fi
   echo
   for t in "${failed[@]}"; do
     echo "- $t"
-    grep -E '^FAIL' "$out/${t%.sh}.log" 2>/dev/null | sed 's/^/  - /' | head -n 20
+    grep -E '^FAIL' "$(log_of "$t")" 2>/dev/null | sed 's/^/  - /' | head -n 20
   done
 } >"$report"
 cat "$report"
