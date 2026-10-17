@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Checking tools (step 0a.5): negative fixtures must fail `check`'s parts, then pass again once removed.
 # Run: scripts/test/test-checks.sh   (needs the Android SDK and Node; see scripts/bootstrap-android.sh)
+# POST_MERGE_ARG=scaffold runs only the full `check` (TC-S-016, TC-S-017), =fixtures only the negative fixtures; default: both
+# (the post-merge run starts the two parts in separate groups).
 set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$root"
@@ -18,8 +20,10 @@ trap cleanup EXIT
 gradle() { ./gradlew --console=plain "$@" >"$out" 2>&1; }
 # fails_with <expected text...>: the last gradle run failed for the stated reason (not because a task is missing)
 fails_with() { local rc=$1; shift; [ "$rc" -ne 0 ] && ! grep -q "not found in root project\|not found in project" "$out" && for t in "$@"; do grep -qF -- "$t" "$out" || return 1; done; }
+want() { [ -z "${POST_MERGE_ARG:-}" ] || [ "$POST_MERGE_ARG" = "$1" ]; }
 fixture() { fixtures+=("$1"); mkdir -p "$(dirname "$1")"; cat > "$1"; }
 
+if want scaffold; then
 # TC-S-016 the tools run behind ./gradlew check and the workflow carries no tool list
 tasks="$(./gradlew --console=plain -q check --dry-run 2>&1)"
 for t in spotlessCheck detekt lintDebug lintDocs; do echo "$tasks" | grep -q "$t"; check "TC-S-016 check includes $t" 0 $?; done
@@ -28,7 +32,9 @@ for t in spotlessCheck detekt lintDebug lintDocs; do echo "$tasks" | grep -q "$t
 # TC-S-017 every tool runs on the scaffold (compatibility with AGP 9.4 and Kotlin 2.4)
 gradle check --rerun-tasks; check "TC-S-017 check is green on the scaffold" 0 $?
 for t in ":spotlessCheck" ":detekt" ":lintDocs" ":phone:lintDebug"; do grep -qF "Task $t" "$out"; check "TC-S-017 $t ran as part of check" 0 $?; done
+fi
 
+if want fixtures; then
 # TC-S-011 mis-formatted Kotlin fails spotlessCheck; spotlessApply repairs it
 bad=wear/src/main/java/com/shlomoa/myadhdpal/wear/BadFormat.kt
 fixture $bad <<'KT'
@@ -135,4 +141,5 @@ gradle lintDocs; rc=$?
 fails_with $rc zz-fixture-style.md:3 MD018; check "TC-S-015 markdownlint violation fails and names rule and line" 0 $?
 rm -f $bad
 gradle lintDocs; check "TC-S-015 fix is green" 0 $?
+fi
 exit $fail
