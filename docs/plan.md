@@ -48,8 +48,9 @@ emotions.
   phone; sync resumes on reconnect.
 - Haptic catalogue (tick, warning, calm-breath), glanceable tile, acknowledgements (Done, Snooze, Start 2 min,
   Dismiss), simple selections, and biometric alerts with no user interaction.
-- Biometrics through Health Services passive monitoring (`PassiveMonitoringClient` with a `PassiveListenerService`),
-  not `MeasureClient`, which the Health Services documentation says is not for background use. Permissions follow the
+- Biometrics through the live Health Services route (`MeasureClient` in a foreground health service, step 6.4) while the
+  app runs; the passive background route was measured and delivers about every 10 minutes
+  ([`biometrics.md`](plans/biometrics.md) section 12.3), so it is not used for alerts. Permissions follow the
   API 36 rules (`READ_HEART_RATE`, legacy `BODY_SENSORS` and `BODY_SENSORS_BACKGROUND` where needed); exact names are
   confirmed in milestone 6 and verified on the real watch.
 - Standalone flag stays `true`; notification bridge `NO_BRIDGING` to avoid duplicates.
@@ -276,8 +277,8 @@ Every step becomes a GitHub issue labelled with its milestone, starting with its
 
 ### 6. Biometric alerts
 
-- **6.1 Research:** passive monitoring, permission names for API 36, and whether passive heart rate is supported on the
-  Galaxy Watch6 Classic. **6.2** Agree metrics and thresholds with the user in an issue. **6.3** Permission flow (C10).
+- **6.1 Research:** the Health Services routes (live and passive), permission names for API 36, and heart-rate support on the
+  Galaxy Watch6 Classic (done; the measured result is in [`biometrics.md`](plans/biometrics.md) section 12.3). **6.2** Agree metrics and thresholds with the user in an issue. **6.3** Permission flow (C10).
   **6.4** Live measure service (C4), replaces "Passive listener service". **6.5** Threshold and cooldown evaluator fed continuously (C5; the evaluator exists).
   **6.6** `/alert/<id>` with the numeric value (unchanged). **6.7** Debug-only raw biometrics (unchanged). **6.8** Emulator synthetic data, then
   the real watch, with the E7 latency. *Validate each:* unit tests, then manual.
@@ -326,7 +327,7 @@ behaviour working before the real-hardware stage (0b.2b). Delay targets are agre
 | Reminder reliability on the watch under Doze, battery optimisation and exact-alarm rules | Core feature fails silently | 3.4 researches the mechanism first; 24-hour run, every reminder within 1 minute |
 | Samsung battery management on the phone (sleeping or restricted apps) | The background listener stops storing acknowledgements and alerts | 0b.2b on the Galaxy A55 5G with default settings; any exemption or setup step decided with the user |
 | Pairing through Samsung's Galaxy Wearable app instead of Google's Wear OS app | Data Layer behaves differently from the emulator pairing | 0b.2b on this exact phone and watch pair |
-| Health Services passive monitoring: permission names for API 36 and heart-rate support on this watch | Biometric alerts impossible or different | Milestone 6 research first; thresholds agreed with the user |
+| Health Services: permission names for API 36 and heart-rate support on this watch (live route measured, passive route measured) | Biometric alerts impossible or different | Milestone 6 research first; thresholds agreed with the user |
 | Samsung limits on third-party sensor access | Same | Milestone 6 research; capability check on the real watch |
 | Emulators do not show Nearby, Relayed or Away, or Samsung behaviour | False confidence | The emulator stage is required but not sufficient; the hardware stage settles it |
 | `allowBackup` could copy health-related data to the cloud | Privacy exposure | Off in both apps (0a.2) |
@@ -346,7 +347,7 @@ behaviour working before the real-hardware stage (0b.2b). Delay targets are agre
 | Google relay and cost | Accepted; no cost documented (unverified) |
 | Alert content | Numeric value, threshold and time |
 | Handshake | State items plus an Incompatible link state |
-| Biometric API | Health Services passive monitoring, not `MeasureClient` |
+| Biometric API | Health Services live route (`MeasureClient`) while the app runs; the passive route is measured, not used for alerts |
 | Spike timing and form | End of milestone 0, as 0b.2a (emulators, required) then 0b.2b (hardware) |
 | Backups | `allowBackup` off |
 | Reminder reliability | Every reminder within 1 minute over 24 hours |
