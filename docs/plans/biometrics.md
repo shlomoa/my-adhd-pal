@@ -217,3 +217,63 @@ repeats is approved".
 **Nothing is open.** This is the user's confirmed document for step 6.2 (confirmed 2026-10-16). The remaining "Proposal" marks in
 section 4 (exact vibration patterns, screen and sound details) are implementation details that tests in 6.6 pin down, not
 questions for the user. The one-line PR that flips H1 follows.
+
+## 9. Could the Galaxy Watch's stress value be a trigger or a second condition? (research, 2026-10-17)
+
+**In three lines:**
+
+1. The watch's stress value is computed inside Samsung Health from heart-rate variability, and no route open to an ordinary app gives it to us: not Health
+   Services, not Samsung's Sensor SDK, not the Samsung Health Data SDK, and (as far as I could find) not Health Connect. It is reachable only through Samsung's
+   closed partner programs.
+2. What we can get is heart rate and movement; the beat-to-beat intervals that make heart-rate variability come only through the Sensor SDK, which Samsung
+   restricts to developer-mode testing unless Samsung accepts us as a partner.
+3. Recommendation: **not possible as Samsung's stress value now**; use **movement (steps) as the second condition** to tell stress from exercise, and revisit
+   the stress value only if Samsung approves a partnership.
+
+Each statement is marked **Verified** (an official page I read, cited), **Secondhand** (forum, blog or search excerpt of a page I could not open) or
+**Unverified**.
+
+### 9.1 What Samsung's stress measure is
+
+- HRV-based. **Secondhand** (Samsung support text seen as excerpts; the pages returned 403 to my fetch tool): the watch estimates stress from heart-rate
+  variability ([Samsung](https://www.samsung.com/us/support/answer/ANS10001394/)).
+- Continuous or on demand. **Secondhand**: the Stress setting offers "Measure continuously" and "Manual only". Continuously, it measures about once per
+  second while heart rate is normal and there is no movement; a manual reading takes 1 to 2 minutes with the wrist still. A Samsung community answer says
+  it does not measure automatically while you sleep or move a lot
+  ([Samsung](https://www.samsung.com/ae/support/mobile-devices/how-can-i-use-stress-level-feature-on-samsung-watch-5/)). Exact intervals: **Unverified**.
+- The algorithm is proprietary. **Secondhand**: a Samsung developer-relations reply on the developer forum says so and suggests building one's own estimate
+  with Wear Health Services ([Samsung forum, via a search excerpt](https://forum.developer.samsung.com/)).
+
+### 9.2 Every route an ordinary app has
+
+| Route | Does it give the stress value? | What I found |
+|---|---|---|
+| Health Services on Wear OS (our current route) | **No.** Verified | The data types required for passive monitoring are heart rate, steps, distance, speed, calories, elevation and floors; heart-rate variability, inter-beat interval and stress do not appear ([Google](https://developer.android.com/health-and-fitness/health-services/compatibility)). A given watch may add types; the capabilities call lists them (**Unverified** for this watch). |
+| Samsung Health Sensor SDK (watch, Galaxy Watch4 and later) | **No stress tracker.** Verified | Continuous trackers: accelerometer, heart rate (its inter-beat interval "can be used to calculate HRV"), PPG, skin temperature; on demand: body composition, ECG. It does not share data with Samsung Health. **Developer mode is "intended only for testing or debugging your app. It is not intended for app users"; to distribute an app you must join the Samsung Partner Program** ([Samsung FAQ](https://developer.samsung.com/health/sensor/faq.html)). |
+| Samsung Health Data SDK (phone) | **No stress, no HRV type.** Verified | The release notes list heart rate, sleep, sleep apnea, irregular rhythm notification, energy score, skin temperature, steps and others, with user consent for all reads; the access code for developer mode and distribution come through the partner program ([Samsung](https://developer.samsung.com/health/data/release-note.html)). Its energy score is derived from HRV (**Secondhand**) but is a different value. |
+| Health Connect (phone) | **Probably not.** Mixed | A heart-rate-variability record type exists (`HeartRateVariabilityRmssdRecord`, API 34; Verified, [Android](https://developer.android.com/reference/kotlin/androidx/health/connect/client/records/HeartRateVariabilityRmssdRecord)); I saw no stress record type (**Unverified**: I did not read the whole type list). Whether Samsung Health writes HRV or stress there: **Secondhand and conflicting**, a sync vendor's page says overnight HRV and a stress score are written ([FitMesh](https://www.fitmesh.fit/en/sync/galaxy-watch/watch-6)); a Samsung forum thread suggests HRV may need the privileged partnership ([Samsung forum](https://forum.developer.samsung.com/t/hrv-heart-rate-variability-heart-rate/41364)). The user can check the Health Connect data-sources screen on the phone for what Samsung Health writes. |
+| Samsung Privileged Health SDK / Samsung Health Platform server API | **Closed to us.** Secondhand | Samsung's developer blog presents the Privileged Health SDK as the route for processed sensor data such as SpO2, ECG and PPG ([Samsung](https://developer.samsung.com/sdp/blog/en/2022/05/25/check-which-sensor-you-can-use-in-galaxy-watch-running-wear-os-powered-by-samsung)); a developer-relations reply says only premium health partners have access to Samsung Health data; aggregators list a stress score behind a server-side program that needs Samsung's approval ([Open Wearables](https://openwearables.io/blog/samsung-health-api-galaxy-watch-data-for-developers), a vendor page, low trust). |
+
+### 9.3 What it would cost
+
+- **Permissions and approval.** Stress value: no open route at all. Own HRV from inter-beat intervals: the Sensor SDK in developer mode, a build installed only for testing; shipping needs the Samsung Partner Program (Verified). Whether a single-user private build is acceptable to Samsung: **Unverified**. Play: a health-data app has its own declarations (step 7.x), plus the partner terms.
+- **Latency.** Heart rate through Health Services arrives in minutes-long batches (measured on this watch, section 6). The Sensor SDK's continuous trackers are described as continuous with finer-grained results ([Samsung FAQ](https://developer.samsung.com/health/sensor/faq.html)); real delivery delay on the Watch6 Classic: **Unverified**. Samsung's own stress values are produced only without movement and about once a second at best (Secondhand), and reach other apps (if at all) through Samsung Health on a sync schedule: **Unverified**.
+- **Battery.** Continuous PPG or inter-beat tracking costs more battery than passive heart rate and would likely need a foreground service; the amount is **Unverified** and would need a measurement.
+
+### 9.4 Would it help tell stress from exercise?
+
+- The Samsung stress value is, by its design, measured only while the wrist is still (**Secondhand**), so during exercise there is normally no value: its presence is a weak "not exercising" hint, and its absence says nothing.
+- Heart-rate variability itself (low variability at a raised heart rate without movement) is the signal that separates stress from exercise, but it needs inter-beat intervals, which only the restricted Sensor SDK gives.
+- A cheaper discriminator is open to us now: **movement from Health Services** (steps and calories are required passive types, Verified, [Google](https://developer.android.com/health-and-fitness/health-services/compatibility)). The optional improvement in section 2 (ignore a breach while the user is clearly moving) is exactly this second condition. It would cut walking and stair false alerts; it cannot tell a still, anxious state from a still, calm one, which the stress value would.
+
+### 9.5 Recommendation
+
+- **Samsung's stress value as a trigger or second condition: not possible now** (no open route).
+- **Second condition from movement (steps): use it, as a later step.** It needs one more passive data type and its permission (`ACTIVITY_RECOGNITION` for steps on the watch; **Unverified** which runtime permission the passive client asks for on Wear OS 6) and is within what the probe approach can measure. Proposed as a follow-up to 6.4/6.5, not part of the current decisions.
+- **Own HRV-based stress: use later, only if wanted.** It needs Samsung's Sensor SDK, developer mode on the watch and, to ship, the partner program.
+
+**What a probe on the real watch would need (not built; this section is research only):**
+
+1. The `capabilities` command printing the whole list of passive types the watch supports (to see whether the Watch6 Classic offers anything beyond the required list); a few lines in the existing probe.
+2. The user opening Health Connect on the phone (data and access, Samsung Health) to see which types Samsung Health writes: no code.
+3. For the HRV route only: a debug-only app that asks the Sensor SDK for its tracking capability and an inter-beat-interval tracker in developer mode, printing counts and times only. Not recommended before the user decides to pursue Samsung's partner program.

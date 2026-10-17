@@ -390,3 +390,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug
   :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
 - NOT yet run on the watch: whether `pm grant` works for the health permissions, and the prompt fallback (TC-W-136).
+
+## 2026-10-17 - Research: can the Galaxy Watch stress value be used?
+
+- Issue and PR: docs only, branch `claude/watch-stress-research` (request from the user via the coordinator)
+- Changed: `docs/plans/biometrics.md` section 9: what Samsung's stress measure is, every route an ordinary app has (Health Services, Samsung Health Sensor SDK,
+  Samsung Health Data SDK, Health Connect, the closed partner routes), cost (permissions, approval, latency, battery), whether it separates stress from exercise,
+  and a recommendation (not possible now; movement as a second condition later; own HRV only with Samsung's partner program), each statement marked
+  Verified, Secondhand or Unverified. Official pages read: Google's Health Services compatibility page, Samsung's Sensor SDK FAQ and Data SDK release notes; the
+  Samsung support pages on stress returned 403, so their content is secondhand (search excerpts).
+- Validation: docs lint, links, docs index. No code.
