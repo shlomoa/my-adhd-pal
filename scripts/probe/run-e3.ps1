@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
   Experiment E3 (issue 230): the live heart-rate service started from the visible app WITHOUT the background permission, worn
-  for 30 minutes, then 10 minutes with Bedtime mode and 10 minutes with battery saver. One result file.
+  for 30 minutes, then 10 minutes with Sleep mode (Bedtime) and 10 minutes with Power saving. One result file.
 
 .DESCRIPTION
   Works with Windows PowerShell 5.1 and PowerShell 7; needs adb on PATH and the watch connected for wireless debugging
@@ -16,9 +16,11 @@
     - 30 minutes worn in three blocks of -BlockSec (default 600) with a report after each (block-10, block-20, block-30);
       after the last it logs "service running" (the measure service is listed by dumpsys) and "readings grew"
       (the last report has more readings than the one before); a service that is gone is a RESULT, not a failure;
-    - Bedtime: asks you to turn Bedtime mode ON, takes a report, waits -StateSec (default 600), takes a report, logs the same
+    - Sleep mode (called Bedtime on older firmware): takes a report, asks you to turn Sleep mode ON, waits -StateSec (default 600),
+      takes a report in the mode (if the watch cannot be reached it is logged and taken after you turn the mode off), logs the same
       two lines, asks you to turn it OFF;
-    - battery saver: the same (the watch's power saving mode; say what it is called on the watch);
+    - Power saving: it turns Wi-Fi off, so wireless adb stops: a report before, none during (the file says so), and one after you
+      turn it off, when the script tries to reach the watch again for up to -ReconnectSec (default 120);
     - before every report: adb connect and logcat -c; the battery before and after; measure-stop at the end.
   -Unattended skips the questions (use it only when you toggle the modes by yourself).
 
@@ -41,6 +43,9 @@ param(
     [double]$StateSec = 600,
     [double]$AvailableTimeoutSec = 120,
     [double]$ReportWaitSec = 3,
+    # How long (and how often) to try to reach the watch again after a mode that turns Wi-Fi off.
+    [double]$ReconnectSec = 120,
+    [double]$ReconnectRetrySec = 5,
     [switch]$Unattended,
     [switch]$AllowCharging,
     [switch]$SkipPush
@@ -55,6 +60,10 @@ function Service-Running {
 
 # Two reports around a wait: logs whether the service still runs and whether the readings grew between them.
 function Judge([string]$what, [int]$before, [int]$after) {
+    if ($after -lt 0 -or $before -lt 0) {
+        Log ("$what readings grew: unknown (no report possible)")
+        return
+    }
     Log ("$what service running: " + (Service-Running))
     Log ("$what readings grew: " + ($after -gt $before) + " ($before -> $after)")
 }
@@ -78,14 +87,23 @@ try {
     }
     Judge 'after 30 minutes:' $counts[1] $counts[2]
 
-    foreach ($mode in @(@('Bedtime', 'Bedtime mode', 'bedtime'), @('battery saver', 'battery saver (power saving) mode', 'battery-saver'))) {
-        Ask ("Turn $($mode[1]) ON on the watch now.")
-        $a = Report ("$($mode[2])-start")
-        Start-Sleep -Seconds $StateSec
-        $b = Report ("$($mode[2])-end")
-        Judge "$($mode[0]):" $a $b
-        Ask ("Turn $($mode[1]) OFF on the watch now.")
-    }
+    # Sleep mode: the reports around it are taken while adb works; a report in the mode is tried, and repeated after it if it failed.
+    $before = Report 'sleep-mode-before'
+    Ask "Turn Sleep mode ON now. $PathSleep."
+    Start-Sleep -Seconds $StateSec
+    $end = Report-Safe 'sleep-mode-end'
+    Ask "Turn Sleep mode OFF now (Quick panel > Modes > Sleep, or Settings > Modes and Routines > Sleep)."
+    if ($end -lt 0) { $end = Report-Safe 'sleep-mode-after-off' }
+    Judge 'sleep mode:' $before $end
+
+    # Power saving turns Wi-Fi off, so wireless adb stops: no report during the block; one after it, when Wi-Fi is back.
+    $before = Report 'power-saving-before'
+    Ask "Turn Power saving ON now. $PathPowerSaving."
+    Log 'power saving: no report is possible while power saving is on (Wi-Fi is off); one report is taken after it is turned off'
+    Start-Sleep -Seconds $StateSec
+    Ask "Turn Power saving OFF now (Quick panel Power saving icon, or Settings > Battery > Power saving), then wait until Wi-Fi is back."
+    $after = Report-Safe 'power-saving-after-off'
+    Judge 'power saving:' $before $after
 } catch {
     $failed = $true
     Log "FAILED: $_"

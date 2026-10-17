@@ -46,6 +46,7 @@ case "$cmd" in
   shell)
     sub="${1:-}"; shift || true
     case "$sub" in
+      echo) echo "$@"; exit 0;;
       settings)
         if [ "$1" = get ]; then cat "$D/timeout"; else echo "$4" > "$D/timeout"; fi; exit 0;;
       pm)

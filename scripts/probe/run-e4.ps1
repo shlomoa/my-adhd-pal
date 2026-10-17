@@ -73,8 +73,8 @@ try {
     Run-Front 'run 2 (keep-screen-on on)' @('--ez', 'keep', 'true')
     Ask-Answer 'Run 2: did the screen stay on, and for how long? Did it dim?' | Out-Null
 
-    Ask-Answer 'What is the screen timeout setting in the watch settings, and does any setting keep the screen on while the app runs (for example Keep screen on, Touch to wake, Wake up gesture)? Say which.' | Out-Null
-    Ask-Answer 'If the measuring service of experiment E1 or E3 is running: after you tap its notification, does the app come to the front? Answer skip if it is not running.' | Out-Null
+    Ask-Answer 'What is the screen timeout setting in the watch settings (Settings > Display > Screen timeout; path not verified), and does any setting keep the screen on while the app runs (for example Keep screen on, Touch to wake, Wake up gesture; path not verified)? Say which.' | Out-Null
+    Ask-Answer 'If the measuring service of experiment E1 or E3 is running: after you tap its notification (swipe up from the watch face to the notification list; path not verified), does the app come to the front? Answer skip if it is not running.' | Out-Null
 } catch {
     $failed = $true
     Log "FAILED: $_"

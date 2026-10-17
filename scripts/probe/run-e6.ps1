@@ -12,7 +12,7 @@
   What it does (every answer you type is written to the result file as "answer: ..."):
     - grants POST_NOTIFICATIONS (notification routes need it);
     - state 1 normal; state 2 Do Not Disturb (set by the script with cmd notification set_dnd priority, switched off at the
-      end, also after a failure); state 3 Bedtime mode and state 4 Theater mode (you turn them on and off on the watch when
+      end, also after a failure); state 3 Sleep mode (Bedtime on older firmware) and state 4 Theater mode (you turn them on and off on the watch when
       asked); state 5 and 6 the watch vibration intensity set to the LOWEST and the HIGHEST (you set it);
     - in each state: vibrate, you answer none, weak or strong;
     - under Do Not Disturb, Bedtime and Theater: also the notify-alarm route and the alarm-clock route (it fires after about
@@ -76,18 +76,19 @@ try {
     Try-Routes 'Do Not Disturb'
     Invoke-Adb @('shell', 'cmd', 'notification', 'set_dnd', 'off') | Out-Null
 
-    foreach ($mode in 'Bedtime', 'Theater') {
-        Ask "Turn $mode mode ON on the watch now."
-        Try-Vibrate "$mode mode"
-        Try-Routes "$mode mode"
-        Ask "Turn $mode mode OFF on the watch now."
+    foreach ($mode in @(@('Sleep', "Turn Sleep mode ON now. $PathSleep.", 'Turn Sleep mode OFF now (Quick panel > Modes > Sleep).'),
+                        @('Theater', "Turn Theater mode ON now. $PathTheater.", 'Turn Theater mode OFF now (Quick panel clapperboard icon).'))) {
+        Ask $mode[1]
+        Try-Vibrate "$($mode[0]) mode"
+        Try-Routes "$($mode[0]) mode"
+        Ask $mode[2]
     }
 
-    Ask 'Set the watch vibration intensity to the LOWEST in the watch settings now.'
+    Ask "Set the watch vibration strength to the LOWEST (Light) now: $PathVibration."
     Try-Vibrate 'vibration intensity lowest'
-    Ask 'Set the watch vibration intensity to the HIGHEST in the watch settings now.'
+    Ask "Set the watch vibration strength to the HIGHEST (Strong) now: $PathVibration."
     Try-Vibrate 'vibration intensity highest'
-    Ask 'Put the watch vibration intensity back to your usual value.'
+    Ask "Put the watch vibration strength back to your usual value: $PathVibration."
 } catch {
     $failed = $true
     Log "FAILED: $_"

@@ -70,7 +70,7 @@ try {
     Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', "$ScreenOffTimeoutMs") | Out-Null
 
     Start-ProbeService
-    Ask 'Check that the Always-on display is ON in the watch settings (phase B needs it).'
+    Ask "Check that the Always On Display is ON (phase B needs it): $PathAod."
     Wait-ServiceAvailable
 
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP') | Out-Null
@@ -79,7 +79,7 @@ try {
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_SLEEP') | Out-Null
     Phase 'B' 'display dim'
 
-    Ask 'Turn the Always-on display OFF in the watch settings now (phase C needs the screen off).'
+    Ask "Turn the Always On Display OFF now (phase C needs the screen off): $PathAod."
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_SLEEP') | Out-Null
     Phase 'C' 'screen off'
 } catch {

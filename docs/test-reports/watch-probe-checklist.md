@@ -4,13 +4,27 @@ For the user, on the real Galaxy Watch6 Classic, with the debug build. **Not yet
 [`../plans/biometrics.md`](../plans/biometrics.md) sections 11 and 12 against the definition in 12.1: heart rate measured
 continuously, and a stress event reported immediately. The experiments are E1 (live route per screen state, issue #228),
 E3 (service started from the visible app without the background permission, #230), E4 (the app stays the top app and top
-window, #231) and E6 (Do Not Disturb routes, Bedtime, Theater, vibration intensity, #233). A person's run is never a
+window, #231) and E6 (Do Not Disturb routes, Sleep mode (Bedtime), Theater, vibration strength, #233). A person's run is never a
 test-case id: the manual cases TC-W-137 (E6) and TC-W-149 (E1, E3, E4) in [`../test-plans/watch.md`](../test-plans/watch.md)
 are closed by what you report here. The passive background probe is dropped and has no step.
 
 The probe records only counts and times, never heart-rate values, and exists in debug builds only. Each step is one
 command block (paste it in PowerShell). Copy the lines that start with `PROBE` into your answer after each step, or the
 whole result as one message.
+
+## Where the watch settings are (verified against Samsung's support pages; names vary by firmware)
+
+Sources: samsung.com/us/support/answer/ANS10002951, ANS10002905, ANS10003398, ANS10002901. The Quick panel opens by swiping down from
+the top of the watch face. Anything the scripts ask you to do on the watch that is not listed here is marked "path not verified".
+
+| What | Where |
+|---|---|
+| Sleep mode (called Bedtime on older firmware) | Quick panel, tap Modes, then Sleep; or Settings, Modes and Routines, Sleep, Turn on |
+| Power saving | Quick panel Power saving icon, or Settings, Battery, Power saving. **It turns Wi-Fi off**, Always On Display off and the wake-up gesture off, so wireless adb stops while it is on |
+| Theater mode | Quick panel clapperboard icon, then pick a duration. It turns off alerts, Always On Display and wake gestures by itself |
+| Vibration | Settings, Sounds and vibration (strength Light/Strong, length Short/Long) |
+| Always On Display | Settings, Display, Always On Display |
+| Screen timeout, Keep screen on, Touch to wake, Wake up gesture, the notification list | path not verified |
 
 ## 0. Once: install the debug build and connect the watch
 
@@ -57,7 +71,7 @@ watch, **off the charger**, keep the laptop awake, then:
 .\scripts\probe\run-e1.ps1 -Watch 192.168.1.16:41613
 ```
 
-(use the address the watch shows). It asks twice about the Always-on display: **ON** before the run, **OFF** before phase C
+(use the address the watch shows). It asks twice about the Always On Display (Settings, Display, Always On Display): **ON** before the run, **OFF** before phase C
 (turn it off in the watch settings, then press Enter). Do not touch the watch during a phase. At the end the script publishes the result
 file itself as the branch `e1-results/<time>` (it prints `PUSHED e1-results/<time>`; `-SkipPush` keeps it local, and your
 working files are not touched): tell the coordinator "done". The file is also kept in `probe-results` in your home folder. The
@@ -100,7 +114,7 @@ percentage on the watch (**after**), leave the service running for step 3 or sto
 Report: every `PROBE measure` line after phase C, the report after A and after B, the battery before and after, whether the
 notification stayed visible, the minute the screen dimmed or went off in phase A, and anything else you did on the watch.
 
-## 3. E3: without the background permission, 30 minutes, Bedtime and battery saver (issue #230)
+## 3. E3: without the background permission, 30 minutes, Sleep mode and Power saving (issue #230)
 
 **Run the script (recommended).** Wear the watch, **off the charger**, keep the laptop awake, then:
 
@@ -109,8 +123,10 @@ notification stayed visible, the minute the screen dimmed or went off in phase A
 ```
 
 It revokes the background permissions, starts the service from the visible app, logs the permission state, takes reports
-for 30 minutes worn (use the watch normally; the script does not touch the screen), then asks you to turn **Bedtime mode ON**
-(report, 10 minutes, report) and **OFF**, then the same for **battery saver**. At the end the script publishes the result
+for 30 minutes worn (use the watch normally; the script does not touch the screen), then takes a report, asks you to turn **Sleep mode ON**
+(10 minutes, a report in the mode, or after it if the watch cannot be reached) and **OFF**, then takes a report and asks you to turn
+**Power saving ON**. Power saving turns Wi-Fi off, so no report is possible during it: turn it OFF, wait for Wi-Fi, and the script
+reconnects for up to 2 minutes and takes a report. The file says when no report was possible; that is not an error. At the end the script publishes the result
 file as the branch `e3-results/<time>` (it prints `PUSHED e3-results/<time>`; `-SkipPush` keeps it local): tell the coordinator
 "done". "service running: False" or "readings grew: False" in it is a result, not an error. The
 script is untested on the watch; if it fails, send the file and use the manual steps below.
@@ -122,9 +138,9 @@ Step 1 already left the background permission off, so step 2 is the first half o
 1. Run `measure-clear`, start the service from the visible app as in step 2, wear the watch for 30 minutes (screen as
    it comes). After 30 minutes run `measure-report` as in step 2. Report the `PROBE measure` lines and whether the
    notification is still there. **The service survived** means readings in the last minutes and no `start failed` line.
-2. Bedtime: with the service running, turn Bedtime mode on in the watch quick settings for 10 minutes, then off. Run
+2. Sleep mode (Bedtime): with the service running, turn Sleep mode on (Quick panel > Modes > Sleep) for 10 minutes, then off. Run
    `measure-report` after turning it on (minute 0) and after the 10 minutes. Report the readings and gaps.
-3. Battery saver: the same with battery saver / power saving on (watch Settings, Battery; the name may differ, say what you
+3. Power saving: it turns Wi-Fi off, so adb stops while it is on: turn it on for 10 minutes, off again, wait for Wi-Fi, then run the report (Quick panel Power saving icon, or Settings > Battery > Power saving; say what you
    used) for 10 minutes.
 
 Stop with `measure-stop` at the end. State whether any permission prompt appeared on the watch during these runs.
@@ -181,9 +197,9 @@ Report the `PROBE front` lines of both runs and answer, in your own words:
 .\scripts\probe\run-e6.ps1 -Watch 192.168.1.16:41613
 ```
 
-It vibrates in six states (normal, Do Not Disturb, Bedtime, Theater, vibration intensity lowest and highest) and tries both
-Do Not Disturb routes under Do Not Disturb, Bedtime and Theater. It sets Do Not Disturb itself (and switches it off at the
-end); it asks you to turn Bedtime, Theater and the vibration intensity on and off on the watch. After each try type what you felt
+It vibrates in six states (normal, Do Not Disturb, Sleep mode, Theater, vibration strength lowest and highest) and tries both
+Do Not Disturb routes under Do Not Disturb, Sleep mode and Theater. It sets Do Not Disturb itself (and switches it off at the
+end); it asks you to turn Sleep mode, Theater mode and the vibration strength on and off on the watch (paths in the table above; Theater mode turns Always On Display off by itself). After each try type what you felt
 (none, weak or strong) and, for the routes, whether the screen woke (yes or no). At the end the script publishes the result
 file as the branch `e6-results/<time>` (it prints `PUSHED e6-results/<time>`; `-SkipPush` keeps it local): tell the coordinator
 "done". Untested on the watch; if it fails, send the file and use the manual steps below.
@@ -202,7 +218,7 @@ adb shell am broadcast -n $P --es cmd vibrate
 |---|---|---|
 | a | Normal | felt, between weak and strong (reported) |
 | b | Do Not Disturb on | nothing (reported) |
-| c | Bedtime mode on | |
+| c | Sleep mode (Bedtime) on | |
 | d | Theater mode on | |
 | e | Normal, watch vibration intensity set to the lowest in the watch settings | |
 | f | Normal, watch vibration intensity set to the highest | |
@@ -231,7 +247,7 @@ adb shell am broadcast -n $P --es cmd alarm-clock; Start-Sleep 25; adb logcat -d
 ```
 
 Report for each: felt or not, strength, whether the screen woke, and the `PROBE` lines (`alarm-clock fired`, `alert screen shown`).
-Repeat both routes with Bedtime mode on and with Theater mode on, and say for each which routes got through.
+Repeat both routes with Sleep mode on and with Theater mode on, and say for each which routes got through.
 
 ## 6. Stop and clean up
 
@@ -239,7 +255,7 @@ Repeat both routes with Bedtime mode on and with Theater mode on, and say for ea
 adb shell am broadcast -n $P --es cmd measure-stop; adb shell cmd notification set_dnd off
 ```
 
-Turn Bedtime, Theater and battery saver off and put the vibration intensity and screen timeout back. The probe stays
+Turn Sleep mode, Theater mode and Power saving off and put the vibration intensity and screen timeout back. The probe stays
 installed (debug build) and does nothing until started again.
 
 ## What happens with the answers
