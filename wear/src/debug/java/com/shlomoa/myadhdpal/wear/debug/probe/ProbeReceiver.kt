@@ -13,7 +13,7 @@ import java.util.concurrent.Executor
 /**
  * Debug only, driven from the computer: `adb shell am broadcast -n
  * com.shlomoa.myadhdpal/.wear.debug.probe.ProbeReceiver --es cmd <command>` with one of capabilities, permissions,
- * start, stop, report, clear, vibrate. Results are in logcat with the tag PROBE
+ * start, stop, report, clear, vibrate, notify-alarm, alarm-clock. Results are in logcat with the tag PROBE
  * (`adb logcat -d -s PROBE:I`). See `docs/test-reports/watch-probe-checklist.md`.
  */
 class ProbeReceiver : BroadcastReceiver() {
@@ -64,8 +64,13 @@ class ProbeReceiver : BroadcastReceiver() {
 
             "vibrate" -> VibrationProbe.strong(context)
 
+            "notify-alarm" -> ProbeAlarmRoutes.notifyAlarm(context)
+
+            "alarm-clock" -> ProbeAlarmRoutes.scheduleAlarmClock(context)
+
             else -> ProbeLog.note(
-                "unknown command; use capabilities, permissions, start, stop, report, clear or vibrate"
+                "unknown command; use capabilities, permissions, start, stop, report, clear, vibrate, " +
+                    "notify-alarm or alarm-clock"
             )
         }
     }
