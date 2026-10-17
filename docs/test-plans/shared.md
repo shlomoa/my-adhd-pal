@@ -179,3 +179,5 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-193 | android | `WatchEventProcessor` sweep | expired prompts are removed at start and again about every minute while the app runs |
 | TC-S-194 | android | `DefaultPromptRepository` | a sent prompt is remembered with its expiry; a failed or rejected one is not |
 | TC-S-195 | android | `PublishedPrompts` contract (in memory and DataStore) | add, list, remove, replace; the DataStore version survives a new store on the same file |
+| TC-S-196 | script | No fixed `/tmp` file names in scripts | no script under `scripts/` writes a file with a fixed name in `/tmp` or `$TMPDIR` (a second run on the machine would share it); `mktemp` is used |
+| TC-S-197 | script | Script fixtures leave no directory behind | after `test-checks.sh` removed its fixtures, `wear/src`, `phone/src` and `protocol/src` hold no empty directory that was not there before |
