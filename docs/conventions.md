@@ -108,8 +108,9 @@ for i in 1 2 3 4; do ./gradlew --console=plain check --rerun-tasks; done
 
 **What clears it.** Running the same command again, or a clean git worktree. `./gradlew --stop` before the command
 looked like it helps: without it 3 of 6 full `check --rerun-tasks` runs crashed in one checkout (the crashes came on
-daemons 11 minutes old or more), with it 0 of 5 did (issue 205; few runs, so not proof). `test-checks.sh` stops the
-daemons before its TC-S-017 check. Removing `phone/build` and `.gradle` was not tested on its own.
+daemons 11 minutes old or more), with it 0 of 5 did (issue 205; few runs, so not proof). `test-checks.sh` runs its
+TC-S-017 check with `--no-daemon` instead: `--stop` ends the daemons of every build of the user and killed the builds of
+the other post-merge groups (issue 237). The evidence above is for `--stop`, not yet for `--no-daemon`. Removing `phone/build` and `.gradle` was not tested on its own.
 
 What to do:
 
