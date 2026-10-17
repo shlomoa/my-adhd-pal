@@ -60,7 +60,7 @@ passes lint; check "TC-D-019 the lint check passes on the repository documents" 
 passes format; check "TC-D-019 the format check passes on the repository documents" $?
 passes markdown; check "TC-D-019 markdown passes on the repository documents" $?
 
-# TC-D-020 CI runs the checks: Gradle check calls markdown (lint and format), and this test runs in script-tests
+# TC-D-020 CI runs the checks: Gradle check calls markdown (lint and format), and this test runs after each merge (scripts/ci-post-merge/run-tests.sh)
 grep -q 'docs-lint.sh markdown' build.gradle.kts; check "TC-D-020 ./gradlew check calls docs-lint.sh markdown" $?
-grep -q 'scripts/test/test-doc-checks.sh' .github/workflows/build.yml; check "TC-D-020 the script-tests job runs test-doc-checks.sh" $?
+grep -q 'test-doc-checks.sh' scripts/ci-post-merge/run-tests.sh; check "TC-D-020 the post-merge runner runs test-doc-checks.sh" $?
 exit $fail
