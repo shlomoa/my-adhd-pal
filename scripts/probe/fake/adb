@@ -7,6 +7,8 @@
 #                                                  nonotif  the notification is never listed
 #                                                  svcgone  the measure service is not listed as running
 #                                                  stalled  the report's reading count never grows
+# FAKE_AWAY_AFTER=N (+ FAKE_AWAY_CALLS=K): after the Nth report the watch goes away (Wi-Fi off): every adb call fails, and the first K
+#   `adb connect` calls fail too; the next one brings it back.
 # FAKE_DROP=1: after `input keyevent KEYCODE_SLEEP` the connection drops (device offline) until `adb connect`.
 # FAKE_CHARGING=1: the watch is on its charger. It simulates the commands; it proves nothing about the watch.
 set -u
@@ -19,6 +21,15 @@ touch "$D/log"
 [ -e "$D/readings" ] || echo 0 > "$D/readings"
 [ "${1:-}" = "-s" ] && shift 2
 cmd="${1:-}"; shift || true
+if [ -e "$D/away" ]; then
+  if [ "$cmd" = connect ]; then
+    n=$(( $(cat "$D/awayconnects" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$D/awayconnects"
+    if [ "$n" -le "${FAKE_AWAY_CALLS:-3}" ]; then echo "failed to connect to 192.168.1.16:41613" >&2; exit 1; fi
+    rm -f "$D/away" "$D/awayconnects"
+  else
+    echo "error: no devices/emulators found" >&2; exit 1
+  fi
+fi
 if [ "$cmd" = connect ]; then rm -f "$D/offline"; echo "connected to 192.168.1.16:41613"; exit 0; fi
 if [ -e "$D/offline" ]; then echo "error: device offline" >&2; exit 1; fi
 note() { echo "$1" >> "$D/log"; }
@@ -35,6 +46,7 @@ case "$cmd" in
   shell)
     sub="${1:-}"; shift || true
     case "$sub" in
+      echo) echo "$@"; exit 0;;
       settings)
         if [ "$1" = get ]; then cat "$D/timeout"; else echo "$4" > "$D/timeout"; fi; exit 0;;
       pm)
@@ -67,6 +79,8 @@ case "$cmd" in
         fi
         if [ "$1" = notification ]; then
           fails nonotif || echo "      android.title=Probe: measuring heart rate"
+          k=$(( $(cat "$D/notifs" 2>/dev/null || echo 0) + 1 )); echo "$k" > "$D/notifs"
+          [ -n "${FAKE_AWAY_AFTER:-}" ] && [ "$k" -eq "$FAKE_AWAY_AFTER" ] && touch "$D/away"
           exit 0
         fi
         exit 0;;

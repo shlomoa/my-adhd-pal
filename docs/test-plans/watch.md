@@ -170,6 +170,10 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-177 | 6.4 | script | A front screen that cannot be started fails the run, restores the screen timeout and still publishes the file | exit code, call log, origin refs |
 | TC-W-178 | 6.4 | script | The E4 script header says what is untested on the watch | text |
 | TC-W-179 | 6.4 | script | Every probe test that runs a `run-e*.ps1` runs a copy of the scripts inside a throwaway git repository, never the real checkout (so a test can never publish to the real origin); the shared helper `make_repo` exists | static check of the test scripts |
+| TC-W-180 | 6.4 | script | E3: no report is taken while power saving is on (it turns Wi-Fi off); the report after it is taken once the watch is reachable again; the file says no report was possible | call log, result file |
+| TC-W-181 | 6.4 | script | E3: a watch that never comes back does not fail the run; the file says no report was possible and the growth is unknown | result file, exit 0 |
+| TC-W-182 | 6.4 | script | E3: a watch that is away during Sleep mode: the in-mode report is logged as impossible and taken after the mode is off | result file |
+| TC-W-183 | 6.4 | script | The prompts of E1, E3 and E6 carry the verified watch menu paths | prompt text |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |

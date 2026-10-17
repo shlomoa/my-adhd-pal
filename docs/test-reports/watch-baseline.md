@@ -320,6 +320,20 @@ FAIL TC-W-179 the shared helper make_repo exists (expected 0, got 2)
 
 After the fix the three suites pass (38, 32 and 17 checks) and the number of `e*-results/` branches on the real origin is unchanged (39 before and after).
 
+## E3 without reports during power saving, verified watch paths (TC-W-180 to TC-W-183; `scripts/probe/test-run-e3-e6.sh`)
+
+Power saving turns Wi-Fi off (coordinator, Samsung support pages), so no report is possible over wireless adb during it. `run-e3.ps1` takes a report before, none during, and one after the user turns it off, reconnecting for up to
+`-ReconnectSec` (default 120); a watch that cannot be reached is logged ("no report possible"), not a failure. The prompts of E1, E3 and E6 carry the verified menu paths (`$PathSleep` and the others in `probe-common.ps1`).
+Red commit: the first commit of branch `claude/watch-e3-wifi` (tests and the simulated adb with a "watch goes away" mode). Command: `PWSH=pwsh scripts/probe/test-run-e3-e6.sh`. Before the change the E3 and E6 runs failed the new checks, for example:
+
+```
+FAIL TC-W-180 a watch that comes back after power saving: exit 0
+FAIL TC-W-181 a watch that never comes back does not fail the run (exit 0)
+FAIL TC-W-183 the E3 prompts carry the verified path: Quick panel
+```
+
+The parse check now covers `probe-common.ps1` too (a parse error there failed every run script once during this change).
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
