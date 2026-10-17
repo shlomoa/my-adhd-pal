@@ -1,64 +1,118 @@
-# Watch probe checklist (step 6.4, cases TC-W-136, TC-W-137 and TC-W-149)
+# Watch probe checklist (experiments E1, E3, E4 and E6)
 
-For the user, on the real Galaxy Watch6 Classic. **Not yet run.** The probe answers the open questions of
-[`../plans/biometrics.md`](../plans/biometrics.md) section 6 before anything is built on them: does the watch deliver
-heart-rate readings to a background app, how often, with the screen on and off and off the wrist, and how strong can a
-vibration be under Do Not Disturb, Bedtime and Theater mode. Each step is one command (paste it in PowerShell) and takes
-5 to 10 minutes. The probe records only counts and times, never heart-rate values, and exists in debug builds only.
+For the user, on the real Galaxy Watch6 Classic, with the debug build. **Not yet run.** It answers the open questions of
+[`../plans/biometrics.md`](../plans/biometrics.md) sections 11 and 12 against the definition in 12.1: heart rate measured
+continuously, and a stress event reported immediately. The experiments are E1 (live route per screen state, issue #228),
+E3 (service started from the visible app without the background permission, #230), E4 (the app stays the top app and top
+window, #231) and E6 (Do Not Disturb routes, Bedtime, Theater, vibration intensity, #233). A person's run is never a
+test-case id: the manual cases TC-W-137 (E6) and TC-W-149 (E1, E3, E4) in [`../test-plans/watch.md`](../test-plans/watch.md)
+are closed by what you report here. The passive background probe is dropped and has no step.
 
-Copy the lines that start with `PROBE` into your answer after each step (or the whole result as one message).
+The probe records only counts and times, never heart-rate values, and exists in debug builds only. Each step is one
+command block (paste it in PowerShell). Copy the lines that start with `PROBE` into your answer after each step, or the
+whole result as one message.
 
-## 0. Once: connect the watch and set two variables
+## 0. Once: install the debug build and connect the watch
 
-Connect the watch for wireless debugging as in [`../dev-setup-windows.md`](../dev-setup-windows.md), then in PowerShell
-from the repository folder (use the address the watch shows):
+1. Take the watch off the charger for the runs (a charger hides the battery drop). Keep the laptop plugged in and awake
+   ([`../dev-setup-windows.md`](../dev-setup-windows.md) section 8, steps 1 and 3 to 4: Developer options, ADB debugging and
+   Wireless debugging on, Wi-Fi **On**, note the connect `ip:port`; the watch is then listed twice in `adb devices`, use the
+   `ip:port` one).
+2. In PowerShell, in the repository folder on current `main` (it contains the merged live probe of PR #210):
 
 ```powershell
+git checkout main; git pull
+adb connect 192.168.1.57:41203
 $env:ANDROID_SERIAL = "192.168.1.57:41203"; $P = "com.shlomoa.myadhdpal/.wear.debug.probe.ProbeReceiver"
+.\gradlew.bat :wear:installDebug
 ```
 
-## 1. Install, allow, ask what the watch supports (about 5 minutes)
+(Use the address the watch shows; the connect port is not the pairing port.)
+
+## 1. Permissions for the live route (about 2 minutes)
+
+The live route needs only the foreground heart-rate permission and the notification permission. The background permission
+must **not** be granted: the experiments test that it is not needed. Revoke it first in case an earlier probe granted it
+(an error saying it was not granted is fine):
 
 ```powershell
-.\gradlew.bat :wear:installDebug; foreach ($n in "android.permission.health.READ_HEART_RATE", "android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND", "android.permission.BODY_SENSORS", "android.permission.BODY_SENSORS_BACKGROUND") { Write-Host "grant $n"; adb shell pm grant com.shlomoa.myadhdpal $n }; adb shell am broadcast -n $P --es cmd capabilities; adb shell am broadcast -n $P --es cmd permissions; Start-Sleep 3; adb logcat -d -s PROBE:I
+foreach ($n in "android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND", "android.permission.BODY_SENSORS_BACKGROUND") { adb shell pm revoke com.shlomoa.myadhdpal $n }
+foreach ($n in "android.permission.health.READ_HEART_RATE", "android.permission.POST_NOTIFICATIONS") { adb shell pm grant com.shlomoa.myadhdpal $n }
+adb shell am broadcast -n $P --es cmd measure-clear
+adb shell am broadcast -n $P --es cmd measure-capabilities; Start-Sleep 2; adb logcat -d -s PROBE:I
 ```
 
-Wear OS 6 needs the two `health` permissions; Wear OS 5 and earlier need the two `BODY_SENSORS` ones. A `pm grant` error for the
-pair your watch does not use is expected ("has not requested permission" or similar). Report: the `PROBE capabilities
-heartRatePassive=...` line, every `PROBE permission granted:` / `PROBE permission missing:` line, and the full text of any
-`pm grant` error for a `health` permission.
+Expect `PROBE measure capabilities heartRateMeasure=true`. Report that line and any `pm grant` error text. On Wear OS 5 and
+earlier use `android.permission.BODY_SENSORS` instead of `READ_HEART_RATE`.
 
-If a `PROBE permission missing:` line remains, show the permission prompt on the watch and tap Allow on it (the foreground
-permission first, then the background one), then run the `permissions` command again:
+## 2. E1: the live route worn, per screen state (30 minutes, issue #228)
+
+Wear the watch normally, off the charger, and write down the battery percentage shown on the watch (**before**). Set the
+screen timeout in the watch settings to its longest value so that phase A can run untouched. Then start the service the
+way the app will, from a visible activity:
 
 ```powershell
-adb shell am start -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbePermissionActivity; Start-Sleep 30; adb shell am broadcast -n $P --es cmd permissions; Start-Sleep 3; adb logcat -d -s PROBE:I
+adb shell am start -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbeMeasureActivity; Start-Sleep 5; adb logcat -d -s PROBE:I
 ```
 
-`start` (step 2) refuses to run while a permission is missing and prints which one.
+Expect `PROBE measure start registered`. If it says `permission missing`, run step 1 again. A "Probe: measuring heart rate"
+notification appears on the watch: swipe to the notification list now and say whether you see it (it should stay there for
+the whole run). Do not use the watch or start any other app during the run, and do not touch the screen in phases A and C.
 
-## 2. Worn on the wrist, normal use (30 minutes)
+| Phase | 10 minutes | What you do |
+|---|---|---|
+| A | Screen on, untouched | Do not touch the watch; the screen stays on as long as it does. If it dims or goes off, note the minute |
+| B | Dim / always-on display | Leave the arm still so the screen goes to the always-on display (dim). If it will not, note what it did |
+| C | Screen off | Lay the arm down still so the screen goes off |
 
-Wear the watch normally and leave it alone, letting the screen time out.
+After each phase run the report (it is cumulative; run it once more at the end):
 
 ```powershell
-adb shell am broadcast -n $P --es cmd clear; adb shell am broadcast -n $P --es cmd start; Start-Sleep 1800; adb shell am broadcast -n $P --es cmd report; Start-Sleep 3; adb logcat -d -s PROBE:I
+adb shell am broadcast -n $P --es cmd measure-report; Start-Sleep 2; adb logcat -d -s PROBE:I
 ```
 
-The first run (10 minutes) delivered one delivery only, so this step now runs 30 minutes to see several deliveries and their gaps. Report: every `PROBE report screen=...` line (all, then on, doze, off as they occur; doze is the always-on display) and any `PROBE start failed` line. `newestAgeSec` is how old the newest sample was when the delivery arrived. `gapSec` is the time between
-deliveries in seconds. No `delivery` lines at all means the watch delivered nothing to the app.
+The report prints `PROBE measure screen=all readings=... perMin=... gapSec median=... p95=... max=...`, one such line per
+screen state that occurred (`on`, `doze` is the always-on display, `off`), one `availability` line per sensor change with
+`atSec` (seconds since start; compare with the longest gap to find the cause of the 60 s gap seen earlier) and
+`PROBE measure battery start=... now=... dropPerHour=...`. When the three phases are done, write down the battery
+percentage on the watch (**after**), leave the service running for step 3 or stop it with
+`adb shell am broadcast -n $P --es cmd measure-stop`.
 
-## 3. Off the wrist, on a table (10 minutes)
+Report: every `PROBE measure` line after phase C, the report after A and after B, the battery before and after, whether the
+notification stayed visible, the minute the screen dimmed or went off in phase A, and anything else you did on the watch.
 
-Take the watch off, put it on a table, screen off.
+## 3. E3: without the background permission, 30 minutes, Bedtime and battery saver (issue #230)
 
-```powershell
-adb shell am broadcast -n $P --es cmd clear; Start-Sleep 600; adb shell am broadcast -n $P --es cmd report; Start-Sleep 3; adb logcat -d -s PROBE:I
-```
+Step 1 already left the background permission off, so step 2 is the first half of E3. For the rest:
 
-Report: the `PROBE report` lines. Few or no deliveries off the wrist is expected; it shows what the watch does then.
+1. Run `measure-clear`, start the service from the visible app as in step 2, wear the watch for 30 minutes (screen as
+   it comes). After 30 minutes run `measure-report` as in step 2. Report the `PROBE measure` lines and whether the
+   notification is still there. **The service survived** means readings in the last minutes and no `start failed` line.
+2. Bedtime: with the service running, turn Bedtime mode on in the watch quick settings for 10 minutes, then off. Run
+   `measure-report` after turning it on (minute 0) and after the 10 minutes. Report the readings and gaps.
+3. Battery saver: the same with battery saver / power saving on (watch Settings, Battery; the name may differ, say what you
+   used) for 10 minutes.
 
-## 4. How strong is the vibration (10 minutes)
+Stop with `measure-stop` at the end. State whether any permission prompt appeared on the watch during these runs.
+
+## 4. E4: does the app stay the top app and top window (issue #231)
+
+Observed on the watch, no command needed beyond the start in step 2. The current probe activity closes at once (it only
+starts the service), so what you see is what the system does with a started app: say what the watch face and the
+screen show after a minute of leaving it alone. Answer, in your own words:
+
+1. After the start, which screen is shown, the app or the watch face? After the screen timeout, and after waking it?
+2. In the always-on display (phase B of step 2): app, watch face, or other?
+3. What is the screen timeout setting, and does any setting keep the screen on while the app runs (say which: for example
+   "Keep screen on", "Touch to wake", "Wake up gesture")?
+4. After you tap the notification, does the app come to the front?
+
+If the probe cannot show the app staying in front (it has no screen of its own), say so: the lane then adds a screen that stays
+in front with a keep-screen-on switch to the debug build, and this step is repeated with it.
+
+## 5. E6: Do Not Disturb routes, Bedtime, Theater, vibration intensity (issue #233)
+
+### 5a. How strong is the vibration (10 minutes)
 
 The same command in each state below. Run it, then say whether you felt it and how strong (none, weak, strong):
 
@@ -77,24 +131,20 @@ adb shell am broadcast -n $P --es cmd vibrate
 
 Also report the `PROBE vibrate amplitudeControl=...` line (`adb logcat -d -s PROBE:I`). Put every setting back afterwards.
 
-## 4b. Can anything get through Do Not Disturb? (10 minutes)
+### 5b. Can anything get through Do Not Disturb? (10 minutes)
 
-Two routes to try with Do Not Disturb on (`adb shell cmd notification set_dnd priority`; remember to turn it off afterwards with
-`adb shell cmd notification set_dnd off`). First allow notifications once:
+Two routes to try with Do Not Disturb on (`adb shell cmd notification set_dnd priority`; turn it off afterwards with
+`adb shell cmd notification set_dnd off`). The notification permission was granted in step 1.
 
-```powershell
-adb shell pm grant com.shlomoa.myadhdpal android.permission.POST_NOTIFICATIONS
-```
-
-Route 1, an alarm notification that asks to bypass Do Not Disturb with a full-screen alert. Run it, say whether the watch vibrated and the
-screen woke with a big "Probe alert", and copy the `PROBE notify-alarm posted ...` line:
+Route 1, an alarm notification that asks to bypass Do Not Disturb with a full-screen alert. Run it, say whether the watch
+vibrated and the screen woke with a big "Probe alert", and copy the `PROBE notify-alarm posted ...` line:
 
 ```powershell
 adb shell am broadcast -n $P --es cmd notify-alarm; Start-Sleep 5; adb logcat -d -s PROBE:I
 ```
 
-Then on the watch open Settings and look for the Do Not Disturb exceptions or "Override Do Not Disturb for" and allow the app "ADHD Pal"
-(say if no such setting exists), and run the same command again.
+Then on the watch open Settings and look for the Do Not Disturb exceptions or "Override Do Not Disturb for" and allow the app
+"ADHD Pal" (say if no such setting exists), and run the same command again.
 
 Route 2, an alarm clock that fires after 15 seconds (keep the watch still and wait):
 
@@ -103,49 +153,22 @@ adb shell am broadcast -n $P --es cmd alarm-clock; Start-Sleep 25; adb logcat -d
 ```
 
 Report for each: felt or not, strength, whether the screen woke, and the `PROBE` lines (`alarm-clock fired`, `alert screen shown`).
+Repeat both routes with Bedtime mode on and with Theater mode on, and say for each which routes got through.
 
-## 5. Stop the probe
-
-```powershell
-adb shell am broadcast -n $P --es cmd stop; Start-Sleep 2; adb logcat -d -s PROBE:I
-```
-
-Report: `PROBE stop cleared`. The probe stays installed (debug build) and does nothing until started again.
-
-## 6. The live heart-rate route, worn for 30 minutes (case TC-W-149)
-
-For [`../plans/biometrics.md`](../plans/biometrics.md) section 11: the app measures only while it runs. Do step 5 first, so the old probe does not
-confuse the numbers. Wear the watch, with the screen on, on the wrist.
+## 6. Stop and clean up
 
 ```powershell
-adb shell pm grant com.shlomoa.myadhdpal android.permission.health.READ_HEART_RATE
-adb shell pm grant com.shlomoa.myadhdpal android.permission.POST_NOTIFICATIONS
-adb shell am broadcast -n $P --es cmd measure-clear
-adb shell am broadcast -n $P --es cmd measure-capabilities; Start-Sleep 2; adb logcat -d -s PROBE:I
-adb shell am start -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbeMeasureActivity; Start-Sleep 5; adb logcat -d -s PROBE:I
+adb shell am broadcast -n $P --es cmd measure-stop; adb shell cmd notification set_dnd off
 ```
 
-Do not grant `READ_HEALTH_DATA_IN_BACKGROUND` (it must not be needed). Expect `PROBE measure capabilities heartRateMeasure=true` and `PROBE measure start registered`.
-If it says `permission missing`, run the permission step of step 1 and start again. A "Probe: measuring heart rate" notification appears on the watch.
-
-Then, with the watch worn the whole time:
-
-1. 10 minutes: keep the screen lit (touch it now and then).
-2. 10 minutes: leave it alone so the screen dims and goes to the always-on display.
-3. 10 minutes: hold the wrist down (or lay your arm still) so the screen goes off.
-
-```powershell
-adb shell am broadcast -n $P --es cmd measure-report; Start-Sleep 2; adb logcat -d -s PROBE:I
-adb shell am broadcast -n $P --es cmd measure-stop
-```
-
-Report the `PROBE measure` lines (one for all readings, one per screen state, any `availability` lines, and the `battery` line) and say whether the
-notification was still there at the end, and whether you started anything else on the watch during the 30 minutes. The report shows about one reading
-per second if the live route works; long gaps in the `doze` or `off` lines would mean readings stop, or arrive late, with the screen dim or off.
+Turn Bedtime, Theater and battery saver off and put the vibration intensity and screen timeout back. The probe stays
+installed (debug build) and does nothing until started again.
 
 ## What happens with the answers
 
-- Capability or deliveries missing: the user decides whether biometric alerts are still worth building
-  ([`../plans/biometrics.md`](../plans/biometrics.md), section 6) and the Samsung health route is researched.
-- Deliveries present: the gaps are the measured latency (D6) in the documents, and 6.4 (the real listener) is built.
-- Vibration results: written into section 4 of the decision document as verified.
+- E1 numbers per screen state go into [`../plans/biometrics.md`](../plans/biometrics.md) section 12.3 and the body of issue #228;
+  they are the measured latency (D6). Whether the route meets "continuously" and "immediately" per screen state is then
+  written in E2 (#229) from the measured numbers only.
+- E3 and E4: whether the background-permission prompt is needed, and how the app is kept in front, go into section 12.3 and
+  feed the foreground service (C4) and the permission flow (C10).
+- E6: written into section 4 of the decision document as verified.
