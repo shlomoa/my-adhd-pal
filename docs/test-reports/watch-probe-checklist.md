@@ -58,10 +58,11 @@ watch, **off the charger**, keep the laptop awake, then:
 ```
 
 (use the address the watch shows). It asks twice about the Always-on display: **ON** before the run, **OFF** before phase C
-(turn it off in the watch settings, then press Enter). Do not touch the watch during a phase. Send back the whole result file
-(`probe-results\e1-<time>.txt` in your home folder, printed at the start and at the end), and say whether the notification
-stayed visible if the file says `False`. The script is untested on the watch (tested against a simulated adb only); if it fails
-or you cannot use it, send the file anyway and use the manual steps below.
+(turn it off in the watch settings, then press Enter). Do not touch the watch during a phase. At the end the script publishes the result
+file itself as the branch `e1-results/<time>` (it prints `PUSHED e1-results/<time>`; `-SkipPush` keeps it local, and your
+working files are not touched): tell the coordinator "done". The file is also kept in `probe-results` in your home folder. The
+script is untested on the watch (tested against a simulated adb only); if it fails or you cannot use it, use the manual steps
+below, or send the file.
 
 **Manual steps (fallback).**
 
@@ -109,8 +110,9 @@ notification stayed visible, the minute the screen dimmed or went off in phase A
 
 It revokes the background permissions, starts the service from the visible app, logs the permission state, takes reports
 for 30 minutes worn (use the watch normally; the script does not touch the screen), then asks you to turn **Bedtime mode ON**
-(report, 10 minutes, report) and **OFF**, then the same for **battery saver**. Send back the whole result file
-(`probe-results\e3-<time>.txt`). "service running: False" or "readings grew: False" in it is a result, not an error. The
+(report, 10 minutes, report) and **OFF**, then the same for **battery saver**. At the end the script publishes the result
+file as the branch `e3-results/<time>` (it prints `PUSHED e3-results/<time>`; `-SkipPush` keeps it local): tell the coordinator
+"done". "service running: False" or "readings grew: False" in it is a result, not an error. The
 script is untested on the watch; if it fails, send the file and use the manual steps below.
 
 **Manual steps (fallback).**
@@ -168,8 +170,9 @@ Report the `PROBE front` lines of both runs and answer, in your own words:
 It vibrates in six states (normal, Do Not Disturb, Bedtime, Theater, vibration intensity lowest and highest) and tries both
 Do Not Disturb routes under Do Not Disturb, Bedtime and Theater. It sets Do Not Disturb itself (and switches it off at the
 end); it asks you to turn Bedtime, Theater and the vibration intensity on and off on the watch. After each try type what you felt
-(none, weak or strong) and, for the routes, whether the screen woke (yes or no). Send back the whole result file
-(`probe-results\e6-<time>.txt`). Untested on the watch; if it fails, send the file and use the manual steps below.
+(none, weak or strong) and, for the routes, whether the screen woke (yes or no). At the end the script publishes the result
+file as the branch `e6-results/<time>` (it prints `PUSHED e6-results/<time>`; `-SkipPush` keeps it local): tell the coordinator
+"done". Untested on the watch; if it fails, send the file and use the manual steps below.
 
 **Manual steps (fallback).**
 

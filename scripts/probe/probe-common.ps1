@@ -1,5 +1,5 @@
 # Shared by run-e1.ps1, run-e3.ps1 and run-e6.ps1 (dot-sourced): adb helpers, the result file, the service start and the report.
-# Expects the calling script's parameters: $Watch, $OutDir, $ReportWaitSec, $AvailableTimeoutSec, $Unattended, $AllowCharging.
+# Expects the calling script's parameters: $Watch, $OutDir, $ReportWaitSec, $AvailableTimeoutSec, $Unattended, $AllowCharging, $SkipPush.
 # Untested on the watch (see the header of each run script); tested only against scripts/probe/fake/adb.
 
 $ErrorActionPreference = 'Continue'
@@ -42,7 +42,7 @@ function Initialize-Probe([string]$Prefix) {
     $env:ANDROID_SERIAL = $Watch
     New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
     $script:LogFile = Join-Path $OutDir ("$Prefix-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.txt')
-    Log "$Prefix result file: $script:LogFile"
+    Log "$Prefix result file: $(Split-Path -Leaf $script:LogFile)"
     Write-Host "result file: $script:LogFile"
     & adb connect $Watch 2>&1 | Out-Null
 }
@@ -126,4 +126,41 @@ function Stop-ProbeService {
     & adb connect $Watch 2>&1 | Out-Null
     Probe 'measure-stop'
     Log ("battery after: " + (BatteryLevel (BatteryText)))
+}
+
+# Publishes the result file as the branch <prefix>-results/<stamp> holding ONLY that file (one commit, no parent), built with
+# git plumbing and a temporary index, so the working tree, the index and HEAD of this checkout are not touched. On a failed
+# push it prints the branch, the file and the command to retry; it never changes the exit code of the run.
+function Publish-Result([string]$Prefix) {
+    if ($SkipPush) { Write-Host "Not pushed (-SkipPush). Result file: $script:LogFile"; return }
+    $name = Split-Path -Leaf $script:LogFile
+    $stamp = $name -replace "^$Prefix-", '' -replace '\.txt$', ''
+    $branch = "$Prefix-results/$stamp"
+    $index = Join-Path ([IO.Path]::GetTempPath()) "$Prefix-$stamp.idx"
+    $commit = ''
+    try {
+        $repo = (& git -C $PSScriptRoot rev-parse --show-toplevel 2>$null | Out-String).Trim()
+        if (-not $repo) { throw 'the script is not inside a git checkout' }
+        if (-not (& git -C $repo config user.name)) {
+            $env:GIT_AUTHOR_NAME = 'probe'; $env:GIT_AUTHOR_EMAIL = 'probe@invalid'
+            $env:GIT_COMMITTER_NAME = 'probe'; $env:GIT_COMMITTER_EMAIL = 'probe@invalid'
+        }
+        $env:GIT_INDEX_FILE = $index
+        try {
+            $blob = (& git -C $repo hash-object -w $script:LogFile | Out-String).Trim()
+            & git -C $repo update-index --add --cacheinfo "100644,$blob,$name" | Out-Null
+            $tree = (& git -C $repo write-tree | Out-String).Trim()
+        } finally {
+            Remove-Item Env:GIT_INDEX_FILE -ErrorAction SilentlyContinue
+            Remove-Item $index -ErrorAction SilentlyContinue
+        }
+        $commit = (& git -C $repo commit-tree $tree -m "$Prefix result $stamp" | Out-String).Trim()
+        $pushOutput = (& git -C $repo push origin "${commit}:refs/heads/$branch" 2>&1 | Out-String)
+        if ($LASTEXITCODE -ne 0) { throw "git push said: $pushOutput" }
+        Write-Host "PUSHED $branch"
+    } catch {
+        Write-Host "Push failed ($_). The result file is $script:LogFile (branch $branch)."
+        if ($commit) { Write-Host "Retry in the repository folder: git push origin ${commit}:refs/heads/$branch" }
+        else { Write-Host "Retry by running the script again or tell the coordinator; send the result file." }
+    }
 }

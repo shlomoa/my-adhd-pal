@@ -33,7 +33,8 @@ param(
     [string]$Watch = $env:ANDROID_SERIAL,
     [string]$OutDir = (Join-Path $HOME 'probe-results'),
     [double]$AlarmWaitSec = 25,
-    [double]$ReportWaitSec = 3
+    [double]$ReportWaitSec = 3,
+    [switch]$SkipPush
 )
 
 . (Join-Path $PSScriptRoot 'probe-common.ps1')
@@ -93,7 +94,8 @@ try {
 } finally {
     & adb connect $Watch 2>&1 | Out-Null
     Invoke-Adb @('shell', 'cmd', 'notification', 'set_dnd', 'off') | Out-Null
-    Log "Do Not Disturb switched off; result file: $script:LogFile"
+    Log "Do Not Disturb switched off; result file: $(Split-Path -Leaf $script:LogFile)"
 }
+Publish-Result 'e6'
 if ($failed) { exit 1 }
 exit 0
