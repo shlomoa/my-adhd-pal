@@ -80,11 +80,19 @@ bash "$runner" --groups >"$tmp/groups.txt" 2>&1
 bad=0
 for n in test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protocol-spec.sh test-gates.sh test-spike.sh \
   test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh test-post-merge.sh; do
+  [ "$(grep -oE -- "(^| )$n(@[A-Za-z0-9._-]+)?( |$)" "$tmp/groups.txt" | wc -l)" -ge 1 ] || { echo "  $n is in no group"; bad=1; }
+done
+# every test runs once, except test-spike.sh: it runs as its two suites, each in a group of its own
+for n in test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protocol-spec.sh test-gates.sh \
+  test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh test-post-merge.sh; do
   [ "$(grep -ow -- "$n" "$tmp/groups.txt" | wc -l)" -eq 1 ] || { echo "  $n is not in exactly one group"; bad=1; }
 done
-[ "$bad" -eq 0 ]; check "TC-V-007 every post-merge test is in exactly one group" 0 $?
-[ "$(grep -c '^group [0-9]*: ' "$tmp/groups.txt")" -ge 3 ]; check "TC-V-007 there are at least three groups" 0 $?
-[ "$(grep -ow -- 'test-[a-z-]*\.sh' "$tmp/groups.txt" | wc -l)" -eq 12 ]; check "TC-V-007 the groups hold exactly the twelve tests" 0 $?
+[ "$(grep -ow -- 'test-spike.sh@test-run-0b2a' "$tmp/groups.txt" | wc -l)" -eq 1 ] &&
+  [ "$(grep -ow -- 'test-spike.sh@test-run-0b2b' "$tmp/groups.txt" | wc -l)" -eq 1 ] &&
+  [ "$(grep -c 'test-spike.sh' "$tmp/groups.txt")" -eq 2 ] || { echo "  test-spike.sh is not split into its two suites"; bad=1; }
+[ "$bad" -eq 0 ]; check "TC-V-007 every post-merge test is in exactly one group (the spike as its two suites)" 0 $?
+[ "$(grep -c '^group [0-9]*: ' "$tmp/groups.txt")" -ge 4 ]; check "TC-V-007 there are at least four groups" 0 $?
+[ "$(grep -oE -- 'test-[a-z-]*\.sh' "$tmp/groups.txt" | wc -l)" -eq 13 ]; check "TC-V-007 the groups hold exactly the thirteen units" 0 $?
 
 # TC-V-008 groups run at the same time, a failure in any group fails the run and shows in the report, the other groups finish
 pdir="$tmp/par"; mkdir -p "$pdir"
@@ -126,4 +134,25 @@ MARK="$tmp/mark" POST_MERGE_TEST_DIR="$ldir" POST_MERGE_GROUPS="test-crash-once.
   bash "$runner" >"$tmp/run5.txt" 2>&1; check "TC-V-010 a lint crash on the first run and a pass on the rerun is green" 0 $?
 POST_MERGE_TEST_DIR="$ldir" POST_MERGE_GROUPS="test-crash-always.sh" POST_MERGE_OUT="$tmp/out6" \
   bash "$runner" >"$tmp/run6.txt" 2>&1; check "TC-V-010 a lint crash on both runs fails" 1 $?
+# TC-V-011 a unit `test.sh@arg` passes the argument as POST_MERGE_ARG and logs to test@arg.log; every unit prints its duration
+adir="$tmp/arg"; mkdir -p "$adir"
+printf '#!/usr/bin/env bash\necho "PASS TC-X-030 arg=${POST_MERGE_ARG:-none}"\n' > "$adir/test-arg.sh"
+POST_MERGE_TEST_DIR="$adir" POST_MERGE_GROUPS="test-arg.sh@one|test-arg.sh" POST_MERGE_OUT="$tmp/out7" \
+  bash "$runner" >"$tmp/run7.txt" 2>&1; check "TC-V-011 units with and without an argument pass" 0 $?
+grep -q 'arg=one' "$tmp/out7/test-arg@one.log" 2>/dev/null && grep -q 'arg=none' "$tmp/out7/test-arg.log" 2>/dev/null
+check "TC-V-011 the argument reaches the test as POST_MERGE_ARG and each unit has its own log" 0 $?
+grep -qE '^== test-arg\.sh@one took [0-9]+s$' "$tmp/run7.txt" && grep -qE '^== test-arg\.sh took [0-9]+s$' "$tmp/run7.txt"
+check "TC-V-011 the run output names each unit and its duration" 0 $?
+
+# TC-V-012 test-spike.sh runs only the suite named in POST_MERGE_ARG, both suites without it
+sroot="$tmp/sroot"; mkdir -p "$sroot/scripts/spike"
+for s in test-run-0b2a test-run-0b2b; do
+  printf '#!/usr/bin/env bash\necho "PASS ran %s"\n' "$s" > "$sroot/scripts/spike/$s.sh"; chmod +x "$sroot/scripts/spike/$s.sh"
+done
+REPO_ROOT="$sroot" POST_MERGE_ARG=test-run-0b2b bash scripts/test/test-spike.sh >"$tmp/spike1.txt" 2>&1
+grep -q 'PASS TC-S-146 test-run-0b2b.sh passes' "$tmp/spike1.txt" && ! grep -q 'test-run-0b2a.sh passes' "$tmp/spike1.txt"
+check "TC-V-012 with POST_MERGE_ARG only that spike suite runs" 0 $?
+REPO_ROOT="$sroot" bash scripts/test/test-spike.sh >"$tmp/spike2.txt" 2>&1
+grep -q 'test-run-0b2a.sh passes' "$tmp/spike2.txt" && grep -q 'test-run-0b2b.sh passes' "$tmp/spike2.txt"
+check "TC-V-012 without it both spike suites run" 0 $?
 exit $fail
