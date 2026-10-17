@@ -88,4 +88,9 @@ run scripts/check-work-log.sh docs/work-log/docs.md; check "TC-D-010 the docs wo
 # TC-D-011 lane D (documentation) label is accepted
 jq 'map(if .number == 3 then .labels = [{"name":"milestone:4"},{"name":"lane:D"}] else . end)' "$tmp/good.json" > "$tmp/laned.json"
 run scripts/check-issues.sh "$tmp/laned.json" "$tmp/plan.md"; check "TC-D-011 a lane:D label is accepted" 0 $?
+
+# TC-V-002 lane V (validation) label is accepted and its work log follows the format
+jq 'map(if .number == 3 then .labels = [{"name":"milestone:4"},{"name":"lane:V"}] else . end)' "$tmp/good.json" > "$tmp/lanev.json"
+run scripts/check-issues.sh "$tmp/lanev.json" "$tmp/plan.md"; check "TC-V-002 a lane:V label is accepted" 0 $?
+run scripts/check-work-log.sh docs/work-log/validation.md; check "TC-V-002 the validation work log follows the format" 0 $?
 exit $fail

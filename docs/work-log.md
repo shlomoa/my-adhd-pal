@@ -8,6 +8,7 @@ One log per lane, so parallel sessions never edit the same file. Add entries at 
 | [`work-log/android.md`](work-log/android.md) | Android lane (A) |
 | [`work-log/watch.md`](work-log/watch.md) | Watch lane (W) |
 | [`work-log/docs.md`](work-log/docs.md) | Documentation lane (D) |
+| [`work-log/validation.md`](work-log/validation.md) | Validation lane (V) |
 | [`work-log/planning.md`](work-log/planning.md) | planning threads and the orchestrator |
 
 ## Entry format
