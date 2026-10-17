@@ -28,11 +28,16 @@ for f in scripts/test/test-*.sh; do
 done
 [ -z "$lost" ]; check "TC-S-172 every script test runs somewhere (not run:$lost)" 0 $?
 
-# TC-S-175 the two Gradle-free tests that take about a second stay per pull request and are not repeated after the merge
+# TC-V-006 the whole former script-tests job runs after the merge and no part of it runs per pull request
 gates=.github/workflows/gates.yml
-has 'scripts/test/test-protocol-spec.sh' "$gates" && has 'scripts/test/test-gates.sh' "$gates"
-check "TC-S-175 gates.yml runs test-protocol-spec.sh and test-gates.sh per pull request" 0 $?
-! grep -qE 'test-(protocol-spec|gates)\.sh' "$runner"; check "TC-S-175 the post-merge runner does not repeat them" 0 $?
+missing=""
+for n in test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protocol-spec.sh test-gates.sh test-spike.sh \
+  test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh test-post-merge.sh; do
+  has "$n" "$runner" || missing="$missing $n"
+done
+[ -z "$missing" ]; check "TC-V-006 the runner lists all former script-tests and this test (missing:$missing)" 0 $?
+! grep -qrE 'scripts/test/test-(structure|pairing|checks|ci|protocol-spec|gates|spike|design-docs|doc-checks|docs-site|design-style|post-merge)\.sh' .github/workflows
+check "TC-V-006 no workflow runs any of them per pull request" 0 $?
 
 # TC-S-173 the runner runs every listed test, keeps going after a failure, and names what failed
 dir="$tmp/tests"; mkdir -p "$dir"
