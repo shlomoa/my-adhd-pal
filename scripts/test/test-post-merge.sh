@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The script tests run after each merge to main, not on every pull request (issue 190).
-# Fast: no Gradle. Run: scripts/test/test-post-merge.sh
+# Fast: no Gradle. Run: bash scripts/test/test-post-merge.sh
 set -u
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$here/../.."
@@ -39,16 +39,15 @@ dir="$tmp/tests"; mkdir -p "$dir"
 printf '#!/usr/bin/env bash\necho "PASS TC-X-001 fine"\n' > "$dir/test-good.sh"
 printf '#!/usr/bin/env bash\necho "PASS TC-X-002 fine"\necho "FAIL TC-X-003 broken thing"\nexit 1\n' > "$dir/test-bad.sh"
 printf '#!/usr/bin/env bash\necho "PASS TC-X-004 fine"\n' > "$dir/test-last.sh"
-chmod +x "$dir"/*.sh
 POST_MERGE_TEST_DIR="$dir" POST_MERGE_TESTS="test-bad.sh test-good.sh test-last.sh" POST_MERGE_OUT="$tmp/out1" \
-  "$runner" >"$tmp/run1.txt" 2>&1; rc=$?
+  bash "$runner" >"$tmp/run1.txt" 2>&1; rc=$?
 check "TC-S-173 a failing test makes the runner exit 1" 1 $rc
 grep -q 'TC-X-004' "$tmp/out1/test-last.log" 2>/dev/null; check "TC-S-173 tests after the failure still ran" 0 $?
 grep -q 'test-bad.sh' "$tmp/out1/report.md" && grep -q 'FAIL TC-X-003 broken thing' "$tmp/out1/report.md"
 check "TC-S-173 the report names the failing script and the failing case" 0 $?
 ! grep -q 'test-good.sh' "$tmp/out1/report.md"; check "TC-S-173 the report does not list passing scripts" 0 $?
 POST_MERGE_TEST_DIR="$dir" POST_MERGE_TESTS="test-good.sh test-last.sh" POST_MERGE_OUT="$tmp/out2" \
-  "$runner" >"$tmp/run2.txt" 2>&1; check "TC-S-173 all passing makes the runner exit 0" 0 $?
+  bash "$runner" >"$tmp/run2.txt" 2>&1; check "TC-S-173 all passing makes the runner exit 0" 0 $?
 
 # TC-V-001 lane V is set up: plan, catalogue, work log, gate G-VAL (owner V, requires G-BOOT) and ownership
 bad=0
