@@ -180,6 +180,22 @@ A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
    secondhand).
 3. The vibration/DND/Bedtime/intensity checks of section 4, and the remote permission flow of section 5.
 
+### First result on the real watch (Galaxy Watch6 Classic, Wear OS 6, 2026-10-17)
+
+Probe step 1 and 2, as reported by the user through the coordinator. Verified on the device, one run, not yet repeated:
+
+- `getCapabilitiesAsync()` reports passive `HEART_RATE_BPM` supported (`heartRatePassive=true`).
+- `pm grant` worked for both `android.permission.health.READ_HEART_RATE` and `READ_HEALTH_DATA_IN_BACKGROUND`; without the first, `start` fails
+  with `SecurityException: Missing permissions: [android.permission.health.READ_HEART_RATE]` (section 5 therefore holds for Wear OS 6).
+- The background app does receive heart-rate data, but in **large, delayed batches**: after `start` at 09:49:41 the only batch in about ten
+  minutes arrived at 09:57:22 (7 min 41 s later) with 318 samples, about 0.7 samples per second. So the watch collects at about 1 sample per
+  1.4 s while worn, and delivers them minutes later. Consequence for the alert: the delay from a high heart rate to the alert can be several
+  minutes (D6, best effort, holds; it is now measured, not assumed), and the hourly lows and the baseline have enough samples.
+- The batch was logged with the screen off although the user says the screen stays lit on the wrist: the first probe read `isInteractive`, which
+  is false in the always-on display. The probe now records the display state (on, doze, off) and the age of the newest sample, and step 2 runs
+  30 minutes to see several batches. Not yet known: the gap between batches, the delay with the screen on, and the behaviour off the wrist
+  (step 3 is running).
+
 ## 7. What changes elsewhere (not done in this document)
 
 | Change | Owner | Why |

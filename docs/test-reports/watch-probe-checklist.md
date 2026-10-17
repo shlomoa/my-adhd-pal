@@ -37,15 +37,15 @@ adb shell am start -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbePermissionAct
 
 `start` (step 2) refuses to run while a permission is missing and prints which one.
 
-## 2. Worn on the wrist, normal use (10 minutes)
+## 2. Worn on the wrist, normal use (30 minutes)
 
 Wear the watch normally and leave it alone, letting the screen time out.
 
 ```powershell
-adb shell am broadcast -n $P --es cmd clear; adb shell am broadcast -n $P --es cmd start; Start-Sleep 600; adb shell am broadcast -n $P --es cmd report; Start-Sleep 3; adb logcat -d -s PROBE:I
+adb shell am broadcast -n $P --es cmd clear; adb shell am broadcast -n $P --es cmd start; Start-Sleep 1800; adb shell am broadcast -n $P --es cmd report; Start-Sleep 3; adb logcat -d -s PROBE:I
 ```
 
-Report: the three `PROBE report screen=...` lines (all, on, off) and any `PROBE start failed` line. `gapSec` is the time between
+The first run (10 minutes) delivered one batch only, so this step now runs 30 minutes to see several batches and their gaps. Report: every `PROBE report screen=...` line (all, then on, doze, off as they occur; doze is the always-on display) and any `PROBE start failed` line. `newestAgeSec` is how old the newest sample was when the batch arrived. `gapSec` is the time between
 deliveries in seconds. No `batch` lines at all means the watch delivered nothing to the app.
 
 ## 3. Off the wrist, on a table (10 minutes)
