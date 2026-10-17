@@ -15,12 +15,12 @@ object ProbeLog {
         Log.i(TAG, message)
     }
 
-    fun record(context: Context, batch: ProbeBatch) = synchronized(lock) {
-        file(context).appendText(batch.toLine() + "\n")
+    fun record(context: Context, delivery: ProbeDelivery) = synchronized(lock) {
+        file(context).appendText(delivery.toLine() + "\n")
     }
 
-    fun batches(context: Context): List<ProbeBatch> = synchronized(lock) {
-        file(context).takeIf { it.exists() }?.readLines().orEmpty().mapNotNull(::parseBatch)
+    fun deliveries(context: Context): List<ProbeDelivery> = synchronized(lock) {
+        file(context).takeIf { it.exists() }?.readLines().orEmpty().mapNotNull(::parseDelivery)
     }
 
     fun clear(context: Context) = synchronized(lock) { file(context).delete() }

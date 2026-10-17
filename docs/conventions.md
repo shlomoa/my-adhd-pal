@@ -63,7 +63,7 @@ Shared configuration (`applicationId`, SDK levels) is defined once: the `[versio
 
 The post-merge run is not a pull request check and not a workflow, so a pull request never waits for it. The validation
 lane (V) checks out the merged `main` sha and runs `scripts/ci-post-merge/run-tests.sh` itself (several merges in a row:
-the latest sha, bisecting only when red). The runner runs three groups of tests at the same time, each group in its own
+the latest sha, bisecting only when red). The runner runs four groups of tests at the same time (a unit `test-x.sh@arg` runs the test with `POST_MERGE_ARG=arg`, so the slow spike test is split over two groups; one Gradle dry run first installs the SDK components; every unit prints `== <unit> took Ns`, the data for balancing), each group in its own
 git worktree of that sha (some tests edit and restore files or run Gradle in the checkout), and reruns a test once when
 its log shows the known lint crash. When it fails, or cannot run, lane V opens one issue labelled `main-red` with
 its GitHub issue tool. The issue body names the failing test ids, the sha, the owning lane and the sub-agent. Lane V
@@ -76,11 +76,38 @@ closes it with the sub-agent once a later run is green. A new `scripts/test/test
 Android lint sometimes stops with `Unexpected failure during lint analysis of <file>.kt`, a
 `KotlinIllegalArgumentExceptionWithAttachments` from `LLFirModuleLazyDeclarationResolver.handleExceptionFromResolve`
 (stack through `SymbolLightClassForClassOrObject.isRecord` and `UElementVisitor.visitFile`). That is a crash of lint's
-Kotlin Analysis API, not a lint finding about the code. It was seen with AGP 9.4.1 and Kotlin 2.4.x, mostly on the
-first `check` after a merge or a failed build that changed Kotlin or resource files, and an identical second run
-passes. We could not reproduce it from a clean state or from a merge in five full runs. The same signature is reported
-in [bluecard issue 227](https://github.com/bryancassell/bluecard/issues/227) (AGP 9.4.1, Kotlin 2.4.20, also
-intermittent after edits, no fix named); no fix is documented in the AGP release notes seen so far.
+Kotlin Analysis API, not a lint finding about the code. It was seen with AGP 9.4.1, Kotlin 2.4.x and Gradle 9.8.1. The
+same signature is reported in [bluecard issue 227](https://github.com/bryancassell/bluecard/issues/227); no fix is
+named there, none is in the AGP 9.4 or 9.5 alpha release notes, and no newer stable AGP, Kotlin or Gradle exists
+(see [Tooling freshness](research/tooling.md)).
+
+**How to recognise it.** The failed task is `:phone:lintAnalyzeDebugUnitTest` (lint of the phone's unit-test sources,
+for example `AlertActivityTest.kt`), the output has three of these messages, and there is no lint finding with a rule id
+and a line. A real finding always names both.
+
+**When it happens.** Not deterministic. It was seen:
+
+- on the first `check` after a merge of main that rewrote Kotlin or resource files, after `spotlessApply`, or after a
+  failed build (Android lane), and an identical rerun passed;
+- in `scripts/test/test-checks.sh` at TC-S-017 (`./gradlew check --rerun-tasks`) after `test-structure.sh` and
+  `test-pairing.sh` had run in the same checkout, twice in a row, while the same script passed in a clean git worktree
+  (lane V);
+- in one of four consecutive runs of `./gradlew --console=plain check --rerun-tasks` on main in one checkout, with no
+  source change in between (lane S): run 1 passed, run 2 failed, runs 3 and 4 were not completed.
+
+It did not happen in three runs of `clean` and `:phone:lintAnalyzeDebugUnitTest` alone, nor in `check` at one commit
+followed by `check` after switching the same tree to main. So a full lint analysis (`--rerun-tasks`) in a tree and
+daemon that already ran other Gradle work raises the odds; the necessary condition is not known. The full recipe and the
+open question are in the "Recipe (lane S)" section of issue #205.
+
+**Failing recipe** (may need several tries; use a checkout of main):
+
+```sh
+for i in 1 2 3 4; do ./gradlew --console=plain check --rerun-tasks; done
+```
+
+**What clears it.** Running the same command again, or a clean git worktree. Not yet tested on its own:
+`./gradlew --stop` and removing `phone/build` and `.gradle`.
 
 What to do:
 

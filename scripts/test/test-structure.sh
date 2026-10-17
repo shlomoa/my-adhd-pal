@@ -5,8 +5,13 @@ set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$root"
 fail=0
+log="$(mktemp)"
+trap 'rm -f "$log"' EXIT
 check() { # name expected actual
-  if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi
+  if [ "$2" = "$3" ]; then echo "PASS $1"; else
+    echo "FAIL $1 (expected $2, got $3)"; fail=1
+    [ -s "$log" ] && { echo "  --- last output of the Gradle build:"; tail -n 25 "$log" | sed 's/^/  | /'; }
+  fi
 }
 has() { grep -qE -- "$1" "$2" 2>/dev/null; }
 
@@ -32,7 +37,7 @@ has 'kotlin.jvm' protocol/build.gradle.kts && ! has 'android' protocol/build.gra
 ! grep -rqE '^import android\.|^import androidx\.' protocol/src 2>/dev/null && [ -d protocol/src ]; check "TC-S-005 protocol sources import nothing from Android" 0 $?
 
 # TC-S-006 both apps build and the protocol tests run
-./gradlew --console=plain :wear:assembleDebug :phone:assembleDebug :protocol:test >"${TMPDIR:-/tmp}/structure-gradle.log" 2>&1; check "TC-S-006 wear and phone build, protocol tests run" 0 $?
+./gradlew --console=plain :wear:assembleDebug :phone:assembleDebug :protocol:test >"$log" 2>&1; check "TC-S-006 wear and phone build, protocol tests run" 0 $?
 ls wear/build/outputs/apk/debug/*.apk >/dev/null 2>&1; check "TC-S-002 wear debug APK exists" 0 $?
 ls phone/build/outputs/apk/debug/*.apk >/dev/null 2>&1; check "TC-S-006 phone debug APK exists" 0 $?
 exit $fail

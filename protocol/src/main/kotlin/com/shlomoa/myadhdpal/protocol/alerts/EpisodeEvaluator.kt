@@ -16,8 +16,9 @@ import com.shlomoa.myadhdpal.protocol.Metric
  * - a reading at or below the threshold ends the episode, and so does [endEpisode] ("I'm OK" on either device); the
  *   next breach starts a new episode at level 1.
  *
- * Times are the reading times (epoch milliseconds on the watch clock), so batched delivery is evaluated in timestamp
- * order. State is in memory; the caller keeps its own record if it must survive a process restart. Not thread-safe.
+ * Times are the reading times (epoch milliseconds on the watch clock), so readings in any order are evaluated in
+ * timestamp order. State is in memory; the caller keeps its own record if it must survive a process restart. Not
+ * thread-safe.
  */
 class EpisodeEvaluator(private val settings: AlertSettings, private val newEpisodeId: () -> String) {
     private var episodeId: String? = null

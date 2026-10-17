@@ -13,7 +13,7 @@ data class HourlyLow(val hour: Long, val bpm: Double)
  *   lows.
  *
  * Only the hourly lows (a derived statistic) are kept and can be saved with [hourlyLows] and restored through the
- * constructor; raw samples are held in memory for the current and the previous hour only, so that batched and
+ * constructor; raw samples are held in memory for the current and the previous hour only, so that
  * out-of-order delivery gives the hour's real low, and are never saved or logged. Not thread-safe.
  */
 class BaselineTracker(restored: List<HourlyLow> = emptyList()) {

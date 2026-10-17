@@ -7,18 +7,33 @@ cd "$root"
 fail=0
 out="$(mktemp)"
 fixtures=()
+made_dirs=()
+empty_dirs_before="$(find wear/src phone/src protocol/src -type d -empty | sort | tr '\n' ' ')"
 check() { # name expected actual
   if [ "$2" = "$3" ]; then echo "PASS $1"; else
     echo "FAIL $1 (expected $2, got $3)"; fail=1
     [ -s "$out" ] && { echo "  --- last output of the previous command:"; tail -n 25 "$out" | sed 's/^/  | /'; }
   fi
 }
-cleanup() { for f in "${fixtures[@]:-}"; do [ -z "$f" ] || rm -f "$f"; done; rm -f "$out"; }
+cleanup() {
+  for f in "${fixtures[@]:-}"; do [ -z "$f" ] || rm -f "$f"; done
+  for d in "${made_dirs[@]:-}"; do [ -z "$d" ] || rm -rf "$d"; done
+  rm -f "$out"
+}
 trap cleanup EXIT
 gradle() { ./gradlew --console=plain "$@" >"$out" 2>&1; }
 # fails_with <expected text...>: the last gradle run failed for the stated reason (not because a task is missing)
 fails_with() { local rc=$1; shift; [ "$rc" -ne 0 ] && ! grep -q "not found in root project\|not found in project" "$out" && for t in "$@"; do grep -qF -- "$t" "$out" || return 1; done; }
-fixture() { fixtures+=("$1"); mkdir -p "$(dirname "$1")"; cat > "$1"; }
+fixture() { # path: writes stdin there; remembers the topmost directory it had to create so cleanup removes it too
+  local top; top="$(dirname "$1")"
+  while [ ! -d "$(dirname "$top")" ]; do top="$(dirname "$top")"; done
+  [ -d "$(dirname "$1")" ] || made_dirs+=("$top")
+  fixtures+=("$1"); mkdir -p "$(dirname "$1")"; cat > "$1"
+}
+
+# TC-S-196 no script writes a fixed-name file in /tmp: two runs on one machine would share it (use mktemp)
+! grep -nE '/tmp/[A-Za-z]|TMPDIR:-/tmp\}/[A-Za-z]' scripts/*.sh scripts/test/*.sh scripts/ci-post-merge/*.sh | grep -v '^[^:]*:[0-9]*:\s*#'
+check "TC-S-196 no script writes a fixed-name file in /tmp" 0 $?
 
 # TC-S-016 the tools run behind ./gradlew check and the workflow carries no tool list
 tasks="$(./gradlew --console=plain -q check --dry-run 2>&1)"
@@ -135,4 +150,10 @@ gradle lintDocs; rc=$?
 fails_with $rc zz-fixture-style.md:3 MD018; check "TC-S-015 markdownlint violation fails and names rule and line" 0 $?
 rm -f $bad
 gradle lintDocs; check "TC-S-015 fix is green" 0 $?
+
+# TC-S-197 the fixtures leave no directory behind: the source sets look as they did before the run
+cleanup
+[ "$(find wear/src phone/src protocol/src -type d -empty | sort | tr '\n' ' ')" = "$empty_dirs_before" ]
+fail_stray=$?; trap - EXIT
+out=/dev/null; check "TC-S-197 the fixtures leave no empty directory behind" 0 $fail_stray
 exit $fail

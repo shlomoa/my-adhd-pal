@@ -122,7 +122,7 @@ class EpisodeEvaluatorTest {
     }
 
     @Test
-    fun `TC-W-131 batched and out-of-order readings are evaluated in timestamp order`() {
+    fun `TC-W-131 readings in any order are evaluated in timestamp order`() {
         val shuffled = evaluator().evaluate(
             listOf(reading(threshold + 9, 300), reading(threshold + 5, 0), reading(threshold + 7, 150)),
             baseline
