@@ -44,11 +44,15 @@ for y in range(h):
 def alpha(x, y): return rows[y][x*bpp+3] if bpp == 4 else 255
 if mode == 'corners':   # alpha at the four corners and the center
     print(*(alpha(x, y) for x, y in ((0, 0), (w-1, 0), (0, h-1), (w-1, h-1), (w//2, h//2))))
+if mode == 'outside':   # largest alpha outside the circle (beyond 1.03 x radius, so the soft edge is not counted)
+    cx, cy, lim = (w-1)/2, (h-1)/2, 1.03*w/2
+    print(max((alpha(x, y) for y in range(h) for x in range(w) if ((x-cx)**2 + (y-cy)**2) ** .5 > lim), default=0))
 PY
 }
 shots="P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 P11 P12 P13 W1 W2 W3 W4 W5 W6 W7 W8 W9"
-# circle_ok <file>: alpha 0 in the four corners, (almost) opaque in the center
-circle_ok() { local a; a="$(png corners "$1" 2>/dev/null)" || return 1; set -- $a; [ "$#" -eq 5 ] && [ "$1$2$3$4" = 0000 ] && [ "$5" -ge 250 ]; }
+# circle_ok <file>: alpha 0 in the four corners, (almost) opaque in the center, nothing visible (alpha > 16) outside the circle
+circle_ok() { local f="$1" a o; a="$(png corners "$f" 2>/dev/null)" || return 1; set -- $a; [ "$#" -eq 5 ] && [ "$1$2$3$4" = 0000 ] && [ "$5" -ge 250 ] || return 1
+  o="$(png outside "$f" 2>/dev/null)" || return 1; [ "$o" -le 16 ]; }
 file_of() { ls $img/$1-*.png 2>/dev/null | head -1; }
 
 # TC-D-031 W4 is the user's approved reference image: same bytes, 1254x1254 RGBA, transparent outside the circle
@@ -72,18 +76,20 @@ done
 o="$img/overview-screens.png"; [ "$(png info "$o" 2>/dev/null | cut -d' ' -f1-2)" = "2400 1280" ] || { echo "  overview size"; bad=1; }
 [ "$bad" -eq 0 ]; check "TC-D-032 every screen image and the overview have the expected pixel size" $?
 
-# TC-D-033 watch images are circles: transparent corners, opaque center
+# TC-D-033 watch images are circles: transparent corners, opaque center, nothing visible outside the circle
 bad=0
 for s in W1 W2 W3 W4 W5 W6 W7 W8 W9; do
   f="$(file_of $s)"; circle_ok "$f" || { echo "  $s is not a transparent-cornered circle"; bad=1; }
 done
 [ "$bad" -eq 0 ]; check "TC-D-033 watch images W1-W9 are transparent outside the circle" $?
 
-# TC-D-034 render manifest: every image (W4 is the reference) was rendered from the current board and stylesheet
+# TC-D-034 render manifest: every image that comes from a board was rendered from the current board and stylesheet; the
+# overview also from the images it shows; the images that are supplied artwork are listed as supplied (W4 is the reference)
 python3 -I - "$src" "$img" <<'PY'
-import hashlib, json, os, sys
+import hashlib, json, os, re, sys
 src, img = sys.argv[1], sys.argv[2]
-boards = {'P1':'PhoneWatch','P2':'PhoneTasks','P3':'PhoneTaskEdit','P4':'PhoneReminderEdit','P5':'PhoneSchedule','P6':'PhoneHistory','P7':'PhoneSettings','P8':'PhonePrompt','P9':'PhoneHeartRate','P10':'PhoneAlert1','P11':'PhoneAlert2','P12':'PhoneStates','P13':'PhoneLinkStates','W1':'WatchHome','W2':'WatchLinks','W3':'WatchReminder','W5':'WatchTile','W6':'WatchTileEmpty','W7':'WatchAlert1','W8':'WatchAlert2','W9':'WatchPermission','overview':'Main'}
+boards = {'P1':'PhoneWatch','P2':'PhoneTasks','P3':'PhoneTaskEdit','P4':'PhoneReminderEdit','P5':'PhoneSchedule','P6':'PhoneHistory','P7':'PhoneSettings','P8':'PhonePrompt','P9':'PhoneHeartRate','P10':'PhoneAlert1','P11':'PhoneAlert2','P12':'PhoneStates','P13':'PhoneLinkStates','overview':'Main'}
+supplied = ['W1','W2','W3','W4','W5','W6','W7','W8','W9']
 try:
     m = json.load(open(os.path.join(src, 'render-manifest.json')))
 except Exception as e:
@@ -91,14 +97,29 @@ except Exception as e:
 css = open(os.path.join(src, 'ui.css'), 'rb').read()
 bad = 0
 for k, b in boards.items():
-    h = hashlib.sha256(open(os.path.join(src, b + '.dc.html'), 'rb').read() + css).hexdigest()
-    if m.get('images', {}).get(k) != h:
+    data = open(os.path.join(src, b + '.dc.html'), 'rb').read()
+    h = hashlib.sha256(data + css)
+    if k == 'overview':   # the overview shows the other images: they are part of what it was rendered from
+        for name in sorted(set(re.findall(r'images/([A-Za-z0-9_.-]+\.png)', data.decode('utf-8')))):
+            h.update(open(os.path.join(img, name), 'rb').read())
+    if m.get('images', {}).get(k) != h.hexdigest():
         print('  %s was not rendered from the current sources' % k); bad = 1
-if m.get('reference', {}).get('W4') is None:
+if sorted(m.get('supplied', [])) != sorted(supplied):
+    print('  supplied list is %s, want %s' % (m.get('supplied'), supplied)); bad = 1
+if 'W4' not in m.get('reference', {}):
     print('  W4 is not marked as the reference'); bad = 1
 sys.exit(bad)
 PY
-check "TC-D-034 every image was rendered from the current board and stylesheet (render manifest)" $?
+check "TC-D-034 images from boards were rendered from the current sources; supplied artwork is listed as supplied (render manifest)" $?
+
+# TC-D-039 supplied artwork is not pretended to come from a board: no board file is left for it
+bad=0
+for b in WatchHome WatchLinks WatchReminder WatchSelection WatchTile WatchTileEmpty WatchAlert1 WatchAlert2 WatchPermission; do
+  [ -e "$src/$b.dc.html" ] && { echo "  stale board $b.dc.html for a supplied image"; bad=1; }
+done
+for b in PhoneWatch PhoneAlert1 Main; do [ -f "$src/$b.dc.html" ] || { echo "  missing board $b.dc.html"; bad=1; }; done
+grep -q 'supplied' "$src/README.md" || { echo "  the source README does not say which images are supplied"; bad=1; }
+[ "$bad" -eq 0 ]; check "TC-D-039 no board is left for supplied artwork, and the source README says which images are supplied" $?
 
 # TC-D-035 text contrast of the stylesheet palette meets WCAG AA (4.5:1)
 python3 -I - "$src/ui.css" <<'PY'
@@ -123,7 +144,7 @@ sys.exit(bad)
 PY
 check "TC-D-035 stylesheet text contrast pairs meet 4.5:1" $?
 
-# TC-D-036 alert levels differ by text and icon, not only by color (phone P10/P11, watch W7/W8)
+# TC-D-036 alert levels differ by text and icon, not only by color (phone P10/P11 boards; the watch alerts are supplied artwork)
 python3 -I - "$src" <<'PY'
 import re, sys, os
 src = sys.argv[1]
@@ -135,13 +156,13 @@ def parts(name):
     text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', body)).strip()
     return icons, text
 bad = 0
-for a, b in (('PhoneAlert1', 'PhoneAlert2'), ('WatchAlert1', 'WatchAlert2')):
+for a, b in (('PhoneAlert1', 'PhoneAlert2'),):
     ia, ta = parts(a); ib, tb = parts(b)
     if not ia or not ib or ia == ib: print('  %s and %s do not differ by icon' % (a, b)); bad = 1
     if ta == tb: print('  %s and %s do not differ by text' % (a, b)); bad = 1
 sys.exit(bad)
 PY
-check "TC-D-036 alert levels 1 and 2 differ by text and icon" $?
+check "TC-D-036 phone alert levels 1 and 2 differ by text and icon" $?
 
 # TC-D-037 the texts describe the aurora style, keep the proposal wording and the undecided tile action
 bad=0
@@ -159,4 +180,12 @@ for hex in F3F6F9 0B6E78 FFE3B8 B24A0C 3A2A08 5CC8D2 0B1218 DDF0F2 FFF0DC 5C3300
   grep -rqi "#$hex" "$src"/ui.css "$src"/*.dc.html && { echo "  legacy color #$hex is still in the sources"; bad=1; }
 done
 [ "$bad" -eq 0 ]; check "TC-D-038 the legacy palette is gone from ui.css and the boards" $?
+
+# TC-D-040 the overview board shows every screen image (the supplied watch images and the rendered ones), not only a text list
+bad=0
+for sc in $shots; do
+  f="$(file_of $sc)"; b="$(basename "$f")"
+  grep -q "images/$b" "$src/Main.dc.html" 2>/dev/null || { echo "  the overview does not show $b"; bad=1; }
+done
+[ "$bad" -eq 0 ]; check "TC-D-040 the overview board shows all 22 screen images" $?
 exit $fail
