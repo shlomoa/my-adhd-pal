@@ -90,4 +90,9 @@ for f in docs/plans/validation.md docs/test-plans/validation.md docs/work-log/va
 jq -e '.gates[] | select(.id == "G-VAL" and .owner == "V" and (.requires == ["G-BOOT"]))' docs/plans/gates.json >/dev/null 2>&1 || bad=1
 has 'G-VAL' docs/plans/README.md && has 'validation\.md' docs/plans/README.md && has 'ci-post-merge' docs/plans/README.md || bad=1
 [ "$bad" -eq 0 ]; check "TC-V-001 lane V is set up (plan, catalogue, work log, gate G-VAL, ownership)" 0 $?
+
+# TC-V-003 the main-red procedure (one sub-agent per issue, archived when resolved) is written down
+has 'sub-agent' docs/plans/validation.md && has 'archive' docs/plans/validation.md && has 'sub-agent' docs/conventions.md
+check "TC-V-003 validation plan and conventions describe the main-red sub-agent procedure" 0 $?
 exit $fail
+
