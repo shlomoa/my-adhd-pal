@@ -3,10 +3,10 @@ package com.shlomoa.myadhdpal.wear.debug.probe
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** The debug screen that stays in front (experiment E4): screen state and whether it is in front, no heart-rate values. */
+/** The debug front screen (experiment E4): screen state and whether it is in front, no heart-rate values. */
 class FrontScreenStatsTest {
     @Test
-    fun `TC-W-150 the front line gives the event, the screen state, whether the screen is in front and keep-screen-on`() {
+    fun `TC-W-150 the front line gives event, screen state, in front and keep-screen-on`() {
         assertEquals(
             "PROBE front resumed screen=on inFront=true keepOn=false",
             frontLine("resumed", displayState = 2, inFront = true, keepOn = false)

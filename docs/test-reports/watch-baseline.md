@@ -245,6 +245,17 @@ e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:10:9 Unresolved referenc
 e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:15:33 Unresolved reference 'deliveries' on receiver of type 'ProbeSummary'.
 ```
 
+## E4 debug front screen (TC-W-150 to TC-W-152; `wear/src/testDebug/.../debug/probe/FrontScreenStatsTest.kt`)
+
+Experiment E4 (issue #231): the debug probe had no screen that stays in front, so keep-screen-on and the app staying the top window could not be tested.
+Red commit: the first commit of branch `claude/watch-e4-front-screen` (tests only).
+Command: `./gradlew :wear:testDebugUnitTest --tests '*FrontScreenStatsTest*'`. Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/FrontScreenStatsTest.kt:12:13 Unresolved reference 'frontLine'.
+e: wear/src/testDebug/.../debug/probe/FrontScreenStatsTest.kt:34:28 Unresolved reference 'isInFront'.
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
