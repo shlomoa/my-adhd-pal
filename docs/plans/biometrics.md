@@ -6,6 +6,8 @@ proposal are in the body of the issue (section "Decisions"). **Confirmed by the 
 separate one-line PR. Research notes: [`../research/watch.md`](../research/watch.md) sections 3 to 5. Steps 6.3 to 6.8 in
 [`watch.md`](watch.md) follow once H1 and G2b are merged.
 
+**Latest findings and direction: [section 12](#12-findings-and-direction-so-far-2026-10-17).**
+
 Every statement below is marked **Decided** (the user said so), **Verified** (a cited source says so), **Unverified** (not
 confirmed, or secondhand) or **Proposal** (my suggestion, needs the user's yes). Nothing unverified is built before the probe
 on the real watch (section 6).
@@ -437,3 +439,59 @@ Threshold (resting + offset), cooldown (5 min), level 2 every 2 min up to 6 repe
 2. A probe run that registers heart rate, steps and user activity info together (with `ACTIVITY_RECOGNITION` granted) and logs counts, times and the activity state per batch, never values, while the user sits 5 minutes, walks 5 minutes, climbs stairs, then does one exercise without steps (cycling or weights): do steps arrive in the same batch as heart rate, how late is the state change, and what does the state say for each activity.
 3. With Samsung's automatic workout detection switched on and a detected workout running, `getCurrentExerciseInfoAsync()` from a probe command: does it answer `OTHER_APP_IN_PROGRESS`.
 4. Optional, if steps miss too much: a short foreground accelerometer-variance measurement for the same activities, with the battery drop noted.
+
+## 12. Findings and direction so far (2026-10-17)
+
+Written from the user's runs on the Galaxy Watch6 Classic (Wear OS 6) and the user's decisions in [issue #55](https://github.com/shlomoa/my-adhd-pal/issues/55).
+Facts are measurements or quotes; each says where it comes from.
+
+### 12.1 What the user defined (Decided, 2026-10-17)
+
+The acceptance test for every measurement route, in the user's words:
+
+- heart rate is **measured continuously**;
+- heart rate is **compared to the baseline continuously**;
+- a **stress event is reported immediately** and the **local response is activated**.
+
+Separate decision **D9** (Decided): heart rate is measured **only while the watch app is running** (started by the user), not as an always-on background
+service. The route that meets the definition is not chosen yet; the user chooses after the probes below.
+
+### 12.2 What Google says about delivery (Verified, read 2026-10-17)
+
+[Health Services compatibility](https://developer.android.com/health-and-fitness/health-services/compatibility), passive monitoring: "Devices may return heart rate readings at
+different intervals. Some devices may take reading every second. Other devices may take a reading every ten minutes. These intervals are not made available to apps."
+Also: "Don't assume any predefined or predictable batching intervals for any data types." For the exercise route the page says the data is streamed or batched, and
+that "once the display goes off or into ambient mode ... the data is batched in order to save power". The
+[background monitoring page](https://developer.android.com/health-and-fitness/health-services/monitor-background) says background data "is delivered in batches" and that the callback
+"receives data at a slightly faster rate, but only while the app is running". It gives no interval. The words "batches" and the range of intervals therefore come from Google, not
+from us; the 2026-10-11 research note (`../research/watch.md` section 3) quoted it correctly.
+
+### 12.3 Measured on the user's watch
+
+| Route | Result | When |
+|---|---|---|
+| Passive background listener, worn | One batch of 318 readings 7 min 41 s after start | 09:49 to 09:57 |
+| Passive background listener, off the wrist | One batch of 1 reading in 10 minutes | 10:02 to 10:12 |
+| Passive background listener, long run | One batch about every **10 minutes**, 577 to 598 readings, window 580 to 599 s, arriving 0.4 to 11.5 s after the window closes (12:45, 12:55, 13:05, 13:15, 13:25, 13:35) | 12:45 to 13:35 |
+| Live `MeasureClient` in a foreground service, screen on, worn | Capability true; readings AVAILABLE 4 s after start; **734 readings in 5 minutes** (about 2 per second); gap median under 1 s, 95th percentile 1 s, longest **60 s** (cause unknown); battery 68% to 67% (too coarse to give a rate, reported as 11.7 %/hour) | 13:44 to 13:49 |
+
+Consequence: the passive background route delivers a batch about every 10 minutes on this watch, so it does **not** meet "reported immediately". The live route delivers within
+about a second with the screen on. Not measured yet: the live route with the display dim (always-on) and with the screen off, 30 minutes worn, battery over a longer time,
+and whether the "Probe: measuring heart rate" notification is visible (the user saw no pop-up; the notification list was not checked).
+
+### 12.4 Other findings (from earlier sections)
+
+- The Samsung stress value cannot be read by an ordinary app; Samsung's partner programme is the only route (section 9).
+- Movement (steps, activity state) can gate alerts later, after a probe (section 10).
+- A plain app vibration (alarm usage, maximum amplitude, amplitude control available) was felt normally and **not** under Do Not Disturb (priority mode); the routes to get through are
+  in section 4, untested.
+- Every Gradle, npm and PyPI pin was at its latest stable release on 2026-10-17 ([tooling research](../research/tooling.md)).
+
+### 12.5 Direction
+
+1. The live route in a foreground service is the candidate that meets the definition; prove it with the live probe (checklist step 6): screen dim, screen off, 30 minutes, battery,
+   the notification, the 60 s gap.
+2. Until the user chooses the route, nothing is built on the passive batches. The late-batch proposal (section 3a) only matters if a batched route stays in use.
+3. Open decisions for the user (issue #55, D9): show a "monitoring" state of the watch on the phone; how the baseline is kept when the app is not running; whether the app also
+   runs at night.
+4. The Watch, Android and Shared lanes are stopped by the user until the route is decided; their open pull requests are not merged.
