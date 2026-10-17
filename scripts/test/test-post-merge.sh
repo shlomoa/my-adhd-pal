@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The script tests run after each merge to main, not on every pull request (issue 190).
-# Fast: no Gradle, a fake gh. Run: scripts/test/test-post-merge.sh
+# Fast: no Gradle. Run: scripts/test/test-post-merge.sh
 set -u
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$here/../.."
@@ -13,24 +13,14 @@ check() { # name expected actual
 }
 has() { grep -qE -- "$1" "$2" 2>/dev/null; }
 build=.github/workflows/build.yml
-post=.github/workflows/post-merge.yml
 runner=scripts/ci-post-merge/run-tests.sh
-handler=scripts/ci-post-merge/main-red-issue.sh
 
 # TC-S-170 the pull request workflow has no script-tests job and keeps the fast jobs
 ! has '^  script-tests:' "$build"; check "TC-S-170 build.yml has no script-tests job" 0 $?
 has '^  build:' "$build" && has '^  external-links:' "$build" && has '^  docs-site:' "$build"
 check "TC-S-170 build.yml keeps build, external-links and docs-site" 0 $?
 
-# TC-S-171 the post-merge workflow runs on pushes to main and by hand, never on pull requests
-[ -f "$post" ]; check "TC-S-171 post-merge.yml exists" 0 $?
-has '^  push:' "$post" && has 'branches: \[main\]' "$post" && has '^  workflow_dispatch:' "$post"
-check "TC-S-171 it runs on push to main and workflow_dispatch" 0 $?
-! has 'pull_request' "$post"; check "TC-S-171 it never runs on pull requests" 0 $?
-has 'issues: write' "$post" && has "$runner" "$post" && has "$handler" "$post"
-check "TC-S-171 it can write issues and calls the runner and the issue handler" 0 $?
-
-# TC-S-172 no script test is lost: each scripts/test/test-*.sh runs per pull request or after the merge
+# TC-S-172 no script test is lost: each scripts/test/test-*.sh runs per pull request or in the validation agent's run
 lost=""
 for f in scripts/test/test-*.sh; do
   n="$(basename "$f")"
@@ -60,30 +50,6 @@ check "TC-S-173 the report names the failing script and the failing case" 0 $?
 POST_MERGE_TEST_DIR="$dir" POST_MERGE_TESTS="test-good.sh test-last.sh" POST_MERGE_OUT="$tmp/out2" \
   "$runner" >"$tmp/run2.txt" 2>&1; check "TC-S-173 all passing makes the runner exit 0" 0 $?
 
-# TC-S-174 the issue handler opens or updates one main-red issue when red, closes it when green
-mkdir -p "$tmp/bin"
-cat > "$tmp/bin/gh" <<'GH'
-#!/usr/bin/env bash
-echo "$*" >> "$FAKE_GH_LOG"
-if [ "$1 $2" = "issue list" ]; then echo "${FAKE_GH_OPEN:-[]}"; fi
-GH
-chmod +x "$tmp/bin/gh"
-printf '# Script tests failed on main\n\n- test-bad.sh\n  - FAIL TC-X-003 broken thing\n' > "$tmp/report.md"
-run_handler() { # state open-json
-  : > "$tmp/gh.log"
-  PATH="$tmp/bin:$PATH" FAKE_GH_LOG="$tmp/gh.log" FAKE_GH_OPEN="$2" "$handler" "$1" "$tmp/report.md" "https://example.test/run/1" >/dev/null 2>&1
-}
-run_handler red '[]'; check "TC-S-174 red with no open issue succeeds" 0 $?
-grep -q '^issue create' "$tmp/gh.log" && grep -q 'main-red' "$tmp/gh.log"; check "TC-S-174 red with no open issue creates one labelled main-red" 0 $?
-! grep -q '^issue edit' "$tmp/gh.log"; check "TC-S-174 red with no open issue does not edit" 0 $?
-grep -q 'TC-X-003' "$tmp/gh.log" && grep -q 'https://example.test/run/1' "$tmp/gh.log"; check "TC-S-174 the issue text has the failing case and the run link" 0 $?
-run_handler red '[{"number":7}]'
-grep -q '^issue edit 7' "$tmp/gh.log" && ! grep -q '^issue create' "$tmp/gh.log"; check "TC-S-174 red with an open issue updates it and opens no second one" 0 $?
-run_handler green '[{"number":7}]'
-grep -q '^issue close 7' "$tmp/gh.log"; check "TC-S-174 green with an open issue closes it" 0 $?
-run_handler green '[]'
-! grep -qE '^issue (create|edit|close)' "$tmp/gh.log"; check "TC-S-174 green with no open issue does nothing" 0 $?
-
 # TC-V-001 lane V is set up: plan, catalogue, work log, gate G-VAL (owner V, requires G-BOOT) and ownership
 bad=0
 for f in docs/plans/validation.md docs/test-plans/validation.md docs/work-log/validation.md; do [ -f "$f" ] || bad=1; done
@@ -94,5 +60,14 @@ has 'G-VAL' docs/plans/README.md && has 'validation\.md' docs/plans/README.md &&
 # TC-V-003 the main-red procedure (one sub-agent per issue, archived when resolved) is written down
 has 'sub-agent' docs/plans/validation.md && has 'archive' docs/plans/validation.md && has 'sub-agent' docs/conventions.md
 check "TC-V-003 validation plan and conventions describe the main-red sub-agent procedure" 0 $?
-exit $fail
 
+# TC-V-004 the validation lane agent runs the script tests itself: no workflow does, and nothing only served one
+[ ! -e .github/workflows/post-merge.yml ]; check "TC-V-004 there is no post-merge workflow" 0 $?
+[ ! -e scripts/ci-post-merge/main-red-issue.sh ]; check "TC-V-004 the workflow-only issue handler is gone" 0 $?
+
+# TC-V-005 lane V opens the main-red issue itself with its issue tool and the documents say what the issue names
+has 'main-red' docs/conventions.md && has 'issue tool' docs/plans/validation.md && has 'issue tool' docs/conventions.md
+check "TC-V-005 documents say lane V opens the main-red issue with its issue tool" 0 $?
+has 'failing test ids' docs/plans/validation.md && has 'owning lane' docs/plans/validation.md && has 'sha' docs/plans/validation.md
+check "TC-V-005 the issue names the failing test ids, the sha and the owning lane" 0 $?
+exit $fail
