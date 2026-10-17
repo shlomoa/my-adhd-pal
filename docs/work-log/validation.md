@@ -43,3 +43,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `test-checks.sh` runs `./gradlew --stop` before its TC-S-017 check; new case TC-S-198; the lint crash note in `docs/conventions.md` names the evidence.
 - Validation: TC-S-198 red in b3b099b, then green. Evidence for the idea is thin: `check --rerun-tasks` in one checkout crashed in 3 of 6 runs without `--stop` and in 0 of 5 with it. This PR does not claim the crash is fixed.
 - Open items: the cause of the crash is unknown; #205 stays open.
+
+## 2026-10-17 - Issue 237: no `--stop` in the TC-S-017 check
+
+- Issue and PR: #237; PR linked from the issue.
+- Changed: `test-checks.sh` runs `gradle --no-daemon check --rerun-tasks` and no longer `./gradlew --stop`, which ended the daemons of the other post-merge groups (three cases of `test-structure.sh` failed on 444b5b1); TC-S-198 now asserts `--no-daemon`; new case TC-S-199: no script runs `gradlew --stop`.
+- Validation: TC-S-198 and TC-S-199 red in 65781a5, then green. Both are static checks of the script text; the interference itself is covered by the full post-merge runs.
+- Open items: the evidence that the fresh JVM avoids the lint crash of #205 is as thin as it was for `--stop`; #205 stays open.

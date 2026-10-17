@@ -50,8 +50,8 @@ for t in spotlessCheck detekt lintDebug lintDocs; do echo "$tasks" | grep -q "$t
 ! grep -qiE 'markdownlint|ktlint|detekt|spotless|remark' .github/workflows/*.yml; check "TC-S-016 workflows name no lint tool" 0 $?
 
 # TC-S-017 every tool runs on the scaffold (compatibility with AGP 9.4 and Kotlin 2.4)
-./gradlew --stop >/dev/null 2>&1 # a fresh daemon: full lint analysis crashed in daemons that had run other builds (docs/conventions.md)
-gradle check --rerun-tasks; check "TC-S-017 check is green on the scaffold" 0 $?
+# a fresh JVM that no earlier build used; unlike `--stop` it leaves the daemons of other builds alone (issue 237)
+gradle --no-daemon check --rerun-tasks; check "TC-S-017 check is green on the scaffold" 0 $?
 for t in ":spotlessCheck" ":detekt" ":lintDocs" ":phone:lintDebug"; do grep -qF "Task $t" "$out"; check "TC-S-017 $t ran as part of check" 0 $?; done
 
 # TC-S-011 mis-formatted Kotlin fails spotlessCheck; spotlessApply repairs it
