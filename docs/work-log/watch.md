@@ -377,3 +377,16 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   read by `EpisodeEvaluator`; only `baseline + offsetBpm`, or `initialBpm` until a baseline exists, counts (decision in issue #55).
 - Validation: the test passes at once because the evaluator never read `thresholds`; it is a regression guard, not a red-first test. A
   mutation (making the evaluator use `thresholds`) made TC-W-138 fail, then it was reverted. `./gradlew detekt spotlessCheck :protocol:check`.
+
+## 2026-10-17 - Probe permissions fix (found on the real watch)
+
+- Issue and PR: step 6.4, branch `claude/watch-6-4-permissions`
+- Found: on the user's Galaxy Watch6 Classic (Wear OS 6) `start` failed with `SecurityException: Missing permissions:
+  [android.permission.health.READ_HEART_RATE]`; the checklist step 1 granted only the `BODY_SENSORS` pair. Capability check was ok
+  (`heartRatePassive=true`).
+- Changed: `requiredPermissions(sdk)`, `missingPermissions`, `permissionReport` (pure, tested); the probe command `permissions`; `start` refuses
+  and names the missing permissions; `ProbePermissionActivity` shows the system prompt(s) when `pm grant` cannot grant them; checklist step 1
+  grants the health pair too, prints `pm grant` errors and has the fallback command.
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug
+  :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
+- NOT yet run on the watch: whether `pm grant` works for the health permissions, and the prompt fallback (TC-W-136).
