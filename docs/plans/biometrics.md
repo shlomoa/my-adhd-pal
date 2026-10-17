@@ -553,9 +553,7 @@ states, or the exact behaviour per state is recorded; the service survives 30 mi
 
 ### 11.6 What I need from the user
 
-1. Confirm the proposal of 11.2 (the "monitoring" state shown on the phone) and of 11.3 (option c for the baseline), or choose another option.
-2. Run the 30-minute probe of 11.5 when its code is merged.
-3. State whether the app should also run at night.
+1. Run the 30-minute probe of 11.5 when its code is merged.
 
 ## 12. Findings and direction so far (2026-10-17)
 
@@ -606,6 +604,5 @@ and whether the "Probe: measuring heart rate" notification is visible (the user 
 1. The live route in a foreground service is the candidate that meets the definition; prove it with the live probe (checklist step 6): screen dim, screen off, 30 minutes, battery,
    the notification, the 60 s gap.
 2. Until the route is decided, nothing is built on the passive background route.
-3. Deferred, low priority (notes only, user, 2026-10-17): other biometrics, and the "monitoring" status item. Open decisions for the user (issue #55, D9): show a "monitoring" state of the watch on the phone; how the baseline is kept when the app is not running; whether the app also
-   runs at night.
+3. Deferred, low priority (notes only, user, 2026-10-17): other biometrics, and the "monitoring" status item.
 4. The Watch, Android and Shared lanes are stopped by the user until the route is decided; their open pull requests are not merged.
