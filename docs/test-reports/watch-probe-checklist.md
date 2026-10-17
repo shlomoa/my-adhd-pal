@@ -1,4 +1,4 @@
-# Watch probe checklist (step 6.4, cases TC-W-136 and TC-W-137)
+# Watch probe checklist (step 6.4, cases TC-W-136, TC-W-137 and TC-W-149)
 
 For the user, on the real Galaxy Watch6 Classic. **Not yet run.** The probe answers the open questions of
 [`../plans/biometrics.md`](../plans/biometrics.md) section 6 before anything is built on them: does the watch deliver
@@ -45,8 +45,8 @@ Wear the watch normally and leave it alone, letting the screen time out.
 adb shell am broadcast -n $P --es cmd clear; adb shell am broadcast -n $P --es cmd start; Start-Sleep 1800; adb shell am broadcast -n $P --es cmd report; Start-Sleep 3; adb logcat -d -s PROBE:I
 ```
 
-The first run (10 minutes) delivered one batch only, so this step now runs 30 minutes to see several batches and their gaps. Report: every `PROBE report screen=...` line (all, then on, doze, off as they occur; doze is the always-on display) and any `PROBE start failed` line. `newestAgeSec` is how old the newest sample was when the batch arrived. `gapSec` is the time between
-deliveries in seconds. No `batch` lines at all means the watch delivered nothing to the app.
+The first run (10 minutes) delivered one delivery only, so this step now runs 30 minutes to see several deliveries and their gaps. Report: every `PROBE report screen=...` line (all, then on, doze, off as they occur; doze is the always-on display) and any `PROBE start failed` line. `newestAgeSec` is how old the newest sample was when the delivery arrived. `gapSec` is the time between
+deliveries in seconds. No `delivery` lines at all means the watch delivered nothing to the app.
 
 ## 3. Off the wrist, on a table (10 minutes)
 
@@ -111,6 +111,37 @@ adb shell am broadcast -n $P --es cmd stop; Start-Sleep 2; adb logcat -d -s PROB
 ```
 
 Report: `PROBE stop cleared`. The probe stays installed (debug build) and does nothing until started again.
+
+## 6. The live heart-rate route, worn for 30 minutes (case TC-W-149)
+
+For [`../plans/biometrics.md`](../plans/biometrics.md) section 11: the app measures only while it runs. Do step 5 first, so the old probe does not
+confuse the numbers. Wear the watch, with the screen on, on the wrist.
+
+```powershell
+adb shell pm grant com.shlomoa.myadhdpal android.permission.health.READ_HEART_RATE
+adb shell pm grant com.shlomoa.myadhdpal android.permission.POST_NOTIFICATIONS
+adb shell am broadcast -n $P --es cmd measure-clear
+adb shell am broadcast -n $P --es cmd measure-capabilities; Start-Sleep 2; adb logcat -d -s PROBE:I
+adb shell am start -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbeMeasureActivity; Start-Sleep 5; adb logcat -d -s PROBE:I
+```
+
+Do not grant `READ_HEALTH_DATA_IN_BACKGROUND` (it must not be needed). Expect `PROBE measure capabilities heartRateMeasure=true` and `PROBE measure start registered`.
+If it says `permission missing`, run the permission step of step 1 and start again. A "Probe: measuring heart rate" notification appears on the watch.
+
+Then, with the watch worn the whole time:
+
+1. 10 minutes: keep the screen lit (touch it now and then).
+2. 10 minutes: leave it alone so the screen dims and goes to the always-on display.
+3. 10 minutes: hold the wrist down (or lay your arm still) so the screen goes off.
+
+```powershell
+adb shell am broadcast -n $P --es cmd measure-report; Start-Sleep 2; adb logcat -d -s PROBE:I
+adb shell am broadcast -n $P --es cmd measure-stop
+```
+
+Report the `PROBE measure` lines (one for all readings, one per screen state, any `availability` lines, and the `battery` line) and say whether the
+notification was still there at the end, and whether you started anything else on the watch during the 30 minutes. The report shows about one reading
+per second if the live route works; long gaps in the `doze` or `off` lines would mean readings stop, or arrive late, with the screen dim or off.
 
 ## What happens with the answers
 

@@ -405,7 +405,7 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 
 - Issue and PR: docs only, PR #189 (same branch `claude/watch-stress-research`; second request from the user via the coordinator)
 - Changed: `docs/plans/biometrics.md` section 10: the background signals (user activity state, passive steps and calories, raw step and accelerometer sensors, Samsung's automatic
-  workout detection, a user-started workout), their permission, latency and batching compared with heart rate, the usual suppression rules with false- and missed-alarm risks,
+  workout detection, a user-started workout), their permission, latency compared with heart rate, the usual suppression rules with false- and missed-alarm risks,
   how a "user is still" gate would fit the decided design (a proposal needing the user's yes, protocol 1.3), and a recommendation (build later, small) with the probe it needs.
   Official pages read: Google's Health Services background-monitoring, compatibility and active-data pages and Android's motion-sensor page; Samsung's workout-detection page and the
   false-alarm studies are search excerpts (Secondhand).
@@ -414,19 +414,19 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 ## 2026-10-17 - Probe: display state and sample age; first real-watch result
 
 - Issue and PR: step 6.4, branch `claude/watch-6-4-probe-display`
-- Result (user, via the coordinator, Wear OS 6): capability true; both health permissions granted by `pm grant` (#185); one batch of 318 samples
+- Result (user, via the coordinator, Wear OS 6): capability true; both health permissions granted by `pm grant` (#185); one delivery of 318 samples
   7 min 41 s after start, logged screen off while the user says the screen stayed lit. Recorded in `docs/plans/biometrics.md` section 6.
 - Changed: the probe records the display state (`doze` = always-on display) instead of `isInteractive`, the age of the newest sample and the span of
-  each batch; `displayName`, `sampleAges` (pure, tested); checklist step 2 now runs 30 minutes.
+  each delivery; `displayName`, `sampleAges` (pure, tested); checklist step 2 now runs 30 minutes.
 - Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug
   :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
-- NOT yet known: batch gaps, the screen-on delay, off-wrist behaviour (step 3 running), vibration (step 4). TC-W-136 and 137 are not complete.
+- NOT yet known: gaps between deliveries, the screen-on delay, off-wrist behaviour (step 3 running), vibration (step 4). TC-W-136 and 137 are not complete.
 
 ## 2026-10-17 - Probe step 3 result (off the wrist)
 
 - Issue and PR: step 6.4, PR #186 (same branch)
-- Result (user, via the coordinator, old build): watch on a table, screen off, `clear` 10:02:48: one batch of 1 sample at 10:04:13 (about 85 s
-  after `clear`, probably while taking it off), report 10:12:51 `screen=all batches=1 samples=1`, no gap. Off the wrist the watch delivers
+- Result (user, via the coordinator, old build): watch on a table, screen off, `clear` 10:02:48: one delivery of 1 sample at 10:04:13 (about 85 s
+  after `clear`, probably while taking it off), report 10:12:51 `screen=all deliveries=1 samples=1`, no gap. Off the wrist the watch delivers
   essentially nothing. Recorded in `docs/plans/biometrics.md` section 6.
 - Open: step 4 (vibration, the user), then step 2 again for 30 minutes on the build with #186 (display state and sample age).
 
@@ -441,11 +441,11 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint, docs index. No unit test: the
   commands only call Android notification and alarm APIs; their outcome is the user's measurement (TC-W-137, NOT yet complete).
 
-## 2026-10-17 - Probe data: batch sizes and delay
+## 2026-10-17 - Probe data: delivery sizes and delay
 
 - Issue and PR: step 6.4, PR #196, branch `claude/watch-probe-data`
-- Changed: recorded the user's longer probe run in `docs/plans/biometrics.md` section 6: about 1 sample per second, batches of up to about 600 samples
-  (a 10-minute window) delivered seconds after the window, partial batches also occur; consequence for D6: worst case about 10 minutes plus.
+- Changed: recorded the user's longer probe run in `docs/plans/biometrics.md` section 6: about 1 sample per second, deliveries of up to about 600 samples
+  (a 10-minute span) arriving seconds after the span, smaller deliveries also occur; consequence for D6: worst case about 10 minutes plus.
   The first result's sample rate (0.7 per second) is marked as superseded.
 - Open items: wrist state between 10:29 and 11:25 unknown; a clean worn run (checklist step 2) is still open. TC-W-136 and 137 stay NOT complete.
 - Validation: docs lint, links and index (documentation only).
@@ -457,10 +457,49 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   TC-W-070 to TC-W-076 (their tests no longer exist) and the decision document's section 7 text.
 - Validation: docs lint, links and index.
 
-## 2026-10-17 - Proposal: what a late batch raises, and the pause after "I'm OK"
+## 2026-10-17 - Proposal: the pause after "I'm OK"
 
-- Issue and PR: step 6.5 (documentation), branch `claude/watch-late-batch-proposal`
-- Changed: `docs/plans/biometrics.md` section 3a, marked PROPOSAL with the user decision pending: at most one alert per delivery, only if the newest
-  reading is above the threshold, the highest warranted level, repeats and cap counted in alert time; plus the second open question (pause after "I'm OK"). No code.
+- Issue and PR: step 6.5 (documentation), branch `claude/watch-late-proposal`
+- Changed: `docs/plans/biometrics.md` section 3a, the open question (pause after "I'm OK"). No code.
 - Validation: docs lint, links and index (documentation only).
-- Open items: the user decides both questions (via the coordinator); then tests first (new catalogue rows) and the `EpisodeEvaluator` change.
+- Open items: the user decides (via the coordinator); then tests first (new catalogue rows) and the `EpisodeEvaluator` change.
+
+## 2026-10-17 - Live heart-rate probe (D9)
+
+- Issue and PR: step 6.4, branch `claude/watch-measure-probe`
+- Changed: debug-only probe for the live `MeasureClient` route (`wear/src/debug/.../probe/`): `MeasureStats` (pure: report lines, percentile, battery drop),
+  `MeasureLog`, `ProbeMeasureService` (foreground service of type `health` with an ongoing notification, records only arrival times, display state and
+  availability changes), `ProbeMeasureActivity` (starts it from a visible activity), receiver commands `measure-capabilities`, `measure-stop`,
+  `measure-report`, `measure-clear`; debug manifest permissions; checklist step 6 (30 minutes worn). The display-state lookup of `ProbeListenerService` now uses `MeasureLog.displayNow`.
+  Not probed: `OngoingActivity` (needs a new dependency; the plain ongoing notification is probed first).
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
+- Open items: TC-W-149 is a manual case for the user (NOT yet run); TC-W-136 and 137 stay NOT complete. Lint reports a stale entry in `wear/lint-baseline.xml` and `phone/lint-baseline.xml` ("listed in the baseline but not found"): to be reported to the coordinator.
+
+## 2026-10-17 - D9: measure only while the app runs (research and proposal)
+
+- Issue and PR: step 6.5 (documentation), branch `claude/watch-live-measure`; decision recorded in the body of issue #55
+- Changed: `docs/plans/biometrics.md` decision D9, a three-line summary at the top, new section 11 (MeasureClient route, foreground service and ongoing activity,
+  permissions, effect on the baseline and on proposal 3a, battery, a probe design, what the user must do); D6 text updated. No code, no tests.
+- Validation: docs lint, links and index (documentation only).
+- Open items: the user confirms the "monitoring" state on the phone, the baseline option (c) and whether the app runs at night; the probe code
+  (`measure-*` commands) follows in a separate debug-only change; TC-W-136 and 137 stay NOT complete.
+
+## 2026-10-17 - User definition recorded; delivery interval claim withdrawn
+
+- Issue and PR: step 6.5 (documentation), PR #209 (branch `claude/watch-live-measure`)
+- Changed: the user's definition (measure continuously, compare to the baseline continuously, report a stress event immediately and activate the local response)
+  next to D9 in `docs/plans/biometrics.md`, and section 11.0, how each route meets it (the passive route's measured delay of about 10 minutes does not meet "immediately"). In
+  `docs/research/watch.md` section 3 the claim "from every second to every ten minutes" is withdrawn: the cited Google page gives no interval (first written on 2026-10-11, W1b research notes, without a quote).
+- Validation: docs lint, links and index (documentation only).
+- Open items: the route is open until the probe (PR #210, TC-W-149, the user) has run.
+
+## 2026-10-17 - Cleanup: the old delivery term removed everywhere
+
+- Issue and PR: step 6.4/6.5 (user order, via the coordinator), PR #210 (branch `claude/watch-measure-probe`, which now also carries PR #209)
+- Changed: the design no longer rests on delivery in groups. D6 wording, the whole late-delivery proposal (section 3a kept only as the open question about
+  "I'm OK"), and the remarks on rhythm and consequences are deleted in `docs/plans/biometrics.md` and `docs/research/watch.md`. Measured facts stay in neutral words
+  ("delivery", "readings delivered together"). Google is quoted verbatim with its link and no interpretation of it. Renamed in code (passive-route probe only, the
+  live `measure-report` lines are unchanged): the probe delivery type and parser, `ProbeLog.deliveries`, the report text `deliveries=`, the log note `delivery`,
+  and the test and catalogue names; the evaluator and tracker say "in any order". Work-log entries rewritten in the new words, dates and facts kept.
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :protocol:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint, links and index.
+- Open items: none for this cleanup. TC-W-136, 137 and 149 stay NOT yet run (the user).
