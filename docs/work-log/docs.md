@@ -139,3 +139,15 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   `check-docs-index.sh` and `check-test-cases.sh docs final` green.
 - Open items: the generated images are not reproducible from the repository (no prompt or board is kept); the user decides whether
   to keep the generating prompt in the repository.
+
+## 2026-10-17 - D4.4 The look is approved, issue #164 closed
+
+- Issue and PR: #164 (closed as completed after reading its body: the user's decision of 2026-10-17, "current design style and coloring are
+  approved as is", is recorded under Decisions); PR `claude/docs-look-approved`.
+- Changed: the status wording. `docs/design/README.md` and the root `README.md` no longer say that the look awaits approval; they say
+  the aurora style is approved (issue #164) and that the design document itself (screens, flows, sections) and the two open design points
+  wait for the user's approval in #154. The D4 row of `docs/plans/docs.md` says the look is approved. "Proposed design" stays for the
+  document until G-DOC.
+- Validation: docs lint (markdown, links), `check-docs-index.sh`, `test-design-docs.sh` and `test-design-style.sh` green.
+- Open items: #154 and gate G-DOC: the user's approval of the design document and the two open points (the tile primary action, Settings
+  opens from the gear on the Watch tab); then #156 gets the Design section of the index.

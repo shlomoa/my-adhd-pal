@@ -168,3 +168,16 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-172 | script | No script test is lost | every `scripts/test/test-*.sh` is run by a pull request workflow or by `scripts/ci-post-merge/run-tests.sh` |
 | TC-S-173 | script | The runner | runs every listed test even after a failure, exits 1 on any failure, and writes a report naming the failing script and case (and no passing script) |
 | TC-S-174 | script | Retired (handler removed, see TC-V-005) | lane V opens, updates and closes the `main-red` issue itself with its issue tool |
+
+## The phone removes its own prompts (issue 198)
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-S-190 | android | `PromptCleaner.answered` | a stored ack or selection whose id is a published prompt removes that prompt once and forgets it; an ack that answers no published prompt, and an alert, remove nothing |
+| TC-S-191 | android | `PromptCleaner.sweepExpired` | prompts with an expiry at or before now are removed and forgotten; open and no-expiry prompts stay; a second sweep removes nothing more |
+| TC-S-192 | android | `WatchEventProcessor` with the cleaner | the prompt is removed after the answer row is stored; when the row could not be stored the prompt stays |
+| TC-S-193 | android | `WatchEventProcessor` sweep | expired prompts are removed at start and again about every minute while the app runs |
+| TC-S-194 | android | `DefaultPromptRepository` | a sent prompt is remembered with its expiry; a failed or rejected one is not |
+| TC-S-195 | android | `PublishedPrompts` contract (in memory and DataStore) | add, list, remove, replace; the DataStore version survives a new store on the same file |
+| TC-S-196 | script | No fixed `/tmp` file names in scripts | no script under `scripts/` writes a file with a fixed name in `/tmp` or `$TMPDIR` (a second run on the machine would share it); `mktemp` is used |
+| TC-S-197 | script | Script fixtures leave no directory behind | after `test-checks.sh` removed its fixtures, `wear/src`, `phone/src` and `protocol/src` hold no empty directory that was not there before |

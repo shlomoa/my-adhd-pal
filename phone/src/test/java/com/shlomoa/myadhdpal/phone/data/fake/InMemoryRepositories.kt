@@ -13,6 +13,8 @@ import com.shlomoa.myadhdpal.phone.data.PromptPublishResult
 import com.shlomoa.myadhdpal.phone.data.PromptRepository
 import com.shlomoa.myadhdpal.phone.data.PublishOutcome
 import com.shlomoa.myadhdpal.phone.data.PublishResult
+import com.shlomoa.myadhdpal.phone.data.PublishedPrompt
+import com.shlomoa.myadhdpal.phone.data.PublishedPrompts
 import com.shlomoa.myadhdpal.phone.data.ScheduleBuilder
 import com.shlomoa.myadhdpal.phone.data.ScheduleRepository
 import com.shlomoa.myadhdpal.phone.data.ScheduleVersionStore
@@ -148,3 +150,17 @@ typealias InMemoryScheduleRepository = DefaultScheduleRepository
 typealias InMemoryPromptRepository = DefaultPromptRepository
 
 typealias InMemoryLinkStatusRepository = DefaultLinkStatusRepository
+
+class InMemoryPublishedPrompts : PublishedPrompts {
+    private val entries = linkedMapOf<String, Instant?>()
+
+    override suspend fun add(id: String, expiresAt: Instant?) {
+        entries[id] = expiresAt
+    }
+
+    override suspend fun remove(id: String) {
+        entries.remove(id)
+    }
+
+    override suspend fun all(): List<PublishedPrompt> = entries.map { PublishedPrompt(it.key, it.value) }
+}

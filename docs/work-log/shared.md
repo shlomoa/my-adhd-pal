@@ -333,3 +333,24 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `build.yml` no longer has the `script-tests` job; new `post-merge.yml` (push to `main`, `workflow_dispatch`) runs `scripts/post-merge-tests.sh` (the slow script tests, keeps going after a failure, writes a report) and `scripts/main-red-issue.sh` (opens or updates one `main-red` issue when red, closes it when green); `gates.yml` runs the fast `test-post-merge.sh` per pull request; `test-ci.sh`, `test-docs-site.sh` and `test-doc-checks.sh` no longer look for their scripts in `build.yml`; `docs/conventions.md` "What runs when".
 - Validation: TC-S-170 to TC-S-174 written first and red (`shared-baseline.md`), then green. Local timings of the old job (seconds): structure 221, checks 236, ci 82, pairing 73, docs-site 19, doc-checks 16, protocol-spec 0, gates 1, design-docs 0; spike and design-style failed locally only for a missing PowerShell and image tools. Everything moved in this first version; which fast tests could return to the pull request is a later refinement.
 - Open items: whether `script-tests` is a required status check (cannot be read from here; the user checks Settings, Branches); `test-checks.sh` failed locally with the lint crash of #184 right after other script tests had changed and restored Kotlin files, which fits the crash showing up after source edits.
+
+## 2026-10-17 - Lint crash: scenario and recipe
+
+- Issue and PR: #205 (recipe added to the issue body, section "Recipe (lane S)"); PR linked from the coordinator message.
+- Changed: `docs/conventions.md` "When lint itself crashes": how to recognise it, when it was seen (three reports), the failing recipe, what clears it. Docs only; the fix is the #205 sub-agent's PR.
+- Validation: docs only; markdownlint, links and the docs index check pass. Not reproducible on demand: one crash in four sequential `check --rerun-tasks` runs, so the recipe says it may need several tries.
+- Open items: which of `--rerun-tasks`, a reused daemon or stale `build/` state is necessary (suggested experiment is in the issue body).
+
+## 2026-10-17 - Issue 198: the phone removes its own prompts
+
+- Issue and PR: #198; PR linked from the coordinator message.
+- Changed: `PublishedPrompts` and `DataStorePublishedPrompts` (the prompts sent and not yet removed, with their expiry), `PromptCleaner` (removes on the stored answer and for expired prompts), `WatchEventProcessor` calls it after `markStored` and sweeps at start and every minute, `DefaultPromptRepository` records each sent prompt, Hilt wiring in `StorageModule`; `docs/data-layer.md`. The Ask screen needs no change.
+- Validation: TC-S-190 to TC-S-195 written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
+- Open items: none; lane A is told the removal happens without UI code. A prompt published by an older install (before this change) is not in the store and stays until the Data Layer drops it.
+
+## 2026-10-17 - Tooling freshness check
+
+- Issue and PR: question from the user via the coordinator (no issue); PR linked from the coordinator message.
+- Changed: new `docs/research/tooling.md` (every pin in `gradle/libs.versions.toml`, the wrapper, `tools/docs/package.json`, `tools/docs-site/requirements.txt` and the workflows against the latest stable release, with sources and the read date, and a recommendation per row); link in `docs/index.md`. Nothing upgraded.
+- Validation: docs only, no script checks this page; markdownlint, links and the docs index check pass.
+- Open items: the user decides on upgrades (recommendation: none now; the GitHub Actions majors in one later PR). No newer stable AGP, Kotlin or Gradle exists, so none fixes the lint crash.

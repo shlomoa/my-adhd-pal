@@ -12,17 +12,20 @@ import com.shlomoa.myadhdpal.phone.data.DefaultWatchStatusRepository
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
 import com.shlomoa.myadhdpal.phone.data.LinkStatusRepository
 import com.shlomoa.myadhdpal.phone.data.PromptRepository
+import com.shlomoa.myadhdpal.phone.data.PublishedPrompts
 import com.shlomoa.myadhdpal.phone.data.ScheduleRepository
 import com.shlomoa.myadhdpal.phone.data.ScheduleVersionStore
 import com.shlomoa.myadhdpal.phone.data.SettingsRepository
 import com.shlomoa.myadhdpal.phone.data.TaskRepository
 import com.shlomoa.myadhdpal.phone.data.WatchLinkDataSource
 import com.shlomoa.myadhdpal.phone.data.WatchStatusRepository
+import com.shlomoa.myadhdpal.phone.data.datastore.DataStorePublishedPrompts
 import com.shlomoa.myadhdpal.phone.data.datastore.DataStoreScheduleVersionStore
 import com.shlomoa.myadhdpal.phone.data.datastore.DataStoreSettingsRepository
 import com.shlomoa.myadhdpal.phone.data.db.AppDatabase
 import com.shlomoa.myadhdpal.phone.data.db.RoomHistoryRepository
 import com.shlomoa.myadhdpal.phone.data.db.RoomTaskRepository
+import com.shlomoa.myadhdpal.phone.link.PromptCleaner
 import com.shlomoa.myadhdpal.phone.link.WatchEventProcessor
 import dagger.Module
 import dagger.Provides
@@ -48,6 +51,10 @@ annotation class SettingsStore
 @Retention(AnnotationRetention.BINARY)
 annotation class ScheduleStore
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class PromptStore
+
 /** Storage and the repositories the UI builds on: Room for tasks and history, DataStore for settings and versions. */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -72,6 +79,17 @@ object StorageModule {
     @ScheduleStore
     fun scheduleStore(@ApplicationContext context: Context, @AppScope scope: CoroutineScope): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(scope = scope) { context.preferencesDataStoreFile("schedule") }
+
+    @Provides
+    @Singleton
+    @PromptStore
+    fun promptStore(@ApplicationContext context: Context, @AppScope scope: CoroutineScope): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(scope = scope) { context.preferencesDataStoreFile("prompts") }
+
+    @Provides
+    @Singleton
+    fun publishedPrompts(@PromptStore store: DataStore<Preferences>): PublishedPrompts =
+        DataStorePublishedPrompts(store)
 
     @Provides
     @Singleton
@@ -106,8 +124,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun prompts(source: WatchLinkDataSource, clock: Clock): PromptRepository =
-        DefaultPromptRepository(source, clock = { clock.instant() })
+    fun prompts(source: WatchLinkDataSource, published: PublishedPrompts, clock: Clock): PromptRepository =
+        DefaultPromptRepository(source, published, clock = { clock.instant() })
 
     @Provides
     @Singleton
@@ -122,10 +140,13 @@ object RepositoryModule {
     fun eventProcessor(
         @ApplicationContext context: Context,
         source: WatchLinkDataSource,
-        history: HistoryRepository
+        history: HistoryRepository,
+        published: PublishedPrompts,
+        clock: Clock
     ): WatchEventProcessor {
         val version = runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }
             .getOrNull()
-        return WatchEventProcessor(source, history, version ?: "0")
+        val cleaner = PromptCleaner(source, published) { clock.instant() }
+        return WatchEventProcessor(source, history, version ?: "0", cleaner)
     }
 }

@@ -16,7 +16,11 @@ object ManualCases {
         "TC-A-060",
         "TC-A-061",
         "TC-A-071",
-        "TC-A-072"
+        "TC-A-072",
+        "TC-A-088",
+        "TC-A-103",
+        "TC-A-109",
+        "TC-A-116"
     )
 
     /** Checked by a Gradle task or CI job: `:phone:check`, `assembleRelease`, release-has-no-debug, pairing check. */

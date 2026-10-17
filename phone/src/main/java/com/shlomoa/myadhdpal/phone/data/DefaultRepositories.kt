@@ -44,6 +44,7 @@ class DefaultScheduleRepository(
 
 class DefaultPromptRepository(
     private val source: WatchLinkDataSource,
+    private val published: PublishedPrompts,
     private val clock: () -> Instant = { Instant.now() },
     private val newId: () -> String = { UUID.randomUUID().toString() }
 ) : PromptRepository {
@@ -59,7 +60,11 @@ class DefaultPromptRepository(
         val options = optionLabels.mapIndexed { index, label -> PromptOption((index + 1).toString(), label) }
         val id = newId()
         return when (val result = source.publishPrompt(id, Prompt(title, options, expiresAt?.toEpochMilli()))) {
-            PublishResult.Sent -> PromptPublishResult.Published(id)
+            PublishResult.Sent -> {
+                published.add(id, expiresAt)
+                PromptPublishResult.Published(id)
+            }
+
             is PublishResult.Failed -> PromptPublishResult.Failed(result.reason)
         }
     }

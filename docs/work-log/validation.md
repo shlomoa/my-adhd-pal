@@ -22,3 +22,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `run-tests.sh` runs three groups at the same time, each in its own git worktree, reruns a test once for the known lint crash and prints the groups with `--groups`; documents and catalogue (TC-V-007 to TC-V-010).
 - Validation: TC-V-007 to TC-V-010 red against the sequential runner (a scratch copy; TC-S-173 red too; commit 9c57576), then green with `test-post-merge.sh`. First real parallel run on `main` (21edc20, 4 cores, 15 GB): all twelve green in 588 s, against about 15 minutes sequentially; the two Gradle groups each build from cold, so the gain is smaller than the expected 5 minutes. The sequential run on `8159830` failed `test-checks.sh` with the lint crash (issue 205), a clean worktree passed.
 - Open items: none.
+
+## 2026-10-17 - Issue 205: script hygiene
+
+- Issue and PR: #205; PR linked from the issue.
+- Changed: `test-structure.sh` writes its Gradle log to a `mktemp` file removed on exit (it used the fixed `/tmp/structure-gradle.log`); `test-checks.sh` removes the directories its fixtures created (`phone/src/testDebug/...` stayed behind); two new cases TC-S-196 and TC-S-197.
+- Validation: TC-S-196 and TC-S-197 red in 2399a60 (clean worktree, `test-checks.sh`), green in dc7d2db. The lint crash itself was not fixed and not shown to come from script state: `check --rerun-tasks` crashed in 3 of about 10 default runs in one checkout (two of them while other Gradle runs shared the machine); the lint tasks alone passed 16 of 16; `--no-parallel` is Gradle's default here and changes nothing.
+- Open items: the trigger of the lint crash is still unknown; the issue stays open.
