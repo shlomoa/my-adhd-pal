@@ -49,9 +49,9 @@ before "$(first 'KEYCODE_WAKEUP')" "$(nth 'cmd measure-report' 1)" && before "$(
 ok=0
 for i in 1 2 3; do
   r="$(nth 'cmd measure-report' $i)"
-  [ "$(calls | sed -n "$((r-2))p")" = "connect 192.168.1.16:41613" ] && calls | sed -n "$((r-1))p" | grep -q 'logcat -c' || ok=1
+  [ "$(calls | sed -n "$((r-3))p")" = "connect 192.168.1.16:41613" ] && calls | sed -n "$((r-2))p" | grep -q 'logcat -d' && calls | sed -n "$((r-1))p" | grep -q 'logcat -c' || ok=1
 done
-check "TC-W-155 before every report: adb connect, then logcat -c, then the report" 0 $ok
+check "TC-W-155 before every report: adb connect, the live lines are read (logcat -d), then logcat -c, then the report" 0 $ok
 before "$(nth 'cmd measure-report' 3)" "$(nth 'cmd measure-stop' 2)"; check "TC-W-154 measure-stop is the last service command" 0 $?
 [ "$(count 'dumpsys battery')" -ge 2 ]; check "TC-W-154 the battery level is read before and after" 0 $?
 grep -q 'battery before: 68' "$result" && grep -qE 'battery after: [0-9]+' "$result"; check "TC-W-154 the result file has the battery before and after" 0 $?
