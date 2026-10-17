@@ -4,6 +4,8 @@
 # Failure injection (FAKE_FAIL, comma separated):  noavail  the service never reports AVAILABLE
 #                                                  unavail  the service reports only UNAVAILABLE
 #                                                  nonotif  the notification is never listed
+#                                                  svcgone  the measure service is not listed as running
+#                                                  stalled  the report's reading count never grows
 # FAKE_DROP=1: after `input keyevent KEYCODE_SLEEP` the connection drops (device offline) until `adb connect`.
 # FAKE_CHARGING=1: the watch is on its charger. It simulates the commands; it proves nothing about the watch.
 set -u
@@ -37,6 +39,9 @@ case "$cmd" in
       pm)
         if [ "$1" = revoke ]; then echo "java.lang.SecurityException: Permission $3 is not granted" >&2; exit 255; fi
         exit 0;;
+      cmd)
+        if [ "$1" = notification ]; then echo "$2 $3" >> "$D/dnd"; fi
+        exit 0;;
       input)
         [ "$2" = KEYCODE_SLEEP ] && [ -n "${FAKE_DROP:-}" ] && touch "$D/offline"
         exit 0;;
@@ -45,6 +50,15 @@ case "$cmd" in
           n="$(cat "$D/battery")"
           if [ -n "${FAKE_CHARGING:-}" ]; then echo "  AC powered: true"; else echo "  AC powered: false"; fi
           echo "  level: $n"; echo $((n - 1)) > "$D/battery"; exit 0
+        fi
+        if [ "$1" = activity ]; then
+          fails svcgone || echo "  * ServiceRecord{1 u0 com.shlomoa.myadhdpal/.wear.debug.probe.ProbeMeasureService}"
+          exit 0
+        fi
+        if [ "$1" = package ]; then
+          echo "      android.permission.health.READ_HEART_RATE: granted=true"
+          echo "      android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND: granted=false"
+          exit 0
         fi
         if [ "$1" = notification ]; then
           fails nonotif || echo "      android.title=Probe: measuring heart rate"
@@ -63,9 +77,13 @@ case "$cmd" in
         case "$cmdname" in
           measure-stop) note "PROBE measure stopped";;
           measure-clear) note "PROBE measure cleared";;
+          vibrate) note "PROBE vibrate amplitudeControl=true";;
+          notify-alarm) note "PROBE notify-alarm posted channel=probe_alarm";;
+          alarm-clock) note "PROBE alarm-clock scheduled in 15 s"; note "PROBE alarm-clock fired"; note "PROBE alert screen shown";;
           measure-capabilities) note "PROBE measure capabilities heartRateMeasure=true";;
           measure-report)
-            r=$(( $(cat "$D/readings") + 100 )); echo "$r" > "$D/readings"
+            if fails stalled; then r=$(cat "$D/readings"); [ "$r" -gt 0 ] || r=100; else r=$(( $(cat "$D/readings") + 100 )); fi
+            echo "$r" > "$D/readings"
             note "PROBE measure screen=all readings=$r perMin=10.0 gapSec median=1 p95=1 max=2"
             note "PROBE measure battery start=68 now=67 dropPerHour=1.0";;
         esac

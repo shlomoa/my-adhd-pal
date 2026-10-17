@@ -101,6 +101,20 @@ notification stayed visible, the minute the screen dimmed or went off in phase A
 
 ## 3. E3: without the background permission, 30 minutes, Bedtime and battery saver (issue #230)
 
+**Run the script (recommended).** Wear the watch, **off the charger**, keep the laptop awake, then:
+
+```powershell
+.\scripts\probe\run-e3.ps1 -Watch 192.168.1.16:41613
+```
+
+It revokes the background permissions, starts the service from the visible app, logs the permission state, takes reports
+for 30 minutes worn (use the watch normally; the script does not touch the screen), then asks you to turn **Bedtime mode ON**
+(report, 10 minutes, report) and **OFF**, then the same for **battery saver**. Send back the whole result file
+(`probe-results\e3-<time>.txt`). "service running: False" or "readings grew: False" in it is a result, not an error. The
+script is untested on the watch; if it fails, send the file and use the manual steps below.
+
+**Manual steps (fallback).**
+
 Step 1 already left the background permission off, so step 2 is the first half of E3. For the rest:
 
 1. Run `measure-clear`, start the service from the visible app as in step 2, wear the watch for 30 minutes (screen as
@@ -144,6 +158,20 @@ Report the `PROBE front` lines of both runs and answer, in your own words:
 4. With the measuring service of step 2 running, tap its notification: does the app come to the front?
 
 ## 5. E6: Do Not Disturb routes, Bedtime, Theater, vibration intensity (issue #233)
+
+**Run the script (recommended).** Wear the watch on the wrist and look at it, then:
+
+```powershell
+.\scripts\probe\run-e6.ps1 -Watch 192.168.1.16:41613
+```
+
+It vibrates in six states (normal, Do Not Disturb, Bedtime, Theater, vibration intensity lowest and highest) and tries both
+Do Not Disturb routes under Do Not Disturb, Bedtime and Theater. It sets Do Not Disturb itself (and switches it off at the
+end); it asks you to turn Bedtime, Theater and the vibration intensity on and off on the watch. After each try type what you felt
+(none, weak or strong) and, for the routes, whether the screen woke (yes or no). Send back the whole result file
+(`probe-results\e6-<time>.txt`). Untested on the watch; if it fails, send the file and use the manual steps below.
+
+**Manual steps (fallback).**
 
 ### 5a. How strong is the vibration (10 minutes)
 
