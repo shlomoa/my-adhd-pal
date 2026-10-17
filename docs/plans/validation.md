@@ -14,9 +14,15 @@ After each merge to `main` the coordinator sends `merged <pr> <sha>`. Lane V che
 
 - Green: no report.
 - Red or missing: find the failing test ids and the first bad commit, name the owning lane from the ownership table in
-  the [README](README.md), reproduce locally when possible, and send the coordinator at most four short lines: sha,
-  failing test ids, owning lane, proposed fix. Keep the `main-red` issue current.
-- Other lanes' code is not fixed by lane V. A tiny fix in test scripts or workflows is made in lane V's own PR.
+  the [README](README.md), and keep the `main-red` issue current (the workflow opens and closes it; a failure never
+  waits for a person to notice).
+- One new sub-agent per `main-red` issue, created with `create_session`. Its brief is complete: the issue, the failing
+  test ids, the owning lane's files, the standing rules (tests first with a recorded red commit, a `Cleanup:` line, a PR
+  body starting with `Requires:` and `Produces:`), the branch `claude/validation-fix-<n>`. It fixes in its own PR and
+  reports to lane V.
+- Lane V tells the coordinator in one line per red issue: failing test ids, owning lane, sub-agent id.
+- When the fix is merged, a later post-merge run is green and the issue is closed, lane V archives the sub-agent
+  (`archive_session`).
 - A run that needs more than 30 minutes is reported once.
 
 ## Rules

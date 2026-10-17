@@ -8,3 +8,4 @@ Lane V owns the post-merge workflow and its scripts ([`../plans/validation.md`](
 |---|---|---|---|
 | TC-V-001 | script | Lane set up | `docs/plans/validation.md`, this catalogue, `docs/work-log/validation.md`, gate `G-VAL` (owner V, requires G-BOOT) and the README ownership row exist (`test-post-merge.sh`) |
 | TC-V-002 | script | Lane label and log | `scripts/check-issues.sh` accepts `lane:V` and `scripts/check-work-log.sh` accepts the validation work log (`test-conventions.sh`) |
+| TC-V-003 | script | Main-red procedure written down | the validation plan and `docs/conventions.md` describe one sub-agent per `main-red` issue and archiving it when resolved (`test-post-merge.sh`) |

@@ -55,7 +55,7 @@ Shared configuration (`applicationId`, SDK levels) is defined once: the `[versio
 
 The post-merge run is not a pull request check, so a pull request never waits for it. When it fails, the workflow opens
 or updates one issue labelled `main-red` that names the failing script and cases and links the run; a later green run
-closes it. The coordinator assigns the fix to the lane that owns the failing test. A new `scripts/test/test-*.sh` must be
+closes it. The validation lane (V) starts one sub-agent per `main-red` issue; it fixes the failure in its own PR, and lane V ends it once a later run is green and the issue is closed. A new `scripts/test/test-*.sh` must be
 added to `scripts/ci-post-merge/run-tests.sh` or to a pull request workflow; `test-post-merge.sh` fails if one runs nowhere.
 
 ### When lint itself crashes
