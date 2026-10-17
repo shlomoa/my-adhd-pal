@@ -7,12 +7,14 @@ place of the slow script tests in CI. It takes no `plan.md` step; its work is is
 |---|---|---|---|---|
 | **V1** | Lane setup: this plan, README rows, gate `G-VAL`, `docs/work-log/validation.md`, `lane:V` accepted by `scripts/check-issues.sh`, catalogue `docs/test-plans/validation.md` | TC-V-001, TC-V-002 red, then green | G-BOOT | none |
 | **V2** | Issue #190 (PR #192, started by lane S): the `script-tests` job leaves the pull request checks; all of its scripts run after each merge, run by lane V itself (no workflow), failures become `main-red` issues | TC-S-170, 172, 173 (kept ids) and TC-V-004, TC-V-005, TC-V-006, all in `scripts/test/test-post-merge.sh` | G-BOOT | **G-VAL** |
+| **V3** | The post-merge run in parallel groups, each in its own git worktree (the sequential run took about 15 minutes) | TC-V-007 to TC-V-010 red, then green | G-BOOT | none |
 
 ## Ongoing duty
 
 After each merge to `main` the coordinator sends `merged <pr> <sha>`. Lane V runs the script tests itself, in its own
 container, never in a GitHub workflow: it checks out that sha and runs `scripts/ci-post-merge/run-tests.sh` (the eleven
-former `script-tests` scripts and `test-post-merge.sh`, one after the other; none runs per pull request; it installs what
+former `script-tests` scripts and `test-post-merge.sh`, in three groups at the same time, each in its own git worktree of
+the merged sha, one test after the other inside a group; none runs per pull request; it installs what
 the container lacks with `scripts/bootstrap-android.sh` and PowerShell 7; the known lint crash of `docs/conventions.md`
 is rerun once). Several merges in a row: run on the latest sha, bisect only when red.
 
