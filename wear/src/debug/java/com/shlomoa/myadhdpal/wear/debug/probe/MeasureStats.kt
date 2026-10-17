@@ -24,7 +24,7 @@ private const val MEASURE_SEPARATOR = "|"
 private const val LINE_FIELDS = 2
 private const val LINE_FIELDS_WITH_SAMPLE = 3
 private const val SAMPLE_FIELD = 2
-private const val MILLIS_PER_MINUTE_LONG = 60_000L
+private const val MINUTE_MS = 60_000L
 private const val MILLIS_PER_SECOND = 1000L
 private const val MILLIS_PER_MINUTE = 60_000.0
 private const val MILLIS_PER_HOUR = 3_600_000.0
@@ -114,7 +114,7 @@ fun batteryReport(startPercent: Int, nowPercent: Int, durationMs: Long): String 
 private fun seconds(ms: Long): String = String.format(Locale.US, "%.1f", ms / MILLIS_PER_SECOND.toDouble())
 
 private fun perMinute(timesMs: List<Long>, startMs: Long): String {
-    val minutes = timesMs.map { ((it - startMs) / MILLIS_PER_MINUTE_LONG).coerceAtLeast(0) }
+    val minutes = timesMs.map { ((it - startMs) / MINUTE_MS).coerceAtLeast(0) }
     val counts = LongArray(((minutes.maxOrNull() ?: 0) + 1).toInt())
     minutes.forEach { counts[it.toInt()]++ }
     return counts.joinToString(",")
@@ -149,4 +149,25 @@ fun sampleReport(readings: List<MeasureReading>, startMs: Long): List<String> {
         listOf("PROBE measure samplesPerMin ${perMinute(sampled.map { it.sampleMs!! }, startMs)}")
     }
     return listOf(callbacks) + states + arrivals + samples
+}
+
+/** The minute of the run (0 for the first 60 s), counted from [startMs]; never below zero. */
+fun minuteOfRun(startMs: Long, nowMs: Long): Int = ((nowMs - startMs) / MINUTE_MS).coerceAtLeast(0).toInt()
+
+/**
+ * The line the service writes every minute AS IT HAPPENS (not only in the report): the readings that arrived since
+ * the previous line, how long since that line (a long time means the main thread or the CPU was delayed), how long
+ * since the last arrival (none before the first) and the screen state now.
+ */
+fun liveMinuteLine(
+    minute: Int,
+    arrivals: Int,
+    sincePrevLineMs: Long,
+    sinceLastArrivalMs: Long?,
+    display: String
+): String {
+    val last = sinceLastArrivalMs?.let { (it / MILLIS_PER_SECOND).toString() } ?: "none"
+    val sincePrev = sincePrevLineMs / MILLIS_PER_SECOND
+    return "PROBE measure live minute=$minute arrivals=$arrivals sincePrevLineSec=$sincePrev " +
+        "sinceLastArrivalSec=$last screen=$display"
 }

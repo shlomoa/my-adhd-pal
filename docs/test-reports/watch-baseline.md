@@ -346,6 +346,9 @@ e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:96:52 Too many argumen
 e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:125:13 Unresolved reference 'sampleReport'.
 ```
 
+Added after the audit of the recording (issue #228, TC-W-188 to TC-W-191): the service writes a live line every minute as it happens (`liveMinuteLine`, `minuteOfRun`), the run scripts copy those lines into the result file before they clear the log,
+the E1 file shows the permission state, and `run-e1.ps1 -GrantBackgroundPermission` grants the background permission instead of revoking it (to compare a run with and without it). Red commit: the "Tests for the live per-minute log" commit of the same branch.
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

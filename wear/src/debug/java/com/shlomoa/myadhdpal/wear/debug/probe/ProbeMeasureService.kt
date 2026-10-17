@@ -7,7 +7,9 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.SystemClock
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.MeasureCallback
@@ -24,6 +26,30 @@ import androidx.health.services.client.data.DeltaDataType
  */
 class ProbeMeasureService : Service() {
     private val client by lazy { HealthServices.getClient(this).measureClient }
+    private val handler = Handler(Looper.getMainLooper())
+    private var startMs = 0L
+    private var lastLineMs = 0L
+    private var lastArrivalMs: Long? = null
+    private var arrivals = 0
+
+    /** Every minute, as it happens: the live line, so the log has a record that does not depend on the final report. */
+    private val tick = object : Runnable {
+        override fun run() {
+            val now = SystemClock.elapsedRealtime()
+            ProbeLog.note(
+                liveMinuteLine(
+                    minute = minuteOfRun(startMs, now),
+                    arrivals = arrivals,
+                    sincePrevLineMs = now - lastLineMs,
+                    sinceLastArrivalMs = lastArrivalMs?.let { now - it },
+                    display = MeasureLog.displayNow(this@ProbeMeasureService)
+                )
+            )
+            arrivals = 0
+            lastLineMs = now
+            handler.postDelayed(this, LIVE_LINE_MS)
+        }
+    }
 
     private val callback = object : MeasureCallback {
         override fun onAvailabilityChanged(dataType: DeltaDataType<*, *>, availability: Availability) {
@@ -38,6 +64,8 @@ class ProbeMeasureService : Service() {
         override fun onDataReceived(data: DataPointContainer) {
             val now = SystemClock.elapsedRealtime()
             val display = MeasureLog.displayNow(this@ProbeMeasureService)
+            arrivals += data.getData(DataType.HEART_RATE_BPM).size
+            lastArrivalMs = now
             data.getData(DataType.HEART_RATE_BPM).forEach { point ->
                 MeasureLog.record(
                     this@ProbeMeasureService,
@@ -64,13 +92,20 @@ class ProbeMeasureService : Service() {
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
-        MeasureLog.begin(this, SystemClock.elapsedRealtime(), MeasureLog.batteryPercent(this))
+        startMs = SystemClock.elapsedRealtime()
+        lastLineMs = startMs
+        lastArrivalMs = null
+        arrivals = 0
+        MeasureLog.begin(this, startMs, MeasureLog.batteryPercent(this))
         client.registerMeasureCallback(DataType.HEART_RATE_BPM, callback)
+        handler.removeCallbacks(tick)
+        handler.postDelayed(tick, LIVE_LINE_MS)
         ProbeLog.note("measure start registered")
         return START_NOT_STICKY
     }
 
     override fun onDestroy() {
+        handler.removeCallbacks(tick)
         client.unregisterMeasureCallbackAsync(DataType.HEART_RATE_BPM, callback)
         ProbeLog.note("measure stopped")
         super.onDestroy()
@@ -79,5 +114,6 @@ class ProbeMeasureService : Service() {
     private companion object {
         const val CHANNEL = "probe_measure"
         const val NOTIFICATION_ID = 9004
+        const val LIVE_LINE_MS = 60_000L
     }
 }

@@ -153,15 +153,33 @@ class MeasureStatsTest {
     fun `TC-W-188 the live line gives the minute, the arrivals, how long since the last line and the last arrival`() {
         assertEquals(
             "PROBE measure live minute=3 arrivals=118 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on",
-            liveMinuteLine(minute = 3, arrivals = 118, sincePrevLineMs = 60_400, sinceLastArrivalMs = 700, display = "on")
+            liveMinuteLine(
+                minute = 3,
+                arrivals = 118,
+                sincePrevLineMs = 60_400,
+                sinceLastArrivalMs = 700,
+                display = "on"
+            )
         )
         assertEquals(
             "PROBE measure live minute=4 arrivals=0 sincePrevLineSec=61 sinceLastArrivalSec=125 screen=doze",
-            liveMinuteLine(minute = 4, arrivals = 0, sincePrevLineMs = 61_000, sinceLastArrivalMs = 125_900, display = "doze")
+            liveMinuteLine(
+                minute = 4,
+                arrivals = 0,
+                sincePrevLineMs = 61_000,
+                sinceLastArrivalMs = 125_900,
+                display = "doze"
+            )
         )
         assertEquals(
             "PROBE measure live minute=0 arrivals=0 sincePrevLineSec=60 sinceLastArrivalSec=none screen=off",
-            liveMinuteLine(minute = 0, arrivals = 0, sincePrevLineMs = 60_000, sinceLastArrivalMs = null, display = "off")
+            liveMinuteLine(
+                minute = 0,
+                arrivals = 0,
+                sincePrevLineMs = 60_000,
+                sinceLastArrivalMs = null,
+                display = "off"
+            )
         )
     }
 

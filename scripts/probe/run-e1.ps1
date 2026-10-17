@@ -47,6 +47,8 @@ param(
     [int]$ScreenOffTimeoutMs = 720000,
     [switch]$Unattended,
     [switch]$AllowCharging,
+    # Grant the background permission instead of revoking it (to compare a run with and without it).
+    [switch]$GrantBackgroundPermission,
     [switch]$SkipPush
 )
 
@@ -70,6 +72,7 @@ try {
     Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', "$ScreenOffTimeoutMs") | Out-Null
 
     Start-ProbeService
+    Log-Permissions
     Ask "Check that the Always On Display is ON (phase B needs it): $PathAod."
     Wait-ServiceAvailable
 

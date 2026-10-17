@@ -94,7 +94,6 @@ for want in 'Settings > Display > Always On Display'; do grep -q "$want" "$tmp/s
 
 grep -q 'permission: .*READ_HEALTH_DATA_IN_BACKGROUND' "$result"; check "TC-W-190 the E1 result file shows the permission state" 0 $?
 grep -q 'live: .*PROBE measure live minute=' "$result"; check "TC-W-191 the live per-minute lines are copied into the result file before the log is cleared" 0 $?
-before "$(nth 'logcat -d' 1)" "$(nth 'logcat -c' 1)" || true
 run all-grant "" -GrantBackgroundPermission
 check "TC-W-190 a run with -GrantBackgroundPermission exits 0" 0 $rc
 [ "$(count 'pm grant .*READ_HEALTH_DATA_IN_BACKGROUND')" -ge 1 ] && [ "$(count 'pm revoke .*READ_HEALTH_DATA_IN_BACKGROUND')" -eq 0 ]; check "TC-W-190 -GrantBackgroundPermission grants the background permission instead of revoking it" 0 $?
