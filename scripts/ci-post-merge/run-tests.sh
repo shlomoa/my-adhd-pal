@@ -14,7 +14,7 @@ failed=()
 for t in $tests; do
   log="$out/${t%.sh}.log"
   echo "== $t"
-  "$dir/$t" >"$log" 2>&1 || failed+=("$t")
+  bash "$dir/$t" >"$log" 2>&1 || failed+=("$t")
   tail -n 3 "$log"
 done
 if [ "${#failed[@]}" -eq 0 ]; then

@@ -16,7 +16,7 @@ jobs:
         run: scripts/test/test-scripts.sh
 
       - name: Post-merge test setup (issue 190)
-        run: scripts/test/test-post-merge.sh
+        run: bash scripts/test/test-post-merge.sh
 
       - name: Protocol spec and constants (about a second)
         run: scripts/test/test-protocol-spec.sh
