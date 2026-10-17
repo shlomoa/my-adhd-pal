@@ -29,3 +29,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `test-structure.sh` writes its Gradle log to a `mktemp` file removed on exit (it used the fixed `/tmp/structure-gradle.log`); `test-checks.sh` removes the directories its fixtures created (`phone/src/testDebug/...` stayed behind); two new cases TC-S-196 and TC-S-197.
 - Validation: TC-S-196 and TC-S-197 red in 2399a60 (clean worktree, `test-checks.sh`), green in dc7d2db. The lint crash itself was not fixed and not shown to come from script state: `check --rerun-tasks` crashed in 3 of about 10 default runs in one checkout (two of them while other Gradle runs shared the machine); the lint tasks alone passed 16 of 16; `--no-parallel` is Gradle's default here and changes nothing.
 - Open items: the trigger of the lint crash is still unknown; the issue stays open.
+
+## 2026-10-17 - Issue 190: balanced groups
+
+- Issue and PR: #190; PR linked from the coordinator message.
+- Changed: four groups balanced by measured time (checks | structure ci pairing | spike suite 0b2a | spike suite 0b2b and the short tests); a unit `test-x.sh@arg` passes `POST_MERGE_ARG`, `test-spike.sh` reads it; every unit prints `== <unit> took Ns`. Catalogue TC-V-011, TC-V-012; TC-V-007 updated.
+- Validation: TC-V-007, 011, 012 red (commit 7b95199), then green. Same sha, this container (4 cores, warm caches): three groups 744 s, four groups 594 s. Tried and dropped: `test-checks.sh` in two parts (scaffold, fixtures) in a fifth group, 647 s: the four cores are saturated, so more groups only slow each other. `check --rerun-tasks` alone takes 283 s of the 589 s of `test-checks.sh`.
+- Open items: `test-checks.sh` is the floor (about 590 s); shortening it means changing what `--rerun-tasks` reruns, a decision for lane V. Three worktrees installing Android build-tools 36.0.0 at once in a fresh container race (structure failed once); run one Gradle build before the groups in a fresh container.
