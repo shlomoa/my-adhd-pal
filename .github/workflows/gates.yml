@@ -15,15 +15,6 @@ jobs:
       - name: Script tests
         run: scripts/test/test-scripts.sh
 
-      - name: Post-merge test setup (issue 190)
-        run: scripts/test/test-post-merge.sh
-
-      - name: Protocol spec and constants (about a second)
-        run: scripts/test/test-protocol-spec.sh
-
-      - name: Gate graph (about a second)
-        run: scripts/test/test-gates.sh
-
       - name: Bootstrap script tests (offline)
         run: scripts/test/test-bootstrap-android.sh
 

@@ -11,7 +11,7 @@
 | Runner, emulators | `scripts/spike/run-0b2a.ps1` | One script per stage; the cases differ (emulators can be stopped and restarted). |
 | Runner, hardware | `scripts/spike/run-0b2b.ps1` | Same. |
 | Simulated adb | `scripts/spike/fake/adb`, `scripts/spike/fake/emulator` (emulators), `scripts/spike/fake-hw/adb` (hardware serials) | Lets the runner be tested on any machine with PowerShell 7 and no devices. |
-| Tests of the runners | `scripts/spike/test-run-0b2a.sh`, `scripts/spike/test-run-0b2b.sh` | Run by `scripts/test/test-spike.sh` by the post-merge workflow after each merge to `main` (TC-S-146). |
+| Tests of the runners | `scripts/spike/test-run-0b2a.sh`, `scripts/spike/test-run-0b2b.sh` | Run by `scripts/test/test-spike.sh` by the validation lane after each merge to `main` (TC-S-146). |
 | Placement checks | `scripts/test/test-spike.sh` (TC-S-145) | Keeps the spike classes in `src/debug` and out of release APKs. |
 | Results | `docs/spikes/results/0b2b-*/results.txt` (six runs) and `docs/spikes/results/0b2a-first-real-run-partial.txt` | Evidence for [`../protocol.md`](../protocol.md). |
 | Narrative and numbers | [`../protocol.md`](../protocol.md), sections "Transport verification: spike 0b.2a" and "...0b.2b" | The single source of truth for the protocol and the decision. |
