@@ -48,7 +48,7 @@ Pass criterion: every case PASS, zero skipped (`docs/test-reports/android-final.
 
 ## Schedule builder (4.2)
 
-TC-A-024..027 retired, covered by TC-S-092 and TC-S-164.
+Retired as duplicates: the four schedule builder cases numbered 024 to 027 are covered by TC-S-092 and TC-S-164.
 
 | Id | Case | How | Pass criteria |
 |---|---|---|---|
