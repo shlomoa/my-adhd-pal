@@ -82,20 +82,17 @@ for n in test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protoc
   test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh test-post-merge.sh; do
   [ "$(grep -oE -- "(^| )$n(@[A-Za-z0-9._-]+)?( |$)" "$tmp/groups.txt" | wc -l)" -ge 1 ] || { echo "  $n is in no group"; bad=1; }
 done
-# every test runs once, except test-spike.sh (its two suites) and test-checks.sh (scaffold and fixtures), each part in a group of its own
-for n in test-structure.sh test-pairing.sh test-ci.sh test-protocol-spec.sh test-gates.sh \
+# every test runs once, except test-spike.sh: it runs as its two suites, each in a group of its own
+for n in test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protocol-spec.sh test-gates.sh \
   test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh test-post-merge.sh; do
   [ "$(grep -ow -- "$n" "$tmp/groups.txt" | wc -l)" -eq 1 ] || { echo "  $n is not in exactly one group"; bad=1; }
 done
 [ "$(grep -ow -- 'test-spike.sh@test-run-0b2a' "$tmp/groups.txt" | wc -l)" -eq 1 ] &&
   [ "$(grep -ow -- 'test-spike.sh@test-run-0b2b' "$tmp/groups.txt" | wc -l)" -eq 1 ] &&
   [ "$(grep -c 'test-spike.sh' "$tmp/groups.txt")" -eq 2 ] || { echo "  test-spike.sh is not split into its two suites"; bad=1; }
-[ "$(grep -ow -- 'test-checks.sh@scaffold' "$tmp/groups.txt" | wc -l)" -eq 1 ] &&
-  [ "$(grep -ow -- 'test-checks.sh@fixtures' "$tmp/groups.txt" | wc -l)" -eq 1 ] &&
-  [ "$(grep -c 'test-checks.sh' "$tmp/groups.txt")" -eq 2 ] || { echo "  test-checks.sh is not split into scaffold and fixtures"; bad=1; }
-[ "$bad" -eq 0 ]; check "TC-V-007 every post-merge test is in exactly one group (spike and checks as their parts)" 0 $?
-[ "$(grep -c '^group [0-9]*: ' "$tmp/groups.txt")" -ge 5 ]; check "TC-V-007 there are at least five groups" 0 $?
-[ "$(grep -oE -- 'test-[a-z-]*\.sh' "$tmp/groups.txt" | wc -l)" -eq 14 ]; check "TC-V-007 the groups hold exactly the fourteen units" 0 $?
+[ "$bad" -eq 0 ]; check "TC-V-007 every post-merge test is in exactly one group (the spike as its two suites)" 0 $?
+[ "$(grep -c '^group [0-9]*: ' "$tmp/groups.txt")" -ge 4 ]; check "TC-V-007 there are at least four groups" 0 $?
+[ "$(grep -oE -- 'test-[a-z-]*\.sh' "$tmp/groups.txt" | wc -l)" -eq 13 ]; check "TC-V-007 the groups hold exactly the thirteen units" 0 $?
 
 # TC-V-008 groups run at the same time, a failure in any group fails the run and shows in the report, the other groups finish
 pdir="$tmp/par"; mkdir -p "$pdir"
