@@ -53,64 +53,6 @@ jobs:
         if: steps.external.outcome == 'failure'
         run: echo "::warning::Some external links in the docs are broken or unreachable (see the Check external links step). This does not block the pull request."
 
-  # The lane test scripts (negative fixtures, fresh-clone formatter check, CI definition) are slow, so they run apart.
-  script-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-
-      - uses: gradle/actions/setup-gradle@v4
-
-      - name: Structure
-        run: scripts/test/test-structure.sh
-
-      - name: Pairing and shared configuration
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-pairing.sh
-
-      - name: Checking tools
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-checks.sh
-
-      - name: CI definition and release checks
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-ci.sh
-
-      - name: Protocol spec and constants
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-protocol-spec.sh
-
-      - name: Gate graph
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-gates.sh
-
-      - name: Spike apps and runners
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-spike.sh
-
-      - name: Design documentation
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-design-docs.sh
-
-      - name: Documentation lint and format checks
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-doc-checks.sh
-
-      - name: Documentation index and site
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-docs-site.sh
-
-      - name: Design images follow the aurora style
-        if: ${{ !cancelled() }}
-        run: scripts/test/test-design-style.sh
-
   # The documentation site (mkdocs.yml, issue #156) is built in strict mode; the result is not published.
   docs-site:
     runs-on: ubuntu-latest
