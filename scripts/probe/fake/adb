@@ -2,6 +2,7 @@
 # Simulated adb for scripts/probe/test-run-e1.sh: one Galaxy Watch at 192.168.1.16:41613 with the debug probe installed.
 # State lives in $FAKE_DIR: calls (every invocation), log (the PROBE logcat), timeout, battery, offline.
 # Failure injection (FAKE_FAIL, comma separated):  noavail  the service never reports AVAILABLE
+#                                                  unavail  the service reports only UNAVAILABLE
 #                                                  nonotif  the notification is never listed
 # FAKE_DROP=1: after `input keyevent KEYCODE_SLEEP` the connection drops (device offline) until `adb connect`.
 # FAKE_CHARGING=1: the watch is on its charger. It simulates the commands; it proves nothing about the watch.
@@ -53,7 +54,8 @@ case "$cmd" in
       am)
         if [ "$1" = start ]; then
           note "PROBE measure start registered"
-          fails noavail || note "PROBE measure availability AVAILABLE"
+          fails unavail && note "PROBE measure availability UNAVAILABLE"
+          fails noavail || fails unavail || note "PROBE measure availability AVAILABLE"
           exit 0
         fi
         cmdname=""; prev=""

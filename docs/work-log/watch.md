@@ -506,3 +506,4 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 
 - 2026-10-17: watch probe checklist rewritten for the live route (E1 #228, E3 #230, E4 #231, E6 #233): passive steps dropped, background permission revoked before the runs, three screen-state phases with a report after each, battery before and after, Bedtime and battery saver, E4 questions. Docs only.
 - 2026-10-17: E4 debug front screen (`ProbeFrontActivity`, debug source set only, TC-W-150 to 152): a screen that stays in front with a keep-screen-on switch and `PROBE front` lines; checklist step 4 updated.
+- 2026-10-17: E1 run script `scripts/probe/run-e1.ps1` (tests `scripts/probe/test-run-e1.sh`, TC-W-153 to 159, simulated adb only; untested on the watch); checklist step 2 says "run this script" and keeps the manual steps as a fallback.

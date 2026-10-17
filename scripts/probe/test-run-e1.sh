@@ -18,7 +18,7 @@ run() {
   shift
   tmp="$(mktemp -d)"; mkdir -p "$tmp/state" "$tmp/out"
   FAKE_DIR="$tmp/state" PATH="$here/fake:$PATH" timeout "${RUN_TIMEOUT:-120}" "$PWSH" -NoProfile -File "$SCRIPT" \
-    -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -PhaseSec 1 -AvailableTimeoutSec 4 -Unattended "$@" > "$tmp/stdout" 2>&1 < /dev/null
+    -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -PhaseSec 1 -ReportWaitSec 0.2 -AvailableTimeoutSec 4 -Unattended "$@" > "$tmp/stdout" 2>&1 < /dev/null
   rc=$?
   result="$(ls "$tmp/out"/e1-*.txt 2>/dev/null | head -1)"
 }
@@ -72,6 +72,9 @@ FAKE_FAIL=noavail run noavail ""
 [ "$(count 'cmd measure-stop')" -ge 2 ] ; check "TC-W-156 the service is stopped after a failed run" 0 $?
 [ "$(count 'cmd measure-report')" -eq 0 ]; check "TC-W-156 no report is taken when the service never became available" 0 $?
 
+FAKE_FAIL=unavail run unavail ""
+[ "$rc" -ne 0 ]; check "TC-W-156 UNAVAILABLE is not taken for AVAILABLE" 0 $?
+
 FAKE_CHARGING=1 run charging ""
 [ "$rc" -ne 0 ] && [ "$(count 'am start')" -eq 0 ]; check "TC-W-157 a watch on its charger is refused before anything is started" 0 $?
 grep -qi 'charger' "$tmp/stdout"; check "TC-W-157 the refusal names the charger" 0 $?
@@ -83,7 +86,7 @@ grep -q 'notification visible: False' "$result"; check "TC-W-154 a missing notif
 
 # without -Unattended the script asks about the Always-on display before phase B and phase C
 tmp="$(mktemp -d)"; mkdir -p "$tmp/state" "$tmp/out"
-printf '\n\n' | FAKE_DIR="$tmp/state" PATH="$here/fake:$PATH" timeout 120 "$PWSH" -NoProfile -File "$SCRIPT" -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -PhaseSec 1 -AvailableTimeoutSec 4 > "$tmp/stdout" 2>&1
+printf '\n\n' | FAKE_DIR="$tmp/state" PATH="$here/fake:$PATH" timeout 120 "$PWSH" -NoProfile -File "$SCRIPT" -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -PhaseSec 1 -ReportWaitSec 0.2 -AvailableTimeoutSec 4 > "$tmp/stdout" 2>&1
 [ "$(grep -ci 'Always-on display' "$tmp/stdout")" -ge 2 ]; check "TC-W-158 the script asks the user about the Always-on display twice (on before B, off before C)" 0 $?
 
 # the documentation of the script states what the simulation cannot prove
