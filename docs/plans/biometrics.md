@@ -193,8 +193,11 @@ Probe step 1 and 2, as reported by the user through the coordinator. Verified on
   minutes (D6, best effort, holds; it is now measured, not assumed), and the hourly lows and the baseline have enough samples.
 - The batch was logged with the screen off although the user says the screen stays lit on the wrist: the first probe read `isInteractive`, which
   is false in the always-on display. The probe now records the display state (on, doze, off) and the age of the newest sample, and step 2 runs
-  30 minutes to see several batches. Not yet known: the gap between batches, the delay with the screen on, and the behaviour off the wrist
-  (step 3 is running).
+  30 minutes to see several batches. Not yet known: the gap between batches and the delay with the screen on.
+- **Off the wrist (step 3, old build, 2026-10-17):** the watch lay on a table with the screen off from 10:02:48 (after `clear`). One batch of **1 sample** arrived at
+  10:04:13, about 85 s after `clear` (probably while the watch was being taken off); the report at 10:12:51 showed `batches=1 samples=1`, no gap.
+  So off the wrist the watch delivers essentially nothing, as expected: no alerts can come from a watch that is not worn (and the baseline gets no
+  samples then).
 
 ## 7. What changes elsewhere (not done in this document)
 
