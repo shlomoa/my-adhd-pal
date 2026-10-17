@@ -25,6 +25,7 @@ private const val TAB_LINK = 0
 private const val TAB_TASKS = 1
 private const val TAB_SETTINGS = 2
 private const val TAB_HISTORY = 3
+private const val TAB_ASK = 4
 
 /**
  * Stateless apart from the selected tab. [tasks] and [settings] are the Tasks and Settings tabs; later screens of
@@ -38,6 +39,7 @@ fun HomeScreen(
     onRetry: () -> Unit,
     tasks: @Composable () -> Unit,
     settings: @Composable () -> Unit,
+    ask: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var tab by rememberSaveable { mutableIntStateOf(TAB_LINK) }
@@ -58,6 +60,12 @@ fun HomeScreen(
                     label = { Text(stringResource(R.string.nav_tasks)) }
                 )
                 NavigationBarItem(
+                    selected = tab == TAB_ASK,
+                    onClick = { tab = TAB_ASK },
+                    icon = {},
+                    label = { Text(stringResource(R.string.nav_ask)) }
+                )
+                NavigationBarItem(
                     selected = tab == TAB_SETTINGS,
                     onClick = { tab = TAB_SETTINGS },
                     icon = {},
@@ -75,6 +83,7 @@ fun HomeScreen(
         Box(Modifier.padding(padding)) {
             when (tab) {
                 TAB_TASKS -> tasks()
+                TAB_ASK -> ask()
                 TAB_SETTINGS -> settings()
                 TAB_HISTORY -> HistoryScreen(history, onFilter, onRetry)
                 else -> LinkStateScreen(link)

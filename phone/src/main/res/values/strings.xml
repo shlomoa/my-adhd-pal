@@ -83,4 +83,18 @@
     <string name="schedule_sent">Sent to the watch (version %1$d)</string>
     <string name="schedule_up_to_date">The watch is already up to date</string>
     <string name="schedule_failed">Could not send: %1$s</string>
+    <string name="nav_ask">Ask</string>
+    <string name="ask_title_label">Your question</string>
+    <string name="ask_option_label">Answer %1$d</string>
+    <string name="ask_option_add">Add an answer</string>
+    <string name="ask_option_remove">Remove</string>
+    <string name="ask_expiry_title">How long can it be answered?</string>
+    <string name="ask_expiry_none">No limit</string>
+    <string name="ask_expiry_5">5 minutes</string>
+    <string name="ask_expiry_15">15 minutes</string>
+    <string name="ask_expiry_60">1 hour</string>
+    <string name="ask_send">Send to the watch</string>
+    <string name="ask_sent">Question sent to the watch</string>
+    <string name="ask_error_title">Write your question.</string>
+    <string name="ask_error_options">Give at least two answers.</string>
 </resources>
