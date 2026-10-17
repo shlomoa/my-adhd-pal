@@ -146,6 +146,12 @@ section 12.3 and the watch probe checklist, and a run has no test-case id.
 | deferred | C12, C7, C8, C9x, C3x | none | n/a | later stage (user) | **Deferred (user, 2026-10-17).** No work |
 | dropped | 24 h passive probe, passive step probe | none | n/a | n/a | No work |
 
+**Standing instruction (user, 2026-10-17):** "un-deffer all deferred, if all other issues are resolved and it is unblocked"
+
+The deferred rows are taken up by the coordinator when this condition holds. Today they are blocked as listed in the body
+of tracking issue #235: C3x gates merged but 3.4 and 3.9 need the user's runs; C7 needs C4; C8 needs a discussion with the
+user; C9x needs C4 and C5; C12 needs the user's explicit permission.
+
 Waiting on the user: the E1, E3, E4 and E6 runs, the manual Android cases, the approval of the design document (#154) and
 the approval of the docs index structure (#156).
 
