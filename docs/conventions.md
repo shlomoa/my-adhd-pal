@@ -58,8 +58,8 @@ Shared configuration (`applicationId`, SDK levels) is defined once: the `[versio
 
 | When | What | Where |
 |---|---|---|
-| Every pull request | `./gradlew check assembleDebug` and the release-has-no-debug script (`build`), the documentation site build and index check (`docs-site`), the non-blocking external link check, the gate and convention checks, the fast setup test `scripts/test/test-post-merge.sh`, and the one-second tests `test-protocol-spec.sh` and `test-gates.sh` | `build.yml`, `gates.yml`, `conventions.yml` |
-| After each merge to `main` | the slow lane test scripts in `scripts/test/` (negative fixtures, fresh-clone formatter check, CI definition, spike runners, documentation checks), everything except those three, listed in `scripts/ci-post-merge/run-tests.sh` | the validation lane agent, in its own container; no workflow |
+| Every pull request | `./gradlew check assembleDebug` and the release-has-no-debug script (`build`), the documentation site build and index check (`docs-site`), the non-blocking external link check, and the gate and convention checks (`gates`, `conventions`) | `build.yml`, `gates.yml`, `conventions.yml` |
+| After each merge to `main` | all script tests of `scripts/test/` that the former `script-tests` job ran (structure, pairing, checks, ci, protocol-spec, gates, spike, design-docs, doc-checks, docs-site, design-style) and `test-post-merge.sh`, listed in `scripts/ci-post-merge/run-tests.sh` | the validation lane agent, in its own container; no workflow |
 
 The post-merge run is not a pull request check and not a workflow, so a pull request never waits for it. The validation
 lane (V) checks out the merged `main` sha and runs `scripts/ci-post-merge/run-tests.sh` itself (several merges in a row:

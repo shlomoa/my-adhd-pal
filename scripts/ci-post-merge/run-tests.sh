@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Runs the slow script tests after a merge to main (issue 190) and writes a report of what failed.
+# Runs the script tests after a merge to main (issue 190) and writes a report of what failed.
 # Run: scripts/ci-post-merge/run-tests.sh   Output: $POST_MERGE_OUT (default build/post-merge): <test>.log and report.md.
 # POST_MERGE_TEST_DIR and POST_MERGE_TESTS override the directory and the list (used by the tests).
 set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 dir="${POST_MERGE_TEST_DIR:-$root/scripts/test}"
 out="${POST_MERGE_OUT:-$root/build/post-merge}"
-tests="${POST_MERGE_TESTS:-test-structure.sh test-pairing.sh test-checks.sh test-ci.sh \
-test-spike.sh test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh}"
+tests="${POST_MERGE_TESTS:-test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protocol-spec.sh \
+test-gates.sh test-spike.sh test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh \
+test-post-merge.sh}"
 mkdir -p "$out"
 report="$out/report.md"
 failed=()
