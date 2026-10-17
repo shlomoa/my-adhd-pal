@@ -182,3 +182,9 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-196 | script | No fixed `/tmp` file names in scripts | no script under `scripts/` writes a file with a fixed name in `/tmp` or `$TMPDIR` (a second run on the machine would share it); `mktemp` is used |
 | TC-S-197 | script | Script fixtures leave no directory behind | after `test-checks.sh` removed its fixtures, `wear/src`, `phone/src` and `protocol/src` hold no empty directory that was not there before |
 | TC-S-198 | script | The TC-S-017 check starts on a fresh Gradle daemon | `test-checks.sh` runs `./gradlew --stop` on the line before `gradle check --rerun-tasks` (issue 205) |
+
+## Deferred steps in the gate graph (wave 0, row C3)
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-S-183 | script | `gates.json` lists the deferred steps | a top-level `deferred` array of `{step, gate, reason}`; steps 3.3 and 3.4 (G5), 4.1 and 4.2 (G6), 3.9 (G7), 5.2 and 5.3 (no gate); 4.3, 4.4 and 4.6 are not deferred, so G6 can close on them; no gate's `requires` changes (the README table stays equal to `gates.json`) |

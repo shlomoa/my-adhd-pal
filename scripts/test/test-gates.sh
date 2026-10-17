@@ -74,4 +74,21 @@ expect "G3a requires G2a" "G2a" "$(req G3a)"
 expect "G3 (real Data Layer) requires G3a, G-LIB and G2b" "G-LIB,G2b,G3a" "$(req G3)"
 expect "G4 requires G3a and G-LIB" "G-LIB,G3a" "$(req G4)"
 expect "G5 requires G2a" "G2a" "$(req G5)"
+
+# --- deferred steps (user decision 2026-10-17, wave 0 row C3): schedule, scheduler, schedule builder, tasks and tile
+# work is deferred; the gate keeps its id, and its exit criteria are its steps minus the deferred ones, so G6 can close
+# on 4.3, 4.4 and 4.6. gates.json lists them in a top-level "deferred" array of {step, gate, reason}.
+deferred() { jq -r --arg g "$1" '[(.deferred // [])[] | select(.gate == $g) | .step] | sort | join(",")' "$gates"; }
+jq -e '(.deferred | type) == "array"' "$gates" >/dev/null 2>&1; check "TC-S-183 gates.json has a deferred array" $?
+jq -e '[.deferred[]? | select((.step | type) != "string" or ((.reason // "") | length) == 0)] | length == 0' "$gates" >/dev/null 2>&1
+check "TC-S-183 every deferred entry has a step and a reason" $?
+bad="$(jq -r --argjson ids "$(jq -c '[.gates[].id]' "$gates")" '.deferred[]? | select(.gate != null and (.gate as $g | $ids | index($g) | not)) | .step' "$gates" 2>/dev/null)"
+[ -z "$bad" ] && jq -e '.deferred | type == "array"' "$gates" >/dev/null 2>&1; check "TC-S-183 every deferred gate exists${bad:+ (unknown for steps: $bad)}" $?
+all="$(jq -r '[(.deferred // [])[] | .step] | sort | join(",")' "$gates")"
+expect "deferred steps are 3.3, 3.4, 3.9, 4.1, 4.2, 5.2 and 5.3" "3.3,3.4,3.9,4.1,4.2,5.2,5.3" "$all"
+expect "G5 defers 3.3 and 3.4" "3.3,3.4" "$(deferred G5)"
+expect "G6 defers 4.1 and 4.2 only, so 4.3, 4.4 and 4.6 can close it" "4.1,4.2" "$(deferred G6)"
+expect "G7 defers 3.9" "3.9" "$(deferred G7)"
+expect "the deferral changes no requirement: G6 requires G3 and G4" "G3,G4" "$(req G6)"
+expect "the deferral changes no requirement: G7 requires G3, G4, G5 and H2" "G3,G4,G5,H2" "$(req G7)"
 exit $fail
