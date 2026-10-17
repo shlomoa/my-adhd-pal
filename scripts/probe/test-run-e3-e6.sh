@@ -11,7 +11,7 @@ check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected 
 E3="$here/run-e3.ps1"; E6="$here/run-e6.ps1"
 . "$here/test-lib.sh"
 
-for f in "$E3" "$E6"; do
+for f in "$E3" "$E6" "$here/probe-common.ps1"; do
   SCRIPT_FILE="$f" "$PWSH" -NoProfile -Command '$e=$null; [System.Management.Automation.Language.Parser]::ParseFile($env:SCRIPT_FILE,[ref]$null,[ref]$e) | Out-Null; if ($e) { $e | ForEach-Object { $_.ToString() }; exit 1 }' >/dev/null 2>&1
   check "TC-W-160 $(basename "$f") parses without errors" 0 $?
 done

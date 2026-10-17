@@ -7,6 +7,14 @@ $pkg = 'com.shlomoa.myadhdpal'
 $receiver = "$pkg/.wear.debug.probe.ProbeReceiver"
 $title = 'Probe: measuring heart rate'
 
+# Watch menu paths, verified by the coordinator against Samsung's support pages (names vary by firmware; samsung.com/us/support
+# answers ANS10002951, ANS10002905, ANS10003398, ANS10002901). Shown in the prompts.
+$PathSleep = 'Sleep mode (called Bedtime on older firmware): swipe down from the top of the watch face for the Quick panel, tap Modes, then Sleep; or Settings > Modes and Routines > Sleep > Turn on'
+$PathPowerSaving = 'Power saving: the Power saving icon in the Quick panel (swipe down from the top of the watch face), or Settings > Battery > Power saving. It turns Wi-Fi off, Always On Display off and the wake-up gesture off, so wireless adb stops while it is on'
+$PathTheater = 'Theater mode: the clapperboard icon in the Quick panel (swipe down from the top of the watch face), then pick a duration. It turns off alerts, Always On Display and wake gestures by itself'
+$PathVibration = 'Settings > Sounds and vibration (strength Light/Strong, length Short/Long)'
+$PathAod = 'Settings > Display > Always On Display'
+
 function Log([string]$text) {
     $line = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + ' ' + $text
     Write-Host $line
@@ -61,6 +69,29 @@ function Ask([string]$question) {
     if ($Unattended) { Log "(unattended) $question"; return }
     Log $question
     Read-Host 'Press Enter when done' | Out-Null
+}
+
+# Tries to reach the watch over wireless adb: adb connect and a trivial shell command, every $ReconnectRetrySec seconds, up to
+# $ReconnectSec seconds (defaults 5 and 120). Returns true when the watch answered.
+function Wait-Adb {
+    $limit = if ($null -ne $ReconnectSec) { $ReconnectSec } else { 120 }
+    $every = if ($null -ne $ReconnectRetrySec) { $ReconnectRetrySec } else { 5 }
+    $attempts = [Math]::Max(1, [int][Math]::Ceiling($limit / [Math]::Max($every, 0.01)))
+    for ($i = 1; $i -le $attempts; $i++) {
+        & adb connect $Watch 2>&1 | Out-Null
+        $answer = (& adb shell echo ok 2>&1 | Out-String)
+        if ($LASTEXITCODE -eq 0 -and $answer -match 'ok') { return $true }
+        Start-Sleep -Seconds $every
+    }
+    return $false
+}
+
+# Report when the watch may be unreachable (Wi-Fi off in a mode): waits for it, and logs that no report was possible instead of failing.
+# Returns the reading count, or -1 when no report was possible.
+function Report-Safe([string]$phase) {
+    if (Wait-Adb) { return (Report $phase) }
+    Log "no report possible during ${phase}: the watch could not be reached over adb"
+    return -1
 }
 
 # Asks a question and returns the typed answer (E6). The answer is logged.
