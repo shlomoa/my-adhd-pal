@@ -131,6 +131,20 @@ Stop with `measure-stop` at the end. State whether any permission prompt appeare
 
 ## 4. E4: does the app stay the top app and top window (issue #231)
 
+**Run the script (recommended).** Wear the watch and look at it, then:
+
+```powershell
+.\scripts\probe\run-e4.ps1 -Watch 192.168.1.16:41613
+```
+
+It shortens the screen timeout (restored at the end), starts the front screen twice for 3 minutes each (run 1 keep-screen-on
+off, run 2 on), writes the `PROBE front` lines and the resumed activity of both runs, and asks you the four questions below
+(type the answers). At the end it publishes the result file as the branch `e4-results/<time>` (it prints
+`PUSHED e4-results/<time>`; `-SkipPush` keeps it local): tell the coordinator "done". Untested on the watch; if it fails, use the
+manual steps below.
+
+**Manual steps (fallback).**
+
 The debug build has a screen that stays in front (`ProbeFrontActivity`) with a keep-screen-on switch. It measures nothing;
 it writes a `PROBE front` line when it is resumed or paused, gains or loses focus, the switch changes or the screen goes
 on, dim (`doze`) or off. `inFront=true` means resumed and has focus. Do this step with the watch worn, 3 minutes per

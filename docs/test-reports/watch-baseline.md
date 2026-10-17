@@ -294,6 +294,17 @@ FAIL TC-W-168 the script prints PUSHED <branch> (expected 0, got 1)
 FAIL TC-W-172 E3 publishes e3-results/<stamp> (expected 0, got 1)
 ```
 
+## E4 run script (TC-W-173 to TC-W-178; `scripts/probe/test-run-e4.sh`)
+
+Experiment E4 (issue #231) in the same way as E1, E3 and E6: `scripts/probe/run-e4.ps1` uses `probe-common.ps1` and publishes `e4-results/<stamp>`. Red commit: the first commit of branch
+`claude/watch-e4-script` (tests and the extended simulated adb only). Command: `PWSH=pwsh scripts/probe/test-run-e4.sh`. 19 checks FAIL before the script exists, for example:
+
+```
+FAIL TC-W-173 run-e4.ps1 parses without errors (expected 0, got 1)
+FAIL TC-W-174 a full E4 run exits 0 (expected 0, got 64)
+FAIL TC-W-176 the result is published as e4-results/<stamp> (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
