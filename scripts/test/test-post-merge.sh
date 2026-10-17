@@ -155,4 +155,21 @@ check "TC-V-012 with POST_MERGE_ARG only that spike suite runs" 0 $?
 REPO_ROOT="$sroot" bash scripts/test/test-spike.sh >"$tmp/spike2.txt" 2>&1
 grep -q 'test-run-0b2a.sh passes' "$tmp/spike2.txt" && grep -q 'test-run-0b2b.sh passes' "$tmp/spike2.txt"
 check "TC-V-012 without it both spike suites run" 0 $?
+# TC-V-013 test-checks.sh runs only the part named in POST_MERGE_ARG (scaffold: the full check run; fixtures: the negative fixtures)
+croot="$tmp/croot"; mkdir -p "$croot/scripts/test" "$croot/docs"
+cp scripts/test/test-checks.sh "$croot/scripts/test/"
+printf '#!/usr/bin/env bash\necho "$*" >> "$GRADLE_LOG"\n' > "$croot/gradlew"; chmod +x "$croot/gradlew"
+git -C "$croot" init -q . && git -C "$croot" add -A && git -C "$croot" -c user.name=t -c user.email=t@t commit -q -m fixture
+for part in scaffold fixtures all; do
+  arg="$part"; [ "$part" != all ] || arg=""
+  GRADLE_LOG="$tmp/gradle-$part.log" POST_MERGE_ARG="$arg" bash "$croot/scripts/test/test-checks.sh" >/dev/null 2>&1
+done
+grep -q -- 'check --rerun-tasks' "$tmp/gradle-scaffold.log" && ! grep -q 'spotlessApply\|detekt\|lintDocs' "$tmp/gradle-scaffold.log"
+check "TC-V-013 POST_MERGE_ARG=scaffold runs the full check and none of the fixtures" 0 $?
+grep -q 'spotlessApply' "$tmp/gradle-fixtures.log" && grep -q 'lintDocs' "$tmp/gradle-fixtures.log" && ! grep -q -- 'check --rerun-tasks' "$tmp/gradle-fixtures.log"
+check "TC-V-013 POST_MERGE_ARG=fixtures runs the fixtures and not the full check" 0 $?
+grep -q -- 'check --rerun-tasks' "$tmp/gradle-all.log" && grep -q 'lintDocs' "$tmp/gradle-all.log"
+check "TC-V-013 without POST_MERGE_ARG both parts run" 0 $?
+grep -qE '^test-checks\.sh@scaffold|[ |]test-checks\.sh@scaffold' "$tmp/groups.txt" && grep -q 'test-checks.sh@fixtures' "$tmp/groups.txt"
+check "TC-V-013 the default groups run the two parts of test-checks.sh in separate groups" 0 $?
 exit $fail
