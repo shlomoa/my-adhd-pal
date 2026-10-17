@@ -35,7 +35,8 @@ body of the GitHub issue of each step; the documents record what was decided and
   [documentation baseline](test-reports/docs-baseline.md), [documentation final](test-reports/docs-final.md),
   [documentation checks baseline](test-reports/docs-checks-baseline.md),
   [documentation site baseline](test-reports/docs-site-baseline.md),
-  [aurora style baseline](test-reports/docs-style-baseline.md).
+  [aurora style baseline](test-reports/docs-style-baseline.md),
+  [generated watch images baseline](test-reports/docs-fix-baseline.md).
 
 ## Spikes and research
 
