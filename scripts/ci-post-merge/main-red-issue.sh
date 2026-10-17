@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Keeps one open issue labelled main-red in step with the post-merge script tests (issue 190).
-# Run: scripts/main-red-issue.sh red|green <report.md> <run-url>   Needs gh and GH_TOKEN with issues: write.
+# Run: scripts/ci-post-merge/main-red-issue.sh red|green <report.md> <run-url>   Needs gh and GH_TOKEN with issues: write.
 set -eu
 state="${1:?red or green}"
 report="${2:?report file}"

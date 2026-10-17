@@ -30,7 +30,7 @@ jobs:
       - name: Script tests
         id: tests
         continue-on-error: true
-        run: scripts/post-merge-tests.sh
+        run: scripts/ci-post-merge/run-tests.sh
 
       - name: Open, update or close the main-red issue
         if: ${{ !cancelled() }}
@@ -39,7 +39,7 @@ jobs:
         run: |
           state=green
           [ "${{ steps.tests.outcome }}" = success ] || state=red
-          scripts/main-red-issue.sh "$state" build/post-merge/report.md "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          scripts/ci-post-merge/main-red-issue.sh "$state" build/post-merge/report.md "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

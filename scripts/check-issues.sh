@@ -23,8 +23,8 @@ while read -r id; do
   n="$(jq -r '.[0].number' <<<"$matches")"
   jq -e --arg m "milestone:$milestone" '.[0].labels | map(.name) | index($m)' <<<"$matches" >/dev/null \
     || problem "issue #$n (step $id) lacks the milestone label milestone:$milestone"
-  [ "$(jq '[.[0].labels[].name | select(test("^lane:[SAWD]$"))] | length' <<<"$matches")" -eq 1 ] \
-    || problem "issue #$n (step $id) needs exactly one lane label (lane:S, lane:A, lane:W or lane:D)"
+  [ "$(jq '[.[0].labels[].name | select(test("^lane:[SAWDV]$"))] | length' <<<"$matches")" -eq 1 ] \
+    || problem "issue #$n (step $id) needs exactly one lane label (lane:S, lane:A, lane:W, lane:D or lane:V)"
   jq -e '.[0].body | split("\n") | map(select(test("\\S"))) | .[0] // "" | test("^## Validation plan")' <<<"$matches" >/dev/null \
     || problem "issue #$n (step $id) does not start with a Validation plan section"
 done < <(ids "$plan")

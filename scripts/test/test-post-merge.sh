@@ -14,8 +14,8 @@ check() { # name expected actual
 has() { grep -qE -- "$1" "$2" 2>/dev/null; }
 build=.github/workflows/build.yml
 post=.github/workflows/post-merge.yml
-runner=scripts/post-merge-tests.sh
-handler=scripts/main-red-issue.sh
+runner=scripts/ci-post-merge/run-tests.sh
+handler=scripts/ci-post-merge/main-red-issue.sh
 
 # TC-S-170 the pull request workflow has no script-tests job and keeps the fast jobs
 ! has '^  script-tests:' "$build"; check "TC-S-170 build.yml has no script-tests job" 0 $?

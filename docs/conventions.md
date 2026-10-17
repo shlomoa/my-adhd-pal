@@ -51,12 +51,12 @@ Shared configuration (`applicationId`, SDK levels) is defined once: the `[versio
 | When | What | Where |
 |---|---|---|
 | Every pull request | `./gradlew check assembleDebug` and the release-has-no-debug script (`build`), the documentation site build and index check (`docs-site`), the non-blocking external link check, the gate and convention checks, the fast setup test `scripts/test/test-post-merge.sh`, and the one-second tests `test-protocol-spec.sh` and `test-gates.sh` | `build.yml`, `gates.yml`, `conventions.yml` |
-| After each merge to `main` (and by hand: *Run workflow*) | the slow lane test scripts in `scripts/test/` (negative fixtures, fresh-clone formatter check, CI definition, spike runners, documentation checks), everything except those three, listed in `scripts/post-merge-tests.sh` | `post-merge.yml` |
+| After each merge to `main` (and by hand: *Run workflow*) | the slow lane test scripts in `scripts/test/` (negative fixtures, fresh-clone formatter check, CI definition, spike runners, documentation checks), everything except those three, listed in `scripts/ci-post-merge/run-tests.sh` | `post-merge.yml` |
 
 The post-merge run is not a pull request check, so a pull request never waits for it. When it fails, the workflow opens
 or updates one issue labelled `main-red` that names the failing script and cases and links the run; a later green run
 closes it. The coordinator assigns the fix to the lane that owns the failing test. A new `scripts/test/test-*.sh` must be
-added to `scripts/post-merge-tests.sh` or to a pull request workflow; `test-post-merge.sh` fails if one runs nowhere.
+added to `scripts/ci-post-merge/run-tests.sh` or to a pull request workflow; `test-post-merge.sh` fails if one runs nowhere.
 
 ### When lint itself crashes
 

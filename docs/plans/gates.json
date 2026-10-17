@@ -158,6 +158,16 @@
       "pr": null
     },
     {
+      "id": "G-VAL",
+      "name": "V validation lane: script tests run after each merge to main (issue 190)",
+      "owner": "V",
+      "requires": [
+        "G-BOOT"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
       "id": "G-DOC",
       "name": "D1 UI/UX design documentation in docs/design",
       "owner": "D",
