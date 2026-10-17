@@ -210,6 +210,18 @@ Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
 e: wear/src/testDebug/.../debug/probe/ProbePermissionsTest.kt:20:20 Unresolved reference 'requiredPermissions'.
 ```
 
+## Probe display state and sample age (TC-W-134, 135, 142, 143; `ProbeStatsTest.kt`)
+
+First real-watch run (user, Wear OS 6): one batch of 318 samples arrived 7 min 41 s after start and was logged `screenOn=false` while the user
+said the screen stayed lit on the wrist: `isInteractive` is false in the always-on (ambient) display, so the probe now records the display state
+and the age of the newest sample. Red commit: the first commit of branch `claude/watch-6-4-probe-display` (tests only).
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:10:9 Too many arguments for constructor ProbeBatch.
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:73:16 Unresolved reference 'displayName'.
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
