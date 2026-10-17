@@ -1,0 +1,24 @@
+2026-10-17 16:21:52 e1 result file: e1-20261017-162152.txt
+2026-10-17 16:21:52 battery before: 68
+2026-10-17 16:21:52 screen timeout was 30000, set to 0
+2026-10-17 16:21:53 PROBE measure capabilities heartRateMeasure=true
+2026-10-17 16:21:53 (unattended) Check that the Always-on display is ON in the watch settings (phase B needs it).
+2026-10-17 16:21:53 service registered and AVAILABLE
+2026-10-17 16:21:53 == phase A (screen on) for 1 s
+2026-10-17 16:21:55 == report A
+2026-10-17 16:21:55 PROBE measure screen=all readings=100 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:21:55 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:21:55 notification visible: False
+2026-10-17 16:21:55 == phase B (display dim) for 1 s
+2026-10-17 16:21:56 == report B
+2026-10-17 16:21:56 PROBE measure screen=all readings=200 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:21:56 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:21:56 notification visible: False
+2026-10-17 16:21:56 (unattended) Turn the Always-on display OFF in the watch settings now (phase C needs the screen off).
+2026-10-17 16:21:56 == phase C (screen off) for 1 s
+2026-10-17 16:21:57 == report C
+2026-10-17 16:21:57 PROBE measure screen=all readings=300 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:21:57 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:21:57 notification visible: False
+2026-10-17 16:21:57 battery after: 67
+2026-10-17 16:21:57 screen timeout restored to 30000; result file: e1-20261017-162152.txt
