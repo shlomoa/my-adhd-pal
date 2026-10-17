@@ -503,3 +503,5 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   and the test and catalogue names; the evaluator and tracker say "in any order". Work-log entries rewritten in the new words, dates and facts kept.
 - Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :protocol:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint, links and index.
 - Open items: none for this cleanup. TC-W-136, 137 and 149 stay NOT yet run (the user).
+
+- 2026-10-17: watch probe checklist rewritten for the live route (E1 #228, E3 #230, E4 #231, E6 #233): passive steps dropped, background permission revoked before the runs, three screen-state phases with a report after each, battery before and after, Bedtime and battery saver, E4 questions. Docs only.

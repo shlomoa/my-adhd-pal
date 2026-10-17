@@ -139,9 +139,9 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-146 | 6.4 | unit | Availability changes and readings are one line each and read back; a malformed line is skipped; changes are listed in time order | round trip, null for bad lines, ordered lines |
 | TC-W-147 | 6.4 | unit | The battery report gives the drop per hour, and none without a duration or when the level rose | exact lines |
 | TC-W-148 | 6.4 | unit | The 95th percentile is the nearest rank of the sorted values | expected numbers |
-| TC-W-149 | 6.4 | manual | On the real watch: the live heart-rate route over 30 minutes worn (screen on, dim, off): readings per minute, gaps, availability changes, battery drop, and that the service survives without the background permission | user reports the measure report lines (`docs/test-reports/watch-probe-checklist.md` step 6) |
-| TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | user reports the three report lines (`docs/test-reports/watch-probe-checklist.md`) |
-| TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case |
+| TC-W-149 | 6.4 | manual | On the real watch: the live heart-rate route over 30 minutes worn (screen on, dim, off): readings per minute, gaps, availability changes, battery drop, and that the service survives without the background permission | user reports the measure report lines (`docs/test-reports/watch-probe-checklist.md` steps 1 to 4: E1, E3, E4) |
+| TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
+| TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
 | TC-W-083 | 6.8 | manual | The real watch registers passive heart rate and an alert reaches the phone | user reports capability and result |
 
