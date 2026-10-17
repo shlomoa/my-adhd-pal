@@ -39,7 +39,7 @@ on the real watch (section 6).
 | D3 | Threshold | Decided | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. The baseline is the **20th percentile of the hourly lows of the last 7 days** (Decided, section 2); until a baseline exists the threshold is an absolute **110 bpm** (Decided). |
 | D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again; after that, **every 2 minutes** while the rate stays above, at most **6 repeats** per episode (Decided). Details: section 3. |
 | D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. **The phone raises the same kind of alert** (it vibrates and flashes a full-screen alert, not only the watch). The full-screen alert has an **"I'm OK"** button that ends the episode (Decided). Sections 4 and 4a. |
-| D6 | Latency | Decided | Best effort. On the passive route the measured delay was up to about 10 minutes (section 6). With D9 the expected delay is seconds, unverified until the probe in section 11.5 has run. No maximum delay is promised. |
+| D6 | Latency | Decided | **Measured latency** (section 12.3). Passive background route: readings delivered together about every 10 minutes (577 to 598 readings, window 580 to 599 s, arriving 0.4 to 11.5 s after the window closes; first run 318 readings after 7 min 41 s). Live `MeasureClient`, screen on: 734 readings in 5 minutes (about 2 per second), gap median under 1 s, 95th percentile 1 s, longest 60 s, AVAILABLE 4 s after start. Live with the display dim, off, and for 30 minutes: to be measured. Alert-to-phone latency: to be measured. |
 | D7 | Permission | Decided, feasibility checked | Requested from the **phone** app (onboarding). Section 5. |
 | D8 | Privacy | Decided | Raw readings are never logged in release builds; raw feed only in `wear/src/debug/`. `/alert` carries the numeric value (already accepted). |
 | D9 | When it measures | Decided (2026-10-17) | Heart rate is measured **only while the watch app is running**, started by the user; not as an always-on background service. Consequences and open points: section 11. |
@@ -51,7 +51,7 @@ on the real watch (section 6).
 3. A stress event is reported immediately and the local response is activated.
 
 This is separate from D9 (measure only while the watch app runs). "Immediately" is read as within seconds. The route that meets it is
-open until the probe of section 11.5 has run; the user picks the route then. The passive background route does **not** meet "immediately"
+open until the probe of section 11.5 has run; the route is decided then. The passive background route does **not** meet "immediately"
 as measured: readings were delivered together, up to about 600 at a time spanning about 10 minutes, seconds after that span ended (section 6).
 
 ## 2. The resting baseline (D3)
@@ -227,7 +227,7 @@ A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
 
 1. `getCapabilitiesAsync()` reports passive `HEART_RATE_BPM`.
 2. Register a passive listener; record arrival times and sample counts with the screen on, off and while the watch sits on a
-   desk, for at least 24 hours (done as far as needed: the results below show the passive route cannot give "immediately"; the live route replaces it, section 11). This sets what "best effort" means (D6) and whether the 24-hourly-values baseline in section 2
+   desk, for at least 24 hours (done as far as needed: the results below show the passive route cannot give "immediately"; the live route replaces it, section 11). This gives the measured latency (D6) and shows whether the 24-hourly-values baseline in section 2
    is reachable. If readings arrive only every several minutes, or not at all in the background, the user decides whether
    biometric alerts are still worth building (Samsung may restrict third-party background heart rate:
    [forum thread](https://forum.developer.samsung.com/t/read-heart-rate-every-5-minutes-in-background-service-on-wear-os/34328),
@@ -243,7 +243,7 @@ Probe step 1 and 2, as reported by the user through the coordinator. Verified on
   with `SecurityException: Missing permissions: [android.permission.health.READ_HEART_RATE]` (section 5 therefore holds for Wear OS 6).
 - The background app does receive heart-rate data, but **delayed and delivered together**: after `start` at 09:49:41 the only delivery in about ten
   minutes arrived at 09:57:22 (7 min 41 s later) with 318 samples (the longer run below gives the sample rate). Consequence for the alert: the delay from a high heart rate to the alert can be several
-  minutes (D6, best effort), and the hourly lows and the baseline have enough samples.
+  minutes (D6, measured latency), and the hourly lows and the baseline have enough samples.
 - The delivery was logged with the screen off although the user says the screen stays lit on the wrist: the first probe read `isInteractive`, which
   is false in the always-on display. The probe now records the display state (on, doze, off) and the age of the newest sample, and step 2 runs
   30 minutes to see several deliveries. Not yet known: the gap between deliveries and the delay with the screen on.
@@ -277,7 +277,7 @@ What this shows (Verified on the device, one watch, wrist state partly unknown):
 - The watch records about **1 sample per second** (600 samples span 599 s). The earlier "0.7 per second" was a partial delivery.
 - A delivery holds **up to about 600 samples spanning about 10 minutes**, and arrives **seconds after that span ends** (newest sample 7.9 s old).
   Smaller deliveries also occur (4, 83, 371, 404 samples), probably when the watch was taken off or the span was cut.
-- Consequence for D6 (best effort): a high heart rate can reach the app **up to about 10 minutes plus a few seconds late** (a rise at the start of a
+- Consequence for D6 (measured latency): a high heart rate can reach the app **up to about 10 minutes plus a few seconds late** (a rise at the start of a
   span is seen when the span closes), and sometimes sooner in a smaller delivery. No bound shorter than that is promised. The cooldown (5 minutes)
   and repeats (2 minutes) of section 3 count from the reading's own timestamp.
 - The baseline of section 2 is reachable: one hour of wear gives thousands of samples.
@@ -522,11 +522,13 @@ in 24 distinct clock hours within the last 7 days. Running 8 hours a day takes t
 never holds 24 values (at most 14), so **the 110 bpm fallback would stay forever**. Daily use must therefore cover at least 4 hours a day for the baseline to be
 reached at all.
 
-**A bias to decide on (Open, user).** Resting heart rate is lowest at night. If the app does not run at night, the hourly lows come from the day, the baseline is
+**A bias (Deferred, low priority; user decision below).** Resting heart rate is lowest at night. If the app does not run at night, the hourly lows come from the day, the baseline is
 higher, and the threshold (baseline plus 30) is higher, so fewer alerts. If the user starts the app only when they feel agitated, the lows are taken from
 unusual hours and the baseline is higher still. Options: (a) accept this; (b) run it also while sleeping (battery cost, section 11.4); (c) keep the baseline from the last
-good run and do not forget it when the app is stopped (the 7-day window is then measured in running hours, not calendar days). Proposal: (c) with a
-minimum of 24 hourly values, but the user decides.
+good run and do not forget it when the app is stopped (the 7-day window is then measured in running hours, not calendar days). Option (c) is the extended flow.
+
+**Decided (user, verbatim):** "Baseline will be defined by user as measured separately for now, the extended flow is deferred to later stages". The extended flow
+(keep the last good baseline, count running hours instead of calendar days) is **deferred, low priority**.
 
 ### 11.4 Battery
 
@@ -569,7 +571,7 @@ The acceptance test for every measurement route, in the user's words:
 - a **stress event is reported immediately** and the **local response is activated**.
 
 Separate decision **D9** (Decided): heart rate is measured **only while the watch app is running** (started by the user), not as an always-on background
-service. The route that meets the definition is not chosen yet; the user chooses after the probes below.
+service. The route that meets the definition is not chosen yet; it is decided after the probes below.
 
 ### 12.2 What Google says about delivery (Verified, read 2026-10-17)
 
@@ -603,7 +605,7 @@ and whether the "Probe: measuring heart rate" notification is visible (the user 
 
 1. The live route in a foreground service is the candidate that meets the definition; prove it with the live probe (checklist step 6): screen dim, screen off, 30 minutes, battery,
    the notification, the 60 s gap.
-2. Until the user chooses the route, nothing is built on the passive background route.
+2. Until the route is decided, nothing is built on the passive background route.
 3. Open decisions for the user (issue #55, D9): show a "monitoring" state of the watch on the phone; how the baseline is kept when the app is not running; whether the app also
    runs at night.
 4. The Watch, Android and Shared lanes are stopped by the user until the route is decided; their open pull requests are not merged.

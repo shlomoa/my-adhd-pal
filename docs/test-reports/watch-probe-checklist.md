@@ -147,5 +147,5 @@ per second if the live route works; long gaps in the `doze` or `off` lines would
 
 - Capability or deliveries missing: the user decides whether biometric alerts are still worth building
   ([`../plans/biometrics.md`](../plans/biometrics.md), section 6) and the Samsung health route is researched.
-- Deliveries present: the gaps set what "best effort" means in the documents, and 6.4 (the real listener) is built.
+- Deliveries present: the gaps are the measured latency (D6) in the documents, and 6.4 (the real listener) is built.
 - Vibration results: written into section 4 of the decision document as verified.
