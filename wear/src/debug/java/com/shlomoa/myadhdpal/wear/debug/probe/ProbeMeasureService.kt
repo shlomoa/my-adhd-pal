@@ -38,8 +38,11 @@ class ProbeMeasureService : Service() {
         override fun onDataReceived(data: DataPointContainer) {
             val now = SystemClock.elapsedRealtime()
             val display = MeasureLog.displayNow(this@ProbeMeasureService)
-            repeat(data.getData(DataType.HEART_RATE_BPM).size) {
-                MeasureLog.record(this@ProbeMeasureService, MeasureReading(now, display))
+            data.getData(DataType.HEART_RATE_BPM).forEach { point ->
+                MeasureLog.record(
+                    this@ProbeMeasureService,
+                    MeasureReading(now, display, point.timeDurationFromBoot.toMillis())
+                )
             }
         }
     }

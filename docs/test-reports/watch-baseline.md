@@ -334,6 +334,18 @@ FAIL TC-W-183 the E3 prompts carry the verified path: Quick panel
 
 The parse check now covers `probe-common.ps1` too (a parse error there failed every run script once during this change).
 
+## Sample times in the live probe (TC-W-184 to TC-W-187; `MeasureStatsTest.kt`)
+
+First real E1 run (issue #228, `e1-results/20261018-003737`): the probe records only the arrival time of each reading, so lost readings cannot be told from late ones. The probe now records the sample time
+(`SampleDataPoint.timeDurationFromBoot`) next to the arrival time and `measure-report` adds the callbacks, the gap between sample times and the delay per screen state, and the arrivals and samples per minute.
+TC-W-146 changed: a line `5000|on|1` was a bad line before and is a valid reading with a sample time now (the bad lines are `5000|on|x` and `5000|on|1|2`).
+Red commit: the first commit of branch `claude/watch-sample-times` (tests only). Command: `./gradlew :wear:testDebugUnitTest --tests '*MeasureStatsTest*'`. Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:96:52 Too many arguments for 'constructor(elapsedMs: Long, display: String): MeasureReading'.
+e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:125:13 Unresolved reference 'sampleReport'.
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

@@ -115,8 +115,10 @@ class ProbeReceiver : BroadcastReceiver() {
         val start =
             MeasureLog.start(context) ?: return listOf("PROBE measure no run started (open ProbeMeasureActivity)")
         val now = SystemClock.elapsedRealtime()
-        return measureReport(MeasureLog.readings(context), MeasureLog.availability(context), start.first, now) +
-            batteryReport(start.second, MeasureLog.batteryPercent(context), now - start.first)
+        val readings = MeasureLog.readings(context)
+        return measureReport(readings, MeasureLog.availability(context), start.first, now) +
+            batteryReport(start.second, MeasureLog.batteryPercent(context), now - start.first) +
+            sampleReport(readings, start.first)
     }
 
     private fun required() = requiredPermissions(Build.VERSION.SDK_INT)

@@ -52,7 +52,8 @@ class MeasureStatsTest {
         assertEquals(change, parseAvailability("30000|ACQUIRING"))
         for (bad in listOf("30000|", "x|AVAILABLE", "30000|A|B", "30000")) assertNull(bad, parseAvailability(bad))
         assertEquals(MeasureReading(5000, "doze"), parseMeasureReading("5000|doze"))
-        for (bad in listOf("5000", "x|on", "5000|weird", "5000|on|x", "5000|on|1|2")) assertNull(bad, parseMeasureReading(bad))
+        val badLines = listOf("5000", "x|on", "5000|weird", "5000|on|x", "5000|on|1|2")
+        for (bad in badLines) assertNull(bad, parseMeasureReading(bad))
         assertEquals(
             listOf(
                 "PROBE measure screen=all readings=0 perMin=0.0 gapSec none",
@@ -96,7 +97,7 @@ class MeasureStatsTest {
         MeasureReading(arrivalSec * 1000, display, sampleSec * 1000)
 
     @Test
-    fun `TC-W-184 a reading with a sample time is written with three fields and read back, and a reading without one with two`() {
+    fun `TC-W-184 a reading with a sample time has three fields and reads back, one without has two`() {
         val withSample = MeasureReading(5000, "doze", 4200)
         assertEquals("5000|doze|4200", withSample.toLine())
         assertEquals(withSample, parseMeasureReading("5000|doze|4200"))
@@ -105,7 +106,7 @@ class MeasureStatsTest {
     }
 
     @Test
-    fun `TC-W-185 the sample report gives callbacks, and per screen state the gap between sample times and the delay`() {
+    fun `TC-W-185 the sample report gives callbacks, and per screen state the sample gap and the delay`() {
         val readings = listOf(
             sample(10, 9, "on"),
             sample(10, 10, "on"),
@@ -118,8 +119,9 @@ class MeasureStatsTest {
             listOf(
                 "PROBE measure callbacks=3 maxPerCallback=3",
                 "PROBE measure samples screen=on readings=3 sampleGapSec max=1 delaySec median=1.0 p95=1.0 max=1.0",
-                "PROBE measure samples screen=doze readings=3 sampleGapSec max=78 delaySec median=79.0 p95=80.0 max=80.0",
-                "PROBE measure arrivalsPerMin 5,1",
+                "PROBE measure samples screen=doze readings=3 sampleGapSec max=78 " +
+                    "delaySec median=79.0 p95=80.0 max=80.0",
+                "PROBE measure arrivalsPerMin 3,3",
                 "PROBE measure samplesPerMin 5,1"
             ),
             sampleReport(readings, startMs = 0)
@@ -139,7 +141,7 @@ class MeasureStatsTest {
     }
 
     @Test
-    fun `TC-W-187 readings without sample times give the callbacks and the arrivals per minute only, and no readings give one line`() {
+    fun `TC-W-187 readings without sample times give callbacks and arrivals per minute only`() {
         assertEquals(
             listOf("PROBE measure callbacks=2 maxPerCallback=2", "PROBE measure arrivalsPerMin 3"),
             sampleReport(listOf(reading(1, "on"), reading(1, "on"), reading(2, "on")), startMs = 0)
