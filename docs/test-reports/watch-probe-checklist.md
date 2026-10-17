@@ -47,6 +47,24 @@ earlier use `android.permission.BODY_SENSORS` instead of `READ_HEART_RATE`.
 
 ## 2. E1: the live route worn, per screen state (30 minutes, issue #228)
 
+**Run the script (recommended).** It does steps 1 and 2 below unattended: enlarges the log buffer, sets the screen timeout
+and restores it, revokes the background permissions, starts the service from the visible app, waits for `AVAILABLE`,
+runs the three phases (A screen on, B display dim, C screen off, 10 minutes each) with a report after each, reconnects
+adb before every report, reads the battery before and after, checks the notification, and writes one result file. Wear the
+watch, **off the charger**, keep the laptop awake, then:
+
+```powershell
+.\scripts\probe\run-e1.ps1 -Watch 192.168.1.16:41613
+```
+
+(use the address the watch shows). It asks twice about the Always-on display: **ON** before the run, **OFF** before phase C
+(turn it off in the watch settings, then press Enter). Do not touch the watch during a phase. Send back the whole result file
+(`probe-results\e1-<time>.txt` in your home folder, printed at the start and at the end), and say whether the notification
+stayed visible if the file says `False`. The script is untested on the watch (tested against a simulated adb only); if it fails
+or you cannot use it, send the file anyway and use the manual steps below.
+
+**Manual steps (fallback).**
+
 Wear the watch normally, off the charger, and write down the battery percentage shown on the watch (**before**). Set the
 screen timeout in the watch settings to its longest value so that phase A can run untouched. Then start the service the
 way the app will, from a visible activity:

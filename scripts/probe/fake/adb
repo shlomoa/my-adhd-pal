@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# Simulated adb for scripts/probe/test-run-e1.sh: one Galaxy Watch at 192.168.1.16:41613 with the debug probe installed.
+# State lives in $FAKE_DIR: calls (every invocation), log (the PROBE logcat), timeout, battery, offline.
+# Failure injection (FAKE_FAIL, comma separated):  noavail  the service never reports AVAILABLE
+#                                                  unavail  the service reports only UNAVAILABLE
+#                                                  nonotif  the notification is never listed
+# FAKE_DROP=1: after `input keyevent KEYCODE_SLEEP` the connection drops (device offline) until `adb connect`.
+# FAKE_CHARGING=1: the watch is on its charger. It simulates the commands; it proves nothing about the watch.
+set -u
+D="${FAKE_DIR:?FAKE_DIR must point at the simulation state folder}"
+fails() { case ",${FAKE_FAIL:-}," in *",$1,"*) return 0;; esac; return 1; }
+echo "$*" >> "$D/calls"
+touch "$D/log"
+[ -e "$D/timeout" ] || echo 30000 > "$D/timeout"
+[ -e "$D/battery" ] || echo 68 > "$D/battery"
+[ -e "$D/readings" ] || echo 0 > "$D/readings"
+[ "${1:-}" = "-s" ] && shift 2
+cmd="${1:-}"; shift || true
+if [ "$cmd" = connect ]; then rm -f "$D/offline"; echo "connected to 192.168.1.16:41613"; exit 0; fi
+if [ -e "$D/offline" ]; then echo "error: device offline" >&2; exit 1; fi
+note() { echo "$1" >> "$D/log"; }
+case "$cmd" in
+  logcat)
+    for a in "$@"; do
+      case "$a" in
+        -G) exit 0;;
+        -c) : > "$D/log"; exit 0;;
+        -d) cat "$D/log"; exit 0;;
+      esac
+    done
+    exit 0;;
+  shell)
+    sub="${1:-}"; shift || true
+    case "$sub" in
+      settings)
+        if [ "$1" = get ]; then cat "$D/timeout"; else echo "$4" > "$D/timeout"; fi; exit 0;;
+      pm)
+        if [ "$1" = revoke ]; then echo "java.lang.SecurityException: Permission $3 is not granted" >&2; exit 255; fi
+        exit 0;;
+      input)
+        [ "$2" = KEYCODE_SLEEP ] && [ -n "${FAKE_DROP:-}" ] && touch "$D/offline"
+        exit 0;;
+      dumpsys)
+        if [ "$1" = battery ]; then
+          n="$(cat "$D/battery")"
+          if [ -n "${FAKE_CHARGING:-}" ]; then echo "  AC powered: true"; else echo "  AC powered: false"; fi
+          echo "  level: $n"; echo $((n - 1)) > "$D/battery"; exit 0
+        fi
+        if [ "$1" = notification ]; then
+          fails nonotif || echo "      android.title=Probe: measuring heart rate"
+          exit 0
+        fi
+        exit 0;;
+      am)
+        if [ "$1" = start ]; then
+          note "PROBE measure start registered"
+          fails unavail && note "PROBE measure availability UNAVAILABLE"
+          fails noavail || fails unavail || note "PROBE measure availability AVAILABLE"
+          exit 0
+        fi
+        cmdname=""; prev=""
+        for a in "$@"; do [ "$prev" = cmd ] && cmdname="$a"; prev="$a"; done
+        case "$cmdname" in
+          measure-stop) note "PROBE measure stopped";;
+          measure-clear) note "PROBE measure cleared";;
+          measure-capabilities) note "PROBE measure capabilities heartRateMeasure=true";;
+          measure-report)
+            r=$(( $(cat "$D/readings") + 100 )); echo "$r" > "$D/readings"
+            note "PROBE measure screen=all readings=$r perMin=10.0 gapSec median=1 p95=1 max=2"
+            note "PROBE measure battery start=68 now=67 dropPerHour=1.0";;
+        esac
+        echo "Broadcast completed: result=0"; exit 0;;
+    esac;;
+esac
+exit 0

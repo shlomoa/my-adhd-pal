@@ -256,6 +256,19 @@ e: wear/src/testDebug/.../debug/probe/FrontScreenStatsTest.kt:12:13 Unresolved r
 e: wear/src/testDebug/.../debug/probe/FrontScreenStatsTest.kt:34:28 Unresolved reference 'isInFront'.
 ```
 
+## E1 run script (TC-W-153 to TC-W-159; `scripts/probe/test-run-e1.sh`)
+
+Experiment E1 (issue #228): the user's manual E1 was slow and error-prone (wrong steps, the log buffer rolled over within minutes), so `scripts/probe/run-e1.ps1`
+runs it unattended. Static and simulated-adb tests (`scripts/probe/fake/adb`) prove the order of the steps, the restore of the screen timeout, the reconnects and the
+result file; they do not prove the watch's behaviour. Red commit: the first commit of branch `claude/watch-e1-script` (tests only).
+Command: `PWSH=pwsh scripts/probe/test-run-e1.sh` (PowerShell 7). 32 checks FAIL before the script exists, for example:
+
+```
+FAIL TC-W-153 run-e1.ps1 parses without errors (expected 0, got 1)
+FAIL TC-W-154 a full run exits 0 (expected 0, got 64)
+FAIL TC-W-154 one result file e1-<time>.txt is written (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
