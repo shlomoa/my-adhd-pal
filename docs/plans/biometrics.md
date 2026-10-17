@@ -89,6 +89,29 @@ repeats** per episode (12 minutes at 2-minute intervals), and the full-screen al
 **"I'm OK" button** that ends the episode early. Without these a high rate during exercise would alarm the user for as long
 as it lasts.
 
+### 3a. PROPOSAL, user decision pending: what a late batch raises
+
+Not decided and not built. The evaluator today (`EpisodeEvaluator`) walks the readings of a delivery one by one, so a batch that holds a long
+high stretch (up to about 10 minutes, section 6) can raise level 1 and level 2 in the same delivery, and the phone would vibrate twice within a
+second for something that happened minutes ago.
+
+Proposal:
+
+1. **A delivery raises at most one alert.**
+2. **Only if the newest reading of the batch is above the threshold.** A rate that has already fallen back is not alarmed; the episode simply ends.
+3. **The level is the highest the readings warrant.** A 10-minute high stretch gives one level 2, not a level 1 followed by a level 2.
+4. The later **"every 2 minutes"** repeats and the **cap of 6** stay as decided in section 3, counted in alert time (the time the alert is raised),
+   not in reading time. So after a late level 2, the next repeat is due 2 minutes later by the clock, and a delivery that arrives earlier raises nothing.
+
+Effect on D4: the 5-minute cooldown still decides when level 2 first becomes right, but it is measured on reading times inside the batch; points 1 to 4 only
+change how many alerts one delivery can produce and what clock the repeats use.
+
+**Second open question: "I'm OK" while the rate is still above the threshold.** As built, the episode ends and the very next reading above the
+threshold starts level 1 again at once (within seconds, or at the next delivery). Options: (a) as built; (b) after "I'm OK", stay quiet for N
+minutes (for example 5) before a new episode may start, then start at level 1 if still above. The user decides, and N if (b).
+
+Tests would follow the decision (new rows in `docs/test-plans/watch.md`); none are written yet.
+
 ## 4. How strong an alert can be (D5)
 
 **Plainly: the hardware offers vibration, sound and the screen, and nothing else.** A watch cannot shock, heat or physically

@@ -341,6 +341,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: docs only; markdownlint, links and the docs index check pass. Not reproducible on demand: one crash in four sequential `check --rerun-tasks` runs, so the recipe says it may need several tries.
 - Open items: which of `--rerun-tasks`, a reused daemon or stale `build/` state is necessary (suggested experiment is in the issue body).
 
+## 2026-10-17 - Issue 198: the phone removes its own prompts
+
+- Issue and PR: #198; PR linked from the coordinator message.
+- Changed: `PublishedPrompts` and `DataStorePublishedPrompts` (the prompts sent and not yet removed, with their expiry), `PromptCleaner` (removes on the stored answer and for expired prompts), `WatchEventProcessor` calls it after `markStored` and sweeps at start and every minute, `DefaultPromptRepository` records each sent prompt, Hilt wiring in `StorageModule`; `docs/data-layer.md`. The Ask screen needs no change.
+- Validation: TC-S-190 to TC-S-195 written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
+- Open items: none; lane A is told the removal happens without UI code. A prompt published by an older install (before this change) is not in the store and stays until the Data Layer drops it.
+
 ## 2026-10-17 - Tooling freshness check
 
 - Issue and PR: question from the user via the coordinator (no issue); PR linked from the coordinator message.

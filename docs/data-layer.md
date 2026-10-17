@@ -109,6 +109,10 @@ of `ItemKeys` (`v` int, `id`, `ts` long, `body`), the same as on the watch.
 - **Publishing.** `/schedule` (urgent only when the reminders or checkpoints firing in the next 30 minutes change,
   `ScheduleUrgency`; the first publish after start is urgent), `/prompt/<id>` (urgent), `/hello/phone` (not urgent). A
   failing write is `PublishResult.Failed` with the reason. `removePrompt` deletes the phone's own prompt.
+  `DefaultPromptRepository` remembers each sent prompt with its expiry in `PublishedPrompts` (DataStore file `prompts`,
+  `DataStorePublishedPrompts`); `PromptCleaner` calls `removePrompt` and forgets the prompt when the `/ack/<id>` or
+  `/selection/<id>` with the same id has been stored (called by `WatchEventProcessor` after `markStored`) and, in a sweep
+  at start and about every minute while the process runs, for every prompt whose expiry has passed (issue 198).
   `publishEpisodeEnd(episodeId)` (protocol 1.2, issue 171) writes the urgent `EpisodeEnd` at a fresh `/episode-end/<id>`; the
   phone deletes its own `/episode-end/<id>` items older than one hour when it writes one and once at start
   (`EpisodeEndCleaner`).
