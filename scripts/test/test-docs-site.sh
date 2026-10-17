@@ -65,6 +65,6 @@ rm -f docs/zz-fixture-orphan.md; fixtures=()
 
 # TC-D-029 CI builds the site and the output is not committed
 grep -q 'scripts/docs-site.sh' .github/workflows/build.yml; check "TC-D-029 the build workflow runs scripts/docs-site.sh" $?
-grep -q 'scripts/test/test-docs-site.sh' .github/workflows/build.yml; check "TC-D-029 the script-tests job runs test-docs-site.sh" $?
+grep -q 'test-docs-site.sh' scripts/post-merge-tests.sh; check "TC-D-029 the post-merge runner runs test-docs-site.sh" $?
 git check-ignore -q "$site/index.html"; check "TC-D-029 the generated site is ignored by git" $?
 exit $fail

@@ -319,3 +319,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/conventions.md` section "When lint itself crashes" (signature, what to do, sources). No code, no CI retry.
 - Validation: not reproducible here in five full runs (clean state, and a checkout from 777853d to main); the Android lane's trace is the Kotlin Analysis API crash also reported in bluecard issue 227. Docs lint green.
 - Open items: no upstream fix found (searched AGP 9.2 to 9.3 release notes and the Kotlin and Android trackers); revisit on the next AGP or Kotlin bump.
+
+## 2026-10-17 - Issue 190: script tests after the merge, not per pull request
+
+- Issue and PR: #190; PR linked from the coordinator message.
+- Changed: `build.yml` no longer has the `script-tests` job; new `post-merge.yml` (push to `main`, `workflow_dispatch`) runs `scripts/post-merge-tests.sh` (all eleven slow script tests, keeps going after a failure, writes a report) and `scripts/main-red-issue.sh` (opens or updates one `main-red` issue when red, closes it when green); `gates.yml` runs the fast `test-post-merge.sh` per pull request; `test-ci.sh`, `test-docs-site.sh` and `test-doc-checks.sh` no longer look for their scripts in `build.yml`; `docs/conventions.md` "What runs when".
+- Validation: TC-S-170 to TC-S-174 written first and red (`shared-baseline.md`), then green. Local timings of the old job (seconds): structure 221, checks 236, ci 82, pairing 73, docs-site 19, doc-checks 16, protocol-spec 0, gates 1, design-docs 0; spike and design-style failed locally only for a missing PowerShell and image tools. Everything moved in this first version; which fast tests could return to the pull request is a later refinement.
+- Open items: whether `script-tests` is a required status check (cannot be read from here; the user checks Settings, Branches); `test-checks.sh` failed locally with the lint crash of #184 right after other script tests had changed and restored Kotlin files, which fits the crash showing up after source edits.

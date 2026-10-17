@@ -15,6 +15,9 @@ jobs:
       - name: Script tests
         run: scripts/test/test-scripts.sh
 
+      - name: Post-merge test setup (issue 190)
+        run: scripts/test/test-post-merge.sh
+
       - name: Bootstrap script tests (offline)
         run: scripts/test/test-bootstrap-android.sh
 
