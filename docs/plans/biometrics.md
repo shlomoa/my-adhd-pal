@@ -460,22 +460,19 @@ service. The route that meets the definition is not chosen yet; the user chooses
 
 [Health Services compatibility](https://developer.android.com/health-and-fitness/health-services/compatibility), passive monitoring: "Devices may return heart rate readings at
 different intervals. Some devices may take reading every second. Other devices may take a reading every ten minutes. These intervals are not made available to apps."
-Also: "Don't assume any predefined or predictable batching intervals for any data types." For the exercise route the page says the data is streamed or batched, and
-that "once the display goes off or into ambient mode ... the data is batched in order to save power". The
-[background monitoring page](https://developer.android.com/health-and-fitness/health-services/monitor-background) says background data "is delivered in batches" and that the callback
-"receives data at a slightly faster rate, but only while the app is running". It gives no interval. The words "batches" and the range of intervals therefore come from Google, not
-from us; the 2026-10-11 research note (`../research/watch.md` section 3) quoted it correctly.
+The [background monitoring page](https://developer.android.com/health-and-fitness/health-services/monitor-background) says the callback "receives data at a slightly faster rate,
+but only while the app is running". Neither page gives an interval for a given watch; it is measured below.
 
 ### 12.3 Measured on the user's watch
 
 | Route | Result | When |
 |---|---|---|
-| Passive background listener, worn | One batch of 318 readings 7 min 41 s after start | 09:49 to 09:57 |
-| Passive background listener, off the wrist | One batch of 1 reading in 10 minutes | 10:02 to 10:12 |
-| Passive background listener, long run | One batch about every **10 minutes**, 577 to 598 readings, window 580 to 599 s, arriving 0.4 to 11.5 s after the window closes (12:45, 12:55, 13:05, 13:15, 13:25, 13:35) | 12:45 to 13:35 |
+| Passive background listener, worn | 318 readings delivered together 7 min 41 s after start | 09:49 to 09:57 |
+| Passive background listener, off the wrist | 1 reading in 10 minutes | 10:02 to 10:12 |
+| Passive background listener, long run | Readings delivered together about every **10 minutes**, 577 to 598 per delivery, window 580 to 599 s, arriving 0.4 to 11.5 s after the window closes (12:45, 12:55, 13:05, 13:15, 13:25, 13:35) | 12:45 to 13:35 |
 | Live `MeasureClient` in a foreground service, screen on, worn | Capability true; readings AVAILABLE 4 s after start; **734 readings in 5 minutes** (about 2 per second); gap median under 1 s, 95th percentile 1 s, longest **60 s** (cause unknown); battery 68% to 67% (too coarse to give a rate, reported as 11.7 %/hour) | 13:44 to 13:49 |
 
-Consequence: the passive background route delivers a batch about every 10 minutes on this watch, so it does **not** meet "reported immediately". The live route delivers within
+Consequence: the passive background route delivers readings about every 10 minutes on this watch, so it does **not** meet "reported immediately". The live route delivers within
 about a second with the screen on. Not measured yet: the live route with the display dim (always-on) and with the screen off, 30 minutes worn, battery over a longer time,
 and whether the "Probe: measuring heart rate" notification is visible (the user saw no pop-up; the notification list was not checked).
 
@@ -491,7 +488,7 @@ and whether the "Probe: measuring heart rate" notification is visible (the user 
 
 1. The live route in a foreground service is the candidate that meets the definition; prove it with the live probe (checklist step 6): screen dim, screen off, 30 minutes, battery,
    the notification, the 60 s gap.
-2. Until the user chooses the route, nothing is built on the passive batches. The late-batch proposal (section 3a) only matters if a batched route stays in use.
+2. Until the user chooses the route, nothing is built on the passive background route.
 3. Open decisions for the user (issue #55, D9): show a "monitoring" state of the watch on the phone; how the baseline is kept when the app is not running; whether the app also
    runs at night.
 4. The Watch, Android and Shared lanes are stopped by the user until the route is decided; their open pull requests are not merged.
