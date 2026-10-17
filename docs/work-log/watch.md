@@ -475,3 +475,22 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   Not probed: `OngoingActivity` (needs a new dependency; the plain ongoing notification is probed first).
 - Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
 - Open items: TC-W-149 is a manual case for the user (NOT yet run); TC-W-136 and 137 stay NOT complete. Lint reports a stale entry in `wear/lint-baseline.xml` and `phone/lint-baseline.xml` ("listed in the baseline but not found"): to be reported to the coordinator.
+
+## 2026-10-17 - D9: measure only while the app runs (research and proposal)
+
+- Issue and PR: step 6.5 (documentation), branch `claude/watch-live-measure`; decision recorded in the body of issue #55
+- Changed: `docs/plans/biometrics.md` decision D9, a three-line summary at the top, new section 11 (MeasureClient route, foreground service and ongoing activity,
+  permissions, effect on the baseline and on proposal 3a, battery, a probe design, what the user must do); D6 text updated. No code, no tests.
+- Validation: docs lint, links and index (documentation only).
+- Open items: the user confirms the "monitoring" state on the phone, the baseline option (c) and whether the app runs at night; the probe code
+  (`measure-*` commands) follows in a separate debug-only change; TC-W-136 and 137 stay NOT complete.
+
+## 2026-10-17 - User definition recorded; "batches" source corrected
+
+- Issue and PR: step 6.5 (documentation), PR #209 (branch `claude/watch-live-measure`)
+- Changed: the user's definition (measure continuously, compare to the baseline continuously, report a stress event immediately and activate the local response)
+  next to D9 in `docs/plans/biometrics.md`, and section 11.0, how each route meets it (the passive 10-minute batches do not meet "immediately"). In
+  `docs/research/watch.md` section 3 the claim "from every second to every ten minutes" is withdrawn: the cited Google page says deliveries are batched but gives no
+  interval (first written on 2026-10-11, W1b research notes, without a quote).
+- Validation: docs lint, links and index (documentation only).
+- Open items: the route is open until the probe (PR #210, TC-W-149, the user) has run.

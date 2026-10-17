@@ -120,10 +120,12 @@ Findings:
 - Receive data in the background with a `PassiveListenerService` registered by `setPassiveListenerServiceAsync(...)`
   with a `PassiveListenerConfig` (`setDataTypes(setOf(DataType.HEART_RATE_BPM))`). The service in the manifest carries
   `android:permission="com.google.android.wearable.healthservices.permission.PASSIVE_DATA_BINDING"`.
-- Delivery is **batched** and the interval is chosen by the system; devices may report heart rate anywhere from every
-  second to every ten minutes, and the app is not told. Order samples by their timestamps, converted with the boot
-  instant. Registrations do **not** survive a reboot: re-register from a `BOOT_COMPLETED` receiver through WorkManager,
-  because Health Services may take 10 s or more to answer at startup.
+- Delivery is **batched** (Verified: "When you receive data in the background, it is delivered in batches. The callback receives data
+  at a slightly faster rate, but only while the app is running"). The page gives **no** interval; an earlier version of this note said
+  "anywhere from every second to every ten minutes", which the page does not say and which is withdrawn. Measured on the Galaxy Watch6
+  Classic: batches of up to about 600 samples spanning about 10 minutes (`docs/plans/biometrics.md` section 6). Order samples by their
+  timestamps, converted with the boot instant. Registrations do **not** survive a reboot: re-register from a `BOOT_COMPLETED` receiver
+  through WorkManager, because Health Services may take 10 s or more to answer at startup.
 - Consequence for the evaluator (6.5): thresholds act on batched, possibly sparse samples, so alerts can be late by
   the batching interval. A "within N seconds" promise cannot be made. This must be in the 6.2 proposal.
 
