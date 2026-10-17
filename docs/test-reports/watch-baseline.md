@@ -200,6 +200,16 @@ e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:15:23 Unresolved referen
 e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:16:23 Unresolved reference 'summarize'.
 ```
 
+## Probe permissions (TC-W-139 to TC-W-141; `wear/src/testDebug/.../debug/probe/ProbePermissionsTest.kt`)
+
+Found on the real watch (Wear OS 6): `PROBE start failed: SecurityException: Missing permissions: [android.permission.health.READ_HEART_RATE]`;
+the checklist only granted the body sensor permissions. Red commit: the first commit of branch `claude/watch-6-4-permissions` (tests only).
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/ProbePermissionsTest.kt:20:20 Unresolved reference 'requiredPermissions'.
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
