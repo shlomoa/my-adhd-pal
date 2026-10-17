@@ -29,6 +29,13 @@
             android:exported="true"
             android:permission="android.permission.DUMP" />
 
+        <!-- Shows the heart-rate permission prompt(s) when `pm grant` cannot grant them: adb shell am start. -->
+        <activity
+            android:name=".debug.probe.ProbePermissionActivity"
+            android:exported="true"
+            android:permission="android.permission.DUMP"
+            android:taskAffinity="" />
+
         <receiver
             android:name=".debug.probe.ProbeReceiver"
             android:exported="true"

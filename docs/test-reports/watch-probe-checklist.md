@@ -20,11 +20,22 @@ $env:ANDROID_SERIAL = "192.168.1.57:41203"; $P = "com.shlomoa.myadhdpal/.wear.de
 ## 1. Install, allow, ask what the watch supports (about 5 minutes)
 
 ```powershell
-.\gradlew.bat :wear:installDebug; adb shell pm grant com.shlomoa.myadhdpal android.permission.BODY_SENSORS; adb shell pm grant com.shlomoa.myadhdpal android.permission.BODY_SENSORS_BACKGROUND; adb shell am broadcast -n $P --es cmd capabilities; Start-Sleep 3; adb logcat -d -s PROBE:I
+.\gradlew.bat :wear:installDebug; foreach ($n in "android.permission.health.READ_HEART_RATE", "android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND", "android.permission.BODY_SENSORS", "android.permission.BODY_SENSORS_BACKGROUND") { Write-Host "grant $n"; adb shell pm grant com.shlomoa.myadhdpal $n }; adb shell am broadcast -n $P --es cmd capabilities; adb shell am broadcast -n $P --es cmd permissions; Start-Sleep 3; adb logcat -d -s PROBE:I
 ```
 
-Report: the `PROBE capabilities heartRatePassive=...` line. If a `pm grant` command prints an error, copy it (Wear OS may
-want the permission switched on in the watch's settings instead; say what you did).
+Wear OS 6 needs the two `health` permissions; Wear OS 5 and earlier need the two `BODY_SENSORS` ones. A `pm grant` error for the
+pair your watch does not use is expected ("has not requested permission" or similar). Report: the `PROBE capabilities
+heartRatePassive=...` line, every `PROBE permission granted:` / `PROBE permission missing:` line, and the full text of any
+`pm grant` error for a `health` permission.
+
+If a `PROBE permission missing:` line remains, show the permission prompt on the watch and tap Allow on it (the foreground
+permission first, then the background one), then run the `permissions` command again:
+
+```powershell
+adb shell am start -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbePermissionActivity; Start-Sleep 30; adb shell am broadcast -n $P --es cmd permissions; Start-Sleep 3; adb logcat -d -s PROBE:I
+```
+
+`start` (step 2) refuses to run while a permission is missing and prints which one.
 
 ## 2. Worn on the wrist, normal use (10 minutes)
 
