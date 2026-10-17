@@ -12,3 +12,7 @@ Lane V runs the script tests after each merge and owns the runner ([`../plans/va
 | TC-V-004 | script | No workflow runs the post-merge tests | `.github/workflows/post-merge.yml` and `scripts/ci-post-merge/main-red-issue.sh` do not exist (`test-post-merge.sh`) |
 | TC-V-005 | script | Main-red procedure by lane V | the validation plan and `docs/conventions.md` say lane V opens the `main-red` issue itself with its issue tool, naming the failing test ids, the sha, the owning lane and the sub-agent id (`test-post-merge.sh`) |
 | TC-V-006 | script | The whole former `script-tests` runs after the merge | the runner lists the eleven former `script-tests` scripts and `test-post-merge.sh`, and no workflow runs any of them (`test-post-merge.sh`) |
+| TC-V-007 | script | The groups cover every test once | `run-tests.sh --groups` lists at least three groups and each of the twelve tests exactly once (`test-post-merge.sh`) |
+| TC-V-008 | script | Groups run at the same time | two groups of three seconds finish in at most five; a failure in one group fails the run and shows in the report, the other group still runs (`test-post-merge.sh`) |
+| TC-V-009 | script | One git worktree per group | the groups run in two different directories, none of them the checkout, and no worktree is left behind (`test-post-merge.sh`) |
+| TC-V-010 | script | Lint crash rule | a test with the known lint crash in its log is rerun once and counts as passed when the rerun passes; a second failure fails (`test-post-merge.sh`) |
