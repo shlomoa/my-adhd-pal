@@ -49,7 +49,7 @@ class TileUpdateTest {
     )
 
     private fun newSchedule(version: Long) =
-        Schedule(version, listOf(water), emptyList(), SnoozeSettings(10, 2), AlertSettings(emptyList(), 0))
+        Schedule(version, listOf(water), emptyList(), SnoozeSettings(10, 2), AlertSettings(0))
 
     @Test
     fun `TC-W-064 a schedule change, a handled action and a link change each request a tile update`() {

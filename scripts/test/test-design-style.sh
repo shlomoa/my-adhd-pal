@@ -188,4 +188,22 @@ for sc in $shots; do
   grep -q "images/$b" "$src/Main.dc.html" 2>/dev/null || { echo "  the overview does not show $b"; bad=1; }
 done
 [ "$bad" -eq 0 ]; check "TC-D-040 the overview board shows all 22 screen images" $?
+
+# TC-D-041 no dead style rules: every class that ui.css defines is used by a board (the supplied watch images made the watch rules unused)
+python3 -I - "$src" <<'PY'
+import glob, os, re, sys
+src = sys.argv[1]
+css = open(os.path.join(src, 'ui.css'), encoding='utf-8').read()
+css = re.sub(r'/\*.*?\*/', '', css, flags=re.S)
+css = re.sub(r'url\([^)]*\)|"[^"]*"|\'[^\']*\'', '', css)
+defined = set(re.findall(r'\.([a-zA-Z][\w-]*)', css))
+used = set()
+for f in glob.glob(os.path.join(src, '*.dc.html')):
+    for tok in re.findall(r'class="([^"]*)"', open(f, encoding='utf-8').read()):
+        used.update(tok.split())
+unused = sorted(defined - used)
+for c in unused: print('  unused class in ui.css: .' + c)
+sys.exit(1 if unused else 0)
+PY
+check "TC-D-041 every class defined in ui.css is used by a board (no dead style rules)" $?
 exit $fail

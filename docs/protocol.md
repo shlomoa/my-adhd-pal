@@ -1,6 +1,6 @@
 # Watch-phone protocol
 
-Status: **skeleton** (protocol 1.2; steps 1.1 to 1.8 are done). This file is the single source of
+Status: **skeleton** (protocol 1.3; steps 1.1 to 1.8 are done). This file is the single source of
 truth; the constants, models, codec, compatibility rule, schedule logic and transport abstraction in `:protocol` follow
 it, and unit tests keep them equal. The link-state function and the link-state and alert diagrams (steps 1.5 and 1.8b)
 complete gate G2b. The transport verification below comes first in time and changes the cleanup rule.
@@ -51,7 +51,7 @@ Bodies (field names are the JSON keys):
 
 | Model | Fields |
 |---|---|
-| `Schedule` | `version` (long, monotonic), `reminders` (`id`, `title`, `minuteOfDay` 0-1439, `days` 1-7 with 1 = Monday), `checkpoints` (`id`, `label`, `minuteOfDay`), `snooze` (`minutes`, `maxCount`), `alerts` (`thresholds` of `metric`, `direction`, `value`; `cooldownSeconds`; `offsetBpm` 20-50, default 30, and `initialBpm` 30-220, default 110, protocol 1.2) |
+| `Schedule` | `version` (long, monotonic), `reminders` (`id`, `title`, `minuteOfDay` 0-1439, `days` 1-7 with 1 = Monday), `checkpoints` (`id`, `label`, `minuteOfDay`), `snooze` (`minutes`, `maxCount`), `alerts` (`cooldownSeconds`; `offsetBpm` 20-50, default 30, and `initialBpm` 30-220, default 110, protocol 1.2) |
 | `Prompt` | `title`, `options` (1 to 6 of `key`, `label`; keys unique), `expiresAt` (optional) |
 | `Acknowledgement` | `action` (`DONE`, `SNOOZE`, `START_2_MIN`, `DISMISS`), `at`, optional `reminderId` (the `Reminder.id` it answers, 1 to 32 characters), optional `occurrenceAt` (epoch milliseconds on the watch clock of the scheduled fire time it answers, not negative; protocol 1.1) |
 | `Selection` | `key` (an option key of the prompt with the same id), `at` |
@@ -61,7 +61,7 @@ Bodies (field names are the JSON keys):
 | `Hello` | `side` (`PHONE`, `WATCH`), `protocolVersion` (for example `1.0`), `appVersion` |
 | `BiometricSamples` | `samples` (`at`, `heartRate`), at most 500 |
 
-Limits (`Limits` in `:protocol`): 100 reminders, 24 checkpoints, 8 thresholds, 6 options, texts 1 to 200 characters,
+Limits (`Limits` in `:protocol`): 100 reminders, 24 checkpoints, 6 options, texts 1 to 200 characters,
 keys and versions 1 to 32 characters, snooze 1 to 240 minutes and 0 to 10 snoozes, cooldown 0 to 86400 seconds. The
 largest legal item stays below 40 KB, less than half of the 100 KB DataItem limit.
 
@@ -89,6 +89,12 @@ bump: paths, keys and the other models are unchanged.
 item `/status/watch` (`WatchStatus`). All new fields have defaults or are optional, so 1.1 bodies decode and a 1.1
 receiver ignores the new fields and the two new paths. Minor bump again; the constants of the alerts live in
 `AlertRules` (cooldown 300 s, escalation repeat 120 s, at most 6 level-2 repeats per episode).
+
+**1.3** (issue 55 decision) removes the absolute thresholds: `AlertSettings.thresholds`, `Threshold`, `Direction` and
+`Limits.MAX_THRESHOLDS` are gone, because the only rule is the resting baseline plus the offset. A body that still has a
+`thresholds` list (1.2 and older) decodes and the list is ignored. The change is not backward compatible in one
+direction: a 1.2 watch requires `thresholds` and drops a schedule written without it, so the phone and the watch app
+must be updated together (one repository, one installation of each; the user has one watch). The major version stays 1.
 
 **"I'm OK" on the phone** ends the episode on the watch: the phone writes `/episode-end/<id>` with the `episodeId` of the
 alert answered. The watch ends that episode and ignores the item when the episode is unknown or already over, so a late
@@ -188,7 +194,7 @@ sequenceDiagram
     participant P as Phone (master)
     participant D as Data Layer
     participant W as Watch
-    P->>D: put /schedule (version n, thresholds, cooldown)
+    P->>D: put /schedule (version n, cooldown, offset)
     Note over P,D: urgent only if the next 30 minutes change
     D-->>W: item changed (when the link allows, queued while Away)
     alt n is greater than the stored version
@@ -196,7 +202,7 @@ sequenceDiagram
     else n is equal or older
         W->>W: ignore
     end
-    Note over W: thresholds and cooldown are evaluated on the watch
+    Note over W: the threshold (baseline plus offset) and the cooldown are evaluated on the watch
 ```
 
 ### Prompt, acknowledgement and selection
@@ -300,7 +306,7 @@ sequenceDiagram
     participant D as Data Layer
     participant P as Phone
     H->>W: heart rate reading
-    W->>W: compare with the thresholds from the schedule
+    W->>W: compare with the baseline plus the offset from the schedule
     alt threshold breached and not in cooldown
         W->>D: put /alert/id with metric, value, threshold, time, level and episode (urgent)
         W->>W: start the cooldown for that threshold

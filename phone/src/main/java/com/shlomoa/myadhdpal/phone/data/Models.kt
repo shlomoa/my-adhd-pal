@@ -2,11 +2,8 @@ package com.shlomoa.myadhdpal.phone.data
 
 import com.shlomoa.myadhdpal.protocol.AckAction
 import com.shlomoa.myadhdpal.protocol.AlertRules
-import com.shlomoa.myadhdpal.protocol.Direction
-import com.shlomoa.myadhdpal.protocol.Limits
 import com.shlomoa.myadhdpal.protocol.Metric
 import com.shlomoa.myadhdpal.protocol.SnoozeSettings
-import com.shlomoa.myadhdpal.protocol.Threshold
 
 /** A thing to remember. Title validation (blank, length up to `Limits.MAX_TEXT_LENGTH`) is the ViewModel's job. */
 data class Task(val id: String, val title: String)
@@ -60,7 +57,6 @@ sealed interface StoreResult {
 
 /** The settings the user can change. They are published to the watch inside the schedule. */
 data class AppSettings(
-    val thresholds: List<Threshold>,
     val cooldownSeconds: Int,
     val snooze: SnoozeSettings,
     val cadenceMinutes: Int,
@@ -70,21 +66,15 @@ data class AppSettings(
 
 /** Accepted ranges. */
 object SettingsLimits {
-    val THRESHOLD_VALUE: ClosedFloatingPointRange<Double> = 30.0..220.0
     val COOLDOWN_SECONDS: IntRange = 60..86_400
     val CADENCE_MINUTES: IntRange = 5..1_440
     val OFFSET_BPM: IntRange = AlertRules.MIN_OFFSET_BPM..AlertRules.MAX_OFFSET_BPM
     val INITIAL_BPM: IntRange = AlertRules.MIN_BPM..AlertRules.MAX_INITIAL_BPM
-    const val MAX_THRESHOLDS: Int = Limits.MAX_THRESHOLDS
 }
 
-/**
- * Defaults on first run. There is no absolute heart-rate threshold: the only rule is the resting baseline plus
- * [AppSettings.offsetBpm], with [AppSettings.initialBpm] until the watch has a baseline (issue 55).
- */
+/** Defaults on first run. The heart-rate threshold is the resting baseline plus the offset (issue 55). */
 object SettingsDefaults {
     val settings = AppSettings(
-        thresholds = emptyList(),
         cooldownSeconds = AlertRules.DEFAULT_COOLDOWN_SECONDS,
         snooze = SnoozeSettings(minutes = 10, maxCount = 3),
         cadenceMinutes = 60
@@ -94,10 +84,6 @@ object SettingsDefaults {
 /** The one place that decides whether settings are acceptable; every [SettingsRepository] uses it. */
 object SettingsValidator {
     fun validate(settings: AppSettings): Set<SettingsError> = buildSet {
-        if (settings.thresholds.size > SettingsLimits.MAX_THRESHOLDS) add(SettingsError.TOO_MANY_THRESHOLDS)
-        if (settings.thresholds.any { it.value !in SettingsLimits.THRESHOLD_VALUE }) {
-            add(SettingsError.THRESHOLD_OUT_OF_RANGE)
-        }
         if (settings.cooldownSeconds !in SettingsLimits.COOLDOWN_SECONDS) add(SettingsError.COOLDOWN_OUT_OF_RANGE)
         if (settings.cadenceMinutes !in SettingsLimits.CADENCE_MINUTES) add(SettingsError.CADENCE_OUT_OF_RANGE)
         if (settings.offsetBpm !in SettingsLimits.OFFSET_BPM) add(SettingsError.OFFSET_OUT_OF_RANGE)
@@ -106,8 +92,6 @@ object SettingsValidator {
 }
 
 enum class SettingsError {
-    THRESHOLD_OUT_OF_RANGE,
-    TOO_MANY_THRESHOLDS,
     COOLDOWN_OUT_OF_RANGE,
     CADENCE_OUT_OF_RANGE,
     OFFSET_OUT_OF_RANGE,

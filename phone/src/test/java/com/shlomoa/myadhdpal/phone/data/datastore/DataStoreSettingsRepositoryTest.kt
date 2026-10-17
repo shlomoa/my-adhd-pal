@@ -5,10 +5,7 @@ import com.shlomoa.myadhdpal.phone.data.SettingsDefaults
 import com.shlomoa.myadhdpal.phone.data.SettingsRepository
 import com.shlomoa.myadhdpal.phone.data.SettingsResult
 import com.shlomoa.myadhdpal.phone.data.contract.SettingsRepositoryContract
-import com.shlomoa.myadhdpal.protocol.Direction
-import com.shlomoa.myadhdpal.protocol.Metric
 import com.shlomoa.myadhdpal.protocol.SnoozeSettings
-import com.shlomoa.myadhdpal.protocol.Threshold
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,23 +59,19 @@ class DataStoreSettingsRepositoryTest : SettingsRepositoryContract() {
     override fun create(): SettingsRepository = open()
 
     @Test
-    fun `TC-S-098 a fresh store has the documented defaults for thresholds, cooldown, snooze and cadence`() = runTest {
-        val settings = open().settings.first()
-        assertEquals(SettingsDefaults.settings, settings)
-        assertEquals("no absolute threshold", emptyList<Threshold>(), settings.thresholds)
-        assertEquals(300, settings.cooldownSeconds)
-        assertEquals(30, settings.offsetBpm)
-        assertEquals(110, settings.initialBpm)
-        assertEquals(60, settings.cadenceMinutes)
-    }
+    fun `TC-S-098 a fresh store has the documented defaults for cooldown, snooze, cadence and the alert offset`() =
+        runTest {
+            val settings = open().settings.first()
+            assertEquals(SettingsDefaults.settings, settings)
+            assertEquals(300, settings.cooldownSeconds)
+            assertEquals(30, settings.offsetBpm)
+            assertEquals(110, settings.initialBpm)
+            assertEquals(60, settings.cadenceMinutes)
+        }
 
     @Test
     fun `TC-S-099 a written value is still there after the store is closed and opened again`() = runTest {
         val changed = SettingsDefaults.settings.copy(
-            thresholds = listOf(
-                Threshold(Metric.HEART_RATE, Direction.ABOVE, 140.5),
-                Threshold(Metric.HEART_RATE, Direction.BELOW, 40.0)
-            ),
             cooldownSeconds = 900,
             snooze = SnoozeSettings(minutes = 5, maxCount = 2),
             cadenceMinutes = 30,

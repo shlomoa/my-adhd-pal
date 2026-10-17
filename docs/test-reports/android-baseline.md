@@ -144,3 +144,15 @@ TC-A-104 to TC-A-108 are red until this step lands. TC-A-109 is manual on the de
 ## 4.1c Reminders inside the task form
 
 Red commit: 56c7230 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*reminders*'`. Exit 1, the test sources do not compile (`Unresolved reference 'summary'`, `Unresolved reference 'DaysSummary'`, `Unresolved reference 'TaskRemindersViewModel'`, `Unresolved reference 'taskId'`). TC-A-117 to TC-A-121 are red until this step lands.
+
+## 4.2 Send the schedule to the watch from the Tasks tab
+
+Red commit: see the first commit of PR 4.2 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*ScheduleSync*' --tests '*ScheduleWiring*'`. Exit 1, the test sources do not compile:
+
+```
+e: ScheduleSyncViewModelTest.kt:30:30 Unresolved reference 'ScheduleSyncViewModel'.
+e: ScheduleSyncViewModelTest.kt:34:22 Unresolved reference 'ScheduleSyncUiState'.
+e: ScheduleSyncViewModelTest.kt:34:48 Unresolved reference 'SyncStatus'.
+```
+
+TC-A-122 to TC-A-127 are red until this step lands.

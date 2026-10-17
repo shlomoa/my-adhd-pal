@@ -25,14 +25,11 @@ class CodecTest {
         ),
         checkpoints = listOf(Checkpoint("c1", "Midday check", 12 * 60)),
         snooze = SnoozeSettings(minutes = 10, maxCount = 3),
-        alerts = AlertSettings(
-            thresholds = listOf(Threshold(Metric.HEART_RATE, Direction.ABOVE, 150.0)),
-            cooldownSeconds = 600
-        )
+        alerts = AlertSettings(cooldownSeconds = 600, offsetBpm = 40, initialBpm = 120)
     )
 
     @Test
-    fun `TC-S-046 schedule round trip keeps thresholds, cooldown and version`() {
+    fun `TC-S-046 schedule round trip keeps the alert settings, cooldown and version`() {
         val item = roundTrip(schedule)
         assertEquals(Item(id, ts, schedule), item)
         assertEquals(7L, (item.message as Schedule).version)
@@ -187,10 +184,7 @@ class CodecTest {
                 Checkpoint("c$it", "l".repeat(Limits.MAX_TEXT_LENGTH), 1439)
             },
             snooze = SnoozeSettings(Limits.MAX_SNOOZE_MINUTES, Limits.MAX_SNOOZE_COUNT),
-            alerts = AlertSettings(
-                (1..Limits.MAX_THRESHOLDS).map { Threshold(Metric.HEART_RATE, Direction.ABOVE, 199.99) },
-                Limits.MAX_COOLDOWN_SECONDS
-            )
+            alerts = AlertSettings(Limits.MAX_COOLDOWN_SECONDS, AlertRules.MAX_OFFSET_BPM, AlertRules.MAX_INITIAL_BPM)
         )
         val prompt = Prompt(
             "p".repeat(Limits.MAX_TEXT_LENGTH),

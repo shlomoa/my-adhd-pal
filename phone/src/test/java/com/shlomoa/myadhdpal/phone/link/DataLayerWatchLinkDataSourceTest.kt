@@ -371,5 +371,5 @@ class DataLayerWatchLinkDataSourceTest {
     private fun prompt() = Prompt("Take a break?", listOf(PromptOption("1", "Yes"), PromptOption("2", "Later")), null)
 
     private fun schedule(version: Long, vararg reminders: Reminder) =
-        Schedule(version, reminders.toList(), emptyList(), SnoozeSettings(10, 3), AlertSettings(emptyList(), 600))
+        Schedule(version, reminders.toList(), emptyList(), SnoozeSettings(10, 3), AlertSettings(600))
 }

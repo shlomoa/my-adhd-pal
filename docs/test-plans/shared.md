@@ -66,7 +66,7 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-043 | 1.2 | unit | Path parsers | each builder output parses back to its kind and id; unknown paths and empty ids return null |
 | TC-S-044 | 1.2 | unit | Path edge cases | ids with `/`, whitespace or non-UUID text are rejected; trailing slash is rejected |
 | TC-S-045 | 1.2 | unit | Keys and version constants | `v`, `id`, `ts`, `body` and the protocol major version equal the spec values |
-| TC-S-046 | 1.3 | unit | Round trip: schedule | encode then decode equals the original, including thresholds, cooldown and version |
+| TC-S-046 | 1.3 | unit | Round trip: schedule | encode then decode equals the original, including the alert settings, cooldown and version |
 | TC-S-047 | 1.3 | unit | Round trip: prompt | with and without expiry, one to n options |
 | TC-S-048 | 1.3 | unit | Round trip: acknowledgement | each action (Done, Snooze, Start 2 min, Dismiss) |
 | TC-S-049 | 1.3 | unit | Round trip: selection | chosen key and time |
@@ -150,6 +150,14 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-140 | Full suite on merged `main` | `./gradlew check assembleDebug assembleRelease` and docs lint are green |
 | TC-S-141 | All lane cases | every `TC-S-*` is PASS in `shared-final.md` and `scripts/check-test-cases.sh shared final` passes, zero skipped |
 | TC-S-142 | Consumers compile against the final protocol | `:wear` and `:phone` compile against the final `:protocol` |
+
+## No absolute thresholds in the protocol (protocol 1.3, issue 55 decision)
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-S-180 | unit | An encoded schedule has no `thresholds` key | `AlertSettings` has only the cooldown, the offset and the initial value |
+| TC-S-181 | unit | A 1.2 schedule body that still has a `thresholds` list | decodes; the list is ignored |
+| TC-S-182 | unit | Protocol version 1.3 | the major is 1; peers 1.0 to 1.3 are compatible, 2.0 is not |
 
 ## Script tests after the merge (issue 190)
 
