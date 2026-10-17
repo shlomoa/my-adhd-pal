@@ -441,6 +441,15 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint, docs index. No unit test: the
   commands only call Android notification and alarm APIs; their outcome is the user's measurement (TC-W-137, NOT yet complete).
 
+## 2026-10-17 - Probe data: batch sizes and delay
+
+- Issue and PR: step 6.4, PR #196, branch `claude/watch-probe-data`
+- Changed: recorded the user's longer probe run in `docs/plans/biometrics.md` section 6: about 1 sample per second, batches of up to about 600 samples
+  (a 10-minute window) delivered seconds after the window, partial batches also occur; consequence for D6: worst case about 10 minutes plus.
+  The first result's sample rate (0.7 per second) is marked as superseded.
+- Open items: wrist state between 10:29 and 11:25 unknown; a clean worn run (checklist step 2) is still open. TC-W-136 and 137 stay NOT complete.
+- Validation: docs lint, links and index (documentation only).
+
 ## 2026-10-17 - Cleanup: catalogue rows of the deleted alert evaluator
 
 - Issue and PR: step 6.5 cleanup, branch `claude/watch-cleanup-alert-evaluator` (reduced after #194)

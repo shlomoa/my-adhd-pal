@@ -233,7 +233,7 @@ Probe step 1 and 2, as reported by the user through the coordinator. Verified on
 - The background app does receive heart-rate data, but in **large, delayed batches**: after `start` at 09:49:41 the only batch in about ten
   minutes arrived at 09:57:22 (7 min 41 s later) with 318 samples, about 0.7 samples per second. So the watch collects at about 1 sample per
   1.4 s while worn, and delivers them minutes later. Consequence for the alert: the delay from a high heart rate to the alert can be several
-  minutes (D6, best effort, holds; it is now measured, not assumed), and the hourly lows and the baseline have enough samples.
+  minutes (D6, best effort, holds; it is now measured, not assumed; see the longer run below, which supersedes the sample rate), and the hourly lows and the baseline have enough samples.
 - The batch was logged with the screen off although the user says the screen stays lit on the wrist: the first probe read `isInteractive`, which
   is false in the always-on display. The probe now records the display state (on, doze, off) and the age of the newest sample, and step 2 runs
   30 minutes to see several batches. Not yet known: the gap between batches and the delay with the screen on.
@@ -241,6 +241,38 @@ Probe step 1 and 2, as reported by the user through the coordinator. Verified on
   10:04:13, about 85 s after `clear` (probably while the watch was being taken off); the report at 10:12:51 showed `batches=1 samples=1`, no gap.
   So off the wrist the watch delivers essentially nothing, as expected: no alerts can come from a watch that is not worn (and the baseline gets no
   samples then).
+
+### Longer run: batch sizes and delay (user via the coordinator, 2026-10-17, same watch)
+
+The first probe registration stayed active after step 2 and kept logging while the new build was installed. The wrist state between 10:29 and 11:25
+is not known (the user did other things), so the gaps below are not a clean worn run. Raw `PROBE` lines, old build (its screen flag is unreliable):
+
+| Time | Samples in the batch |
+|---|---|
+| 09:57:22 (start 09:49:41) | 318 |
+| 10:04:13 (off the wrist) | 1 |
+| 10:29:52 | 574 |
+| 10:32:20 | 4 |
+| 10:37:08 | 371 |
+| 10:40:03 | 83 |
+| 10:48:14 | 565 |
+| 10:55:21 | 404 |
+| 11:05:08 | 600 |
+| 11:15:00 | 590 (the line said 600) |
+
+New build (installed about 11:24): 11:25:13 one batch, 600 samples, `display=doze`, `newestAgeMs=7874`, `spanMs=599000`.
+
+What this shows (Verified on the device, one watch, wrist state partly unknown):
+
+- The watch records about **1 sample per second** (600 samples span 599 s). The earlier "0.7 per second" was a partial batch.
+- Batches hold **up to about 600 samples, a window of about 10 minutes**, and arrive **seconds after the window ends** (newest sample 7.9 s old).
+  Irregular partial batches also occur (4, 83, 371, 404 samples), probably when the watch was taken off or the window was cut.
+- Consequence for D6 (best effort): a high heart rate can reach the app **up to about 10 minutes plus a few seconds late** (a rise at the start of a
+  window is seen when the window closes), and sometimes sooner in a partial batch. No bound shorter than that is promised. The cooldown (5 minutes)
+  and repeats (2 minutes) of section 3 count from the reading's own timestamp, so a late batch can raise level 1 and level 2 in the same delivery;
+  this follows the evaluator as built.
+- The baseline of section 2 is reachable: one hour of wear gives thousands of samples.
+- Still not measured: a clean worn run with the display on, and the delay when the watch is on the wrist but still. Checklist step 2 stays as it is for that run.
 
 ## 7. What changes elsewhere (not done in this document)
 
