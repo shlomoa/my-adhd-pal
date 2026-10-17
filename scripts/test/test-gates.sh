@@ -91,4 +91,16 @@ expect "G6 defers 4.1 and 4.2 only, so 4.3, 4.4 and 4.6 can close it" "4.1,4.2" 
 expect "G7 defers 3.9" "3.9" "$(deferred G7)"
 expect "the deferral changes no requirement: G6 requires G3 and G4" "G3,G4" "$(req G6)"
 expect "the deferral changes no requirement: G7 requires G3, G4, G5 and H2" "G3,G4,G5,H2" "$(req G7)"
+
+# --- gates for the live route (wave 0 row C3, issue 223): E2 verifies the live route against the user's definition
+# (issue 229, lane D with W); the live measure service (6.4, issue 57) comes after it. Both start open.
+owner() { jq -r --arg id "$1" '[.gates[] | select(.id == $id) | .owner] | first // ""' "$gates"; }
+status() { jq -r --arg id "$1" '[.gates[] | select(.id == $id) | .status] | first // ""' "$gates"; }
+expect "TC-S-184 G-E2 (live route verified against the user's definition) requires G5 and H2" "G5,H2" "$(req G-E2)"
+expect "TC-S-184 G-E2 is owned by D + W" "D + W" "$(owner G-E2)"
+expect "TC-S-184 G-E2 starts open" "open" "$(status G-E2)"
+expect "TC-S-184 G-LIVE (live measure service, 6.4) requires G-E2 and G5" "G-E2,G5" "$(req G-LIVE)"
+expect "TC-S-184 G-LIVE is owned by W" "W" "$(owner G-LIVE)"
+expect "TC-S-184 G-LIVE starts open" "open" "$(status G-LIVE)"
+expect "TC-S-184 the deferred steps are unchanged by the new gates" "3.3,3.4,3.9,4.1,4.2,5.2,5.3" "$(jq -r '[.deferred[].step] | sort | join(",")' "$gates")"
 exit $fail

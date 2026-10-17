@@ -361,3 +361,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/plans/gates.json` gets a top-level `deferred` array (`step`, `gate`, `reason`): 3.3 and 3.4 (G5), 4.1 and 4.2 (G6), 3.9 (G7), 5.2 and 5.3 (no gate). No gate id, owner, status or `requires` changes, so the README table in `docs/plans/README.md` stays equal to `gates.json` and G6 closes on 4.3, 4.4 and 4.6; the text in `docs/plans/*.md` and `docs/plan.md` is the Docs lane's. `scripts/test/test-gates.sh` checks the array.
 - Validation: TC-S-183 written first and red (`shared-baseline.md`), then green; `test-gates.sh` and `test-scripts.sh` pass.
 - Open items: the Docs lane states the deferral in `docs/plans/README.md` (G5, G6, G7 rows); 5.2 and 5.3 belong to no gate, so they carry `"gate": null`.
+
+## 2026-10-17 - Gates for the live route (E2 and the live measure service)
+
+- Issue and PR: #223 (C3); PR linked from the coordinator message.
+- Changed: `docs/plans/gates.json` gets `G-E2` (E2, issue 229, owner D + W, requires G5 and H2) and `G-LIVE` (6.4 live measure service, issue 57, owner W, requires G-E2 and G5), both open; two rows in the `docs/plans/README.md` gate table (the existing `test-gates.sh` case needs a row per gate). The deferred list of #216 and every other gate are unchanged.
+- Validation: TC-S-184 written first and red (`shared-baseline.md`), then green; `test-gates.sh` and `test-scripts.sh` pass.
+- Open items: the coordinator approves the split. E3 and E4 are experiments recorded by the user, not gates, so `G-LIVE` does not require them.
