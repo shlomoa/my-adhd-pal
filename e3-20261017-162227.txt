@@ -1,0 +1,47 @@
+2026-10-17 16:22:27 e3 result file: e3-20261017-162227.txt
+2026-10-17 16:22:27 battery before: 68
+2026-10-17 16:22:28 PROBE measure capabilities heartRateMeasure=true
+2026-10-17 16:22:28 permission: android.permission.health.READ_HEART_RATE: granted=true
+2026-10-17 16:22:28 permission: android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND: granted=false
+2026-10-17 16:22:28 service registered and AVAILABLE
+2026-10-17 16:22:28 == 30 minutes worn, three blocks of 1 s
+2026-10-17 16:22:30 == report block-10
+2026-10-17 16:22:30 PROBE measure screen=all readings=100 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:22:30 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:22:30 notification visible: True
+2026-10-17 16:22:31 == report block-20
+2026-10-17 16:22:31 PROBE measure screen=all readings=100 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:22:31 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:22:31 notification visible: True
+2026-10-17 16:22:32 == report block-30
+2026-10-17 16:22:32 PROBE measure screen=all readings=100 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:22:32 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:22:32 notification visible: True
+2026-10-17 16:22:32 after 30 minutes: service running: True
+2026-10-17 16:22:32 after 30 minutes: readings grew: False (100 -> 100)
+2026-10-17 16:22:32 (unattended) Turn Bedtime mode ON on the watch now.
+2026-10-17 16:22:32 == report bedtime-start
+2026-10-17 16:22:32 PROBE measure screen=all readings=100 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:22:32 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:22:32 notification visible: True
+2026-10-17 16:22:34 == report bedtime-end
+2026-10-17 16:22:34 PROBE measure screen=all readings=100 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:22:34 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:22:34 notification visible: True
+2026-10-17 16:22:34 Bedtime: service running: True
+2026-10-17 16:22:34 Bedtime: readings grew: False (100 -> 100)
+2026-10-17 16:22:34 (unattended) Turn Bedtime mode OFF on the watch now.
+2026-10-17 16:22:34 (unattended) Turn battery saver (power saving) mode ON on the watch now.
+2026-10-17 16:22:34 == report battery-saver-start
+2026-10-17 16:22:34 PROBE measure screen=all readings=100 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:22:34 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:22:34 notification visible: True
+2026-10-17 16:22:35 == report battery-saver-end
+2026-10-17 16:22:35 PROBE measure screen=all readings=100 perMin=10.0 gapSec median=1 p95=1 max=2
+2026-10-17 16:22:35 PROBE measure battery start=68 now=67 dropPerHour=1.0
+2026-10-17 16:22:35 notification visible: True
+2026-10-17 16:22:35 battery saver: service running: True
+2026-10-17 16:22:35 battery saver: readings grew: False (100 -> 100)
+2026-10-17 16:22:35 (unattended) Turn battery saver (power saving) mode OFF on the watch now.
+2026-10-17 16:22:35 battery after: 67
+2026-10-17 16:22:35 result file: /tmp/tmp.zKxTbuKQMY/out/e3-20261017-162227.txt
