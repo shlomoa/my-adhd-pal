@@ -44,6 +44,7 @@ body of the GitHub issue of each step; the documents record what was decided and
   [learnings](spikes/learnings.md), [spec of the apps](spikes/spec-apps.md), [spec of the tests](spikes/spec-tests.md),
   [emulator checklist](spikes/0b2a-checklist.md) and [hardware plan](spikes/0b2b-plan.md).
 - [Watch research notes](research/watch.md).
+- [Tooling freshness](research/tooling.md): are the pinned tool and package versions the latest (2026-10-17).
 
 ## Setup and demo
 
