@@ -58,14 +58,16 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 | **G3a** | Phone data contract: `WatchLinkDataSource` interface + fake (2.3), repository interfaces + in-memory fakes | S | G2a |
 | **G3** | 2.1-2.5: Room, DataStore, real `WatchLinkDataSource`, background listener service, repositories | S | G3a, G-LIB, G2b |
 | **G4** | Phone core: 2.7 DI, 2.6 link-state screen, 4.5 history screen | A | G3a, G-LIB |
-| **G5** | Watch core: 3.1-3.7 (manifest, link client, schedule receive, scheduler, haptics, acks, selections) | W | G2a |
-| **G6** | Phone features: 4.1-4.4 and 4.6 (tasks, schedule builder, settings, prompt publishing, states) | A | G4, G3 |
-| **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded | W + user | G3, G4, G5, H2 |
+| **G5** | Watch core: 3.1-3.7 (manifest, link client, schedule receive and scheduler deferred, haptics, acks, selections) | W | G2a |
+| **G6** | Phone features: 4.1-4.4 and 4.6 (tasks and schedule builder deferred, settings, prompt publishing, states) | A | G4, G3 |
+| **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded (deferred) | W + user | G3, G4, G5, H2 |
 | **G-DOC** | D1 design documentation: `docs/design/` with overview, four sections, solution diagrams and screen images; design approved by the user (recorded in issue #154) | D | G-BOOT |
 | **G-INDEX** | D2 documentation index `docs/index.md` and generated site in CI (issue #156), user approves the structure | D | G-DOC |
 | **G-VAL** | V lane set up; the slow script tests run after each merge to `main`, not on pull requests (issue #190) | V | G-BOOT |
 | **H1** (human) | 6.2 biometric metrics and thresholds agreed by the user, recorded in the issue | user | none |
 | **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed by the user, recorded in the issue | user | none |
+
+**Deferred (user, 2026-10-17):** everything related to the schedule, the scheduler, the schedule builder and tasks in G5, G6 and G7 (steps 3.3, 3.4, 3.9, 4.1, 4.2, 5.2-5.3, and 1.6 schedule logic). Also deferred, low priority, as notes only: other biometrics and a "monitoring" status item. The gate definitions in `gates.json` are unchanged here; lane S updates them.
 
 **Why G2 is split.** Gates are checked by `scripts/test/test-gates.sh` (TC-S-143). Only the five-state link function
 (1.5) and the diagrams of the link state machine and the alert flow (1.8b) depend on what the real devices report

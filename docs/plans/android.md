@@ -9,7 +9,7 @@ Overview, gates, stop rule and ownership: [README](README.md). Step ids are from
 | **2.7** | Dependency injection per the 0b.1 decision | build and tests red -> green | G-LIB, G0 | none |
 | **2.6** | Link-state screen: five states and last sync, no controls | ViewModel tests red -> green; manual | G3a | none |
 | **4.5** | History of acknowledgements, selections and alerts | ViewModel tests red -> green | G3a | **G4** (with 2.7 and 2.6) |
-| **4.1-4.4** | Task/reminder screens (Compose Material 3), schedule builder that publishes, settings, prompt publishing | ViewModel tests, `check`, manual round trip | G4, G3 | none |
+| **4.1-4.4** | 4.1 and 4.2 are **Deferred (user, 2026-10-17).** Task/reminder screens (Compose Material 3), schedule builder that publishes, settings, prompt publishing | ViewModel tests, `check`, manual round trip | G4, G3 | none |
 | **4.6** | Empty and error states, basic accessibility | tests, `check`, manual | G4 | **G6** (with 4.1-4.4) |
 | **7.1-7.6** | Signing and Play App Signing, `versionCode` scheme, release build checks, privacy policy and health-data store declarations (requirements researched first), README for both devices, release checklist | `assembleRelease`; pairing and release-no-debug checks green; checklist reviewed | G6, G7 | none |
 | **A-final (V-last)** | `:phone:check`, all `TC-A-*` PASS, final report; manual end-to-end with the real watch | `android-final.md` via `check-test-cases.sh android final`; manual checklist reported by the user | G6, G7, H2 | none |

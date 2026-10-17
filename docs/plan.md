@@ -248,9 +248,9 @@ Every step becomes a GitHub issue labelled with its milestone, starting with its
   availability check. *Validate:* lint, build.
 - **3.2 Link client:** publish `/hello/watch`, compute and display the link state on the home screen. *Validate:* tests
   with the fake; manual.
-- **3.3 Schedule receive:** listener service for `/schedule`, local persistence, apply only newer versions.
+- **3.3 Schedule receive:** **Deferred (user, 2026-10-17).**  listener service for `/schedule`, local persistence, apply only newer versions.
   *Validate:* unit tests; manual.
-- **3.4 Local scheduler:** research the right Wear OS mechanism and permissions first, then fire reminders, surviving
+- **3.4 Local scheduler:** **Deferred (user, 2026-10-17).**  research the right Wear OS mechanism and permissions first, then fire reminders, surviving
   reboot. *Validate:* tests for the logic; a 24-hour run with the screen off and the phone away in which every reminder
   fires within 1 minute of its scheduled time.
 - **3.5 Haptics and notifications:** the catalogue, a notification channel, and the actions Done, Snooze, Start 2 min and
@@ -259,20 +259,20 @@ Every step becomes a GitHub issue labelled with its milestone, starting with its
 - **3.7 Selections:** `/prompt/<id>`, selection screen, `/selection/<id>`, expiry. *Validate:* tests; manual.
 - **3.8 Debug source set:** `Logger`, debug log view, injected-message receiver, raw logs. *Validate:* the
   release-has-no-debug check.
-- **3.9 First end-to-end round trip** (schedule, reminder, acknowledgement, phone history) on paired emulators, then on
+- **3.9 First end-to-end round trip** **Deferred (user, 2026-10-17).**  (schedule, reminder, acknowledgement, phone history) on paired emulators, then on
   the real devices with the phone present, away, and Bluetooth toggled. *Validate:* results in the work log.
 
 ### 4. Phone features
 
-- **4.1** Task and reminder create/edit screens (Compose Material 3). **4.2** Schedule builder that publishes.
+- **4.1** **Deferred (user, 2026-10-17).** Task and reminder create/edit screens (Compose Material 3). **4.2** **Deferred (user, 2026-10-17).** Schedule builder that publishes.
   **4.3** Settings (thresholds, cooldown, cadence). **4.4** Prompt publishing (offer options). **4.5** History of
   acknowledgements, selections and alerts. **4.6** Empty and error states and basic accessibility.
   *Validate each:* ViewModel tests, `check`, manual round trip.
 
 ### 5. Watch tile
 
-- **5.1** Research the current tile API. **5.2** Tile with the current reminder, the primary action and the link state.
-  **5.3** Update triggers. *Validate:* tests where possible; manual on the watch.
+- **5.1** Research the current tile API. **5.2** **Deferred (user, 2026-10-17).** Tile with the current reminder, the primary action and the link state.
+  **5.3** **Deferred (user, 2026-10-17).** Update triggers. *Validate:* tests where possible; manual on the watch.
 
 ### 6. Biometric alerts
 
