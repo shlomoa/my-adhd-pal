@@ -82,17 +82,21 @@ for n in test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protoc
   test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh test-post-merge.sh; do
   [ "$(grep -oE -- "(^| )$n(@[A-Za-z0-9._-]+)?( |$)" "$tmp/groups.txt" | wc -l)" -ge 1 ] || { echo "  $n is in no group"; bad=1; }
 done
-# every test runs once, except test-spike.sh: it runs as its two suites, each in a group of its own
-for n in test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protocol-spec.sh test-gates.sh \
+# every test runs once, except test-spike.sh (its two suites) and test-checks.sh (three parts): each part is a unit of its own
+for n in test-structure.sh test-pairing.sh test-ci.sh test-protocol-spec.sh test-gates.sh \
   test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh test-post-merge.sh; do
   [ "$(grep -ow -- "$n" "$tmp/groups.txt" | wc -l)" -eq 1 ] || { echo "  $n is not in exactly one group"; bad=1; }
 done
 [ "$(grep -ow -- 'test-spike.sh@test-run-0b2a' "$tmp/groups.txt" | wc -l)" -eq 1 ] &&
   [ "$(grep -ow -- 'test-spike.sh@test-run-0b2b' "$tmp/groups.txt" | wc -l)" -eq 1 ] &&
   [ "$(grep -c 'test-spike.sh' "$tmp/groups.txt")" -eq 2 ] || { echo "  test-spike.sh is not split into its two suites"; bad=1; }
-[ "$bad" -eq 0 ]; check "TC-V-007 every post-merge test is in exactly one group (the spike as its two suites)" 0 $?
+for part in scaffold format lint; do
+  [ "$(grep -ow -- "test-checks.sh@$part" "$tmp/groups.txt" | wc -l)" -eq 1 ] || { echo "  test-checks.sh@$part is not in exactly one group"; bad=1; }
+done
+[ "$(grep -o 'test-checks.sh' "$tmp/groups.txt" | wc -l)" -eq 3 ] || { echo "  test-checks.sh is not split into its three parts"; bad=1; }
+[ "$bad" -eq 0 ]; check "TC-V-007 every post-merge test is in exactly one group (spike and checks as their parts)" 0 $?
 [ "$(grep -c '^group [0-9]*: ' "$tmp/groups.txt")" -ge 4 ]; check "TC-V-007 there are at least four groups" 0 $?
-[ "$(grep -oE -- 'test-[a-z-]*\.sh' "$tmp/groups.txt" | wc -l)" -eq 13 ]; check "TC-V-007 the groups hold exactly the thirteen units" 0 $?
+[ "$(grep -oE -- 'test-[a-z-]*\.sh' "$tmp/groups.txt" | wc -l)" -eq 15 ]; check "TC-V-007 the groups hold exactly the fifteen units" 0 $?
 
 # TC-V-008 groups run at the same time, a failure in any group fails the run and shows in the report, the other groups finish
 pdir="$tmp/par"; mkdir -p "$pdir"
@@ -155,4 +159,37 @@ check "TC-V-012 with POST_MERGE_ARG only that spike suite runs" 0 $?
 REPO_ROOT="$sroot" bash scripts/test/test-spike.sh >"$tmp/spike2.txt" 2>&1
 grep -q 'test-run-0b2a.sh passes' "$tmp/spike2.txt" && grep -q 'test-run-0b2b.sh passes' "$tmp/spike2.txt"
 check "TC-V-012 without it both spike suites run" 0 $?
+# TC-V-013 test-checks.sh runs only the part named in POST_MERGE_ARG: scaffold (TC-S-016/017, the full check), format (TC-S-011/012), lint (TC-S-013 to 015)
+croot="$tmp/croot"; mkdir -p "$croot/scripts/test" "$croot/docs"
+cp scripts/test/test-checks.sh "$croot/scripts/test/"
+printf '#!/usr/bin/env bash\necho "$*" >> "$GRADLE_LOG"\n' > "$croot/gradlew"; chmod +x "$croot/gradlew"
+git -C "$croot" init -q . && git -C "$croot" add -A && git -C "$croot" -c user.name=t -c user.email=t@t commit -q -m fixture
+for part in scaffold format lint all; do
+  arg="$part"; [ "$part" != all ] || arg=""
+  GRADLE_LOG="$tmp/gradle-$part.log" POST_MERGE_ARG="$arg" bash "$croot/scripts/test/test-checks.sh" >/dev/null 2>&1
+done
+full='check --rerun-tasks'
+ran() { grep -q -- "$2" "$tmp/gradle-$1.log"; }
+ran scaffold "$full" && ! ran scaffold 'spotlessApply\|detekt\|lintDocs\|lintDebug'
+check "TC-V-013 POST_MERGE_ARG=scaffold runs the full check and nothing else" 0 $?
+ran format 'spotlessApply' && ran format 'detekt' && ! ran format "$full" && ! ran format 'lintDocs\|:phone:lintDebug'
+check "TC-V-013 POST_MERGE_ARG=format runs the formatter and detekt fixtures only" 0 $?
+ran lint 'lintDocs' && ran lint ':phone:lintDebug' && ! ran lint "$full" && ! ran lint 'spotlessApply\|detekt'
+check "TC-V-013 POST_MERGE_ARG=lint runs the Android lint and docs fixtures only" 0 $?
+ran all "$full" && ran all 'spotlessApply' && ran all 'detekt' && ran all 'lintDocs'
+check "TC-V-013 without POST_MERGE_ARG all parts run" 0 $?
+[ "$(grep -o 'test-checks.sh@\(scaffold\|format\|lint\)' "$tmp/groups.txt" | sort -u | wc -l)" -eq 3 ]
+check "TC-V-013 the default groups run the three parts of test-checks.sh" 0 $?
+
+# TC-V-014 before the groups start, one Gradle run in the checkout installs the SDK components the builds need, so the
+# groups do not install build-tools at the same time in a fresh container
+wdir="$tmp/warm"; mkdir -p "$wdir/scripts/ci-post-merge" "$wdir/scripts/test"
+cp "$runner" "$wdir/scripts/ci-post-merge/run-tests.sh"
+printf '#!/usr/bin/env bash\necho "gradle $*" >> "$EVENTS"\n' > "$wdir/gradlew"; chmod +x "$wdir/gradlew"
+for g in a b; do printf '#!/usr/bin/env bash\necho "test-%s" >> "$EVENTS"\n' "$g" > "$wdir/scripts/test/test-w$g.sh"; done
+git -C "$wdir" init -q . && git -C "$wdir" add -A && git -C "$wdir" -c user.name=t -c user.email=t@t commit -q -m fixture
+EVENTS="$tmp/events.txt" POST_MERGE_GROUPS="test-wa.sh|test-wb.sh" POST_MERGE_OUT="$tmp/out8" \
+  bash "$wdir/scripts/ci-post-merge/run-tests.sh" >"$tmp/run8.txt" 2>&1
+[ "$(grep -c '^gradle' "$tmp/events.txt")" -eq 1 ] && [ "$(head -n 1 "$tmp/events.txt" | cut -c1-6)" = "gradle" ] && grep -q -- '--dry-run' "$tmp/events.txt"
+check "TC-V-014 one Gradle dry run in the checkout comes before the first test" 0 $?
 exit $fail
