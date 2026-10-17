@@ -4,7 +4,7 @@ Status: **approved**, aligned to the merged [`../plan.md`](../plan.md) (mileston
 authority for architecture, decisions and step definitions; these files only say **who does which step, in what
 order, and how parallel work is kept safe**. Step ids such as `0a.8` or `3.4` are `plan.md` step ids.
 
-Lane plans: [shared and data](shared.md), [Android](android.md), [watch](watch.md), [Documentation](docs.md).
+Lane plans: [shared and data](shared.md), [Android](android.md), [watch](watch.md), [Documentation](docs.md), [Validation](validation.md).
 
 ## Lanes
 
@@ -14,8 +14,9 @@ Lane plans: [shared and data](shared.md), [Android](android.md), [watch](watch.m
 | **A** Android | phone UI, DI wiring, phone features, Play readiness | 2.6, 2.7, 4.1-4.6, 7.1-7.6 |
 | **W** Watch | everything in `:wear`, tile, biometrics (including the pure-logic evaluator 6.5 in `:protocol`) | 3.1-3.9, 5.1-5.3, 6.1-6.8 |
 | **D** Documentation | UI/UX design documentation in `docs/design/` (proposed design, issue #154) | none (documents steps 2.6, 3.2-3.7, 4.1-4.6, 5.2, H1) |
+| **V** Validation | post-merge run of the script tests on `main`, the `main-red` issue, watching each merge (issue #190) | none (checks all lanes' steps) |
 
-The four lanes run in parallel. Work that a lane cannot start is blocked by a gate (below) and the lane stops.
+The lanes run in parallel. Work that a lane cannot start is blocked by a gate (below) and the lane stops.
 
 ## Working assumptions (confirm on review)
 
@@ -62,6 +63,7 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 | **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded | W + user | G3, G4, G5, H2 |
 | **G-DOC** | D1 design documentation: `docs/design/` with overview, four sections, solution diagrams and screen images; design approved by the user (recorded in issue #154) | D | G-BOOT |
 | **G-INDEX** | D2 documentation index `docs/index.md` and generated site in CI (issue #156), user approves the structure | D | G-DOC |
+| **G-VAL** | V lane set up; the slow script tests run after each merge to `main`, not on pull requests (issue #190) | V | G-BOOT |
 | **H1** (human) | 6.2 biometric metrics and thresholds agreed by the user, recorded in the issue | user | none |
 | **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed by the user, recorded in the issue | user | none |
 
@@ -99,6 +101,7 @@ The scripts are covered by the 19 cases in [`../test-plans/bootstrap.md`](../tes
 | A | `phone/src/**/ui/**`, `phone/src/main/AndroidManifest.xml`, DI wiring, `docs/phone.md`, final `README.md` |
 | W | `wear/src/**`, `wear/build.gradle.kts` (after G0), `docs/watch.md`, `protocol/src/**/alerts/**` (6.5 only) |
 | D | `docs/design/**`, `docs/plans/docs.md`, `docs/test-plans/docs.md`, `docs/test-reports/docs-*.md`, `docs/work-log/docs.md` |
+| V | `.github/workflows/post-merge.yml`, `scripts/ci-post-merge/**`, `docs/plans/validation.md`, `docs/test-plans/validation.md`, `docs/test-reports/validation-*.md`, `docs/work-log/validation.md` |
 | each | own `docs/test-plans/<lane>.md`, `docs/test-reports/<lane>-*.md`, own `docs/work-log/<lane>.md`; catalog additions under a `# <lane>` comment in `gradle/libs.versions.toml` |
 
 Before G0, A and W touch no build file. Branches: `claude/shared-*`, `claude/android-*`, `claude/watch-*`, `claude/docs-*`; each thread

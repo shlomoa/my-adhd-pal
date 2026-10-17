@@ -333,3 +333,7 @@ Red commit: `DataStoreSettingsRepositoryTest` TC-S-098 now expects `SettingsDefa
 ## No absolute thresholds in the protocol (protocol 1.3, red)
 
 Red commit: `Protocol13Test` (TC-S-180 to TC-S-182), the existing tests moved to the new `AlertSettings(cooldownSeconds, offsetBpm, initialBpm)` shape (`CodecTest`, `Protocol12Test`, `EpisodeEvaluatorTest` TC-W-138, `ConstantsTest` expecting 1.3, the phone settings tests TC-S-092, TC-S-098, TC-S-099, TC-A-032, TC-A-033 and the schedule contract), no implementation. `./gradlew :protocol:test`: test compilation fails, `No value passed for parameter 'thresholds'` (`CodecTest.kt:28`) and `Argument type mismatch: actual type is 'Int', but 'List<Threshold>' was expected` (`CodecTest.kt:187`).
+
+## Script tests after the merge (issue 190, red)
+
+Red commit: `scripts/test/test-post-merge.sh` (TC-S-170 to TC-S-174: no `script-tests` job in `build.yml`, the post-merge workflow, no script test lost, the runner, the `main-red` issue handler with a fake `gh`), no implementation. `scripts/test/test-post-merge.sh`: `FAIL TC-S-170 build.yml has no script-tests job`, `FAIL TC-S-171 post-merge.yml exists`, `FAIL TC-S-173 a failing test makes the runner exit 1 (expected 1, got 127)` (the runner does not exist), `FAIL TC-S-174 red with no open issue creates one labelled main-red`; 14 of the 19 checks fail.
