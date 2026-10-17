@@ -33,41 +33,59 @@ count() { calls | grep -cE -- "$1"; }
 before() { [ "$1" -gt 0 ] && [ "$2" -gt "$1" ]; }
 
 # ---------------- E3
-run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
+run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
 check "TC-W-161 a full E3 run exits 0" 0 $rc
 [ -n "$result" ]; check "TC-W-161 one result file e3-<time>.txt is written" 0 $?
 [ "$(count 'pm revoke .*READ_HEALTH_DATA_IN_BACKGROUND')" -ge 1 ] && ! calls | grep -qE 'pm grant .*BACKGROUND'; check "TC-W-161 the background permission is revoked and never granted" 0 $?
 grep -q 'READ_HEALTH_DATA_IN_BACKGROUND: granted=false' "$result"; check "TC-W-161 the result file shows the background permission is not granted" 0 $?
 ! calls | grep -q 'settings put'; check "TC-W-161 E3 leaves the screen timeout alone (the screen behaves as it comes)" 0 $?
 before "$(first 'cmd measure-stop')" "$(first 'cmd measure-clear')" && before "$(first 'cmd measure-clear')" "$(first 'am start')"; check "TC-W-161 measure-stop and measure-clear come before the start" 0 $?
-[ "$(count 'cmd measure-report')" -eq 7 ]; check "TC-W-161 seven reports: 3 in the 30-minute block, 2 for Bedtime, 2 for battery saver" 0 $?
+[ "$(count 'cmd measure-report')" -eq 7 ]; check "TC-W-161 seven reports: 3 in the 30-minute block, 2 for Sleep mode, 2 for power saving" 0 $?
 ok=0
 for i in 1 2 3 4 5 6 7; do
   r="$(nth 'cmd measure-report' $i)"
   [ "$(calls | sed -n "$((r-2))p")" = "connect 192.168.1.16:41613" ] && calls | sed -n "$((r-1))p" | grep -q 'logcat -c' || ok=1
 done
 check "TC-W-161 before every report: adb connect, then logcat -c, then the report" 0 $ok
-grep -q '== report block-10' "$result" && grep -q '== report block-30' "$result" && grep -q '== report bedtime-start' "$result" && grep -q '== report bedtime-end' "$result" && grep -q '== report battery-saver-end' "$result"; check "TC-W-161 the result file names each report" 0 $?
+grep -q '== report block-10' "$result" && grep -q '== report block-30' "$result" && grep -q '== report sleep-mode-before' "$result" && grep -q '== report sleep-mode-end' "$result" && grep -q '== report power-saving-before' "$result" && grep -q '== report power-saving-after-off' "$result"; check "TC-W-161 the result file names each report" 0 $?
+! grep -q '== report power-saving-end' "$result"; check "TC-W-180 no report is taken while power saving is on (it turns Wi-Fi off)" 0 $?
 grep -q 'service running: True' "$result" && grep -q 'readings grew: True' "$result"; check "TC-W-161 the result file says the service runs and readings grew" 0 $?
 grep -q 'battery before: 68' "$result" && grep -qE 'battery after: [0-9]+' "$result"; check "TC-W-161 the battery before and after are in the result file" 0 $?
 before "$(nth 'cmd measure-report' 7)" "$(nth 'cmd measure-stop' 2)"; check "TC-W-161 measure-stop is the last service command" 0 $?
 ! grep -q '192.168' "$result"; check "TC-W-161 the result file holds no ip address" 0 $?
 
-FAKE_FAIL=svcgone run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
+FAKE_FAIL=svcgone run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
 check "TC-W-162 a service that disappears is a result, not a script failure (exit 0)" 0 $rc
 grep -q 'service running: False' "$result"; check "TC-W-162 the result file says service running: False" 0 $?
 
-FAKE_FAIL=stalled run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
+FAKE_FAIL=stalled run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
 grep -q 'readings grew: False' "$result"; check "TC-W-162 readings that stop growing are reported (readings grew: False)" 0 $?
 
-FAKE_FAIL=noavail run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
+FAKE_FAIL=noavail run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
 [ "$rc" -ne 0 ] && [ "$(count 'cmd measure-report')" -eq 0 ] && [ "$(count 'cmd measure-stop')" -ge 2 ]; check "TC-W-163 a service that never reports AVAILABLE fails the run and is stopped" 0 $?
 
-FAKE_CHARGING=1 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
+FAKE_CHARGING=1 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
 [ "$rc" -ne 0 ] && [ "$(count 'am start')" -eq 0 ]; check "TC-W-163 a watch on its charger is refused" 0 $?
 
-run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4
-[ "$(grep -ci 'Bedtime' "$tmp/stdout")" -ge 2 ] && [ "$(grep -ci 'battery saver' "$tmp/stdout")" -ge 2 ]; check "TC-W-164 without -Unattended the script asks the user to turn Bedtime and battery saver on and off" 0 $?
+run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2
+[ "$(grep -ci 'Sleep mode' "$tmp/stdout")" -ge 2 ] && [ "$(grep -ci 'Power saving' "$tmp/stdout")" -ge 2 ]; check "TC-W-164 without -Unattended the script asks the user to turn Sleep mode and Power saving on and off" 0 $?
+for want in 'Quick panel' 'Modes and Routines' 'Settings > Battery > Power saving' 'turns Wi-Fi off'; do grep -q "$want" "$tmp/stdout"; check "TC-W-183 the E3 prompts carry the verified path: $want" 0 $?; done
+
+# the watch goes away (Wi-Fi off) after the 6th report (power saving): it comes back after 3 failed connects
+FAKE_AWAY_AFTER=6 FAKE_AWAY_CALLS=3 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+check "TC-W-180 a watch that comes back after power saving: exit 0" 0 $rc
+grep -q '== report power-saving-after-off' "$result" && grep -q 'power saving: readings grew: True' "$result"; check "TC-W-180 the report after power saving is taken once the watch is reachable again" 0 $?
+grep -q 'no report is possible while power saving is on' "$result"; check "TC-W-180 the result file says no report was possible during the power saving block" 0 $?
+
+FAKE_AWAY_AFTER=6 FAKE_AWAY_CALLS=1000 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+check "TC-W-181 a watch that never comes back does not fail the run (exit 0)" 0 $rc
+grep -q 'no report possible during power-saving-after-off' "$result" && grep -q 'power saving: readings grew: unknown' "$result"; check "TC-W-181 the result file says no report was possible and the growth is unknown" 0 $?
+[ "$(count 'cmd measure-report')" -eq 6 ]; check "TC-W-181 no report is faked: six reports were taken" 0 $?
+
+# the watch goes away during Sleep mode (after the 4th report) and is reachable again only after the user turned it off
+FAKE_AWAY_AFTER=4 FAKE_AWAY_CALLS=13 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+check "TC-W-182 a watch that is away during Sleep mode: exit 0" 0 $rc
+grep -q 'no report possible during sleep-mode-end' "$result" && grep -q '== report sleep-mode-after-off' "$result"; check "TC-W-182 the in-mode report is logged as impossible and taken after the mode is off" 0 $?
 
 # ---------------- E6
 run "$E6" -AlarmWaitSec 1
@@ -81,5 +99,6 @@ grep -q 'PROBE vibrate amplitudeControl=true' "$result" && grep -q 'PROBE notify
 [ "$(count 'pm grant .*POST_NOTIFICATIONS')" -ge 1 ]; check "TC-W-165 the notification permission is granted" 0 $?
 ! grep -q '192.168' "$result"; check "TC-W-165 the result file holds no ip address" 0 $?
 [ "$(grep -ci 'Theater' "$tmp/stdout")" -ge 2 ] && [ "$(grep -ci 'vibration intensity' "$tmp/stdout")" -ge 2 ]; check "TC-W-166 the script asks the user to set Theater mode and the vibration intensity" 0 $?
+for want in 'Quick panel' 'clapperboard' 'Sounds and vibration' 'Always On Display'; do grep -q "$want" "$tmp/stdout"; check "TC-W-183 the E6 prompts carry the verified path: $want" 0 $?; done
 grep -qi 'untested on the watch' "$E3" && grep -qi 'untested on the watch' "$E6"; check "TC-W-167 both script headers say what is untested on the watch" 0 $?
 exit $fail
