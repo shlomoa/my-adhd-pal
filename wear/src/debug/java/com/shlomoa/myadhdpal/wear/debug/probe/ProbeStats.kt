@@ -6,7 +6,7 @@ package com.shlomoa.myadhdpal.wear.debug.probe
  * known, how old its newest sample was and how long a time its samples span. Counts and times only: the probe never
  * records bpm values.
  */
-data class ProbeBatch(
+data class ProbeDelivery(
     val elapsedMs: Long,
     val samples: Int,
     val display: String,
@@ -17,7 +17,7 @@ data class ProbeBatch(
 }
 
 data class ProbeSummary(
-    val batches: Int,
+    val deliveries: Int,
     val samples: Int,
     val minGapMs: Long?,
     val medianGapMs: Long?,
@@ -37,7 +37,7 @@ private const val STATE_OFF = 1
 private const val STATE_ON = 2
 private const val STATE_DOZE = 3
 private const val STATE_DOZE_SUSPEND = 4
-private val DISPLAYS = listOf("on", "doze", "off", "other")
+internal val DISPLAYS = listOf("on", "doze", "off", "other")
 
 /** The name of an `android.view.Display` state: the always-on display is doze. */
 fun displayName(state: Int): String = when (state) {
@@ -57,7 +57,7 @@ fun sampleAges(deliveryMs: Long, sampleTimesMs: List<Long>): SampleAges? = if (s
 }
 
 /** Null for a line that is not exactly `elapsedMs|samples|display|newestAgeMs|spanMs` (the last two may be empty). */
-fun parseBatch(line: String): ProbeBatch? {
+fun parseDelivery(line: String): ProbeDelivery? {
     val parts = line.split(SEPARATOR)
     if (parts.size != FIELDS || parts[2] !in DISPLAYS) return null
     val elapsed = parts[0].toLongOrNull()
@@ -70,22 +70,22 @@ fun parseBatch(line: String): ProbeBatch? {
     ) {
         null
     } else {
-        ProbeBatch(elapsed, samples, parts[2], age, span)
+        ProbeDelivery(elapsed, samples, parts[2], age, span)
     }
 }
 
-private fun median(sorted: List<Long>): Long? = when {
+internal fun median(sorted: List<Long>): Long? = when {
     sorted.isEmpty() -> null
     sorted.size % PAIR == 1 -> sorted[sorted.size / PAIR]
     else -> (sorted[sorted.size / PAIR - 1] + sorted[sorted.size / PAIR]) / PAIR
 }
 
-fun summarize(batches: List<ProbeBatch>): ProbeSummary {
-    val gaps = batches.map { it.elapsedMs }.sorted().zipWithNext { a, b -> b - a }.sorted()
-    val ages = batches.mapNotNull { it.newestAgeMs }.sorted()
+fun summarize(deliveries: List<ProbeDelivery>): ProbeSummary {
+    val gaps = deliveries.map { it.elapsedMs }.sorted().zipWithNext { a, b -> b - a }.sorted()
+    val ages = deliveries.mapNotNull { it.newestAgeMs }.sorted()
     return ProbeSummary(
-        batches.size,
-        batches.sumOf { it.samples },
+        deliveries.size,
+        deliveries.sumOf { it.samples },
         gaps.firstOrNull(),
         median(gaps),
         gaps.lastOrNull(),
@@ -94,9 +94,9 @@ fun summarize(batches: List<ProbeBatch>): ProbeSummary {
     )
 }
 
-/** The report lines the checklist asks the user to copy: all batches, then each display state that occurred. */
-fun formatReport(batches: List<ProbeBatch>): List<String> {
-    val groups = listOf("all" to batches) + DISPLAYS.map { name -> name to batches.filter { it.display == name } }
+/** The report lines the checklist asks the user to copy: all deliveries, then each display state that occurred. */
+fun formatReport(deliveries: List<ProbeDelivery>): List<String> {
+    val groups = listOf("all" to deliveries) + DISPLAYS.map { name -> name to deliveries.filter { it.display == name } }
     return groups.filter { (name, group) -> name == "all" || group.isNotEmpty() }.map { (name, group) ->
         val s = summarize(group)
         val gaps = if (s.medianGapMs == null) {
@@ -110,6 +110,6 @@ fun formatReport(batches: List<ProbeBatch>): List<String> {
         } else {
             "median=${s.medianNewestAgeMs / MILLIS_PER_SECOND} max=${s.maxNewestAgeMs!! / MILLIS_PER_SECOND}"
         }
-        "PROBE report screen=$name batches=${s.batches} samples=${s.samples} gapSec $gaps newestAgeSec $age"
+        "PROBE report screen=$name deliveries=${s.deliveries} samples=${s.samples} gapSec $gaps newestAgeSec $age"
     }
 }

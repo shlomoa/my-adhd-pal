@@ -1,8 +1,6 @@
 package com.shlomoa.myadhdpal.wear.debug.probe
 
-import android.hardware.display.DisplayManager
 import android.os.SystemClock
-import android.view.Display
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
@@ -17,15 +15,12 @@ class ProbeListenerService : PassiveListenerService() {
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
         val points = dataPoints.getData(DataType.HEART_RATE_BPM)
         val now = SystemClock.elapsedRealtime()
-        val display = displayName(
-            getSystemService(DisplayManager::class.java).getDisplay(Display.DEFAULT_DISPLAY)?.state
-                ?: Display.STATE_UNKNOWN
-        )
+        val display = MeasureLog.displayNow(this)
         val ages = sampleAges(now, points.map { it.timeDurationFromBoot.toMillis() })
-        val batch = ProbeBatch(now, points.size, display, ages?.newestAgeMs, ages?.spanMs)
-        ProbeLog.record(this, batch)
+        val delivery = ProbeDelivery(now, points.size, display, ages?.newestAgeMs, ages?.spanMs)
+        ProbeLog.record(this, delivery)
         ProbeLog.note(
-            "batch samples=${points.size} display=$display newestAgeMs=${ages?.newestAgeMs} spanMs=${ages?.spanMs}"
+            "delivery samples=${points.size} display=$display newestAgeMs=${ages?.newestAgeMs} spanMs=${ages?.spanMs}"
         )
     }
 }

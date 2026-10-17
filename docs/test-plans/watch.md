@@ -115,23 +115,29 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-129 | 6.5 | unit | A reading at or below the threshold ends the episode; the next breach is a new episode at level 1 | new id, level 1 |
 | TC-W-130 | 6.5 | unit | `endEpisode` with the active id ends the episode (the next breach is level 1 of a new episode); an unknown or finished id is ignored | true then false; no effect |
 | TC-W-138 | 6.5 | unit | The alert settings carry no absolute threshold: only baseline + offset (initial value until a baseline exists) counts | alert threshold is the relative one |
-| TC-W-131 | 6.5 | unit | Batched and out-of-order readings are evaluated in timestamp order | same alerts as sorted |
+| TC-W-131 | 6.5 | unit | Readings in any order are evaluated in timestamp order | same alerts as sorted |
 | TC-W-086 | 6.5 | unit | The hourly low of an hour is the lowest median over any 3 consecutive samples of that hour | equals the expected value for a fixed sample series |
 | TC-W-087 | 6.5 | unit | An hour with fewer than 3 samples gives no hourly low | no value for that hour |
 | TC-W-088 | 6.5 | unit | The baseline is unknown with 23 hourly lows and known with 24 | null, then a value |
 | TC-W-089 | 6.5 | unit | The baseline is the 20th percentile (nearest rank) of the hourly lows | equals the expected value |
 | TC-W-120 | 6.5 | unit | Only the hourly lows of the last 7 days count; older ones are dropped | an old low does not change the baseline |
-| TC-W-121 | 6.5 | unit | Batched and out-of-order samples within one hour give the same hourly low as sorted ones | equal results |
+| TC-W-121 | 6.5 | unit | Samples in any order within one hour give the same hourly low as sorted ones | equal results |
 | TC-W-122 | 6.5 | unit | The hourly lows (derived values only) can be saved and restored | restored baseline equals the original |
-| TC-W-132 | 6.4 | unit | The probe summary counts batches and samples and reports the min, median and max gap between batches | expected numbers |
-| TC-W-133 | 6.4 | unit | An empty or single-batch list has no gaps | no gap values |
-| TC-W-134 | 6.4 | unit | The report has one line for all batches and one per display state (on, doze, off), in seconds, with the age of the newest sample and no bpm values | exact lines |
+| TC-W-132 | 6.4 | unit | The probe summary counts deliveries and samples and reports the min, median and max gap between deliveries | expected numbers |
+| TC-W-133 | 6.4 | unit | An empty or single-delivery list has no gaps | no gap values |
+| TC-W-134 | 6.4 | unit | The report has one line for all deliveries and one per display state (on, doze, off), in seconds, with the age of the newest sample and no bpm values | exact lines |
 | TC-W-135 | 6.4 | unit | A probe record is one line and reads back; a malformed line is skipped | round trip, null for bad lines |
 | TC-W-139 | 6.4 | unit | The probe needs the health permissions on Wear OS 6 and later, the body sensor ones on API 33 to 35 | expected lists |
 | TC-W-140 | 6.4 | unit | The permission report names every granted and missing permission | exact lines |
 | TC-W-141 | 6.4 | unit | The probe starts only when no permission is missing | empty missing list |
 | TC-W-142 | 6.4 | unit | A display state is named on, doze (always-on display), off or other | expected names |
-| TC-W-143 | 6.4 | unit | The age of the newest sample and the span of a batch come from the sample times | expected numbers |
+| TC-W-143 | 6.4 | unit | The age of the newest sample and the span of a delivery come from the sample times | expected numbers |
+| TC-W-144 | 6.4 | unit | The measure report gives readings, readings per minute and the gap between readings (median, 95th percentile, longest), overall and per screen state | exact lines |
+| TC-W-145 | 6.4 | unit | No readings give zero readings and no gaps; no duration gives no rate | exact lines |
+| TC-W-146 | 6.4 | unit | Availability changes and readings are one line each and read back; a malformed line is skipped; changes are listed in time order | round trip, null for bad lines, ordered lines |
+| TC-W-147 | 6.4 | unit | The battery report gives the drop per hour, and none without a duration or when the level rose | exact lines |
+| TC-W-148 | 6.4 | unit | The 95th percentile is the nearest rank of the sorted values | expected numbers |
+| TC-W-149 | 6.4 | manual | On the real watch: the live heart-rate route over 30 minutes worn (screen on, dim, off): readings per minute, gaps, availability changes, battery drop, and that the service survives without the background permission | user reports the measure report lines (`docs/test-reports/watch-probe-checklist.md` step 6) |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | user reports the three report lines (`docs/test-reports/watch-probe-checklist.md`) |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |

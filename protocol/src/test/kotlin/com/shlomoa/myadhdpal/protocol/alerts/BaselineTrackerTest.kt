@@ -66,7 +66,7 @@ class BaselineTrackerTest {
     }
 
     @Test
-    fun `TC-W-121 batched and out-of-order samples give the same hourly low as sorted ones`() {
+    fun `TC-W-121 samples in any order give the same hourly low as sorted ones`() {
         val series = listOf(80.0, 60.0, 62.0, 61.0, 90.0).mapIndexed { i, bpm -> sample(bpm, 0, i * 60) }
         val sorted = BaselineTracker().apply { add(series) }
         val shuffled = BaselineTracker().apply {
