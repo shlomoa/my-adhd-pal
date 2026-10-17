@@ -45,8 +45,8 @@ Wear the watch normally and leave it alone, letting the screen time out.
 adb shell am broadcast -n $P --es cmd clear; adb shell am broadcast -n $P --es cmd start; Start-Sleep 1800; adb shell am broadcast -n $P --es cmd report; Start-Sleep 3; adb logcat -d -s PROBE:I
 ```
 
-The first run (10 minutes) delivered one batch only, so this step now runs 30 minutes to see several batches and their gaps. Report: every `PROBE report screen=...` line (all, then on, doze, off as they occur; doze is the always-on display) and any `PROBE start failed` line. `newestAgeSec` is how old the newest sample was when the batch arrived. `gapSec` is the time between
-deliveries in seconds. No `batch` lines at all means the watch delivered nothing to the app.
+The first run (10 minutes) delivered one delivery only, so this step now runs 30 minutes to see several deliveries and their gaps. Report: every `PROBE report screen=...` line (all, then on, doze, off as they occur; doze is the always-on display) and any `PROBE start failed` line. `newestAgeSec` is how old the newest sample was when the delivery arrived. `gapSec` is the time between
+deliveries in seconds. No `delivery` lines at all means the watch delivered nothing to the app.
 
 ## 3. Off the wrist, on a table (10 minutes)
 
@@ -141,7 +141,7 @@ adb shell am broadcast -n $P --es cmd measure-stop
 
 Report the `PROBE measure` lines (one for all readings, one per screen state, any `availability` lines, and the `battery` line) and say whether the
 notification was still there at the end, and whether you started anything else on the watch during the 30 minutes. The report shows about one reading
-per second if the live route works; long gaps in the `doze` or `off` lines would mean readings stop or are batched with the screen dim or off.
+per second if the live route works; long gaps in the `doze` or `off` lines would mean readings stop, or arrive late, with the screen dim or off.
 
 ## What happens with the answers
 

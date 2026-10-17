@@ -52,7 +52,7 @@ class ProbeReceiver : BroadcastReceiver() {
                 }, executor)
             }
 
-            "report" -> formatReport(ProbeLog.batches(context)).forEach(ProbeLog::note)
+            "report" -> formatReport(ProbeLog.deliveries(context)).forEach(ProbeLog::note)
 
             "clear" -> ProbeLog.clear(context).also { ProbeLog.note("cleared") }
 

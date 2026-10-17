@@ -17,10 +17,10 @@ class ProbeListenerService : PassiveListenerService() {
         val now = SystemClock.elapsedRealtime()
         val display = MeasureLog.displayNow(this)
         val ages = sampleAges(now, points.map { it.timeDurationFromBoot.toMillis() })
-        val batch = ProbeBatch(now, points.size, display, ages?.newestAgeMs, ages?.spanMs)
-        ProbeLog.record(this, batch)
+        val delivery = ProbeDelivery(now, points.size, display, ages?.newestAgeMs, ages?.spanMs)
+        ProbeLog.record(this, delivery)
         ProbeLog.note(
-            "batch samples=${points.size} display=$display newestAgeMs=${ages?.newestAgeMs} spanMs=${ages?.spanMs}"
+            "delivery samples=${points.size} display=$display newestAgeMs=${ages?.newestAgeMs} spanMs=${ages?.spanMs}"
         )
     }
 }

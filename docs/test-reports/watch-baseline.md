@@ -196,7 +196,7 @@ Step 6.4 probe. Red commit: the first commit of branch `claude/watch-6-4-probe` 
 Build fails before any test runs.
 
 ```
-e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:15:23 Unresolved reference 'ProbeBatch'.
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:15:23 Unresolved reference to the probe delivery type.
 e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:16:23 Unresolved reference 'summarize'.
 ```
 
@@ -212,13 +212,13 @@ e: wear/src/testDebug/.../debug/probe/ProbePermissionsTest.kt:20:20 Unresolved r
 
 ## Probe display state and sample age (TC-W-134, 135, 142, 143; `ProbeStatsTest.kt`)
 
-First real-watch run (user, Wear OS 6): one batch of 318 samples arrived 7 min 41 s after start and was logged `screenOn=false` while the user
+First real-watch run (user, Wear OS 6): one delivery of 318 samples arrived 7 min 41 s after start and was logged `screenOn=false` while the user
 said the screen stayed lit on the wrist: `isInteractive` is false in the always-on (ambient) display, so the probe now records the display state
 and the age of the newest sample. Red commit: the first commit of branch `claude/watch-6-4-probe-display` (tests only).
 Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
 
 ```
-e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:10:9 Too many arguments for constructor ProbeBatch.
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:10:9 Too many arguments for the probe delivery constructor.
 e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:73:16 Unresolved reference 'displayName'.
 ```
 
@@ -231,6 +231,18 @@ Command: `./gradlew :wear:testDebugUnitTest --tests '*MeasureStatsTest*'`. Build
 ```
 e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:9:58 Unresolved reference 'MeasureReading'.
 e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:29:13 Unresolved reference 'measureReport'.
+```
+
+## Probe and evaluator wording: the old delivery term removed (TC-W-121, 131 to 135, 143; `ProbeStatsTest.kt`, `BaselineTrackerTest.kt`, `EpisodeEvaluatorTest.kt`)
+
+User order (2026-10-17): the design no longer rests on delivery in groups. The probe type, parser, log method, report text and the test names say
+"delivery"; the protocol tests say "in any order". Red commit: the first commit of branch `claude/watch-measure-probe` after the merge of main
+(tests renamed, source not yet).
+Command: `./gradlew :wear:testDebugUnitTest --tests '*ProbeStatsTest*'`. Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:10:9 Unresolved reference 'ProbeDelivery'.
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:15:33 Unresolved reference 'deliveries' on receiver of type 'ProbeSummary'.
 ```
 
 ## Not yet written (later steps)
