@@ -1,0 +1,39 @@
+2026-10-18 00:37:37 e1 result file: e1-20261018-003737.txt
+2026-10-18 00:37:39 battery before: 98
+2026-10-18 00:37:40 screen timeout was 600000, set to 720000
+2026-10-18 00:37:53 10-18 00:37:41.434  2364  2364 I PROBE   : measure capabilities heartRateMeasure=true
+2026-10-18 00:37:53 Check that the Always-on display is ON in the watch settings (phase B needs it).
+2026-10-18 00:42:31 service registered and AVAILABLE
+2026-10-18 00:42:31 == phase A (screen on) for 600 s
+2026-10-18 00:52:37 == report A
+2026-10-18 00:52:38 --------- beginning of main
+2026-10-18 00:52:38 10-18 00:52:33.652  9411  9411 I PROBE   : PROBE measure screen=all readings=462 perMin=45.4 gapSec median=0 p95=0 max=374
+2026-10-18 00:52:38 10-18 00:52:33.652  9411  9411 I PROBE   : PROBE measure screen=on readings=462 gapSec median=0 p95=0 max=374
+2026-10-18 00:52:38 10-18 00:52:33.652  9411  9411 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 00:52:38 10-18 00:52:33.652  9411  9411 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 00:52:38 10-18 00:52:33.652  9411  9411 I PROBE   : PROBE measure battery start=97 now=96 dropPerHour=5.9
+2026-10-18 00:52:39 notification visible: True
+2026-10-18 00:52:39 == phase B (display dim) for 600 s
+2026-10-18 01:02:43 == report B
+2026-10-18 01:02:43 --------- beginning of main
+2026-10-18 01:02:43 10-18 01:02:39.096  9411  9411 I PROBE   : PROBE measure screen=all readings=750 perMin=37.0 gapSec median=0 p95=0 max=374
+2026-10-18 01:02:43 10-18 01:02:39.097  9411  9411 I PROBE   : PROBE measure screen=on readings=462 gapSec median=0 p95=0 max=374
+2026-10-18 01:02:43 10-18 01:02:39.097  9411  9411 I PROBE   : PROBE measure screen=doze readings=288 gapSec median=0 p95=0 max=290
+2026-10-18 01:02:43 10-18 01:02:39.098  9411  9411 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 01:02:43 10-18 01:02:39.098  9411  9411 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 01:02:43 10-18 01:02:39.098  9411  9411 I PROBE   : PROBE measure battery start=97 now=95 dropPerHour=5.9
+2026-10-18 01:02:44 notification visible: True
+2026-10-18 01:02:44 Turn the Always-on display OFF in the watch settings now (phase C needs the screen off).
+2026-10-18 01:04:35 == phase C (screen off) for 600 s
+2026-10-18 01:14:40 == report C
+2026-10-18 01:14:40 --------- beginning of main
+2026-10-18 01:14:40 10-18 01:14:36.827  9411  9411 I PROBE   : PROBE measure screen=all readings=1912 perMin=59.3 gapSec median=0 p95=0 max=606
+2026-10-18 01:14:40 10-18 01:14:36.828  9411  9411 I PROBE   : PROBE measure screen=on readings=1026 gapSec median=0 p95=0 max=562
+2026-10-18 01:14:40 10-18 01:14:36.828  9411  9411 I PROBE   : PROBE measure screen=doze readings=288 gapSec median=0 p95=0 max=290
+2026-10-18 01:14:40 10-18 01:14:36.828  9411  9411 I PROBE   : PROBE measure screen=off readings=598 gapSec median=0 p95=0 max=606
+2026-10-18 01:14:40 10-18 01:14:36.828  9411  9411 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 01:14:40 10-18 01:14:36.828  9411  9411 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 01:14:40 10-18 01:14:36.828  9411  9411 I PROBE   : PROBE measure battery start=97 now=93 dropPerHour=7.4
+2026-10-18 01:14:40 notification visible: True
+2026-10-18 01:14:41 battery after: 93
+2026-10-18 01:14:41 screen timeout restored to 600000; result file: e1-20261018-003737.txt
