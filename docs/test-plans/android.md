@@ -48,12 +48,10 @@ Pass criterion: every case PASS, zero skipped (`docs/test-reports/android-final.
 
 ## Schedule builder (4.2)
 
+TC-A-024..027 retired, covered by TC-S-092 and TC-S-164.
+
 | Id | Case | How | Pass criteria |
 |---|---|---|---|
-| TC-A-024 | Builder lists reminders in time order | Unit | Sorted by next occurrence with a fixed clock |
-| TC-A-025 | Publish sends a `/schedule` item | Unit | Fake data source receives one schedule |
-| TC-A-026 | Published version is higher than the previous | Unit | Monotonic version, also after restart |
-| TC-A-027 | Published schedule includes the cooldown, offset and initial threshold | Unit | Settings values appear in the published model |
 | TC-A-028 | Publish failure is reported and not counted as sent | Unit | Error state; version unchanged |
 | TC-A-029 | Publishing an unchanged schedule is a no-op | Unit | No new item; user is told nothing changed |
 | TC-A-030 | Schedule round trip to the watch | Manual | Reminder created on the phone fires on the watch |
