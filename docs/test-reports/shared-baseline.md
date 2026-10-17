@@ -337,3 +337,7 @@ Red commit: `Protocol13Test` (TC-S-180 to TC-S-182), the existing tests moved to
 ## Script tests after the merge (issue 190, red)
 
 Red commit: `scripts/test/test-post-merge.sh` (TC-S-170 to TC-S-174: no `script-tests` job in `build.yml`, the post-merge workflow, no script test lost, the runner, the `main-red` issue handler with a fake `gh`), no implementation. `scripts/test/test-post-merge.sh`: `FAIL TC-S-170 build.yml has no script-tests job`, `FAIL TC-S-171 post-merge.yml exists`, `FAIL TC-S-173 a failing test makes the runner exit 1 (expected 1, got 127)` (the runner does not exist), `FAIL TC-S-174 red with no open issue creates one labelled main-red`; 14 of the 19 checks fail.
+
+## The phone removes its own prompts (issue 198, red)
+
+Red commit: `PromptCleanerTest` (TC-S-190, TC-S-191), `WatchEventProcessorTest` (TC-S-192, TC-S-193), `DefaultPromptRepositoryCleanupTest` (TC-S-194), `PublishedPromptsContract` with `InMemoryPublishedPromptsTest` and `DataStorePublishedPromptsTest` (TC-S-195), the in-memory `InMemoryPublishedPrompts`, no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'PublishedPrompt'`, `'PublishedPrompts'`, `'PromptCleaner'`, `'DataStorePublishedPrompts'`.

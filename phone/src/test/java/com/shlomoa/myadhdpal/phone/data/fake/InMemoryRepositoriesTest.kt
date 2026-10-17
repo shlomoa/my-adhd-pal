@@ -3,6 +3,7 @@ package com.shlomoa.myadhdpal.phone.data.fake
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
 import com.shlomoa.myadhdpal.phone.data.LinkStatusRepository
 import com.shlomoa.myadhdpal.phone.data.PromptRepository
+import com.shlomoa.myadhdpal.phone.data.PublishedPrompts
 import com.shlomoa.myadhdpal.phone.data.ScheduleRepository
 import com.shlomoa.myadhdpal.phone.data.ScheduleVersionStore
 import com.shlomoa.myadhdpal.phone.data.SettingsRepository
@@ -11,6 +12,7 @@ import com.shlomoa.myadhdpal.phone.data.WatchLinkDataSource
 import com.shlomoa.myadhdpal.phone.data.contract.HistoryRepositoryContract
 import com.shlomoa.myadhdpal.phone.data.contract.LinkStatusRepositoryContract
 import com.shlomoa.myadhdpal.phone.data.contract.PromptRepositoryContract
+import com.shlomoa.myadhdpal.phone.data.contract.PublishedPromptsContract
 import com.shlomoa.myadhdpal.phone.data.contract.ScheduleRepositoryContract
 import com.shlomoa.myadhdpal.phone.data.contract.SettingsRepositoryContract
 import com.shlomoa.myadhdpal.phone.data.contract.TaskRepositoryContract
@@ -50,4 +52,8 @@ class InMemoryPromptRepositoryTest : PromptRepositoryContract() {
 
 class InMemoryLinkStatusRepositoryTest : LinkStatusRepositoryContract() {
     override fun create(source: WatchLinkDataSource): LinkStatusRepository = InMemoryLinkStatusRepository(source)
+}
+
+class InMemoryPublishedPromptsTest : PublishedPromptsContract() {
+    override fun create(): PublishedPrompts = InMemoryPublishedPrompts()
 }

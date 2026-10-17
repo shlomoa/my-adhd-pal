@@ -7,14 +7,17 @@ import com.shlomoa.myadhdpal.phone.data.StoreResult
 import com.shlomoa.myadhdpal.phone.data.WatchEvent
 import com.shlomoa.myadhdpal.phone.data.fake.FakeWatchLinkDataSource
 import com.shlomoa.myadhdpal.phone.data.fake.InMemoryHistoryRepository
+import com.shlomoa.myadhdpal.phone.data.fake.InMemoryPublishedPrompts
 import com.shlomoa.myadhdpal.protocol.AckAction
 import com.shlomoa.myadhdpal.protocol.Acknowledgement
 import com.shlomoa.myadhdpal.protocol.Hello
 import com.shlomoa.myadhdpal.protocol.Protocol
 import com.shlomoa.myadhdpal.protocol.Side
+import java.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -98,5 +101,46 @@ class WatchEventProcessorTest {
         assertEquals(Side.PHONE, hello.side)
         assertEquals(Protocol.VERSION, hello.protocolVersion)
         assertEquals("1.2", hello.appVersion)
+    }
+
+    @Test
+    fun `TC-S-192 the prompt is removed after the answer row is stored, not when the row could not be stored`() =
+        runTest {
+            val source = FakeWatchLinkDataSource()
+            val prompts = InMemoryPublishedPrompts()
+            prompts.add(id1, null)
+            prompts.add(id2, null)
+            val failing = object : HistoryRepository {
+                val real = InMemoryHistoryRepository()
+                override fun history(): Flow<List<HistoryEntry>> = real.history()
+
+                override suspend fun store(event: WatchEvent): StoreResult =
+                    if (event.id == id2) error("disk full") else real.store(event)
+            }
+            source.connect(nearby = true)
+            WatchEventProcessor(source, failing, cleaner = PromptCleaner(source, prompts) { Instant.EPOCH })
+                .start(backgroundScope)
+            source.emit(ack(id1, 1))
+            source.emit(ack(id2, 2))
+            runCurrent()
+            assertEquals(listOf(id1), source.removedPrompts)
+            assertEquals(listOf(id2), prompts.all().map { it.id })
+        }
+
+    @Test
+    fun `TC-S-193 expired prompts are removed at start and again as time passes while the app runs`() = runTest {
+        val source = FakeWatchLinkDataSource()
+        val prompts = InMemoryPublishedPrompts()
+        var now = Instant.parse("2026-10-17T10:00:00Z")
+        prompts.add("old", now.minusSeconds(5))
+        prompts.add("later", now.plusSeconds(90))
+        WatchEventProcessor(source, InMemoryHistoryRepository(), cleaner = PromptCleaner(source, prompts) { now })
+            .start(backgroundScope)
+        runCurrent()
+        assertEquals(listOf("old"), source.removedPrompts)
+        now = now.plusSeconds(120)
+        advanceTimeBy(61_000)
+        runCurrent()
+        assertEquals(listOf("old", "later"), source.removedPrompts)
     }
 }
