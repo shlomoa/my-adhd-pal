@@ -143,6 +143,13 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-150 | 6.4 | unit | The front line gives the event, the screen state (on, doze, off), whether the debug screen is in front and keep-screen-on | exact lines |
 | TC-W-151 | 6.4 | unit | A screen state the probe does not know is named other | exact line |
 | TC-W-152 | 6.4 | unit | The debug screen is in front only when it is resumed and has window focus | true and false cases |
+| TC-W-153 | 6.4 | script | `scripts/probe/run-e1.ps1` parses | PowerShell parser, no errors |
+| TC-W-154 | 6.4 | script | A full E1 run against a simulated adb: log buffer, screen timeout saved and restored, background permissions revoked, heart-rate and notification permissions granted, stop and clear before start, wake, three phases with a report each, battery before and after, notification check, one result file | order of the adb calls, content of the result file |
+| TC-W-155 | 6.4 | script | Before every report the script reconnects and clears the log; a connection that drops while the screen sleeps does not stop the run | call order, three reports captured |
+| TC-W-156 | 6.4 | script | A service that never reports AVAILABLE fails the run, restores the screen timeout and stops the service | exit code, call log |
+| TC-W-157 | 6.4 | script | A watch on its charger is refused (the battery drop would be hidden) unless `-AllowCharging` | exit code, no start |
+| TC-W-158 | 6.4 | script | Without `-Unattended` the script asks about the Always-on display before phase B and before phase C | prompt text twice |
+| TC-W-159 | 6.4 | script | The script header says what is untested on the watch | text |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
