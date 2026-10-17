@@ -83,4 +83,11 @@ run_handler green '[{"number":7}]'
 grep -q '^issue close 7' "$tmp/gh.log"; check "TC-S-174 green with an open issue closes it" 0 $?
 run_handler green '[]'
 ! grep -qE '^issue (create|edit|close)' "$tmp/gh.log"; check "TC-S-174 green with no open issue does nothing" 0 $?
+
+# TC-V-001 lane V is set up: plan, catalogue, work log, gate G-VAL (owner V, requires G-BOOT) and ownership
+bad=0
+for f in docs/plans/validation.md docs/test-plans/validation.md docs/work-log/validation.md; do [ -f "$f" ] || bad=1; done
+jq -e '.gates[] | select(.id == "G-VAL" and .owner == "V" and (.requires == ["G-BOOT"]))' docs/plans/gates.json >/dev/null 2>&1 || bad=1
+has 'G-VAL' docs/plans/README.md && has 'validation\.md' docs/plans/README.md && has 'ci-post-merge' docs/plans/README.md || bad=1
+[ "$bad" -eq 0 ]; check "TC-V-001 lane V is set up (plan, catalogue, work log, gate G-VAL, ownership)" 0 $?
 exit $fail
