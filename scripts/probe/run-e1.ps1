@@ -49,78 +49,16 @@ param(
     [switch]$AllowCharging
 )
 
-$ErrorActionPreference = 'Continue'
-$pkg = 'com.shlomoa.myadhdpal'
-$receiver = "$pkg/.wear.debug.probe.ProbeReceiver"
-$title = 'Probe: measuring heart rate'
-
-if (-not $Watch) { Write-Host 'Give the watch address: -Watch <ip:port>'; exit 3 }
-if (-not (Get-Command adb -ErrorAction SilentlyContinue)) { Write-Host 'adb is not on PATH'; exit 3 }
-$env:ANDROID_SERIAL = $Watch
-New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
-$script:LogFile = Join-Path $OutDir ("e1-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.txt')
-
-function Log([string]$text) {
-    $line = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + ' ' + $text
-    Write-Host $line
-    Add-Content -Path $script:LogFile -Value $line
-}
-
-# Runs adb; when the connection dropped (device offline, not found) reconnects and tries again, up to 3 times.
-function Invoke-Adb([string[]]$AdbArgs) {
-    for ($try = 1; $try -le 3; $try++) {
-        $text = @(& adb @AdbArgs 2>&1 | ForEach-Object { "$_" })
-        if ($LASTEXITCODE -eq 0 -or ($text -join ' ') -notmatch 'offline|no devices|not found|cannot connect|closed|unauthorized') { return $text }
-        Log "adb dropped ($($AdbArgs -join ' ')): reconnecting, try $try"
-        & adb connect $Watch 2>&1 | Out-Null
-        Start-Sleep -Seconds 1
-    }
-    return $text
-}
-
-function Probe([string]$command) { Invoke-Adb @('shell', 'am', 'broadcast', '-n', $receiver, '--es', 'cmd', $command) | Out-Null }
-
-function BatteryText { Invoke-Adb @('shell', 'dumpsys', 'battery') }
-
-function BatteryLevel([string[]]$text) {
-    $m = ($text -join "`n") | Select-String -Pattern 'level:\s*(\d+)'
-    if ($m) { return [int]$m.Matches[0].Groups[1].Value }
-    return -1
-}
-
-function Report([string]$phase) {
-    & adb connect $Watch 2>&1 | Out-Null
-    Invoke-Adb @('logcat', '-c') | Out-Null
-    Probe 'measure-report'
-    Start-Sleep -Seconds $ReportWaitSec
-    Log "== report $phase"
-    Invoke-Adb @('logcat', '-d', '-s', 'PROBE:I') | ForEach-Object { Log $_ }
-    $listed = (Invoke-Adb @('shell', 'dumpsys', 'notification', '--noredact')) -join "`n"
-    Log ("notification visible: " + ($listed -match [regex]::Escape($title)))
-}
+. (Join-Path $PSScriptRoot 'probe-common.ps1')
 
 function Phase([string]$phase, [string]$what) {
     Log "== phase $phase ($what) for $PhaseSec s"
     Start-Sleep -Seconds $PhaseSec
-    Report $phase
+    Report $phase | Out-Null
 }
 
-function Ask([string]$question) {
-    if ($Unattended) { Log "(unattended) $question"; return }
-    Log $question
-    Read-Host 'Press Enter when done' | Out-Null
-}
-
-Log "E1 result file: $script:LogFile"
-Write-Host "result file: $script:LogFile"
-& adb connect $Watch 2>&1 | Out-Null
-
-$batteryBefore = BatteryText
-if (-not $AllowCharging -and (($batteryBefore -join "`n") -match 'powered:\s*true')) {
-    Log 'The watch is on its charger. Take it off the charger (the battery drop would be hidden) or use -AllowCharging.'
-    exit 3
-}
-Log ("battery before: " + (BatteryLevel $batteryBefore))
+Initialize-Probe 'e1'
+Test-NotCharging
 
 $failed = $false
 $savedTimeout = $null
@@ -130,28 +68,9 @@ try {
     Log "screen timeout was $savedTimeout, set to $ScreenOffTimeoutMs"
     Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', "$ScreenOffTimeoutMs") | Out-Null
 
-    foreach ($p in 'android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND', 'android.permission.BODY_SENSORS_BACKGROUND') {
-        Invoke-Adb @('shell', 'pm', 'revoke', $pkg, $p) | Out-Null
-    }
-    foreach ($p in 'android.permission.health.READ_HEART_RATE', 'android.permission.POST_NOTIFICATIONS') {
-        Invoke-Adb @('shell', 'pm', 'grant', $pkg, $p) | Out-Null
-    }
-    Probe 'measure-stop'
-    Probe 'measure-clear'
-    Probe 'measure-capabilities'
-    Start-Sleep -Seconds 1
-    Invoke-Adb @('logcat', '-d', '-s', 'PROBE:I') | Where-Object { $_ -match 'capabilities' } | ForEach-Object { Log $_ }
-
+    Start-ProbeService
     Ask 'Check that the Always-on display is ON in the watch settings (phase B needs it).'
-    Invoke-Adb @('shell', 'am', 'start', '-n', "$pkg/.wear.debug.probe.ProbeMeasureActivity") | Out-Null
-    $deadline = (Get-Date).AddSeconds($AvailableTimeoutSec)
-    $available = $false
-    while ((Get-Date) -lt $deadline -and -not $available) {
-        $available = ((Invoke-Adb @('logcat', '-d', '-s', 'PROBE:I')) -join "`n") -match 'measure availability .*\bAVAILABLE\b'
-        if (-not $available) { Start-Sleep -Seconds 1 }
-    }
-    if (-not $available) { throw "the service did not report AVAILABLE within $AvailableTimeoutSec s (is the watch worn, is the permission granted?)" }
-    Log 'service registered and AVAILABLE'
+    Wait-ServiceAvailable
 
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP') | Out-Null
     Phase 'A' 'screen on'
@@ -166,10 +85,8 @@ try {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    & adb connect $Watch 2>&1 | Out-Null
-    Probe 'measure-stop'
+    Stop-ProbeService
     if ($savedTimeout) { Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', $savedTimeout) | Out-Null }
-    Log ("battery after: " + (BatteryLevel (BatteryText)))
     Log ("screen timeout restored to $savedTimeout; result file: $script:LogFile")
 }
 if ($failed) { exit 1 }

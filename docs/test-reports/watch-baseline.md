@@ -269,6 +269,18 @@ FAIL TC-W-154 a full run exits 0 (expected 0, got 64)
 FAIL TC-W-154 one result file e1-<time>.txt is written (expected 0, got 1)
 ```
 
+## E3 and E6 run scripts (TC-W-160 to TC-W-167; `scripts/probe/test-run-e3-e6.sh`)
+
+Experiments E3 (issue #230) and E6 (issue #233) in the same way as E1: `scripts/probe/run-e3.ps1` and `run-e6.ps1`, with the shared helpers moved to `scripts/probe/probe-common.ps1`
+(the E1 tests TC-W-153 to 159 stay green). Red commit: the first commit of branch `claude/watch-e3-e6-script` (tests and the extended simulated adb only).
+Command: `PWSH=pwsh scripts/probe/test-run-e3-e6.sh`. 24 checks FAIL before the scripts exist, for example:
+
+```
+FAIL TC-W-160 run-e3.ps1 parses without errors (expected 0, got 1)
+FAIL TC-W-161 a full E3 run exits 0 (expected 0, got 64)
+FAIL TC-W-165 a full E6 run exits 0 (expected 0, got 64)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

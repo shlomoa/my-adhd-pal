@@ -20,8 +20,8 @@ run() {
   local script="$1"; shift
   tmp="$(mktemp -d)"; mkdir -p "$tmp/state" "$tmp/out"
   yes strong | head -80 | FAKE_DIR="$tmp/state" PATH="$here/fake:$PATH" timeout "${RUN_TIMEOUT:-180}" "$PWSH" -NoProfile -File "$script" \
-    -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -BlockSec 1 -StateSec 1 -ReportWaitSec 0.2 -AvailableTimeoutSec 4 -AlarmWaitSec 1 "$@" > "$tmp/stdout" 2>&1
-  rc=${PIPESTATUS[1]}
+    -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -ReportWaitSec 0.2 "$@" > "$tmp/stdout" 2>&1
+  rc=${PIPESTATUS[2]}
   result="$(ls "$tmp/out"/e[36]-*.txt 2>/dev/null | head -1)"
 }
 calls() { cat "$tmp/state/calls"; }
@@ -31,7 +31,7 @@ count() { calls | grep -cE -- "$1"; }
 before() { [ "$1" -gt 0 ] && [ "$2" -gt "$1" ]; }
 
 # ---------------- E3
-run "$E3" -Unattended
+run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
 check "TC-W-161 a full E3 run exits 0" 0 $rc
 [ -n "$result" ]; check "TC-W-161 one result file e3-<time>.txt is written" 0 $?
 [ "$(count 'pm revoke .*READ_HEALTH_DATA_IN_BACKGROUND')" -ge 1 ] && ! calls | grep -qE 'pm grant .*BACKGROUND'; check "TC-W-161 the background permission is revoked and never granted" 0 $?
@@ -51,24 +51,24 @@ grep -q 'battery before: 68' "$result" && grep -qE 'battery after: [0-9]+' "$res
 before "$(nth 'cmd measure-report' 7)" "$(nth 'cmd measure-stop' 2)"; check "TC-W-161 measure-stop is the last service command" 0 $?
 ! grep -q '192.168' "$result"; check "TC-W-161 the result file holds no ip address" 0 $?
 
-FAKE_FAIL=svcgone run "$E3" -Unattended
+FAKE_FAIL=svcgone run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
 check "TC-W-162 a service that disappears is a result, not a script failure (exit 0)" 0 $rc
 grep -q 'service running: False' "$result"; check "TC-W-162 the result file says service running: False" 0 $?
 
-FAKE_FAIL=stalled run "$E3" -Unattended
+FAKE_FAIL=stalled run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
 grep -q 'readings grew: False' "$result"; check "TC-W-162 readings that stop growing are reported (readings grew: False)" 0 $?
 
-FAKE_FAIL=noavail run "$E3" -Unattended
+FAKE_FAIL=noavail run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
 [ "$rc" -ne 0 ] && [ "$(count 'cmd measure-report')" -eq 0 ] && [ "$(count 'cmd measure-stop')" -ge 2 ]; check "TC-W-163 a service that never reports AVAILABLE fails the run and is stopped" 0 $?
 
-FAKE_CHARGING=1 run "$E3" -Unattended
+FAKE_CHARGING=1 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -Unattended
 [ "$rc" -ne 0 ] && [ "$(count 'am start')" -eq 0 ]; check "TC-W-163 a watch on its charger is refused" 0 $?
 
-run "$E3"
+run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4
 [ "$(grep -ci 'Bedtime' "$tmp/stdout")" -ge 2 ] && [ "$(grep -ci 'battery saver' "$tmp/stdout")" -ge 2 ]; check "TC-W-164 without -Unattended the script asks the user to turn Bedtime and battery saver on and off" 0 $?
 
 # ---------------- E6
-run "$E6"
+run "$E6" -AlarmWaitSec 1
 check "TC-W-165 a full E6 run exits 0" 0 $rc
 [ -n "$result" ] && echo "$result" | grep -q 'e6-'; check "TC-W-165 one result file e6-<time>.txt is written" 0 $?
 [ "$(count 'cmd vibrate')" -ge 6 ]; check "TC-W-165 vibrate is run in each of the six states" 0 $?
