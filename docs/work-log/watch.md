@@ -400,3 +400,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   Verified, Secondhand or Unverified. Official pages read: Google's Health Services compatibility page, Samsung's Sensor SDK FAQ and Data SDK release notes; the
   Samsung support pages on stress returned 403, so their content is secondhand (search excerpts).
 - Validation: docs lint, links, docs index. No code.
+
+## 2026-10-17 - Research: telling stress from exercise
+
+- Issue and PR: docs only, PR #189 (same branch `claude/watch-stress-research`; second request from the user via the coordinator)
+- Changed: `docs/plans/biometrics.md` section 10: the background signals (user activity state, passive steps and calories, raw step and accelerometer sensors, Samsung's automatic
+  workout detection, a user-started workout), their permission, latency and batching compared with heart rate, the usual suppression rules with false- and missed-alarm risks,
+  how a "user is still" gate would fit the decided design (a proposal needing the user's yes, protocol 1.3), and a recommendation (build later, small) with the probe it needs.
+  Official pages read: Google's Health Services background-monitoring, compatibility and active-data pages and Android's motion-sensor page; Samsung's workout-detection page and the
+  false-alarm studies are search excerpts (Secondhand).
+- Validation: docs lint, links, docs index. No code.

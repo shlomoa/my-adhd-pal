@@ -277,3 +277,69 @@ Each statement is marked **Verified** (an official page I read, cited), **Second
 1. The `capabilities` command printing the whole list of passive types the watch supports (to see whether the Watch6 Classic offers anything beyond the required list); a few lines in the existing probe.
 2. The user opening Health Connect on the phone (data and access, Samsung Health) to see which types Samsung Health writes: no code.
 3. For the HRV route only: a debug-only app that asks the Sensor SDK for its tracking capability and an inter-beat-interval tracker in developer mode, printing counts and times only. Not recommended before the user decides to pursue Samsung's partner program.
+
+## 10. Can the app tell a heart-rate rise from stress from one caused by exercise? (research, 2026-10-17)
+
+**In three lines:**
+
+1. Partly. The watch app can see movement in the background (steps and the system's "user activity state" through Health Services, or the raw step and
+   accelerometer sensors), so it can hold back an alert while the user is moving and for a few minutes after; it cannot know the *reason* for a rise
+   (it cannot tell a still, anxious body from a still, calm one without heart-rate variability, section 9).
+2. The movement data arrives in the same minutes-long batches as heart rate, with timestamps, so the pairing works and only the alert time is late; it costs one more
+   runtime permission (`ACTIVITY_RECOGNITION`). Exercise without steps (cycling, weights) is the main gap.
+3. Recommendation: **build later, small** (steps + activity state as a "user is still" condition, with a configurable quiet time), after a short probe on the real watch
+   that shows what these signals really do on this watch; it changes the decided design, so it needs the user's yes first.
+
+Each statement is marked **Verified** (an official page I read, cited), **Secondhand** or **Unverified**.
+
+### 10.1 Signals the watch app can get in the background
+
+| Signal | What it gives | Facts |
+|---|---|---|
+| Health Services **user activity state** | `USER_ACTIVITY_PASSIVE` (awake, not exercising), `USER_ACTIVITY_EXERCISE`, `USER_ACTIVITY_ASLEEP`, `USER_ACTIVITY_UNKNOWN` | Verified ([state reference](https://developer.android.com/reference/kotlin/androidx/health/services/client/data/UserActivityState), seen as a search excerpt; the rest on the Google page I read): switched on with `setShouldUserActivityInfoBeRequested(true)` in the passive config, needs the `ACTIVITY_RECOGNITION` runtime permission, arrives in `onUserActivityInfoReceived` with a `stateChangeTime` that "may be in the past" ([Google](https://developer.android.com/health-and-fitness/health-services/monitor-background)). Whether the Watch6 Classic reports EXERCISE for brisk walking or only for tracked workouts: **Unverified**. |
+| Health Services **steps, calories, distance** (passive data types) | Step counts and similar per interval | Verified: steps, daily steps, distance, speed, calories and elevation are required passive types on every Wear OS device ([Google](https://developer.android.com/health-and-fitness/health-services/compatibility)). Which of them arrive per interval and how fine: **Unverified**; the daily-goal feature (`PassiveGoal`) is a per-day counter and does not suit minutes ([Google](https://developer.android.com/health-and-fitness/health-services/monitor-background)). |
+| Raw **step counter / step detector** (SensorManager) | Steps since boot / one event per step | Verified ([Android](https://developer.android.com/develop/sensors-and-location/sensors/sensors_motion)): both need `ACTIVITY_RECOGNITION`; step counter latency up to 10 s, step detector below 2 s. Hardware batching and background delivery: **Unverified** (the page does not cover them); listening continuously in the background would likely need a foreground service. |
+| Raw **accelerometer** | Movement intensity (including arm movement without steps) | Verified (same page): it "uses about 10 times less power than the other motion sensors"; from Android 12 it is rate-limited. A movement measure such as the moving average of the acceleration norm is the usual way to classify low and high activity (**Secondhand**, a patent excerpt). Continuous listening costs battery: **Unverified**, needs a measurement. |
+| **Samsung's automatic workout detection** | A workout recorded by Samsung Health | **Secondhand** (Samsung support excerpts): it starts after about 10 minutes of activity and only for some activities (walking and running, cycling, elliptical, rowing, swimming, a "dynamic workout" option), can mistake driving for a workout, and must be switched on in Samsung Health ([Samsung](https://www.samsung.com/us/support/answer/ANS10003306/)). There is no API for an ordinary app to be told about it. |
+| **The user starting a workout** | An exercise tracked by Health Services | Verified ([Google](https://developer.android.com/health-and-fitness/health-services/active-data)): only one exercise at a time on the device; `getCurrentExerciseInfoAsync()` returns `OTHER_APP_IN_PROGRESS`, `OWNED_EXERCISE_IN_PROGRESS` or `NO_EXERCISE_IN_PROGRESS` when asked, but there is no notification for exercises of other apps ("your listener only receives updates about exercises your app owns"), and the answer does not say which app or what exercise. Whether Samsung's own tracker answers `OTHER_APP_IN_PROGRESS`: **Unverified**. If a workout were started inside our app we would of course know. |
+
+### 10.2 Permissions, latency and batching compared with heart rate
+
+- **Permission.** One more runtime permission, `ACTIVITY_RECOGNITION` (Verified, above), on top of the heart-rate ones; it fits the phone onboarding of D7 the same way (whether `pm grant` and a remote prompt work for it: **Unverified**, the heart-rate permissions did on this watch).
+- **Latency and batching.** Data received in the background "is delivered in batches", data points of different types can be in one batch, and the guidance is to order them by their own timestamps rather than by arrival
+  ([Google](https://developer.android.com/health-and-fitness/health-services/monitor-background), Verified). Our measurement for heart rate: one batch of 318 samples 7 min 41 s after start (section 6). So movement data is expected to be as late as heart rate, which is fine: each heart-rate sample can be judged against the steps in the minutes *before its own timestamp*, and the delay only moves the alert time (D6, best effort). Whether steps and heart rate really come in the same batch on this watch: **Unverified**, the probe below shows it.
+- **Battery.** Passive steps and activity state come from the same background channel as heart rate (small extra cost, **Unverified**); a raw accelerometer listener is the expensive option.
+
+### 10.3 The usual rules, and their risks
+
+The literature on cutting false heart-rate alarms uses the same idea: static thresholds ignore context, and an activity-dependent expectation or accelerometer-based suppression reduces false alarms (a 2015 body-sensor study cut false alarms from 9.58% to 1.43% with a rule-based filter on a chest ECG and an accelerometer; a Twente thesis predicts the expected heart rate from activity; both small and not for a wrist device, so a design direction, not proof)
+([MDPI](https://www.mdpi.com/1424-8220/15/2/3952), [Twente](https://essay.utwente.nl/essays/90703); **Secondhand**, search excerpts).
+
+| Rule | False alarms it removes | Missed alarms it causes |
+|---|---|---|
+| **R1** suppress while recent steps or movement are high | Walking, stairs, running | A stress episode while walking |
+| **R2** keep suppressing for N minutes after movement stops (heart rate recovers slowly) | The drop-off after a run or stairs | Stress that starts right after exercise |
+| **R3** suppress while the heart rate is falling | Recovery tail | Noisy wrist readings can look like falling; a real peak that is already falling is missed |
+| **R4** compare with an activity-dependent expected heart rate (a model) | The most, in studies | Complex, needs training data and tuning; not for v1 |
+| **R5** treat `USER_ACTIVITY_EXERCISE` as a hard suppress | Tracked workouts | Reliability on this watch **Unverified**; a workout the system does not detect is not covered |
+
+The main gap for every rule that uses steps: exercise **without steps** (cycling, weights, rowing) does not count steps; the accelerometer or the activity state would catch more, at more battery cost. And none of them can say a still body is calm or anxious.
+
+### 10.4 How it fits the decided design
+
+Threshold (resting + offset), cooldown (5 min), level 2 every 2 min up to 6 repeats and "I'm OK" stay as decided. The new part would be a **gate on each reading before it can start or continue an episode**: a reading counts as a breach only if the user has been still for N minutes (no steps and not in the exercise state). Proposed handling (**Proposal**, needs the user's yes):
+
+- a reading while the user is moving, or inside the quiet time after moving, is treated like a reading at or below the threshold: it ends a running episode (the rise has an explanation) and raises nothing;
+- N is a phone setting next to the offset (default to be chosen, for example 10 minutes), and a switch to turn the gate off; both are protocol 1.3 fields (Shared lane), and the evaluator in `:protocol` takes the context as an input (Watch lane, tests first);
+- the baseline is unaffected (hourly lows are low by construction).
+
+### 10.5 Recommendation and what to probe
+
+**Build later, small:** steps + user activity state as the "user is still" gate (R1, R2, R5) after the probe confirms the signals work on this watch; no model (R4), no heart-rate slope (R3) in v1. Not part of the current decisions; the user decides.
+
+**Probe on the real watch (not built; research only):**
+
+1. The `capabilities` command listing every passive data type and user activity state the watch supports (a few lines in the existing probe).
+2. A probe run that registers heart rate, steps and user activity info together (with `ACTIVITY_RECOGNITION` granted) and logs counts, times and the activity state per batch, never values, while the user sits 5 minutes, walks 5 minutes, climbs stairs, then does one exercise without steps (cycling or weights): do steps arrive in the same batch as heart rate, how late is the state change, and what does the state say for each activity.
+3. With Samsung's automatic workout detection switched on and a detected workout running, `getCurrentExerciseInfoAsync()` from a probe command: does it answer `OTHER_APP_IN_PROGRESS`.
+4. Optional, if steps miss too much: a short foreground accelerometer-variance measurement for the same activities, with the battery drop noted.
