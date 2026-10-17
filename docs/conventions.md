@@ -50,8 +50,8 @@ Shared configuration (`applicationId`, SDK levels) is defined once: the `[versio
 
 | When | What | Where |
 |---|---|---|
-| Every pull request | `./gradlew check assembleDebug` and the release-has-no-debug script (`build`), the documentation site build and index check (`docs-site`), the non-blocking external link check, the gate and convention checks, and the fast setup test `scripts/test/test-post-merge.sh` | `build.yml`, `gates.yml`, `conventions.yml` |
-| After each merge to `main` (and by hand: *Run workflow*) | the slow lane test scripts in `scripts/test/` (negative fixtures, fresh-clone formatter check, CI definition, spike runners, documentation checks), listed in `scripts/post-merge-tests.sh` | `post-merge.yml` |
+| Every pull request | `./gradlew check assembleDebug` and the release-has-no-debug script (`build`), the documentation site build and index check (`docs-site`), the non-blocking external link check, the gate and convention checks, the fast setup test `scripts/test/test-post-merge.sh`, and the one-second tests `test-protocol-spec.sh` and `test-gates.sh` | `build.yml`, `gates.yml`, `conventions.yml` |
+| After each merge to `main` (and by hand: *Run workflow*) | the slow lane test scripts in `scripts/test/` (negative fixtures, fresh-clone formatter check, CI definition, spike runners, documentation checks), everything except those three, listed in `scripts/post-merge-tests.sh` | `post-merge.yml` |
 
 The post-merge run is not a pull request check, so a pull request never waits for it. When it fails, the workflow opens
 or updates one issue labelled `main-red` that names the failing script and cases and links the run; a later green run

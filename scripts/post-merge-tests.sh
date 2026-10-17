@@ -6,8 +6,8 @@ set -u
 root="$(cd "$(dirname "$0")/.." && pwd)"
 dir="${POST_MERGE_TEST_DIR:-$root/scripts/test}"
 out="${POST_MERGE_OUT:-$root/build/post-merge}"
-tests="${POST_MERGE_TESTS:-test-structure.sh test-pairing.sh test-checks.sh test-ci.sh test-protocol-spec.sh \
-test-gates.sh test-spike.sh test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh}"
+tests="${POST_MERGE_TESTS:-test-structure.sh test-pairing.sh test-checks.sh test-ci.sh \
+test-spike.sh test-design-docs.sh test-doc-checks.sh test-docs-site.sh test-design-style.sh}"
 mkdir -p "$out"
 report="$out/report.md"
 failed=()
