@@ -1,9 +1,8 @@
 # Board sources
 
-Sources of the proposed design. The boards (`*.dc.html`, static markup between `<x-dc>` and `</x-dc>`), `ui.css` and
-`canvas.json` come from the published design canvas
+Sources of the proposed design. The boards (`*.dc.html`, static markup between `<x-dc>` and `</x-dc>`) and `ui.css` come from the published design canvas
 [ADHD Pal screen designs](https://claude.ai/artifact/MREz2fe1cVjhLqmoRtACPV). The look is the aurora style (issue #164,
-[style](../README.md#style-aurora)): `ui.css` defines the palette once as variables.
+[style](../README.md#style-aurora)): `ui.css` defines the palette once as variables and holds only rules that a board uses (TC-D-041).
 
 ## Which images come from boards and which are supplied
 
@@ -16,9 +15,6 @@ Sources of the proposed design. The boards (`*.dc.html`, static markup between `
 `render-manifest.json` records this. For every rendered image it holds the hash of the board and `ui.css` it was rendered
 from (the overview also of the images it shows), so a changed source cannot go without a new render; the supplied images are
 listed under `supplied` and W4 also under `reference`. `scripts/test/test-design-style.sh` checks all of it.
-
-The watch rules of `ui.css` (`.w`, `.wb`, `.tile`) belong to the earlier watch boards and are not used by any board now; the palette
-variables are still used by the phone boards.
 
 `clear-outside-circle.py <image.png>` makes a round watch image transparent outside its circle without touching the artwork
 inside (generated artwork can leave faint stray pixels in the corners); it was applied to W2.

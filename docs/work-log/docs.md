@@ -129,7 +129,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   board was removed too (it would claim a rendering the image no longer has), the manifest, README, TC-D-034 and TC-D-039 say so,
   and the overview was re-rendered with the new W8. W8's text (alert triangle, "Still high", 121 bpm, "I'm OK", "Repeats every 2
   min") matches the section text. The watch rules left in `ui.css` are noted as unused in the source README.
-- Validation: `scripts/test/test-design-style.sh` TC-D-031..040 PASS, `test-design-docs.sh` 10 PASS, docs lint (markdown, links),
+- Cleanup (standing rule of the user, relayed by the coordinator; rule added to `docs/conventions.md`): deleted from `docs/design/source/`
+  the watch rules of `ui.css` (`.w`, `.wf`, `.wb`, `.wl`, `.wrow`, `.tiles`, `.tile`, `.ring`, the alert faces `.a1` and `.a2`, `.n`, `.s`, `.p`,
+  `.sun`, `.lav`, `.wide`, `--ring`), the icons of the removed W4 board (`.i-play`, `.i-pause`, `.i-forward`), canvas leftovers that no board
+  uses (`.err`, `.accent`, `.warm`, `.danger`, `.d-away`, `.d-none`, `.d-relay`, `.d-upd`) and `canvas.json` (it listed the removed boards and
+  nothing reads it). TC-D-041 (no unused class in `ui.css`) keeps it clean; the phone images and the overview re-rendered byte-identical.
+  Left: the supplied-artwork guard TC-D-039 (it serves the honesty of the sources) and the watch test cases, which test the images.
+- Validation: `scripts/test/test-design-style.sh` TC-D-031..041 PASS, `test-design-docs.sh` 10 PASS, docs lint (markdown, links),
   `check-docs-index.sh` and `check-test-cases.sh docs final` green.
 - Open items: the generated images are not reproducible from the repository (no prompt or board is kept); the user decides whether
   to keep the generating prompt in the repository.
