@@ -417,3 +417,14 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   after `clear`, probably while taking it off), report 10:12:51 `screen=all batches=1 samples=1`, no gap. Off the wrist the watch delivers
   essentially nothing. Recorded in `docs/plans/biometrics.md` section 6.
 - Open: step 4 (vibration, the user), then step 2 again for 30 minutes on the build with #186 (display state and sample age).
+
+## 2026-10-17 - Probe step 4 first results and the Do Not Disturb routes
+
+- Issue and PR: step 6.4, branch `claude/watch-6-4-dnd-routes` (stacked on #186)
+- Result (user via the coordinator; `vibrate` 3 x 800 ms, amplitude 255, alarm usage, `hasAmplitudeControl=true`): normal felt ("between weak and strong"); Do Not Disturb
+  (`set_dnd priority`): felt nothing. Recorded in `docs/plans/biometrics.md` section 4.
+- Changed: research of the routes that might get through Do Not Disturb (alarm notification on a bypass-DND channel with a full-screen intent, an
+  alarm clock, Do Not Disturb access, or none) in section 4; two debug-only probe commands, `notify-alarm` and `alarm-clock`
+  (`ProbeAlarmRoutes`), with a full-screen target activity; checklist step 4b for the user.
+- Validation: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint, docs index. No unit test: the
+  commands only call Android notification and alarm APIs; their outcome is the user's measurement (TC-W-137, NOT yet complete).

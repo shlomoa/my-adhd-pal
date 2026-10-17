@@ -109,6 +109,26 @@ move the wearer. The strongest safe alert is the combination below at its limits
   alert should be posted with category alarm and alarm audio/vibration attributes. Ordinary apps cannot use the flag that
   forces vibration through interruption limits (`FLAG_BYPASS_INTERRUPTION_POLICY` is for privileged apps,
   [VibrationAttributes](https://developer.android.com/reference/android/os/VibrationAttributes)).
+- **Measured on the Galaxy Watch6 Classic (Wear OS 6, 2026-10-17, probe `vibrate`: 3 pulses of 800 ms at amplitude 255, alarm usage, called from a
+  broadcast receiver; `hasAmplitudeControl=true`):** normal mode, felt, "between weak and strong"; Do Not Disturb set with
+  `adb shell cmd notification set_dnd priority`, **felt nothing** (an earlier `set_dnd on` gave `zen_mode 2`, total silence). So a plain
+  alarm-usage vibration from the background is suppressed under Do Not Disturb on this watch, although the Google Wear OS help says alarms
+  always vibrate ([Wear OS help](https://support.google.com/wearos/answer/6056897)); Samsung forum reports of alarms silenced in Do Not
+  Disturb or sleep mode agree with the measurement
+  ([thread](https://eu.community.samsung.com/t5/wearables/alarm-only-vibrates-sounds-once-when-triggered-from-sleep-mode/td-p/10674677);
+  secondhand). Bedtime, Theater mode and the intensity settings are still to be measured.
+- **Routes that might get through Do Not Disturb (research, all Unverified until tested):**
+  1. *Alarm-category notification on a channel with bypass-DND and a full-screen intent* (probe command `notify-alarm`). The channel flag
+     only works when the user's policy allows it, and the Wear OS help lists a per-app "Override Do Not Disturb for" setting on the watch, so
+     the user may have to switch the app on there once ([NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel),
+     [Wear OS help](https://support.google.com/wearos/answer/6056897)). The probe prints `channelBypassDnd`, `policyAccess` and
+     `canUseFullScreenIntent` and the user notes whether the watch vibrated and the screen woke, with and without that setting.
+  2. *An alarm clock*: `AlarmManager.setAlarmClock`, which the system treats as a real alarm; its receiver vibrates with alarm usage (probe
+     command `alarm-clock`, fires 15 s later). The Android DND exception for alarms is meant for exactly this.
+  3. *Do Not Disturb access* (`ACCESS_NOTIFICATION_POLICY`, granted by the user in settings) so that the app can lift the filter while an alert
+     is raised. Heavy-handed (it changes the user's setting), and whether the watch offers the settings screen is unknown; not probed, a fallback.
+  4. *None works*: then under Do Not Disturb the alert may be silent. That would need the user's decision (for example: turn Do Not Disturb off
+     when this app matters, or accept it). `FLAG_BYPASS_INTERRUPTION_POLICY` is for privileged apps and is not an option.
 - Bedtime mode: Samsung says alarms still sound
   ([Samsung](https://www.samsung.com/us/support/answer/ANS00080310/)). Unverified for this alert (same question as above).
 - **Theater mode: Samsung says it turns off all alerts, alarms and wake-up gestures. Expect no alert at all in theater mode;
