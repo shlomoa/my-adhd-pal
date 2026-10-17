@@ -11,9 +11,9 @@
 set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 out="${POST_MERGE_OUT:-$root/build/post-merge}"
-groups="${POST_MERGE_GROUPS:-test-checks.sh@scaffold test-design-style.sh|test-checks.sh@format test-checks.sh@lint \
-test-doc-checks.sh test-docs-site.sh test-design-docs.sh test-protocol-spec.sh test-gates.sh test-post-merge.sh|\
-test-spike.sh@test-run-0b2a test-pairing.sh|test-spike.sh@test-run-0b2b test-structure.sh test-ci.sh}"
+groups="${POST_MERGE_GROUPS:-test-checks.sh|test-structure.sh test-ci.sh test-pairing.sh|test-spike.sh@test-run-0b2a|\
+test-spike.sh@test-run-0b2b test-design-style.sh test-doc-checks.sh test-docs-site.sh test-design-docs.sh \
+test-protocol-spec.sh test-gates.sh test-post-merge.sh}"
 IFS='|' read -r -a group_list <<<"$groups"
 if [ "${1:-}" = "--groups" ]; then
   for i in "${!group_list[@]}"; do echo "group $((i + 1)): $(echo ${group_list[$i]})"; done
