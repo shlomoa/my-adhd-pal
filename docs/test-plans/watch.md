@@ -163,6 +163,7 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-170 | 6.4 | script | `-SkipPush` publishes nothing and keeps the local result file | origin refs, file |
 | TC-W-171 | 6.4 | script | A failed push leaves the exit code unchanged, names the branch and prints the retry command; a failed run still publishes its file | output, exit code |
 | TC-W-172 | 6.4 | script | E3 and E6 publish `e3-results/<stamp>` and `e6-results/<stamp>` | origin refs |
+| TC-W-179 | 6.4 | script | Every probe test that runs a `run-e*.ps1` runs a copy of the scripts inside a throwaway git repository, never the real checkout (so a test can never publish to the real origin); the shared helper `make_repo` exists | static check of the test scripts |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
