@@ -5,10 +5,10 @@ place of the slow script tests in CI. It takes no `plan.md` step; its work is is
 
 | Step | Work | Validation (test first) | Requires | Produces |
 |---|---|---|---|---|
-| **V1** | Lane setup: this plan, README rows, gate `G-VAL`, `docs/work-log/validation.md`, `lane:V` accepted by `scripts/check-issues.sh`, catalogue `docs/test-plans/validation.md` | TC-V-001, TC-V-002 red, then green | G-BOOT | none |
-| **V2** | Issue #190 (PR #192, started by lane S): the `script-tests` job leaves the pull request checks; all of its scripts run after each merge, run by lane V itself (no workflow), failures become `main-red` issues | TC-S-170, 172, 173 (kept ids) and TC-V-004, TC-V-005, TC-V-006, all in `scripts/test/test-post-merge.sh` | G-BOOT | **G-VAL** |
-| **V3** | The post-merge run in parallel groups, each in its own git worktree (the sequential run took about 15 minutes) | TC-V-007 to TC-V-010 red, then green | G-BOOT | none |
-| **V4** | The post-merge run balanced by measured time: four groups, the two spike suites in separate groups, one Gradle warm-up before the groups, each unit's duration printed | TC-V-007, TC-V-011, TC-V-012, TC-V-014 red, then green | G-BOOT | none |
+| **V1** | **Done (PR #192).** Lane setup: this plan, README rows, gate `G-VAL`, `docs/work-log/validation.md`, `lane:V` accepted by `scripts/check-issues.sh`, catalogue `docs/test-plans/validation.md` | TC-V-001, TC-V-002 red, then green | G-BOOT | none |
+| **V2** | **Done (PRs #192, #201, #202; issue #190 closed).** Issue #190 (PR #192, started by lane S): the `script-tests` job leaves the pull request checks; all of its scripts run after each merge, run by lane V itself (no workflow), failures become `main-red` issues | TC-S-170, 172, 173 (kept ids) and TC-V-004, TC-V-005, TC-V-006, all in `scripts/test/test-post-merge.sh` | G-BOOT | **G-VAL** |
+| **V3** | **Done (PR #206).** The post-merge run in parallel groups, each in its own git worktree (the sequential run took about 15 minutes) | TC-V-007 to TC-V-010 red, then green | G-BOOT | none |
+| **V4** | **Done (PR #215).** The post-merge run balanced by measured time: four groups, the two spike suites in separate groups, one Gradle warm-up before the groups, each unit's duration printed | TC-V-007, TC-V-011, TC-V-012, TC-V-014 red, then green | G-BOOT | none |
 
 ## Ongoing duty
 

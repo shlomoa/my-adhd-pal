@@ -46,30 +46,32 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 
 | Gate | Exit criteria | Owner | Requires |
 |---|---|---|---|
-| **G-BOOT** | This plan set, `gates.json`, gate scripts, `Gates` CI workflow | orchestrator | none |
-| **G-ENV** | 0a.8 cloud bootstrap script (Android SDK + Maven fallback); `./gradlew` can run in a fresh cloud session | S | G-BOOT |
-| **G0** | 0a.1-0a.7: baseline, `:wear`/`:protocol`/`:phone` skeletons, shared config + pairing check, Spotless/ktlint, detekt, lint, markdownlint, link check, CI incl. release-has-no-debug, conventions | S | G-ENV |
-| **G-LIB** | 0b.1 decision: Hilt/KSP/Room on AGP 9.4 + Kotlin 2.4 (Hilt or manual DI) recorded | S | G0 |
-| **G-SPK1** | 0b.2a emulator-pair spike results table in `docs/protocol.md` (run by the user in Android Studio) | S + user | G0 |
-| **G-DEC** | 0b.2b real-hardware results, 0b.3 decision (fallback rule applied if needed), transport section updated; the wire contract of G1 is confirmed or amended | S + user | G-SPK1, H2 |
-| **G1** | 1.1-1.3: spec skeleton, constants, models and codec (tested) | S | G-SPK1 |
-| **G2a** | 1.4, 1.6, 1.7, 1.8a: compatibility rule, schedule logic, `LinkTransport` and `LinkState` types with the fake transport, transport-neutral diagrams | S | G1 |
-| **G2b** | 1.5, 1.8b: five-state link function from nodes, capability and hello versions, link-state and alert diagrams | S | G2a, G-DEC |
-| **G3a** | Phone data contract: `WatchLinkDataSource` interface + fake (2.3), repository interfaces + in-memory fakes | S | G2a |
-| **G3** | 2.1-2.5: Room, DataStore, real `WatchLinkDataSource`, background listener service, repositories | S | G3a, G-LIB, G2b |
-| **G4** | Phone core: 2.7 DI, 2.6 link-state screen, 4.5 history screen | A | G3a, G-LIB |
-| **G5** | Watch core: 3.1-3.7 (manifest, link client, schedule receive and scheduler deferred, haptics, acks, selections) | W | G2a |
+| **G-BOOT** | **Done (PR #7).** This plan set, `gates.json`, gate scripts, `Gates` CI workflow | orchestrator | none |
+| **G-ENV** | **Done (PR #75).** 0a.8 cloud bootstrap script (Android SDK + Maven fallback); `./gradlew` can run in a fresh cloud session | S | G-BOOT |
+| **G0** | **Done (PR #78).** 0a.1-0a.7: baseline, `:wear`/`:protocol`/`:phone` skeletons, shared config + pairing check, Spotless/ktlint, detekt, lint, markdownlint, link check, CI incl. release-has-no-debug, conventions | S | G-ENV |
+| **G-LIB** | **Done (PR #81).** 0b.1 decision: Hilt/KSP/Room on AGP 9.4 + Kotlin 2.4 (Hilt or manual DI) recorded | S | G0 |
+| **G-SPK1** | **Done (PR #89).** 0b.2a emulator-pair spike results table in `docs/protocol.md` (run by the user in Android Studio) | S + user | G0 |
+| **G-DEC** | **Done (PR #124).** 0b.2b real-hardware results, 0b.3 decision (fallback rule applied if needed), transport section updated; the wire contract of G1 is confirmed or amended | S + user | G-SPK1, H2 |
+| **G1** | **Done (PR #90).** 1.1-1.3: spec skeleton, constants, models and codec (tested) | S | G-SPK1 |
+| **G2a** | **Done (PR #100).** 1.4, 1.6, 1.7, 1.8a: compatibility rule, schedule logic, `LinkTransport` and `LinkState` types with the fake transport, transport-neutral diagrams | S | G1 |
+| **G2b** | **Done (PR #131).** 1.5, 1.8b: five-state link function from nodes, capability and hello versions, link-state and alert diagrams | S | G2a, G-DEC |
+| **G3a** | **Done (PR #104).** Phone data contract: `WatchLinkDataSource` interface + fake (2.3), repository interfaces + in-memory fakes | S | G2a |
+| **G3** | **Done (PR #138).** 2.1-2.5: Room, DataStore, real `WatchLinkDataSource`, background listener service, repositories | S | G3a, G-LIB, G2b |
+| **G4** | **Done (PR #117).** Phone core: 2.7 DI, 2.6 link-state screen, 4.5 history screen | A | G3a, G-LIB |
+| **G5** | **Done (PR #112).** Watch core: 3.1-3.7 (manifest, link client, schedule receive and scheduler deferred, haptics, acks, selections) | W | G2a |
 | **G6** | Phone features: 4.1-4.4 and 4.6 (tasks and schedule builder deferred, settings, prompt publishing, states) | A | G4, G3 |
 | **G7** | 3.9 end-to-end round trip on paired emulators and real devices recorded (deferred) | W + user | G3, G4, G5, H2 |
-| **G-DOC** | D1 design documentation: `docs/design/` with overview, four sections, solution diagrams and screen images; design approved by the user (recorded in issue #154) | D | G-BOOT |
-| **G-INDEX** | D2 documentation index `docs/index.md` and generated site in CI (issue #156), user approves the structure | D | G-DOC |
-| **G-VAL** | V lane set up; the slow script tests run after each merge to `main`, not on pull requests (issue #190) | V | G-BOOT |
-| **G-E2** | E2 (issue 229): the live route verified against the user's definition (continuous measurement, continuous comparison with the baseline, immediate report), per screen state, with the measured numbers of E1 | D + W | G5, H2 |
+| **G-DOC** | Waits for the user's approval. D1 design documentation: `docs/design/` with overview, four sections, solution diagrams and screen images; design approved by the user (recorded in issue #154) | D | G-BOOT |
+| **G-INDEX** | Waits for the user's approval. D2 documentation index `docs/index.md` and generated site in CI (issue #156), user approves the structure | D | G-DOC |
+| **G-VAL** | **Done (PR #192).** V lane set up; the slow script tests run after each merge to `main`, not on pull requests (issue #190) | V | G-BOOT |
+| **G-E2** | Waits for E1, the user's run. E2 (issue 229): the live route verified against the user's definition (continuous measurement, continuous comparison with the baseline, immediate report), per screen state, with the measured numbers of E1 | D + W | G5, H2 |
 | **G-LIVE** | 6.4 live measure service (issue 57): foreground health service with `MeasureClient` and an ongoing notification replaces the passive listener | W | G-E2, G5 |
-| **H1** (human) | 6.2 biometric metrics and thresholds agreed by the user, recorded in the issue | user | none |
-| **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed by the user, recorded in the issue | user | none |
+| **H1** (human) | **Done (PR #147).** 6.2 biometric metrics and thresholds agreed by the user, recorded in the issue | user | none |
+| **H2** (human) | **Done (PR #124).** Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed by the user, recorded in the issue | user | none |
 
 **Deferred (user, 2026-10-17):** everything related to the schedule, the scheduler, the schedule builder and tasks in G5, G6 and G7 (steps 3.3, 3.4, 3.9, 4.1, 4.2, 5.2-5.3, and 1.6 schedule logic). Also deferred, low priority, as notes only: other biometrics and a "monitoring" status item. The gate definitions in `gates.json` are unchanged here; lane S updates them.
+
+**Done (2026-10-17 plan).** Pre-stage P1 to P3 (issue #221); C1 (#222); C3 (#223, PR #236, gates G-E2 and G-LIVE added, both still open); C9 (#224); C2 docs (#226, PR #238); C6 (#227, PR #219); C11 code (4.4 PR #199, 4.6 PR #200; issues #66 and #68 stay open until the user's manual cases). Scripts merged, runs wait for the user: E1, E3, E4, E6.
 
 **Live route work.** The rows for C4, C5, C10 and the experiments E1 to E7 are in [`watch.md`](watch.md#live-route-work-user-approved-plan-2026-10-17); 6.4 is now the live measure service.
 
