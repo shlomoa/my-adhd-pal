@@ -10,13 +10,15 @@ Sources of the proposed design. The boards (`*.dc.html`, static markup between `
 | Images | Where they come from |
 |---|---|
 | P1-P13 and the overview | rendered from the boards by `render.mjs` (phone boards at device scale 2: 390x844, Settings 390x1000; overview 1200x640 shows all 22 screen images) |
-| W8 (watch alert level 2) | rendered from its board by `render.mjs`: the round face only, transparent outside the circle, 1254x1254 |
 | W4 (choice) | **supplied**: the approved aurora reference image from the user; this is the look the other screens follow |
-| W1, W2, W3, W5, W6, W7, W9 | **supplied**: generated artwork in the same look (commit b3664d6); there is no board for them, and the old boards were removed so the sources do not claim otherwise |
+| W1, W2, W3, W5, W6, W7, W8, W9 | **supplied**: generated artwork in the same look (commits b3664d6 and e37407d, 1254x1254, the round face only); there is no board for them, and the old boards were removed so the sources do not claim otherwise |
 
 `render-manifest.json` records this. For every rendered image it holds the hash of the board and `ui.css` it was rendered
 from (the overview also of the images it shows), so a changed source cannot go without a new render; the supplied images are
 listed under `supplied` and W4 also under `reference`. `scripts/test/test-design-style.sh` checks all of it.
+
+The watch rules of `ui.css` (`.w`, `.wb`, `.tile`) belong to the earlier watch boards and are not used by any board now; the palette
+variables are still used by the phone boards.
 
 `clear-outside-circle.py <image.png>` makes a round watch image transparent outside its circle without touching the artwork
 inside (generated artwork can leave faint stray pixels in the corners); it was applied to W2.

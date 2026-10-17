@@ -118,13 +118,17 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   at most 9 beyond the circle, the artwork inside untouched); the other generated images (W1, W3, W5, W6, W7, W9) already
   had clean corners and were left as they are (faint stray alpha up to 16 remains outside their circle edge, below the test limit).
   `docs/design/source/`: the eight boards of the supplied images (W1-W7, W9) were removed, `render.mjs` and
-  `render-manifest.json` now list them as supplied (W4 also as reference) and render only P1-P13, W8 and the overview, the source
+  `render-manifest.json` now list them as supplied (W4 also as reference) and render only P1-P13 and the overview, the source
   README says which images come from boards and which are supplied; the overview board now shows all 22 screen images and
   `overview-screens.png` was re-rendered from it. TC-D-033 (also nothing visible outside the circle), TC-D-034 and TC-D-036 were
   changed and TC-D-039 (no stale boards) and TC-D-040 (overview shows all screens) added, red baseline
   `docs/test-reports/docs-fix-baseline.md` (commit 7950592). Texts: read the seven new images; every label and text matches the
   section texts; the only correction was in `docs/design/README.md`, which gave the phone heading "Your heart rate is high"
   to the watch (the watch says "Heart rate high"); the README now says which images are supplied.
+- Addition (coordinator, commit e37407d from the user: new generated W8): all nine watch images are supplied artwork now; the W8
+  board was removed too (it would claim a rendering the image no longer has), the manifest, README, TC-D-034 and TC-D-039 say so,
+  and the overview was re-rendered with the new W8. W8's text (alert triangle, "Still high", 121 bpm, "I'm OK", "Repeats every 2
+  min") matches the section text. The watch rules left in `ui.css` are noted as unused in the source README.
 - Validation: `scripts/test/test-design-style.sh` TC-D-031..040 PASS, `test-design-docs.sh` 10 PASS, docs lint (markdown, links),
   `check-docs-index.sh` and `check-test-cases.sh docs final` green.
 - Open items: the generated images are not reproducible from the repository (no prompt or board is kept); the user decides whether

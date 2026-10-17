@@ -35,7 +35,7 @@ recorded in issue #154).
 - TC-D-031 PASS: `scripts/test/test-design-style.sh` (issue #164): W4 is the approved reference file, 1254x1254 RGBA, transparent corners
 - TC-D-032 PASS: same script: every screen image and the overview have the expected pixel size
 - TC-D-033 PASS: same script: W1-W9 are transparent in the corners and nothing visible is left outside the circle
-- TC-D-034 PASS: same script: images from boards were rendered from the current sources; W1-W7 and W9 are listed as supplied (render manifest)
+- TC-D-034 PASS: same script: images from boards were rendered from the current sources; W1-W9 are listed as supplied (render manifest)
 - TC-D-035 PASS: same script: text contrast pairs of the stylesheet meet 4.5:1
 - TC-D-036 PASS: same script: the phone alert levels 1 and 2 differ by text and icon
 - TC-D-037 PASS: same script: texts say aurora, keep "proposed design" and the undecided tile action, no old color wording

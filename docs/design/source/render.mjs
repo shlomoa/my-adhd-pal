@@ -3,10 +3,10 @@
 // (CHROMIUM_PATH, default /opt/pw-browsers/chromium). Without ids every board is rendered; with ids only those (the manifest
 // is always rewritten for all of them). Render the overview last: it shows the other images.
 //
-// Rendered from boards: P1-P13 and the overview (device scale 2: phone 390x844, Settings 390x1000, overview 1200x640) and W8 (the
-// round face only, transparent outside the circle, 1254x1254 like the reference).
-// Supplied artwork, not rendered: W4 is the approved reference image from the user; W1, W2, W3, W5, W6, W7 and W9 were generated
-// in the W4 agent in the same look. The manifest lists them under "supplied" (W4 also under "reference").
+// Rendered from boards: P1-P13 and the overview (device scale 2: phone 390x844, Settings 390x1000, overview 1200x640).
+// Supplied artwork, not rendered: all nine watch images. W4 is the approved reference image from the user; W1-W3, W5-W7, W8 and W9
+// were generated in the W4 agent in the same look (the round face only, 1254x1254, transparent outside the circle). The manifest
+// lists them under "supplied" (W4 also under "reference").
 import { createRequire } from 'module';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -27,9 +27,8 @@ const boards = [
   ['P7', 'settings', 'PhoneSettings', 390, 1000], ['P8', 'ask-your-watch', 'PhonePrompt', 390, 844], ['P9', 'allow-heart-rate', 'PhoneHeartRate', 390, 844],
   ['P10', 'alert-level-1', 'PhoneAlert1', 390, 844], ['P11', 'alert-level-2', 'PhoneAlert2', 390, 844], ['P12', 'loading-empty-error', 'PhoneStates', 390, 844],
   ['P13', 'five-link-states', 'PhoneLinkStates', 390, 844],
-  ['W8', 'alert-level-2', 'WatchAlert2'],
   ['overview', '', 'Main', 1200, 640]];
-const supplied = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W9'];
+const supplied = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9'];
 const css = fs.readFileSync(path.join(here, 'ui.css'));
 const manifest = { images: {}, supplied, reference: { W4: 'images/W4-choice.png' } };
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium', args: ['--no-sandbox'] });
@@ -48,13 +47,11 @@ for (const [id, name, file, w, h] of boards) {
   manifest.images[id] = hash.digest('hex');
   if (only.length && !only.includes(id)) continue;
   const html = `<!doctype html><meta charset=utf-8><style>${css}body{margin:0}</style><body>${markup}`;
-  const watch = id.startsWith('W');
-  const page = await browser.newPage({ viewport: { width: w || 340, height: h || 340 }, deviceScaleFactor: watch ? 1254 / 300 : 2 });
+  const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 2 });
   await page.setContent(html, { waitUntil: 'load' });
   await page.waitForTimeout(150);
   const fname = id === 'overview' ? 'overview-screens.png' : `${id}-${name}.png`;
-  if (watch) await page.locator('.w').screenshot({ path: path.join(out, fname), omitBackground: true });
-  else await page.screenshot({ path: path.join(out, fname), clip: { x: 0, y: 0, width: w, height: h } });
+  await page.screenshot({ path: path.join(out, fname), clip: { x: 0, y: 0, width: w, height: h } });
   await page.close();
 }
 await browser.close();

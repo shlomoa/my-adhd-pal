@@ -23,10 +23,10 @@ left and labels are centered. The two heart-rate alert levels differ by more tha
 "Your heart rate is high", level 2 an alert triangle and "Still high. Stop for a moment."; on the watch level 1 shows a
 heart icon and "Heart rate high", level 2 an alert triangle and "Still high".
 
-Where the images come from: the phone screens and W8 are rendered from the boards in [`source/`](source/README.md), whose
-stylesheet [`source/ui.css`](source/ui.css) defines the colors and the text contrast once. The other watch screens (W1-W3
-and W5-W7 and W9) are generated artwork supplied by the user in the same look, and W4 is the approved reference image; they
-are not rendered from the boards. All watch images are the round face only, transparent outside the circle.
+Where the images come from: the phone screens and the overview are rendered from the boards in [`source/`](source/README.md), whose
+stylesheet [`source/ui.css`](source/ui.css) defines the colors and the text contrast once. All nine watch screens are
+artwork supplied by the user in the same look (W4 is the approved reference image, the others were generated in the W4 agent);
+they are not rendered from the boards. All watch images are the round face only, transparent outside the circle.
 
 ## Table of contents
 

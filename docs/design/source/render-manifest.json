@@ -13,8 +13,7 @@
     "P11": "c9926f647188b92cbbfec61431159f5ff3dd1750807b36cd257fa7fbe568ab6d",
     "P12": "d279d72ce12380e5931cda33a1a53ec1413cbd60f4c7d0e13ea4e218b1adc42f",
     "P13": "d88c62eb27538b103823126603a73cbef97b591c5b12267762d2435eac11d8dd",
-    "W8": "f28c9a89d8fb5dd6238184a2051a80db36b26ddcfe5d237ee8c5755f461248eb",
-    "overview": "596921e120e4511f1e862edf0196a8fe5e148e70c5e3cfbfa904791b1e1322ce"
+    "overview": "cabf270f851e96edf584a5b64fdee733982b05327df1c6d5cca4ae7addd1790a"
   },
   "supplied": [
     "W1",
@@ -24,6 +23,7 @@
     "W5",
     "W6",
     "W7",
+    "W8",
     "W9"
   ],
   "reference": {
