@@ -29,3 +29,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `test-structure.sh` writes its Gradle log to a `mktemp` file removed on exit (it used the fixed `/tmp/structure-gradle.log`); `test-checks.sh` removes the directories its fixtures created (`phone/src/testDebug/...` stayed behind); two new cases TC-S-196 and TC-S-197.
 - Validation: TC-S-196 and TC-S-197 red in 2399a60 (clean worktree, `test-checks.sh`), green in dc7d2db. The lint crash itself was not fixed and not shown to come from script state: `check --rerun-tasks` crashed in 3 of about 10 default runs in one checkout (two of them while other Gradle runs shared the machine); the lint tasks alone passed 16 of 16; `--no-parallel` is Gradle's default here and changes nothing.
 - Open items: the trigger of the lint crash is still unknown; the issue stays open.
+
+## 2026-10-17 - Issue 190: balanced groups
+
+- Issue and PR: #190; PR linked from the coordinator message.
+- Changed: four groups balanced by measured time (checks | structure ci pairing | spike suite 0b2a | spike suite 0b2b and the short tests); a unit `test-x.sh@arg` passes `POST_MERGE_ARG`, `test-spike.sh` reads it; every unit prints `== <unit> took Ns`; one Gradle dry run in the checkout before the groups installs the Android build-tools (three worktrees installing build-tools 36.0.0 at once raced in a fresh container and failed `test-structure.sh`). Catalogue TC-V-011, TC-V-012, TC-V-014; TC-V-007 updated.
+- Validation: tests red (commit 7b95199), then green. Same sha, 4 cores, warm caches: three groups 744 s, four groups 585 s (checks 577, spike a 383, spike b 277, ci 166, design-style 140). Tried and dropped, both slower: `test-checks.sh` in two parts in a fifth group 647 s; in three parts over four groups 930 s (the scaffold part alone takes 283 s on an idle machine and 797 s beside the others). Concurrent Gradle builds in separate worktrees contend for the four cores and memory, so more Gradle units slow each other.
+- Open items: `test-checks.sh` is the floor (about 580 s; `check --rerun-tasks` is 283 s of it); a faster run needs less Gradle work, not more groups.

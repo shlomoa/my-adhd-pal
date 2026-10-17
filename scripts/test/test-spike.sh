@@ -2,6 +2,7 @@
 # TC-S-145: the hardware spike apps live in the debug source sets only and the release builds stay free of them.
 # TC-S-146: the spike runners parse and their simulated-adb test suites pass (needs PowerShell 7 as `pwsh`, or set PWSH).
 # REPO_ROOT overrides the repository root (tests of the test). Release APKs are inspected when they have been built.
+# POST_MERGE_ARG names the one simulated-adb suite to run (the post-merge run starts the two suites in separate groups); default: both.
 set -u
 root="${REPO_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 PWSH="${PWSH:-pwsh}"
@@ -38,7 +39,7 @@ for m in phone wear; do
 done
 
 [ -f "$root/scripts/spike/run-0b2a.ps1" ] && [ -f "$root/scripts/spike/run-0b2b.ps1" ]; check "TC-S-146 both runners are in scripts/spike" $?
-for s in test-run-0b2a test-run-0b2b; do
+for s in ${POST_MERGE_ARG:-test-run-0b2a test-run-0b2b}; do
   out="$(PWSH="$PWSH" "$root/scripts/spike/$s.sh" 2>&1)"; rc=$?
   echo "$out" | grep -c '^PASS' | sed "s/^/INFO TC-S-146 $s PASS lines: /"
   [ "$rc" -eq 0 ] && ! echo "$out" | grep -q '^FAIL'; check "TC-S-146 $s.sh passes" $?
