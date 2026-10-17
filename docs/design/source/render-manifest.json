@@ -13,16 +13,19 @@
     "P11": "c9926f647188b92cbbfec61431159f5ff3dd1750807b36cd257fa7fbe568ab6d",
     "P12": "d279d72ce12380e5931cda33a1a53ec1413cbd60f4c7d0e13ea4e218b1adc42f",
     "P13": "d88c62eb27538b103823126603a73cbef97b591c5b12267762d2435eac11d8dd",
-    "W1": "81933f45866d72fda0ae3fe4578d28bc030a03b3c43eb4df3ebde7faa45cbe39",
-    "W2": "af92291de0aa0b622874a0709962bb6246cef3a085bfc3959433e2456fd54791",
-    "W3": "59eeab9e28e23e7778c202c7f7d6776bcb8a1a4dbe73300cf245f27855fe971c",
-    "W5": "93a8ce62bc9073425f8a858579f30a9ded951d24cd2e86f17ad97d4fad112aae",
-    "W6": "90589503ac1c608f0ba9cc773d97361bcf081f0600f8acf33504801e953bfc6b",
-    "W7": "f69e90526e138e1818e42bafb5f28a71b1f4e343b9c83af619170d7c5c212b80",
     "W8": "f28c9a89d8fb5dd6238184a2051a80db36b26ddcfe5d237ee8c5755f461248eb",
-    "W9": "f92f064a047eeb5b44e05ee78f5e4198ff8307349257ad830ef997bc84fafeae",
-    "overview": "df90887407de989d7136a0c515723490491c54c1b391aee89eef8ff887aefc09"
+    "overview": "596921e120e4511f1e862edf0196a8fe5e148e70c5e3cfbfa904791b1e1322ce"
   },
+  "supplied": [
+    "W1",
+    "W2",
+    "W3",
+    "W4",
+    "W5",
+    "W6",
+    "W7",
+    "W9"
+  ],
   "reference": {
     "W4": "images/W4-choice.png"
   }
