@@ -63,7 +63,7 @@ Shared configuration (`applicationId`, SDK levels) is defined once: the `[versio
 
 The post-merge run is not a pull request check and not a workflow, so a pull request never waits for it. The validation
 lane (V) checks out the merged `main` sha and runs `scripts/ci-post-merge/run-tests.sh` itself (several merges in a row:
-the latest sha, bisecting only when red). The runner runs four groups of tests at the same time (a unit `test-x.sh@arg` runs the test with `POST_MERGE_ARG=arg`, so the slow spike test is split over two groups; every unit prints `== <unit> took Ns`, the data for balancing), each group in its own
+the latest sha, bisecting only when red). The runner runs four groups of tests at the same time (a unit `test-x.sh@arg` runs the test with `POST_MERGE_ARG=arg`, so the slow spike and checks tests are split over groups; one Gradle dry run first installs the SDK components; every unit prints `== <unit> took Ns`, the data for balancing), each group in its own
 git worktree of that sha (some tests edit and restore files or run Gradle in the checkout), and reruns a test once when
 its log shows the known lint crash. When it fails, or cannot run, lane V opens one issue labelled `main-red` with
 its GitHub issue tool. The issue body names the failing test ids, the sha, the owning lane and the sub-agent. Lane V
