@@ -125,7 +125,7 @@ Findings:
 - Google ([monitor in the background](https://developer.android.com/health-and-fitness/health-services/monitor-background)), verbatim:
   "When you receive data in the background, it is delivered in batches. The callback receives data at a slightly faster rate, but only while
   the app is running and the callback is successfully notified." and "Use the timestamps included within these objects rather than the time
-  they were received by your app to determine the correct ordering of events." The page says what "background" means: "A service lets your app receive data in the background when no part of your app is visible in the foreground." It does not define "batch": no size, no interval, no trigger.
+  they were received by your app to determine the correct ordering of events." The page says what "background" means: "A service lets your app receive data in the background when no part of your app is visible in the foreground." It does not define "batch": no size, no interval, no trigger (read 2026-10-17).
 - Measured on the Galaxy Watch6 Classic: readings delivered together, up to about 600 at a time spanning about 10 minutes
   (`docs/plans/biometrics.md` section 6).
 - Order readings by their own timestamps, converted with the boot instant. Registrations do **not** survive a reboot: re-register from a
