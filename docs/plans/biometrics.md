@@ -8,10 +8,17 @@ separate one-line PR. Research notes: [`../research/watch.md`](../research/watch
 
 **Latest findings and direction: [section 12](#12-findings-and-direction-so-far-2026-10-17).**
 
-**In short (D9, 2026-10-17, user decision):**
-heart rate is measured only while the watch app is running, because the user started it; there is no always-on background service.
-That should give a reading about every second and an alert within seconds, instead of the readings delivered together about every 10 minutes that the passive route showed.
-Still to prove on the real watch: that readings keep coming with the screen dim or off, the battery cost, and what the user must do (section 11).
+**Which route is used when (user clarification, 2026-10-17, Decided as the expectation; the route is confirmed by the probe of section 11.5):**
+
+| Situation | What happens | Route |
+|---|---|---|
+| The user has started the watch app (D9) | The app stays on. It measures heart rate continuously (other biometrics: to be discussed), compares it to the baseline continuously, and sends an urgent event to the phone, and receives one from it, immediately. The local response runs on the watch at once. | Live `MeasureClient` in a foreground service (section 11); measured about 2 readings per second with the screen on |
+| The app is not running | Nothing is measured (D9). | None |
+| The link or a device is down: disconnect, phone down, watch down, pairing down, network down and similar | The only case where events are kept and delivered together ("batch") once the link is back. Local response on the watch is not delayed. Rules (how long kept, order, what the phone shows) are to be discussed. | The queue between watch and phone, not a Health Services route |
+| Never | Normal measurement and urgent events are not held back to be delivered later. | The passive background route is **not** used for alerts: measured readings arrive about every 10 minutes (section 6, section 12.3) |
+
+Still to prove on the real watch with the live route: readings with the screen dim and off, 30 minutes, the battery cost, and what the user must do (section 11).
+Sections 2 to 10 were written for the passive route; where they say "passive", they describe how the data was first measured, and the route above applies.
 
 Every statement below is marked **Decided** (the user said so), **Verified** (a cited source says so), **Unverified** (not
 confirmed, or secondhand) or **Proposal** (my suggestion, needs the user's yes). Nothing unverified is built before the probe
@@ -62,7 +69,7 @@ as measured: readings were delivered together, up to about 600 at a time spannin
   These are secondhand and possibly outdated.
 
 **Baseline (Decided).** The user accepted the baseline as defined here (2026-10-16): "The baseline as you defined it is accepted by me."
-It is derived on the watch from passive samples (no new permission, works without Samsung Health):
+It is derived on the watch from the heart-rate readings of the running app (no new permission, works without Samsung Health):
 
 1. For each hour with at least 3 samples, keep the **median of the lowest 3 consecutive samples**. Keep only these hourly
    numbers (and their timestamps) for the last 7 days: they are a derived statistic, not raw readings, and are never logged
@@ -83,7 +90,7 @@ until the watch has the 24 hourly values above. Once the baseline exists the thr
 no longer used.
 
 **Optional later improvement (Proposal, not in v1):** ignore a breach while the user is clearly exercising (steps in the last
-two minutes). It needs a second passive data type and permission and is a source of false alerts until then: walking fast or
+two minutes). It needs a second data type and permission and is a source of false alerts until then: walking fast or
 climbing stairs can exceed resting + 30.
 
 ## 3. Cooldown and escalation (D4)
@@ -214,7 +221,7 @@ A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
 
 1. `getCapabilitiesAsync()` reports passive `HEART_RATE_BPM`.
 2. Register a passive listener; record arrival times and sample counts with the screen on, off and while the watch sits on a
-   desk, for at least 24 hours. This sets what "best effort" means (D6) and whether the 24-hourly-values baseline in section 2
+   desk, for at least 24 hours (done as far as needed: the results below show the passive route cannot give "immediately"; the live route replaces it, section 11). This sets what "best effort" means (D6) and whether the 24-hourly-values baseline in section 2
    is reachable. If readings arrive only every several minutes, or not at all in the background, the user decides whether
    biometric alerts are still worth building (Samsung may restrict third-party background heart rate:
    [forum thread](https://forum.developer.samsung.com/t/read-heart-rate-every-5-minutes-in-background-service-on-wear-os/34328),
@@ -281,7 +288,7 @@ What this shows (Verified on the device, one watch, wrist state partly unknown):
 | End-episode item phone to watch (path, body, urgent), protocol 1.2 | Shared lane | "I'm OK" on the phone ends the episode on the watch (section 4a) |
 | Phone raises its own alert when an `/alert` arrives: alarm-channel notification, repeating maximum vibration, flashing full-screen alert, level 2 stronger (section 4a) | Android lane | D5 |
 | `EpisodeEvaluator` and `BaselineTracker` (in `:protocol`, `alerts/`): resting-relative threshold, escalation level, episode end (replace the first `AlertEvaluator` with absolute thresholds, deleted) | Watch lane (6.5), tests first (TC-W-086 to 089, 120 to 131, 138) | D3, D4 |
-| Passive listener, baseline store (hourly values), alert activity with full-screen intent, vibration patterns | Watch lane (6.3, 6.4, 6.6) | D5 |
+| Live measure service (section 11), baseline store (hourly values), alert activity with full-screen intent, vibration patterns | Watch lane (6.3, 6.4, 6.6) | D5 |
 | Play declaration for the full-screen intent | Step 7.x | section 4 |
 
 ## 8. Answers and what is still open
@@ -338,7 +345,7 @@ Each statement is marked **Verified** (an official page I read, cited), **Second
 
 | Route | Does it give the stress value? | What I found |
 |---|---|---|
-| Health Services on Wear OS (our current route) | **No.** Verified | The data types required for passive monitoring are heart rate, steps, distance, speed, calories, elevation and floors; heart-rate variability, inter-beat interval and stress do not appear ([Google](https://developer.android.com/health-and-fitness/health-services/compatibility)). A given watch may add types; the capabilities call lists them (**Unverified** for this watch). |
+| Health Services on Wear OS (the route of section 11) | **No.** Verified | The data types required for passive monitoring are heart rate, steps, distance, speed, calories, elevation and floors; heart-rate variability, inter-beat interval and stress do not appear ([Google](https://developer.android.com/health-and-fitness/health-services/compatibility)). A given watch may add types; the capabilities call lists them (**Unverified** for this watch). |
 | Samsung Health Sensor SDK (watch, Galaxy Watch4 and later) | **No stress tracker.** Verified | Continuous trackers: accelerometer, heart rate (its inter-beat interval "can be used to calculate HRV"), PPG, skin temperature; on demand: body composition, ECG. It does not share data with Samsung Health. **Developer mode is "intended only for testing or debugging your app. It is not intended for app users"; to distribute an app you must join the Samsung Partner Program** ([Samsung FAQ](https://developer.samsung.com/health/sensor/faq.html)). |
 | Samsung Health Data SDK (phone) | **No stress, no HRV type.** Verified | The release notes list heart rate, sleep, sleep apnea, irregular rhythm notification, energy score, skin temperature, steps and others, with user consent for all reads; the access code for developer mode and distribution come through the partner program ([Samsung](https://developer.samsung.com/health/data/release-note.html)). Its energy score is derived from HRV (**Secondhand**) but is a different value. |
 | Health Connect (phone) | **Probably not.** Mixed | A heart-rate-variability record type exists (`HeartRateVariabilityRmssdRecord`, API 34; Verified, [Android](https://developer.android.com/reference/kotlin/androidx/health/connect/client/records/HeartRateVariabilityRmssdRecord)); I saw no stress record type (**Unverified**: I did not read the whole type list). Whether Samsung Health writes HRV or stress there: **Secondhand and conflicting**, a sync vendor's page says overnight HRV and a stress score are written ([FitMesh](https://www.fitmesh.fit/en/sync/galaxy-watch/watch-6)); a Samsung forum thread suggests HRV may need the privileged partnership ([Samsung forum](https://forum.developer.samsung.com/t/hrv-heart-rate-variability-heart-rate/41364)). The user can check the Health Connect data-sources screen on the phone for what Samsung Health writes. |
@@ -396,8 +403,8 @@ Each statement is marked **Verified** (an official page I read, cited), **Second
 ### 10.2 Permissions and latency compared with heart rate
 
 - **Permission.** One more runtime permission, `ACTIVITY_RECOGNITION` (Verified, above), on top of the heart-rate ones; it fits the phone onboarding of D7 the same way (whether `pm grant` and a remote prompt work for it: **Unverified**, the heart-rate permissions did on this watch).
-- **Latency.** Google ([monitor in the background](https://developer.android.com/health-and-fitness/health-services/monitor-background), Verified): "When you receive data in the background, it is delivered in batches." and "Use the timestamps included within these objects rather than the time they were received by your app to determine the correct ordering of events." Our measurement for heart rate: one delivery of 318 samples 7 min 41 s after start (section 6). So movement data from the same route is expected to be as late as heart rate: each heart-rate sample can be judged against the steps in the minutes *before its own timestamp*, and the delay only moves the alert time (D6, best effort). Whether steps and heart rate really come in the same delivery on this watch: **Unverified**, the probe below shows it.
-- **Battery.** Passive steps and activity state come from the same background channel as heart rate (small extra cost, **Unverified**); a raw accelerometer listener is the expensive option.
+- **Latency.** Google ([monitor in the background](https://developer.android.com/health-and-fitness/health-services/monitor-background), Verified): "When you receive data in the background, it is delivered in batches." and "Use the timestamps included within these objects rather than the time they were received by your app to determine the correct ordering of events." Our measurement for heart rate: one delivery of 318 samples 7 min 41 s after start (section 6). So movement data from this passive route is as late as heart rate; with the live route (section 11) this needs its own measurement: each heart-rate sample can be judged against the steps in the minutes *before its own timestamp*, and the delay only moves the alert time (D6, best effort). Whether steps and heart rate really come in the same delivery on this watch: **Unverified**, the probe below shows it.
+- **Battery.** Steps and activity state read in the background come from the same channel as passive heart rate (small extra cost, **Unverified**; not measured for the live route); a raw accelerometer listener is the expensive option.
 
 ### 10.3 The usual rules, and their risks
 
@@ -442,9 +449,9 @@ not as an always-on background service. Nothing below is built. Where something 
 
 | Route | Continuous | Immediate (seconds) | Local response, report to the phone | Status |
 |---|---|---|---|---|
-| Passive listener service (background) | Yes | **No**: measured delay up to about 10 minutes (section 6) | Yes | Measured |
-| Passive callback while the app runs | Yes | The page says "a slightly faster rate" than the service, not quantified | Yes | Unverified, not probed |
-| Live `MeasureClient` while the app runs (11.1) | Expected, about once per second | Expected seconds | Yes | Unverified, probe in 11.5 |
+| Passive listener service (background) | Yes | **No**: measured delay up to about 10 minutes (section 6) | Yes | Measured; not used for alerts |
+| Passive callback while the app runs | Yes | The page says "a slightly faster rate" than the service, not quantified | Yes | Unverified, not probed; not used |
+| Live `MeasureClient` while the app runs (11.1) | Yes: about 2 readings per second, screen on (section 12.3) | Yes: within about a second, screen on | Yes | Measured with the screen on; dim, off and 30 minutes open (11.5) |
 | `ExerciseClient` | Yes | See the Google text in 11.1 | Yes | Not chosen: it is for workouts |
 
 ### 11.1 The live route: `MeasureClient`
