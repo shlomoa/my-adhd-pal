@@ -27,7 +27,7 @@ import org.junit.Test
 class FakeWatchLinkDataSourceTest {
     private val id1 = "123e4567-e89b-42d3-a456-426614174001"
     private val id2 = "123e4567-e89b-42d3-a456-426614174002"
-    private val schedule = Schedule(1, emptyList(), emptyList(), SnoozeSettings(10, 3), AlertSettings(emptyList(), 600))
+    private val schedule = Schedule(1, emptyList(), emptyList(), SnoozeSettings(10, 3), AlertSettings(600))
 
     private fun ack(id: String, at: Long) = WatchEvent.AckReceived(id, at, Acknowledgement(AckAction.DONE, at))
 

@@ -2,9 +2,7 @@ package com.shlomoa.myadhdpal.protocol.alerts
 
 import com.shlomoa.myadhdpal.protocol.AlertRules
 import com.shlomoa.myadhdpal.protocol.AlertSettings
-import com.shlomoa.myadhdpal.protocol.Direction
 import com.shlomoa.myadhdpal.protocol.Metric
-import com.shlomoa.myadhdpal.protocol.Threshold
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -30,7 +28,7 @@ class EpisodeEvaluatorTest {
 
     private fun evaluator(offset: Int = AlertRules.DEFAULT_OFFSET_BPM, initial: Int = AlertRules.DEFAULT_INITIAL_BPM) =
         EpisodeEvaluator(
-            AlertSettings(emptyList(), AlertRules.DEFAULT_COOLDOWN_SECONDS, offset, initial),
+            AlertSettings(AlertRules.DEFAULT_COOLDOWN_SECONDS, offset, initial),
             newEpisodeId = { ids.removeFirst() }
         )
 
@@ -134,21 +132,16 @@ class EpisodeEvaluatorTest {
     }
 
     @Test
-    fun `TC-W-138 absolute thresholds in the schedule settings are ignored`() {
-        val absolute = listOf(
-            Threshold(Metric.HEART_RATE, Direction.ABOVE, 150.0),
-            Threshold(Metric.HEART_RATE, Direction.ABOVE, 50.0),
-            Threshold(Metric.HEART_RATE, Direction.BELOW, 200.0)
-        )
-        val withAbsolute = EpisodeEvaluator(
-            AlertSettings(absolute, AlertRules.DEFAULT_COOLDOWN_SECONDS, offsetBpm = 30, initialBpm = 110),
+    fun `TC-W-138 the alert settings carry no absolute threshold, only baseline plus offset counts`() {
+        val evaluator = EpisodeEvaluator(
+            AlertSettings(AlertRules.DEFAULT_COOLDOWN_SECONDS, offsetBpm = 30, initialBpm = 110),
             newEpisodeId = { ids.removeFirst() }
         )
-        // no baseline: only initialBpm 110 counts, not the 150 / 50 / below 200 thresholds
-        assertTrue(withAbsolute.feed(100.0, 0, base = null).isEmpty())
-        val alert = withAbsolute.feed(120.0, 10, base = null).single()
+        // no baseline: only initialBpm 110 counts
+        assertTrue(evaluator.feed(100.0, 0, base = null).isEmpty())
+        val alert = evaluator.feed(120.0, 10, base = null).single()
         assertEquals(110.0, alert.threshold, 0.0)
         // with a baseline: only baseline + offset counts
-        assertEquals(90.0, withAbsolute.thresholdBpm(60.0), 0.0)
+        assertEquals(90.0, evaluator.thresholdBpm(60.0), 0.0)
     }
 }

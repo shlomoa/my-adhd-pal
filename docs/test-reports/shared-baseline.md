@@ -329,3 +329,7 @@ Red commit: `HistoryRepositoryContract` TC-S-160 (level and episode kept, a 1.1 
 ## No absolute heart-rate threshold in the defaults (issue 55 decision, red)
 
 Red commit: `DataStoreSettingsRepositoryTest` TC-S-098 now expects `SettingsDefaults.settings.thresholds` to be empty, no implementation. `./gradlew :phone:testDebugUnitTest --tests '*DataStoreSettingsRepositoryTest*'`: `AssertionError` at `DataStoreSettingsRepositoryTest.kt:65` (the new assertion; the old one, which expected the 150 bpm threshold, was removed in the green commit).
+
+## No absolute thresholds in the protocol (protocol 1.3, red)
+
+Red commit: `Protocol13Test` (TC-S-180 to TC-S-182), the existing tests moved to the new `AlertSettings(cooldownSeconds, offsetBpm, initialBpm)` shape (`CodecTest`, `Protocol12Test`, `EpisodeEvaluatorTest` TC-W-138, `ConstantsTest` expecting 1.3, the phone settings tests TC-S-092, TC-S-098, TC-S-099, TC-A-032, TC-A-033 and the schedule contract), no implementation. `./gradlew :protocol:test`: test compilation fails, `No value passed for parameter 'thresholds'` (`CodecTest.kt:28`) and `Argument type mismatch: actual type is 'Int', but 'List<Threshold>' was expected` (`CodecTest.kt:187`).

@@ -21,7 +21,7 @@ class FileScheduleStoreTest {
         reminders = listOf(Reminder("r1", "Take medication", 8 * 60, listOf(1, 2, 3, 4, 5))),
         checkpoints = emptyList(),
         snooze = SnoozeSettings(10, 3),
-        alerts = AlertSettings(emptyList(), 600)
+        alerts = AlertSettings(600)
     )
     private val appliedAt = Instant.parse("2026-10-14T08:00:00Z")
 

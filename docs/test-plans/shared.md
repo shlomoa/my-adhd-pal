@@ -150,3 +150,11 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-140 | Full suite on merged `main` | `./gradlew check assembleDebug assembleRelease` and docs lint are green |
 | TC-S-141 | All lane cases | every `TC-S-*` is PASS in `shared-final.md` and `scripts/check-test-cases.sh shared final` passes, zero skipped |
 | TC-S-142 | Consumers compile against the final protocol | `:wear` and `:phone` compile against the final `:protocol` |
+
+## No absolute thresholds in the protocol (protocol 1.3, issue 55 decision)
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-S-180 | unit | An encoded schedule has no `thresholds` key | `AlertSettings` has only the cooldown, the offset and the initial value |
+| TC-S-181 | unit | A 1.2 schedule body that still has a `thresholds` list | decodes; the list is ignored |
+| TC-S-182 | unit | Protocol version 1.3 | the major is 1; peers 1.0 to 1.3 are compatible, 2.0 is not |

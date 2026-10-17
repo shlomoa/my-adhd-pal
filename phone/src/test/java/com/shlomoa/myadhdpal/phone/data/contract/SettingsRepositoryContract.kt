@@ -6,10 +6,7 @@ import com.shlomoa.myadhdpal.phone.data.SettingsError
 import com.shlomoa.myadhdpal.phone.data.SettingsLimits
 import com.shlomoa.myadhdpal.phone.data.SettingsRepository
 import com.shlomoa.myadhdpal.phone.data.SettingsResult
-import com.shlomoa.myadhdpal.protocol.Direction
-import com.shlomoa.myadhdpal.protocol.Metric
 import com.shlomoa.myadhdpal.protocol.SnoozeSettings
-import com.shlomoa.myadhdpal.protocol.Threshold
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -70,8 +67,8 @@ abstract class SettingsRepositoryContract {
         repo.update(valid)
         val badCooldown = valid.copy(cooldownSeconds = SettingsLimits.COOLDOWN_SECONDS.last + 1)
         assertEquals(SettingsResult.Invalid(setOf(SettingsError.COOLDOWN_OUT_OF_RANGE)), repo.update(badCooldown))
-        val badThreshold = valid.copy(thresholds = listOf(Threshold(Metric.HEART_RATE, Direction.ABOVE, 1000.0)))
-        assertEquals(SettingsResult.Invalid(setOf(SettingsError.THRESHOLD_OUT_OF_RANGE)), repo.update(badThreshold))
+        val badOffset = valid.copy(offsetBpm = SettingsLimits.OFFSET_BPM.last + 1)
+        assertEquals(SettingsResult.Invalid(setOf(SettingsError.OFFSET_OUT_OF_RANGE)), repo.update(badOffset))
         val badCadence = valid.copy(cadenceMinutes = 0)
         assertEquals(SettingsResult.Invalid(setOf(SettingsError.CADENCE_OUT_OF_RANGE)), repo.update(badCadence))
         val newSnooze = valid.copy(snooze = SnoozeSettings(minutes = 5, maxCount = 2))
