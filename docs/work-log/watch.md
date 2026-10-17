@@ -447,3 +447,11 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - #194 deleted `AlertEvaluator`, its test, `Threshold`, `Direction` and `AlertSettings.thresholds`. What remains here: the seven catalogue rows
   TC-W-070 to TC-W-076 (their tests no longer exist) and the decision document's section 7 text.
 - Validation: docs lint, links and index.
+
+## 2026-10-17 - Proposal: what a late batch raises, and the pause after "I'm OK"
+
+- Issue and PR: step 6.5 (documentation), branch `claude/watch-late-batch-proposal`
+- Changed: `docs/plans/biometrics.md` section 3a, marked PROPOSAL with the user decision pending: at most one alert per delivery, only if the newest
+  reading is above the threshold, the highest warranted level, repeats and cap counted in alert time; plus the second open question (pause after "I'm OK"). No code.
+- Validation: docs lint, links and index (documentation only).
+- Open items: the user decides both questions (via the coordinator); then tests first (new catalogue rows) and the `EpisodeEvaluator` change.
