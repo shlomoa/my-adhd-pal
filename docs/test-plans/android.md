@@ -53,7 +53,7 @@ Pass criterion: every case PASS, zero skipped (`docs/test-reports/android-final.
 | TC-A-024 | Builder lists reminders in time order | Unit | Sorted by next occurrence with a fixed clock |
 | TC-A-025 | Publish sends a `/schedule` item | Unit | Fake data source receives one schedule |
 | TC-A-026 | Published version is higher than the previous | Unit | Monotonic version, also after restart |
-| TC-A-027 | Published schedule includes thresholds and cooldown | Unit | Settings values appear in the published model |
+| TC-A-027 | Published schedule includes the cooldown, offset and initial threshold | Unit | Settings values appear in the published model |
 | TC-A-028 | Publish failure is reported and not counted as sent | Unit | Error state; version unchanged |
 | TC-A-029 | Publishing an unchanged schedule is a no-op | Unit | No new item; user is told nothing changed |
 | TC-A-030 | Schedule round trip to the watch | Manual | Reminder created on the phone fires on the watch |
@@ -62,9 +62,9 @@ Pass criterion: every case PASS, zero skipped (`docs/test-reports/android-final.
 
 | Id | Case | How | Pass criteria |
 |---|---|---|---|
-| TC-A-031 | Defaults shown on first run | Unit | Default thresholds, cooldown and cadence |
-| TC-A-032 | Change an alert threshold | Unit | Stored through the settings repository |
-| TC-A-033 | Threshold out of range is rejected | Unit | Validation error; old value kept |
+| TC-A-031 | Defaults shown on first run | Unit | Default cooldown, cadence and alert offset |
+| TC-A-032 | Change the alert offset | Unit | Stored through the settings repository |
+| TC-A-033 | Offset out of range is rejected | Unit | Validation error; old value kept |
 | TC-A-034 | Change the alert cooldown | Unit | Stored |
 | TC-A-035 | Cooldown out of range is rejected | Unit | Validation error |
 | TC-A-036 | Change the reminder cadence | Unit | Stored |
@@ -170,6 +170,12 @@ repositories exist (G3).
 | TC-A-119 | In the app: save a task, add a reminder to it, see it listed, open it and delete it | Unit (Hilt + Compose, fake Data Layer client) | Reminder shown as time and days; gone after Delete |
 | TC-A-120 | A reminder is summarised as its time (24 hours) and its days: every day, weekdays, or the listed days | Unit | `09:00` + EveryDay; `[1..5]` Weekdays; others as a sorted list |
 | TC-A-121 | After a task is saved its id is in the edit state, so reminders can be added to a new task | Unit | New id for a new task; the same id when editing |
+| TC-A-122 | Before anything is sent the schedule state is idle; a version sent earlier is shown | Unit | `ScheduleSyncUiState(null, Idle)`, then the stored version |
+| TC-A-123 | A sent schedule is reported with its version | Unit | `Sent(version)`, last version updated |
+| TC-A-124 | An unchanged schedule says the watch is up to date | Unit | `UpToDate`, version unchanged |
+| TC-A-125 | A failed send shows the reason, keeps the old version and can be tried again | Unit | `Failed(reason)`, then `Sent` on the next try |
+| TC-A-126 | While sending the state says so and a second tap does not send twice | Unit | `Sending`; the repository is called once |
+| TC-A-127 | The Tasks tab sends the schedule once and then says the watch is up to date | Unit (Hilt + Compose, fake Data Layer client) | One `/schedule` item written; second tap writes nothing |
 | TC-A-080 | The broadcast publishes the schedule on the real devices | Manual | Watch shows the reminder at the set time after the broadcast |
 | TC-A-081 | The publish command logs the published version and the reminder time | Unit | `DEMO published schedule version=<n> reminderAt=<ms>`; `unchanged` when nothing new was sent |
 | TC-A-082 | A failed or invalid publish is logged, not thrown | Unit | `DEMO publish failed reason=<text>` for a Data Layer failure and for minutes_ahead outside 1 to 1440 |

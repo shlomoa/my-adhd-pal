@@ -75,3 +75,5 @@ approval by the user, recorded in issue #164; it is not a test case.
 | TC-D-038 | script | Old palette gone | none of the legacy colors is left in `ui.css` or the boards |
 | TC-D-039 | script | Supplied artwork | no board is left for the supplied watch images, the boards of the phone screens and the overview exist, and the source README says which images are supplied |
 | TC-D-040 | script | Overview shows the screens | the overview board references all 22 screen images |
+
+| TC-D-041 | script | No dead style rules | every class that `docs/design/source/ui.css` defines is used by a board (cleanup rule: what a change makes unused is deleted in the same PR) |

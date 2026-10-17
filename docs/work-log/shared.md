@@ -320,6 +320,13 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: not reproducible here in five full runs (clean state, and a checkout from 777853d to main); the Android lane's trace is the Kotlin Analysis API crash also reported in bluecard issue 227. Docs lint green.
 - Open items: no upstream fix found (searched AGP 9.2 to 9.3 release notes and the Kotlin and Android trackers); revisit on the next AGP or Kotlin bump.
 
+## 2026-10-17 - Protocol 1.3: no absolute thresholds
+
+- Issue and PR: cleanup item from the Watch lane via the coordinator (issue 55 decision); PR linked from the coordinator message.
+- Changed: `:protocol` drops `AlertSettings.thresholds`, `Threshold`, `Direction`, `Limits.MAX_THRESHOLDS` and the unused `AlertEvaluator` (only `Reading` stays, moved to `alerts/Reading.kt`); `Protocol.VERSION` 1.3; phone `AppSettings` and `SettingsDefaults` lose the thresholds, the validator and its two errors, the DataStore key and serializer, `ScheduleBuilder`; tests and catalogue rows moved to the new shape (TC-W-138, TC-A-027, TC-A-031 to TC-A-033, TC-S-046); `docs/protocol.md` 1.3 paragraph, `docs/data-layer.md`.
+- Validation: `Protocol13Test` (TC-S-180 to TC-S-182) and the moved tests written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green; `test-protocol-spec.sh` green.
+- Open items: a 1.2 watch needs `thresholds` and drops a schedule without it, so the phone and watch apps must be installed together (one repository; the user has one watch). Other open lane PRs that build `AlertSettings(emptyList(), ...)` need the first argument dropped when they merge main.
+
 ## 2026-10-17 - Issue 190: script tests after the merge, not per pull request
 
 - Issue and PR: #190; PR linked from the coordinator message.

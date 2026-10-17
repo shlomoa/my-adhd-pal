@@ -53,28 +53,28 @@ class Protocol12Test {
 
     @Test
     fun `TC-S-152 alert settings carry the offset and the initial threshold with the decided defaults`() {
-        val settings = AlertSettings(emptyList(), cooldownSeconds = AlertRules.DEFAULT_COOLDOWN_SECONDS)
+        val settings = AlertSettings(cooldownSeconds = AlertRules.DEFAULT_COOLDOWN_SECONDS)
         assertEquals(30, settings.offsetBpm)
         assertEquals(110, settings.initialBpm)
         assertEquals(300, AlertRules.DEFAULT_COOLDOWN_SECONDS)
         assertEquals(120, AlertRules.ESCALATION_REPEAT_SECONDS)
         assertEquals(6, AlertRules.MAX_LEVEL2_REPEATS)
-        val custom = AlertSettings(emptyList(), 300, offsetBpm = 40, initialBpm = 120)
+        val custom = AlertSettings(300, offsetBpm = 40, initialBpm = 120)
         assertEquals(custom, roundTrip(schedule(custom)).let { (it.message as Schedule).alerts })
     }
 
     @Test
     fun `TC-S-152 offset is 20 to 50 and the initial threshold 30 to 220`() {
-        for (ok in listOf(20, 30, 50)) AlertSettings(emptyList(), 300, offsetBpm = ok)
+        for (ok in listOf(20, 30, 50)) AlertSettings(300, offsetBpm = ok)
         for (bad in listOf(19, 51, 0, -5)) {
             assertThrows("offset $bad", IllegalArgumentException::class.java) {
-                AlertSettings(emptyList(), 300, offsetBpm = bad)
+                AlertSettings(300, offsetBpm = bad)
             }
         }
-        for (ok in listOf(30, 110, 220)) AlertSettings(emptyList(), 300, initialBpm = ok)
+        for (ok in listOf(30, 110, 220)) AlertSettings(300, initialBpm = ok)
         for (bad in listOf(29, 221, 0)) {
             assertThrows("initial $bad", IllegalArgumentException::class.java) {
-                AlertSettings(emptyList(), 300, initialBpm = bad)
+                AlertSettings(300, initialBpm = bad)
             }
         }
     }
@@ -140,8 +140,7 @@ class Protocol12Test {
     }
 
     @Test
-    fun `TC-S-156 the protocol version is 1_2, the major is unchanged and 1_1 peers stay compatible`() {
-        assertEquals("1.2", Protocol.VERSION)
+    fun `TC-S-156 the major is unchanged and 1_1 peers stay compatible`() {
         assertEquals(1, Protocol.MAJOR_VERSION)
         assertEquals(Compatibility.Compatible, Compatibility.ofHello("1.1"))
         assertEquals(Compatibility.Compatible, Compatibility.ofHello(Protocol.VERSION))

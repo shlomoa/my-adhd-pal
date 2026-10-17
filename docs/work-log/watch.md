@@ -391,13 +391,25 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
 - NOT yet run on the watch: whether `pm grant` works for the health permissions, and the prompt fallback (TC-W-136).
 
-## 2026-10-17 - Cleanup: the first alert evaluator
+## 2026-10-17 - Research: can the Galaxy Watch stress value be used?
 
-- Issue and PR: step 6.5 cleanup (standing rule: cleanup is part of every step), branch `claude/watch-cleanup-alert-evaluator`
-- Deleted: `AlertEvaluator` (absolute thresholds, per-threshold cooldown) and its test (TC-W-070 to TC-W-076), unused since `EpisodeEvaluator` implements the decided rules;
-  the seven catalogue rows. `Reading` moved to its own file. The decision document's table no longer promises the old tests.
-- Left for the Shared lane: `AlertSettings.thresholds`, `Threshold` and `Direction` are no longer read by the watch (the schedule still carries them).
-- Validation: `./gradlew detekt spotlessCheck :protocol:check`, docs lint and index.
+- Issue and PR: docs only, branch `claude/watch-stress-research` (request from the user via the coordinator)
+- Changed: `docs/plans/biometrics.md` section 9: what Samsung's stress measure is, every route an ordinary app has (Health Services, Samsung Health Sensor SDK,
+  Samsung Health Data SDK, Health Connect, the closed partner routes), cost (permissions, approval, latency, battery), whether it separates stress from exercise,
+  and a recommendation (not possible now; movement as a second condition later; own HRV only with Samsung's partner program), each statement marked
+  Verified, Secondhand or Unverified. Official pages read: Google's Health Services compatibility page, Samsung's Sensor SDK FAQ and Data SDK release notes; the
+  Samsung support pages on stress returned 403, so their content is secondhand (search excerpts).
+- Validation: docs lint, links, docs index. No code.
+
+## 2026-10-17 - Research: telling stress from exercise
+
+- Issue and PR: docs only, PR #189 (same branch `claude/watch-stress-research`; second request from the user via the coordinator)
+- Changed: `docs/plans/biometrics.md` section 10: the background signals (user activity state, passive steps and calories, raw step and accelerometer sensors, Samsung's automatic
+  workout detection, a user-started workout), their permission, latency and batching compared with heart rate, the usual suppression rules with false- and missed-alarm risks,
+  how a "user is still" gate would fit the decided design (a proposal needing the user's yes, protocol 1.3), and a recommendation (build later, small) with the probe it needs.
+  Official pages read: Google's Health Services background-monitoring, compatibility and active-data pages and Android's motion-sensor page; Samsung's workout-detection page and the
+  false-alarm studies are search excerpts (Secondhand).
+- Validation: docs lint, links, docs index. No code.
 
 ## 2026-10-17 - Probe: display state and sample age; first real-watch result
 
@@ -428,3 +440,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
   (`ProbeAlarmRoutes`), with a full-screen target activity; checklist step 4b for the user.
 - Validation: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug :wear:assembleRelease checkNoDebugInRelease`, docs lint, docs index. No unit test: the
   commands only call Android notification and alarm APIs; their outcome is the user's measurement (TC-W-137, NOT yet complete).
+
+## 2026-10-17 - Cleanup: catalogue rows of the deleted alert evaluator
+
+- Issue and PR: step 6.5 cleanup, branch `claude/watch-cleanup-alert-evaluator` (reduced after #194)
+- #194 deleted `AlertEvaluator`, its test, `Threshold`, `Direction` and `AlertSettings.thresholds`. What remains here: the seven catalogue rows
+  TC-W-070 to TC-W-076 (their tests no longer exist) and the decision document's section 7 text.
+- Validation: docs lint, links and index.

@@ -19,7 +19,6 @@ object ScheduleBuilder {
             checkpoints = emptyList(),
             snooze = settings.snooze,
             alerts = AlertSettings(
-                settings.thresholds,
                 settings.cooldownSeconds,
                 settings.offsetBpm,
                 settings.initialBpm

@@ -27,6 +27,14 @@ from `docs/index.md` (directly, or through a page it links) in the same pull req
 Other documents are linked, never copied. `scripts/docs-lint.sh lint` and `format` (and `fix` for the formatting rules)
 check the markdown style.
 
+## Cleanup
+
+Cleanup is part of every step. If a file or file content is no longer used, delete it in the same pull request: code,
+resources, tests, fixtures, scripts, documents, images, style rules, constants, imports and settings. No dead code, no unused
+files. Before opening a pull request, search for what your change made unused and remove it, and say in the pull request body
+what you deleted ("Cleanup: ..."), or "Cleanup: nothing became unused". Clean what your step touched or obsoleted; report older
+leftovers you notice to the coordinator instead of widening the change.
+
 ## Debug code
 
 Debug-only code (verbose logs, raw biometrics, injected-message receivers, debug log views) lives in

@@ -76,4 +76,11 @@
     <string name="settings_watch_granted">granted</string>
     <string name="settings_watch_denied">denied</string>
     <string name="settings_watch_unknown">not known yet</string>
+    <string name="schedule_never">Not sent to the watch yet</string>
+    <string name="schedule_version">The watch has schedule version %1$d</string>
+    <string name="schedule_send">Send schedule to the watch</string>
+    <string name="schedule_sending">Sending…</string>
+    <string name="schedule_sent">Sent to the watch (version %1$d)</string>
+    <string name="schedule_up_to_date">The watch is already up to date</string>
+    <string name="schedule_failed">Could not send: %1$s</string>
 </resources>

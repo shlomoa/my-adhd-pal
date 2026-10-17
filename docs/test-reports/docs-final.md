@@ -42,5 +42,6 @@ recorded in issue #154).
 - TC-D-038 PASS: same script: the legacy palette is gone from the sources
 - TC-D-039 PASS: same script: no board is left for supplied artwork, the source README says which images are supplied
 - TC-D-040 PASS: same script: the overview board shows all 22 screen images
+- TC-D-041 PASS: same script: every class defined in `ui.css` is used by a board (no dead style rules)
 
 `scripts/test/test-gates.sh`: no FAIL lines.

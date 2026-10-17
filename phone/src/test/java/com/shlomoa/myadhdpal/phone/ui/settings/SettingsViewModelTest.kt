@@ -14,10 +14,7 @@ import com.shlomoa.myadhdpal.phone.data.fake.InMemoryScheduleVersionStore
 import com.shlomoa.myadhdpal.phone.data.fake.InMemorySettingsRepository
 import com.shlomoa.myadhdpal.phone.data.fake.InMemoryTaskRepository
 import com.shlomoa.myadhdpal.phone.ui.MainDispatcherRule
-import com.shlomoa.myadhdpal.protocol.Direction
 import com.shlomoa.myadhdpal.protocol.HeartRatePermission
-import com.shlomoa.myadhdpal.protocol.Metric
-import com.shlomoa.myadhdpal.protocol.Threshold
 import com.shlomoa.myadhdpal.protocol.WatchStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +39,7 @@ private class InMemoryAlertPreferences : AlertPreferences {
     }
 }
 
-/** Step 4.3: thresholds, cooldown, cadence, the alert offset, the watch status and the alert switches. */
+/** Step 4.3: cooldown, cadence, the alert offset, the watch status and the alert switches. */
 class SettingsViewModelTest {
     @get:Rule
     val main = MainDispatcherRule()
@@ -56,25 +53,23 @@ class SettingsViewModelTest {
     private val vm by lazy { SettingsViewModel(settings, schedule, statuses, alertPrefs) }
     private val defaults = SettingsDefaults.settings
 
-    private val hr = { value: Double -> Threshold(Metric.HEART_RATE, Direction.ABOVE, value) }
-
     @Test
     fun `TC-A-031 defaults are shown on first run`() {
         assertEquals(defaults, vm.uiState.value.settings)
     }
 
     @Test
-    fun `TC-A-032 change an alert threshold`() = runTest {
-        vm.save(defaults.copy(thresholds = listOf(hr(140.0))))
-        assertEquals(listOf(hr(140.0)), vm.uiState.value.settings.thresholds)
+    fun `TC-A-032 change the alert offset`() = runTest {
+        vm.save(defaults.copy(offsetBpm = 40))
+        assertEquals(40, vm.uiState.value.settings.offsetBpm)
         assertTrue(vm.uiState.value.errors.isEmpty())
     }
 
     @Test
-    fun `TC-A-033 a threshold out of range is rejected and the old value kept`() = runTest {
-        vm.save(defaults.copy(thresholds = listOf(hr(500.0))))
-        assertEquals(setOf(SettingsError.THRESHOLD_OUT_OF_RANGE), vm.uiState.value.errors)
-        assertEquals(defaults.thresholds, vm.uiState.value.settings.thresholds)
+    fun `TC-A-033 an offset out of range is rejected and the old value kept`() = runTest {
+        vm.save(defaults.copy(offsetBpm = 500))
+        assertEquals(setOf(SettingsError.OFFSET_OUT_OF_RANGE), vm.uiState.value.errors)
+        assertEquals(defaults.offsetBpm, vm.uiState.value.settings.offsetBpm)
     }
 
     @Test

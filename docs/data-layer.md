@@ -23,7 +23,7 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 | `WatchLinkDataSource` | `linkState` and `lastSync` flows, `events` from the watch (decoded, valid, compatible), publish schedule, prompt and hello, `removePrompt`, `markStored` | `FakeWatchLinkDataSource` (connect, disconnect, `emit`, `failNextPublish`, records) |
 | `TaskRepository` | tasks and reminders: lists, queries by task, save (insert or replace), delete (a task deletes its reminders) | `InMemoryTaskRepository` |
 | `HistoryRepository` | acknowledgements, selections and alerts, newest first, filter by type, `store` idempotent by id | `InMemoryHistoryRepository` |
-| `SettingsRepository` | thresholds, cooldown, snooze, cadence; defaults; validation | `InMemorySettingsRepository` |
+| `SettingsRepository` | cooldown, snooze, cadence, alert offset and initial threshold; defaults; validation | `InMemorySettingsRepository` |
 | `ScheduleRepository` | builds `/schedule` from tasks, reminders and settings, publishes with a growing version | `InMemoryScheduleRepository` + `InMemoryScheduleVersionStore` |
 | `PromptRepository` | validates and publishes `/prompt/<id>` with a fresh id | `InMemoryPromptRepository` |
 | `LinkStatusRepository` | link state and last sync for the link-state screen | `InMemoryLinkStatusRepository` |
@@ -50,7 +50,6 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 
 | Setting | Default | Accepted |
 |---|---|---|
-| Absolute thresholds (kept for protocol 1.1 watches) | none (the rule is baseline plus offset, issue 55) | 30 to 220, at most 8 thresholds |
 | Alert cooldown | 300 s (decision D4, 5 minutes) | 60 to 86400 s |
 | Alert offset above the resting baseline (`offsetBpm`, protocol 1.2) | 30 bpm | 20 to 50 |
 | Initial alert threshold until the watch has a baseline (`initialBpm`, protocol 1.2) | 110 bpm | 30 to 220 |
@@ -59,10 +58,9 @@ Code: interfaces and models in `phone/src/main/java/com/shlomoa/myadhdpal/phone/
 
 ## Settings storage (step 2.2)
 
-`DataStoreSettingsRepository` (`phone/.../data/datastore/`) stores `AppSettings` in Preferences DataStore (keys `thresholds` as a
-JSON list, `cooldown_seconds`, `snooze_minutes`, `snooze_max_count`, `cadence_minutes`, `offset_bpm`, `initial_bpm`). `SettingsValidator` is the one place
+`DataStoreSettingsRepository` (`phone/.../data/datastore/`) stores `AppSettings` in Preferences DataStore (keys `cooldown_seconds`, `snooze_minutes`, `snooze_max_count`, `cadence_minutes`, `offset_bpm`, `initial_bpm`). `SettingsValidator` is the one place
 that decides whether settings are acceptable (the ranges in the table above); the repository validates before it writes and
-returns `Invalid(errors)` without writing. A missing value takes the default of `SettingsDefaults`, and an unreadable file
+returns `Invalid(errors)` without writing. A missing value takes the default of `SettingsDefaults`, a `thresholds` key left in an older settings file is ignored, and an unreadable file
 or value (including a damaged settings file) also falls back to the defaults instead of crashing. The repository takes a
 `DataStore<Preferences>`; creating the file and the scope is the dependency graph's job (the Android lane's step 2.7). It
 passes the same abstract `SettingsRepositoryContract` as the in-memory fake.

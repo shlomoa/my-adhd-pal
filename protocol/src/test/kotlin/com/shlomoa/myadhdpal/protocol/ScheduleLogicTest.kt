@@ -25,7 +25,7 @@ class ScheduleLogicTest {
         reminders: List<Reminder> = emptyList(),
         checkpoints: List<Checkpoint> = emptyList(),
         snooze: SnoozeSettings = SnoozeSettings(minutes = 10, maxCount = 3)
-    ) = Schedule(1, reminders, checkpoints, snooze, AlertSettings(emptyList(), 600))
+    ) = Schedule(1, reminders, checkpoints, snooze, AlertSettings(600))
 
     private fun reminder(id: String, minute: Int, days: List<Int> = everyDay) = Reminder(id, "Title $id", minute, days)
 

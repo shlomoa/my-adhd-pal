@@ -13,6 +13,8 @@ import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditScreen
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditViewModel
 import com.shlomoa.myadhdpal.phone.ui.reminders.RemindersSection
 import com.shlomoa.myadhdpal.phone.ui.reminders.TaskRemindersViewModel
+import com.shlomoa.myadhdpal.phone.ui.schedule.ScheduleSyncBar
+import com.shlomoa.myadhdpal.phone.ui.schedule.ScheduleSyncViewModel
 
 private const val NEW = ""
 
@@ -20,6 +22,7 @@ private const val NEW = ""
 @Composable
 fun TasksTab(
     list: TaskListViewModel,
+    sync: ScheduleSyncViewModel,
     editorFor: (session: Int, taskId: String?) -> TaskEditViewModel,
     remindersFor: (taskId: String) -> TaskRemindersViewModel,
     reminderEditorFor: (session: Int, taskId: String, reminderId: String?) -> ReminderEditViewModel
@@ -42,7 +45,8 @@ fun TasksTab(
                 editing = it.id
             },
             onDelete = { list.delete(it.id) },
-            onRetry = list::retry
+            onRetry = list::retry,
+            top = { ScheduleSyncBar(sync.uiState.collectAsState().value, onSend = sync::send) }
         )
 
         task != NEW && reminder != null -> ReminderFormRoute(
