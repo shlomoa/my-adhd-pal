@@ -108,6 +108,8 @@ settled by the first compile in 5.2; a failure of (c) is a "stop and ask" case.
 
 ## 3. Health Services passive monitoring (step 6.1)
 
+The passive route described in this section was measured on the watch and is **not used for alerts** (delivered about every 10 minutes, [`biometrics.md`](../plans/biometrics.md) section 12.3); the route in use is the live `MeasureClient` route (biometrics.md section 11).
+
 Sources: [Monitor health data in the background](https://developer.android.com/health-and-fitness/health-services/monitor-background),
 [Health Services compatibility](https://developer.android.com/health-and-fitness/health-services/compatibility).
 

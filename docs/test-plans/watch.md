@@ -97,6 +97,8 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 
 ## Biometric alerts (6.x)
 
+Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the passive-probe code (measured, not used for alerts; the live route replaces it). They stay in the catalogue and keep running until lane W removes the code and the tests; the cases are then retired in a later change. TC-W-137 (vibration) and TC-W-138 (threshold) in the same number range are not probe cases and stay.
+
 | Id | Step | Kind | Case | Pass criteria |
 |---|---|---|---|---|
 | TC-W-077 | 6.6 | unit | An alert is sent as urgent `/alert/<id>` with a unique id and the numeric value | one item, fields as above |

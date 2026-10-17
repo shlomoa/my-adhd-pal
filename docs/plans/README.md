@@ -69,6 +69,8 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 
 **Deferred (user, 2026-10-17):** everything related to the schedule, the scheduler, the schedule builder and tasks in G5, G6 and G7 (steps 3.3, 3.4, 3.9, 4.1, 4.2, 5.2-5.3, and 1.6 schedule logic). Also deferred, low priority, as notes only: other biometrics and a "monitoring" status item. The gate definitions in `gates.json` are unchanged here; lane S updates them.
 
+**Live route work.** The rows for C4, C5, C10 and the experiments E1 to E7 are in [`watch.md`](watch.md#live-route-work-user-approved-plan-2026-10-17); 6.4 is now the live measure service.
+
 **Why G2 is split.** Gates are checked by `scripts/test/test-gates.sh` (TC-S-143). Only the five-state link function
 (1.5) and the diagrams of the link state machine and the alert flow (1.8b) depend on what the real devices report
 (whether Relayed and Away are observable, and how fast). Compatibility (1.4), schedule logic (1.6), the `LinkTransport`

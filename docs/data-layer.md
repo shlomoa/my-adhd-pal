@@ -106,6 +106,7 @@ of `ItemKeys` (`v` int, `id`, `ts` long, `body`), the same as on the watch.
   unknown paths, bad bodies and other major versions are dropped (`WatchItemDecoder`). An item is delivered once until
   `markStored` deletes it at the watch's node (writer-owns-cleanup: the phone may delete watch-written events after
   storing them). A hello is never deleted.
+- **Urgent alerts.** `/alert/<id>` is delivered when the link allows; the queue on reconnect is the exception path (disconnects and similar), see [`protocol.md`](protocol.md#urgent-alerts-and-the-queue).
 - **Publishing.** `/schedule` (urgent only when the reminders or checkpoints firing in the next 30 minutes change,
   `ScheduleUrgency`; the first publish after start is urgent), `/prompt/<id>` (urgent), `/hello/phone` (not urgent). A
   failing write is `PublishResult.Failed` with the reason. `removePrompt` deletes the phone's own prompt.

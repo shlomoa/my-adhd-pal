@@ -223,6 +223,8 @@ The user wants the **phone** to shake and flash, not only the watch. Consequence
 
 ## 6. What must be verified on the real watch before building (H2)
 
+The passive background listener steps and results in this section are **measured, not used for alerts**; the route in use is the live route (section 11).
+
 A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
 
 1. `getCapabilitiesAsync()` reports passive `HEART_RATE_BPM`.
@@ -361,7 +363,7 @@ Each statement is marked **Verified** (an official page I read, cited), **Second
 
 - **Permissions and approval.** Stress value: no open route at all. Own HRV from inter-beat intervals: the Sensor SDK in developer mode, a build installed only for testing; shipping needs the Samsung Partner Program (Verified). Whether a single-user private build is acceptable to Samsung: **Unverified**. Play: a health-data app has its own declarations (step 7.x), plus the partner terms.
 - **Latency.** Heart rate through Health Services arrived about every 10 minutes (measured on this watch, section 6). The Sensor SDK's continuous trackers are described as continuous with finer-grained results ([Samsung FAQ](https://developer.samsung.com/health/sensor/faq.html)); real delivery delay on the Watch6 Classic: **Unverified**. Samsung's own stress values are produced only without movement and about once a second at best (Secondhand), and reach other apps (if at all) through Samsung Health on a sync schedule: **Unverified**.
-- **Battery.** Continuous PPG or inter-beat tracking costs more battery than passive heart rate and would likely need a foreground service; the amount is **Unverified** and would need a measurement.
+- **Battery.** Continuous PPG or inter-beat tracking costs more battery than the live heart-rate route (section 11) and would likely need a foreground service; the amount is **Unverified** and would need a measurement.
 
 ### 9.4 Would it help tell stress from exercise?
 
@@ -372,7 +374,7 @@ Each statement is marked **Verified** (an official page I read, cited), **Second
 ### 9.5 Recommendation
 
 - **Samsung's stress value as a trigger or second condition: not possible now** (no open route).
-- **Second condition from movement (steps): use it, as a later step.** It needs one more passive data type and its permission (`ACTIVITY_RECOGNITION` for steps on the watch; **Unverified** which runtime permission the passive client asks for on Wear OS 6) and is within what the probe approach can measure. Proposed as a follow-up to 6.4/6.5, not part of the current decisions.
+- **Second condition from movement (steps): use it, as a later step.** It needs one more data type on the live route (experiment E5) and its permission (`ACTIVITY_RECOGNITION` for steps on the watch; **Unverified** which runtime permission the passive client asks for on Wear OS 6) and is within what the probe approach can measure. Proposed as a follow-up to 6.4/6.5, not part of the current decisions.
 - **Own HRV-based stress: use later, only if wanted.** It needs Samsung's Sensor SDK, developer mode on the watch and, to ship, the partner program.
 
 **What a probe on the real watch would need (not built; this section is research only):**
@@ -410,7 +412,7 @@ Each statement is marked **Verified** (an official page I read, cited), **Second
 
 - **Permission.** One more runtime permission, `ACTIVITY_RECOGNITION` (Verified, above), on top of the heart-rate ones; it fits the phone onboarding of D7 the same way (whether `pm grant` and a remote prompt work for it: **Unverified**, the heart-rate permissions did on this watch).
 - **Latency.** Google ([monitor in the background](https://developer.android.com/health-and-fitness/health-services/monitor-background), Verified) says what "background" means: "A service lets your app receive data in the background when no part of your app is visible in the foreground." It says: "When you receive data in the background, it is delivered in batches." and "The data you receive from Health Services is batched, so you may receive data points of different types, or multiple data points of the same type, in the same batch." Google does **not** define "batch": the page gives no size, no interval and no trigger. Our measurement for heart rate on the background route: readings delivered together, the first time 318 samples 7 min 41 s after start, later about every 10 minutes (section 6). Whether steps arrive together with heart rate on this watch, and how late steps are on the live route (section 11, app in the foreground): **Unverified**, not measured.
-- **Battery.** Steps and activity state read in the background come from the same channel as passive heart rate (small extra cost, **Unverified**; not measured for the live route); a raw accelerometer listener is the expensive option.
+- **Battery.** Steps and activity state read in the background come from the same channel as the passive heart rate measured in section 6 (not used for alerts); the extra cost is **Unverified** and not measured for the live route; a raw accelerometer listener is the expensive option.
 
 ### 10.3 The usual rules, and their risks
 
@@ -436,6 +438,8 @@ Threshold (resting + offset), cooldown (5 min), level 2 every 2 min up to 6 repe
 - the baseline is unaffected (hourly lows are low by construction).
 
 ### 10.5 Recommendation and what to probe
+
+The steps and activity-state probe is run on the live route (experiment E5); it replaces the passive step probe.
 
 **Build later, small:** steps + user activity state as the "user is still" gate (R1, R2, R5) after the probe confirms the signals work on this watch; no model (R4), no heart-rate slope (R3) in v1. Not part of the current decisions; the user decides.
 
