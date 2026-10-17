@@ -42,7 +42,7 @@ class PromptComposeViewModelTest {
     }
 
     @Test
-    fun `TC-A-129 sending publishes the title and the answers in order, without empty answers`() = runTest {
+    fun `TC-A-039 sending publishes the title and the answers in order, without empty answers`() = runTest {
         fill("Did you take the pills?", "Yes", "", "Later")
         vm.send()
         val (id, prompt) = source.publishedPrompts.single()
@@ -55,7 +55,7 @@ class PromptComposeViewModelTest {
     }
 
     @Test
-    fun `TC-A-130 a blank title or fewer than two answers is rejected and nothing is sent`() = runTest {
+    fun `TC-A-040 a blank title or fewer than two answers is rejected and nothing is sent`() = runTest {
         fill("", "Yes", "No")
         vm.send()
         assertEquals(setOf(PromptError.BLANK_TITLE), vm.uiState.value.errors)
@@ -67,7 +67,7 @@ class PromptComposeViewModelTest {
     }
 
     @Test
-    fun `TC-A-131 answers can be added up to the limit and removed down to two`() {
+    fun `TC-A-041 answers can be added up to the limit and removed down to two`() {
         repeat(Limits.MAX_OPTIONS) { vm.addOption() }
         assertEquals(Limits.MAX_OPTIONS, vm.uiState.value.options.size)
         vm.setOption(0, "first")
@@ -78,7 +78,7 @@ class PromptComposeViewModelTest {
     }
 
     @Test
-    fun `TC-A-132 a chosen expiry is carried as a time from now, and none when it is not chosen`() = runTest {
+    fun `TC-A-042 a chosen expiry is carried as a time from now, and none when it is not chosen`() = runTest {
         fill("Water?", "Yes", "No")
         vm.setExpiry(15)
         vm.send()
@@ -99,7 +99,7 @@ class PromptComposeViewModelTest {
     }
 
     @Test
-    fun `TC-A-134 two prompts get two ids`() = runTest {
+    fun `TC-A-043 two prompts get two ids`() = runTest {
         fill("One?", "Yes", "No")
         vm.send()
         fill("Two?", "Yes", "No")

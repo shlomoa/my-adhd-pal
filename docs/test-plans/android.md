@@ -177,12 +177,7 @@ repositories exist (G3).
 | TC-A-126 | While sending the state says so and a second tap does not send twice | Unit | `Sending`; the repository is called once |
 | TC-A-127 | The Tasks tab sends the schedule once and then says the watch is up to date | Unit (Hilt + Compose, fake Data Layer client) | One `/schedule` item written; second tap writes nothing |
 | TC-A-128 | The Ask form starts with an empty title, two empty answers and no expiry | Unit | `PromptComposeUiState()` |
-| TC-A-129 | Sending publishes the title and the answers in order, without empty answers | Unit | One `/prompt/<id>` item; keys "1", "2", ...; no expiry when none chosen |
-| TC-A-130 | A blank title or fewer than two answers is rejected and nothing is sent | Unit | `BLANK_TITLE` / `TOO_FEW_OPTIONS`; form kept |
-| TC-A-131 | Answers can be added up to the limit (6) and removed down to two | Unit | Counts as stated |
-| TC-A-132 | A chosen expiry is carried as a time from now | Unit | `expiresAt` = now + minutes |
 | TC-A-133 | A failed send shows the reason and keeps the form; a sent one empties it | Unit | `Failed(reason)`, then `Sent` with an empty form |
-| TC-A-134 | Two prompts get two ids | Unit | Two different `/prompt/<id>` items |
 | TC-A-135 | The Ask tab sends a question with its answers to the watch | Unit (Hilt + Compose, fake Data Layer client) | One `/prompt/` item holding the question; "Question sent to the watch" shown |
 | TC-A-080 | The broadcast publishes the schedule on the real devices | Manual | Watch shows the reminder at the set time after the broadcast |
 | TC-A-081 | The publish command logs the published version and the reminder time | Unit | `DEMO published schedule version=<n> reminderAt=<ms>`; `unchanged` when nothing new was sent |

@@ -165,4 +165,4 @@ Red commit: the first commit of the 4.4 PR (tests and catalogue rows only). Comm
 e: PromptComposeViewModelTest.kt:27:30 Unresolved reference 'PromptComposeViewModel'.
 ```
 
-TC-A-128 to TC-A-135 are red until this step lands.
+TC-A-039 to TC-A-043, TC-A-128, TC-A-133 and TC-A-135 are red until this step lands (the catalogue already had 039 to 043 for the same behaviour, so the tests carry those ids instead of new ones).
