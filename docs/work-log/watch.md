@@ -390,3 +390,22 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug
   :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
 - NOT yet run on the watch: whether `pm grant` works for the health permissions, and the prompt fallback (TC-W-136).
+
+## 2026-10-17 - Probe: display state and sample age; first real-watch result
+
+- Issue and PR: step 6.4, branch `claude/watch-6-4-probe-display`
+- Result (user, via the coordinator, Wear OS 6): capability true; both health permissions granted by `pm grant` (#185); one batch of 318 samples
+  7 min 41 s after start, logged screen off while the user says the screen stayed lit. Recorded in `docs/plans/biometrics.md` section 6.
+- Changed: the probe records the display state (`doze` = always-on display) instead of `isInteractive`, the age of the newest sample and the span of
+  each batch; `displayName`, `sampleAges` (pure, tested); checklist step 2 now runs 30 minutes.
+- Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug
+  :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
+- NOT yet known: batch gaps, the screen-on delay, off-wrist behaviour (step 3 running), vibration (step 4). TC-W-136 and 137 are not complete.
+
+## 2026-10-17 - Probe step 3 result (off the wrist)
+
+- Issue and PR: step 6.4, PR #186 (same branch)
+- Result (user, via the coordinator, old build): watch on a table, screen off, `clear` 10:02:48: one batch of 1 sample at 10:04:13 (about 85 s
+  after `clear`, probably while taking it off), report 10:12:51 `screen=all batches=1 samples=1`, no gap. Off the wrist the watch delivers
+  essentially nothing. Recorded in `docs/plans/biometrics.md` section 6.
+- Open: step 4 (vibration, the user), then step 2 again for 30 minutes on the build with #186 (display state and sample age).
