@@ -23,7 +23,8 @@ The lanes run in parallel. Work that a lane cannot start is blocked by a gate (b
 1. The lane split above ("shared and data" is not defined in `plan.md`).
 2. Steps that need a person (emulator pairing in Android Studio, real watch and phone, the 24-hour reminder run,
    agreeing biometric thresholds) are gates the user closes; the lanes never wait by polling.
-3. Gate PRs are merged by the user. Each `plan.md` step is one GitHub issue (starting with its Validation plan) and one
+3. PRs are "Merged by C on green CI with the head sha, each reported to V" (C = coordinator); the human gates H1 and H2
+   still flip only on the user's decision. Each `plan.md` step is one GitHub issue (starting with its Validation plan) and one
    PR that closes it, as `plan.md` section 5 requires.
 
 ## Validation first and last (every lane)
@@ -115,9 +116,42 @@ The scripts are covered by the 19 cases in [`../test-plans/bootstrap.md`](../tes
 Before G0, A and W touch no build file. Branches: `claude/shared-*`, `claude/android-*`, `claude/watch-*`, `claude/docs-*`; each thread
 merges `origin/main` before every step.
 
-## Schedule
+## Current execution order (2026-10-17 plan)
 
-Waves are ordering, not calendar time. `■G` = blocked until gate `G` is merged. Within a wave, steps with no unmet
+The plan "align the product plan with the user's biometric definition" replaced the original schedule below for the work
+that is left. Status of each row lives in the body of tracking issue #235; a row starts when everything in "Depends on" is
+done. Rows are in plan order. Experiments are run by the user; their results go to [`biometrics.md`](biometrics.md)
+section 12.3 and the watch probe checklist, and a run has no test-case id.
+
+| Wave | Row | Issue | Lane | Depends on | Status |
+|---|---|---|---|---|---|
+| pre | P1, P2, P3 | #221 | C, V | none | **Done (issue #221 closed).** |
+| 0 | C1 D6 "Measured latency" | #222 | D | P3 | **Done (issue #222 closed).** |
+| 0 | C3 gates | #223 | S | P3 | **Done (PR #236).** Gates G-E2 and G-LIVE added, both still open |
+| 0 | C9 baseline wording | #224 | D | P3 | **Done (issue #224 closed).** |
+| 1 | C11 Android 4.4 / 4.6 | #66, #68 | A | C3 | **Done (PR #199, PR #200).** Issues stay open: the manual cases TC-A-044, 088, 103, 109, 116 wait for the user's run |
+| 1 | E1 live route worn | #228 | user, W | build of #210 installed | Script merged (PR #242); waits for the user's run |
+| 2 | E2 record against the definition | #229 | D, W | E1 | blocked by E1 |
+| 2 | E3 no background permission | #230 | user, W | E1 | Script merged (PRs #243, #244); waits for the user's run |
+| 2 | E4 top app and window | #231 | user, W | E1 | Front screen merged (PR #240), run script merged (PR #245); waits for the user's run |
+| 3 | C2 passive probe code | #225 | W | E2 | blocked by E2 |
+| 3 | C2 passive wording (docs) | #226 | D | none | **Done (PR #238; issue #226 closed).** |
+| 3 | C6 urgent `/alert` immediate | #227 | D | none | **Done (PR #219; issue #227 closed).** |
+| 3 | E6 Do Not Disturb, Bedtime, Theater, vibration | #233 | user, W | none | Script merged (PRs #243, #244); waits for the user's run |
+| 4 | C4 live measure service | #57 | W | E2, E3, E4 | blocked by E2, E3, E4 |
+| 4 | C5 evaluator fed continuously | #58 | W | C4 | blocked by C4 |
+| 4 | E5 steps and activity | #232 | user, W | E2 | blocked by E2 |
+| 5 | C10 permission flow | #56 | W, A | E3, C4 | blocked by E3, C4 |
+| 5 | E7 alert latency to phone | #234 | user, W, A | C4, C5 | blocked by C4, C5 |
+| deferred | C12, C7, C8, C9x, C3x | none | n/a | later stage (user) | **Deferred (user, 2026-10-17).** No work |
+| dropped | 24 h passive probe, passive step probe | none | n/a | n/a | No work |
+
+Waiting on the user: the E1, E3, E4 and E6 runs, the manual Android cases, the approval of the design document (#154) and
+the approval of the docs index structure (#156).
+
+## Original schedule (history)
+
+The 2026-10-17 plan above replaced this schedule; it is kept as the record of the original order. Waves are ordering, not calendar time. `■G` = blocked until gate `G` is merged. Within a wave, steps with no unmet
 gate start immediately; a lane with nothing unblocked stops.
 
 | Wave | Shared and data (S) | Android (A) | Watch (W) | Documentation (D) |
@@ -163,6 +197,38 @@ graph LR
   G5 --> TILE[5.2-5.3 tile]
 ```
 
+The graph above is the original order. The live-route chain of the 2026-10-17 plan, with the deferred steps dashed. 6.3-6.8
+need H1, G2b and 3.8; 6.4 is C4, so G-E2 also gates it. G-LIVE is produced by C4.
+
+```mermaid
+graph LR
+  E1 --> E2 --> GE2[G-E2] --> C4 --> GLIVE[G-LIVE]
+  E1 --> E3
+  E1 --> E4
+  E3 --> C4
+  E4 --> C4
+  C4 --> C5
+  E3 --> C10
+  C4 --> C10
+  C4 --> E7
+  C5 --> E7
+  E2 --> E5
+  H1 --> BIO[6.3-6.8 biometrics]
+  G2b --> BIO
+  D38[3.8 debug set] --> BIO
+  GE2 --> BIO
+  S33[3.3 schedule receive]:::deferred
+  S34[3.4 scheduler]:::deferred
+  S39[3.9 round trip]:::deferred
+  S41[4.1 tasks]:::deferred
+  S42[4.2 schedule builder]:::deferred
+  S52[5.2-5.3 tile]:::deferred
+  classDef deferred stroke-dasharray: 5 5
+```
+
+**Note (fact, no rule).** S-final, A-final and W-final require G7, which is deferred; 7.x requires G6 and G7. They stay
+open until the deferred work is taken up.
+
 ## Verification of this plan set
 
 - `scripts/test/test-scripts.sh` passes (19 cases, red-first evidence in `docs/test-reports/bootstrap-*.md`).
@@ -177,7 +243,7 @@ graph LR
   alerts only) is applied at G-DEC; G2a is transport-neutral, G2b, G3 and the real link clients wait for it; A and W re-run
   their baselines after merging `main`.
 - **Tool incompatibility with AGP 9.4 / Kotlin 2.4** (0a.5, 0b.1): the thread stops and asks (`plan.md` rule).
-- **Human gates** (H1, H2, spike runs, gate PR merges) can idle a lane; `BLOCKED` entries in the work log make it visible.
+- **Human gates** (H1, H2, spike runs) can idle a lane; `BLOCKED` entries in the work log make it visible.
   A human gate flips when the user decides, and the decision is recorded in the issue body. A repository document of the
   decision is a separate deliverable, tracked in the work log, and does not block the gate.
 - **Cloud sessions without the Android SDK**: G-ENV (0a.8) is the first gate for exactly this reason.
