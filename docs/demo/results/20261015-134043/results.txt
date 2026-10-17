@@ -1,0 +1,24 @@
+Demo run 20261015-134043
+
+Stage          Result   Detail
+Ready          PASS     both devices ready
+Install        PASS     debug APKs installed, both apps started
+Publish        PASS     schedule version 1 published, reminder due at device time 1792061340000 ms (in about 2 min)
+Schedule       PASS     the watch applied schedule version 1
+Reminder       PASS     fired 144 ms after its time (limit 60000 ms; the two device clocks can differ by a second or two)
+Notification   PASS     the watch has a notification from the app (look at the watch: title, 4 actions, one short tick)
+Done           PASS     Done sent on the watch (the notification closes)
+Ack            PASS     the Done acknowledgement is stored in the phone history
+
+What you should have seen on the watch:
+  Ready         both devices answer and are charged
+  Install       the apps start on both devices
+  Publish       nothing to see yet; the phone has scheduled the demo reminder
+  Schedule      nothing to see; the schedule arrives on the watch
+  Reminder      at the reminder time the watch buzzes once (a short tick) and shows the reminder
+  Notification  the notification "Demo reminder" with Done, Snooze, Start 2 min and Dismiss is on the watch
+  Done          the notification closes by itself (the script did the tap)
+  Ack           the phone history gets the Done acknowledgement of the demo reminder
+  The tile "Reminders" (add it once in the watch tile carousel) shows the next reminder or "No reminders".
+
+RESULT: ALL STAGES PASS

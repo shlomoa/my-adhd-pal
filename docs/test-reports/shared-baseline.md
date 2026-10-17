@@ -224,3 +224,120 @@ Before wiring the lane scripts into the workflow and widening the detekt test ex
 
 - Red: in a fresh clone, `test-structure.sh` then `test-pairing.sh` (the CI job's order, `-Dorg.gradle.caching=false`) gives `FAIL TC-S-008 changed applicationId makes check fail`, as on CI. Cause: the guard `! grep -q "not found"` meant to catch a missing Gradle task also matched Android lint's notice "...listed in the baseline file but not found in the project; perhaps they have been fixed?", which prints only when lint actually executes (clean runner), not from cache.
 - Fix: the guard now matches Gradle's missing-task message (`Task '...' not found`), the same intent without the false match; failing cases print the last 25 lines of the command output; the four scripts are separate CI steps so one failure no longer hides the others (the job's single multi-line step had stopped after `test-pairing.sh`, so `test-checks.sh` and `test-ci.sh` had not run on CI).
+
+## 1.1-1.3 protocol spec, constants, models and codec (red)
+
+Red commit: tests only (`PathsTest`, `ConstantsTest`, `CodecTest` in `:protocol`, `scripts/test/test-protocol-spec.sh`); no implementation.
+
+- `./gradlew :protocol:test`: BUILD FAILED at `:protocol:compileTestKotlin`, `Unresolved reference 'Message'` (and the other protocol types: `Paths`, `Codec`, `Schedule`, ...). TC-S-042..055 cannot run.
+- `scripts/test/test-protocol-spec.sh` (TC-S-040, TC-S-041): exit 1, 7 FAIL, 0 PASS (no `Item catalog`, `Item format`, `Versioning policy` or `Link states` section in `docs/protocol.md`, no `Paths.kt`).
+
+## 1.8a transport-neutral diagrams (red)
+
+Red commit: the TC-S-077 structure checks in `scripts/test/test-protocol-spec.sh` only, before the `## Diagrams` section exists in `docs/protocol.md`: exit 1, 9 FAIL (each of the four diagrams missing as a Mermaid block of the right type, and the prompt state machine without a start and an end); the balanced-block checks pass trivially on empty input.
+
+## 1.7 LinkTransport and fake transport (red)
+
+Red commit: `FakeTransportTest` only (TC-S-072..076), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'fake'`, `'TransportListener'`, `'StoredItem'`, `'LinkState'`.
+
+## 1.6 schedule logic (red)
+
+Red commit: `ScheduleLogicTest` only (TC-S-067..071), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'ScheduleLogic'`, `'SnoozeResult'`, `'SnoozeDenial'`.
+
+## 1.4 compatibility rule (red)
+
+Red commit: `CompatibilityTest` only (TC-S-056..059), no implementation. `./gradlew :protocol:test`: `:protocol:compileTestKotlin` fails, `Unresolved reference 'Compatibility'` and `'decodeIfCompatible'`.
+
+## G2 split into G2a and G2b (red)
+
+Red commit: `scripts/test/test-gates.sh` only (TC-S-143, new), before `gates.json`, the plans and the README change.
+
+- `scripts/test/test-gates.sh` on the current `main`: exit 1, 7 FAIL, with the generic graph checks (unique ids, existing requirements, no cycle, README table equals `gates.json`, lane plans name existing gates) PASS. The FAILs are the split itself: `G2 is replaced by G2a and G2b`, `G2a requires G1 only (got '')`, `G2b requires G2a and G-DEC (got '')`, `G3a requires G2a (got 'G2')`, `G3 ... requires G3a, G-LIB and G2b (got 'G-LIB,G3a')`, `G5 requires G2a (got 'G2')`.
+
+## 2.3 data-layer contract (red)
+
+Red commit: tests only (`FakeWatchLinkDataSourceTest`, the repository contract classes and their in-memory-fake subclasses in `phone/src/test/.../data/`; TC-S-090..092), no implementation. `./gradlew :phone:testDebugUnitTest`: compilation of the test source set fails, `Unresolved reference` for `WatchLinkDataSource`, `WatchEvent`, `PublishResult`, `TaskRepository`, `HistoryRepository`, `SettingsRepository`, `ScheduleRepository`, `PromptRepository`, `LinkStatusRepository` and the fakes.
+
+## Acknowledgement amendment, protocol 1.1 (red)
+
+Red commit: tests only (`ConstantsTest` expects `Protocol.VERSION` 1.1; `CodecTest` cases for `Acknowledgement.reminderId` and `occurrenceAt`: round trip with and without, a 1.0 body still decodes, absent fields are not written, blank, over-long and negative values are invalid). `./gradlew :protocol:test`: compilation fails, `No parameter with name 'reminderId' found`.
+
+## 2.2 DataStore settings (red)
+
+Red commit: `DataStoreSettingsRepositoryTest` only (TC-S-098, TC-S-099 and the abstract `SettingsRepositoryContract` of TC-S-092 against a DataStore), no implementation and no dependency. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'datastore'` and `'DataStoreSettingsRepository'`.
+
+## 2.1 Room schema, DAOs and migration policy (red)
+
+Red commit: tests only (`DaoTest`, `RoomRepositoriesTest` running the existing abstract contract tests against Room, `SchemaTest`; TC-S-093..097 and TC-S-092 for the Room repositories), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'AppDatabase'`, `'TaskEntity'`, `'RoomTaskRepository'`, ...
+
+## Compose UI-test dependencies (issue 113, red)
+
+Red commit: `ComposeUiTestSampleTest` only (TC-S-144), before the dependencies exist. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'test'` for `androidx.compose.ui.test`.
+
+## Spike content kept in main (red)
+
+Red commit: `scripts/test/test-spike.sh` only (TC-S-145, TC-S-146), run against the tree without the spike apps and runners: every case FAILs (no classes under `src/debug/.../debug/spike`, no debug manifests declaring the components, no runner scripts, `test-run-0b2a.sh` and `test-run-0b2b.sh` missing).
+
+## Spike content: raw logs and receiver permission (red)
+
+Red: `test-run-0b2b.sh` with a `.gitignore` containing `*.log` in its temporary repository (as in the real repository), against the runner without the fix: FAIL "results table and raw per-case logs (L2, L3) are in the commit" and FAIL "the redaction markers are present" (the logs were never committed because `git add` skips ignored files). `test-spike.sh` gets the check "the command receiver is protected by the DUMP permission", which the receiver did not have (CI lint reported `ExportedReceiver`, and `WearRecents` for the watch activity without `taskAffinity`).
+
+## 1.5 Link-state function (red)
+
+Red commit: `LinkStateTest` only (TC-S-060..066, one table-driven exhaustive case over 5 x 5 x 8 input combinations, the capability name), no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'NodeObservation'`, `'LinkStateLogic'`, `'LinkObservation'`.
+
+## 1.5 follow-up: both capability names (red)
+
+Red commit: `LinkStateTest` asserts `Capabilities.PHONE_APP == "adhd_pal_phone"`, before the constant exists. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'PHONE_APP'`.
+
+## 1.8b Link-state and alert diagrams (red)
+
+Red commit: `scripts/test/test-protocol-spec.sh` extended only (TC-S-077 requires the "Link state machine" and "Alert flow" Mermaid blocks, TC-S-079 compares the diagram's states with the `LinkState` members). Run against `docs/protocol.md` without the two diagrams: FAIL for "Link state machine is a Mermaid block", "is a stateDiagram-v2", "Alert flow is a Mermaid block", "is a sequenceDiagram", "diagram states equal the LinkState members (found: )" and "link-state diagram has a start".
+
+## 2.4 Real phone WatchLinkDataSource (red)
+
+Red commit: `DataLayerWatchLinkDataSourceTest` and `FakeDataLayerClient` only (events from the watch in order, own writes and bad items dropped, one delivery per item until stored, `markStored` deletes at the watch node and not for a hello, publish paths and urgent flags, the schedule urgent rule, `Failed` on a failing write, link state from node lists and hello, scan of items stored while away), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'DataLayerWatchLinkDataSource'` and `'RemoteItem'`.
+
+## 2.5 Repositories over the real source, event storer, schedule version store (red)
+
+Red commit: `DefaultRepositoriesTest` (the existing contract tests TC-S-092 for the production schedule, prompt and link-status repositories), `WatchEventProcessorTest` (row first, then `markStored`; duplicates and hellos cleaned up; a failed store is not marked; the phone hello at start) and `DataStoreScheduleVersionStoreTest` (persists across a new store), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'DefaultScheduleRepository'`, `'WatchEventProcessor'`, `'DataStoreScheduleVersionStore'`.
+
+## DataStore reopen flake (TC-S-099)
+
+Not reproduced locally: with `cancel()` only, the new 100-round reopen test and the whole class passed on this machine. CI failed once with `IllegalStateException` at `FileStorage.kt:52` (two active DataStores for one file). Cause, by construction: DataStore frees the file when its scope's job has completed, and `cancel()` does not wait for that, so reopening right after it can race. The new test `reopening the file right after closing it works every time` uses `cancelAndJoin()` (both DataStore tests), which removes the race.
+
+## Protocol 1.2 (issue 168, red)
+
+Red commit: `Protocol12Test` (TC-S-150 to TC-S-156: alert level and episode id, relative threshold fields and constants, `EpisodeEnd` and its path, `WatchStatus`, version 1.2 and compatibility) and `ConstantsTest` expecting `Protocol.VERSION` 1.2, no implementation. `./gradlew :protocol:test`: test compilation fails, `Unresolved reference 'level'`, `'episodeId'`, `'AlertRules'`, `'EpisodeEnd'`, `'WatchStatus'`, `'episodeEnd'`.
+
+## Issue 171, need 4: the last watch status (red)
+
+Red commit: `DataLayerWatchLinkDataSourceTest` TC-S-165 (status kept as state, newest wins, not an event, own writes and bad bodies ignored, read at start and never deleted), `FakeWatchLinkDataSourceTest` TC-S-165 (`setWatchStatus`) and the new `WatchStatusRepositoryContract` with `DefaultWatchStatusRepositoryTest`, no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'watchStatus'`, `'setWatchStatus'`, `'DefaultWatchStatusRepository'`, `'WatchStatusRepository'`.
+
+## Issue 171, need 3: offset, initial threshold and cooldown 300 in the settings (red)
+
+Red commit: `SettingsRepositoryContract` TC-S-164 (defaults 30, 110 and 300; ranges 20 to 50 and 30 to 220 with `OFFSET_OUT_OF_RANGE` and `INITIAL_OUT_OF_RANGE`), `ScheduleRepositoryContract` TC-S-164 (the schedule carries both and a change publishes a new version), `DataStoreSettingsRepositoryTest` (persists both; the default cooldown expectation changes from 600 to 300 by decision D4), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'offsetBpm'`, `'initialBpm'`, `'OFFSET_BPM'`.
+
+## Issue 171, need 2: publishing the end of an episode (red)
+
+Red commit: `DataLayerWatchLinkDataSourceTest` TC-S-162 (urgent `EpisodeEnd` at a fresh `/episode-end/<id>`, `Failed` on a failing write) and TC-S-163 (the one-hour cleanup of the phone's own old episode-end items when writing one and once at start), `FakeWatchLinkDataSourceTest` TC-S-162 (records `publishedEpisodeEnds`), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'publishEpisodeEnd'`, `'publishedEpisodeEnds'`.
+
+## Issue 171, need 1: alert level and episode in the history (red)
+
+Red commit: `HistoryRepositoryContract` TC-S-160 (level and episode kept, a 1.1 alert reads as level 1 without an episode) and `MigrationTest` TC-S-161 (migration 1 to 2 on a database built from `1.json`, existing rows kept, version 2 with exactly one step), no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `No parameter with name 'level' found`, `'episodeId'`.
+
+## No absolute heart-rate threshold in the defaults (issue 55 decision, red)
+
+Red commit: `DataStoreSettingsRepositoryTest` TC-S-098 now expects `SettingsDefaults.settings.thresholds` to be empty, no implementation. `./gradlew :phone:testDebugUnitTest --tests '*DataStoreSettingsRepositoryTest*'`: `AssertionError` at `DataStoreSettingsRepositoryTest.kt:65` (the new assertion; the old one, which expected the 150 bpm threshold, was removed in the green commit).
+
+## No absolute thresholds in the protocol (protocol 1.3, red)
+
+Red commit: `Protocol13Test` (TC-S-180 to TC-S-182), the existing tests moved to the new `AlertSettings(cooldownSeconds, offsetBpm, initialBpm)` shape (`CodecTest`, `Protocol12Test`, `EpisodeEvaluatorTest` TC-W-138, `ConstantsTest` expecting 1.3, the phone settings tests TC-S-092, TC-S-098, TC-S-099, TC-A-032, TC-A-033 and the schedule contract), no implementation. `./gradlew :protocol:test`: test compilation fails, `No value passed for parameter 'thresholds'` (`CodecTest.kt:28`) and `Argument type mismatch: actual type is 'Int', but 'List<Threshold>' was expected` (`CodecTest.kt:187`).
+
+## Script tests after the merge (issue 190, red)
+
+Red commit: `scripts/test/test-post-merge.sh` (TC-S-170 to TC-S-174: no `script-tests` job in `build.yml`, the post-merge workflow, no script test lost, the runner, the `main-red` issue handler with a fake `gh`), no implementation. `scripts/test/test-post-merge.sh`: `FAIL TC-S-170 build.yml has no script-tests job`, `FAIL TC-S-171 post-merge.yml exists`, `FAIL TC-S-173 a failing test makes the runner exit 1 (expected 1, got 127)` (the runner does not exist), `FAIL TC-S-174 red with no open issue creates one labelled main-red`; 14 of the 19 checks fail.
+
+## The phone removes its own prompts (issue 198, red)
+
+Red commit: `PromptCleanerTest` (TC-S-190, TC-S-191), `WatchEventProcessorTest` (TC-S-192, TC-S-193), `DefaultPromptRepositoryCleanupTest` (TC-S-194), `PublishedPromptsContract` with `InMemoryPublishedPromptsTest` and `DataStorePublishedPromptsTest` (TC-S-195), the in-memory `InMemoryPublishedPrompts`, no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'PublishedPrompt'`, `'PublishedPrompts'`, `'PromptCleaner'`, `'DataStorePublishedPrompts'`.

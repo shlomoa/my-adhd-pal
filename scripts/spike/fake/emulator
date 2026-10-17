@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Simulated emulator executable: `emulator -avd NAME -port N` boots the simulated device (see fake/adb).
+set -u
+D="${FAKE_DIR:?}"
+port=""; while [ $# -gt 0 ]; do case "$1" in -port) port="$2"; shift 2;; *) shift;; esac; done
+s="emulator-$port"
+touch "$D/$s.online"; echo dead > "$D/$s.state"; rm -f "$D/$s.stopped"; : > "$D/$s.log"
+# a freshly booted device starts the app's listener service for queued items
+PATH="$(dirname "$0"):$PATH" FAKE_DIR="$D" FAKE_FAIL="${FAKE_FAIL:-}" "$(dirname "$0")/adb" -s "$s" __boot >/dev/null 2>&1
+exit 0

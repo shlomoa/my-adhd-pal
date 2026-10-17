@@ -1,0 +1,439 @@
+# Biometric alerts: decisions (step 6.2, gate H1)
+
+Decision document for step 6.2 ([issue #55](https://github.com/shlomoa/my-adhd-pal/issues/55)). The user's answers to the
+proposal are in the body of the issue (section "Decisions"). **Confirmed by the user on 2026-10-16, with the last two items:**
+"the two remaing items: "I'm OK" and the cap of 6 repeats is approved". Nothing in section 8 is open. Gate H1 flips in a
+separate one-line PR. Research notes: [`../research/watch.md`](../research/watch.md) sections 3 to 5. Steps 6.3 to 6.8 in
+[`watch.md`](watch.md) follow once H1 and G2b are merged.
+
+Every statement below is marked **Decided** (the user said so), **Verified** (a cited source says so), **Unverified** (not
+confirmed, or secondhand) or **Proposal** (my suggestion, needs the user's yes). Nothing unverified is built before the probe
+on the real watch (section 6).
+
+## 1. Decisions
+
+| # | Topic | Status | Decision |
+|---|---|---|---|
+| D1 | Metrics | Decided | Heart rate only. |
+| D2 | Direction | Decided | Above the threshold only. The evaluator also supports below, unused in v1. |
+| D3 | Threshold | Decided | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. The baseline is the **20th percentile of the hourly lows of the last 7 days** (Decided, section 2); until a baseline exists the threshold is an absolute **110 bpm** (Decided). |
+| D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again; after that, **every 2 minutes** while the rate stays above, at most **6 repeats** per episode (Decided). Details: section 3. |
+| D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. **The phone raises the same kind of alert** (it vibrates and flashes a full-screen alert, not only the watch). The full-screen alert has an **"I'm OK"** button that ends the episode (Decided). Sections 4 and 4a. |
+| D6 | Latency | Decided | Best effort. Readings are batched by the system at an interval the app is not told (section 6). No maximum delay is promised. |
+| D7 | Permission | Decided, feasibility checked | Requested from the **phone** app (onboarding). Section 5. |
+| D8 | Privacy | Decided | Raw readings are never logged in release builds; raw feed only in `wear/src/debug/`. `/alert` carries the numeric value (already accepted). |
+
+## 2. The resting baseline (D3)
+
+**What the platform offers on the watch.**
+
+- Verified: Health Services passive monitoring delivers `HEART_RATE_BPM` samples; sampling frequency and batching vary by
+  device and are not told to the app
+  ([compatibility](https://developer.android.com/health-and-fitness/health-services/compatibility)).
+- Not found: the passive-monitoring data types that page requires on every Wear OS device are heart rate (`HEART_RATE_BPM`),
+  steps and similar; I found no resting-heart-rate type in it or in any other Health Services page I could read (search
+  excerpts only for the full type reference, which I could not open). I therefore treat "read resting HR directly from Health
+  Services on the watch" as **not available**, **Unverified** against the full `DataType` reference.
+  (Unverified: newer client versions may add an aggregate or daily heart-rate type; a search for `HEART_RATE_BPM_STATS` found
+  nothing. Re-check the `DataType` reference when 6.4 starts.)
+- Verified: Health Connect has `RestingHeartRateRecord` (API 34)
+  ([reference](https://developer.android.com/reference/android/health/connect/datatypes/RestingHeartRateRecord)). That is a
+  **phone** API.
+- Unverified: whether Samsung Health writes resting heart rate into Health Connect for the Galaxy Watch6 Classic. Samsung
+  developer-forum threads report that it did not sync, or had gaps, at least on older versions
+  ([thread](https://forum.developer.samsung.com/t/health-is-not-syncing-the-resting-heart-rate-data-in-health-connect/25800),
+  [thread](https://eu.community.samsung.com/t5/wearables/resting-hr-is-recording-but-missing-on-some-days-while-min-max/td-p/7829821)).
+  These are secondhand and possibly outdated.
+
+**Baseline (Decided).** The user accepted the baseline as defined here (2026-10-16): "The baseline as you defined it is accepted by me."
+It is derived on the watch from passive samples (no new permission, works without Samsung Health):
+
+1. For each hour with at least 3 samples, keep the **median of the lowest 3 consecutive samples**. Keep only these hourly
+   numbers (and their timestamps) for the last 7 days: they are a derived statistic, not raw readings, and are never logged
+   in release builds (D8).
+2. The baseline is the **20th percentile of the hourly values of the last 7 days**. Sleep hours and quiet hours dominate it,
+   which is what "resting" means here, and one active afternoon cannot move it much.
+3. The baseline needs at least **24 hourly values** to count as known.
+
+   *Worked example (the reading the user accepted):* the samples of one hour are 80, 60, 62, 61, 90 bpm in time order. The
+   windows of 3 consecutive samples are (80, 60, 62), (60, 62, 61) and (62, 61, 90), with medians 62, 61 and 62, so the hourly
+   low is **61**. With 24 hourly lows 51, 52, ..., 74, the 20th percentile by nearest rank is the 5th smallest (ceil(0.2 x 24)),
+   **55**, so the threshold at the default offset of 30 is 85 bpm.
+4. The alert threshold is `baseline + offset` (D3). The phone shows the current baseline and the resulting threshold
+   (the watch sends the baseline in `/hello/watch` or a status item: a protocol change, section 7).
+
+**Initial value until a baseline exists (Decided):** an absolute **110 bpm**, used from the first run
+until the watch has the 24 hourly values above. Once the baseline exists the threshold becomes `baseline + offset` and 110 is
+no longer used.
+
+**Optional later improvement (Proposal, not in v1):** ignore a breach while the user is clearly exercising (steps in the last
+two minutes). It needs a second passive data type and permission and is a source of false alerts until then: walking fast or
+climbing stairs can exceed resting + 30.
+
+## 3. Cooldown and escalation (D4)
+
+Decided by the user:
+
+- **Level 1** at the first reading above the threshold.
+- **Cooldown 5 minutes** after it, counted between reading times (batching may deliver late).
+- If the **next reading is still above** the threshold when the cooldown ends: **level 2**, a stronger alert. After that, level 2
+  repeats **every 2 minutes** while the rate stays above the threshold.
+- The episode ends when a reading is at or below the threshold. The next breach starts again at level 1.
+- Each alert (level 1 and every level 2 repeat) sends `/alert/<id>` with its `level` (protocol change, section 7); the **phone
+  raises its own alert for each one** (section 4a).
+- Batching can make the 2-minute rhythm irregular: an alert can only follow a reading, and readings may arrive late or in
+  groups (section 6). The rhythm is "at most one alert per 2 minutes, as soon as a reading above the threshold is evaluated".
+
+Decided by the user (2026-10-16: "the two remaing items: "I'm OK" and the cap of 6 repeats is approved"): level 2 stops after **6
+repeats** per episode (12 minutes at 2-minute intervals), and the full-screen alert on the watch and on the phone has an
+**"I'm OK" button** that ends the episode early. Without these a high rate during exercise would alarm the user for as long
+as it lasts.
+
+### 3a. PROPOSAL, user decision pending: what a late batch raises
+
+Not decided and not built. The evaluator today (`EpisodeEvaluator`) walks the readings of a delivery one by one, so a batch that holds a long
+high stretch (up to about 10 minutes, section 6) can raise level 1 and level 2 in the same delivery, and the phone would vibrate twice within a
+second for something that happened minutes ago.
+
+Proposal:
+
+1. **A delivery raises at most one alert.**
+2. **Only if the newest reading of the batch is above the threshold.** A rate that has already fallen back is not alarmed; the episode simply ends.
+3. **The level is the highest the readings warrant.** A 10-minute high stretch gives one level 2, not a level 1 followed by a level 2.
+4. The later **"every 2 minutes"** repeats and the **cap of 6** stay as decided in section 3, counted in alert time (the time the alert is raised),
+   not in reading time. So after a late level 2, the next repeat is due 2 minutes later by the clock, and a delivery that arrives earlier raises nothing.
+
+Effect on D4: the 5-minute cooldown still decides when level 2 first becomes right, but it is measured on reading times inside the batch; points 1 to 4 only
+change how many alerts one delivery can produce and what clock the repeats use.
+
+**Second open question: "I'm OK" while the rate is still above the threshold.** As built, the episode ends and the very next reading above the
+threshold starts level 1 again at once (within seconds, or at the next delivery). Options: (a) as built; (b) after "I'm OK", stay quiet for N
+minutes (for example 5) before a new episode may start, then start at level 1 if still above. The user decides, and N if (b).
+
+Tests would follow the decision (new rows in `docs/test-plans/watch.md`); none are written yet.
+
+## 4. How strong an alert can be (D5)
+
+**Plainly: the hardware offers vibration, sound and the screen, and nothing else.** A watch cannot shock, heat or physically
+move the wearer. The strongest safe alert is the combination below at its limits.
+
+| Part | Level 1 | Level 2 (escalation) | Status |
+|---|---|---|---|
+| Vibration | maximum-amplitude pattern (255), about 3 s on, short pauses, repeated for about 15 s | same at 255, continuous for about 30 s with no pauses longer than 0.3 s | Proposal for the shape. Whether the watch honours amplitude is **Unverified**: the app must check `Vibrator.hasAmplitudeControl()` and fall back to an on-off pattern |
+| Screen | wake the screen and show a large full-screen alert (colour, one word, a big button) | brighter and flashing, button stays | Proposal; the mechanism is below |
+| Sound | optional setting, off by default | on if the setting is on | Proposal |
+
+**What can suppress it (checked as far as sources allow):**
+
+- Do Not Disturb: Samsung says it silences notifications but lets **alarms** through
+  ([Samsung](https://www.samsung.com/us/support/answer/ANS00080310/)). Verified for Samsung's description. Whether an
+  alert from this app counts as an alarm is **Unverified**: the Android DND policy has an alarm category for notifications
+  of category `ALARM` ([ZenPolicy](https://developer.android.com/reference/android/service/notification/ZenPolicy)), so the
+  alert should be posted with category alarm and alarm audio/vibration attributes. Ordinary apps cannot use the flag that
+  forces vibration through interruption limits (`FLAG_BYPASS_INTERRUPTION_POLICY` is for privileged apps,
+  [VibrationAttributes](https://developer.android.com/reference/android/os/VibrationAttributes)).
+- **Measured on the Galaxy Watch6 Classic (Wear OS 6, 2026-10-17, probe `vibrate`: 3 pulses of 800 ms at amplitude 255, alarm usage, called from a
+  broadcast receiver; `hasAmplitudeControl=true`):** normal mode, felt, "between weak and strong"; Do Not Disturb set with
+  `adb shell cmd notification set_dnd priority`, **felt nothing** (an earlier `set_dnd on` gave `zen_mode 2`, total silence). So a plain
+  alarm-usage vibration from the background is suppressed under Do Not Disturb on this watch, although the Google Wear OS help says alarms
+  always vibrate ([Wear OS help](https://support.google.com/wearos/answer/6056897)); Samsung forum reports of alarms silenced in Do Not
+  Disturb or sleep mode agree with the measurement
+  ([thread](https://eu.community.samsung.com/t5/wearables/alarm-only-vibrates-sounds-once-when-triggered-from-sleep-mode/td-p/10674677);
+  secondhand). Bedtime, Theater mode and the intensity settings are still to be measured.
+- **Routes that might get through Do Not Disturb (research, all Unverified until tested):**
+  1. *Alarm-category notification on a channel with bypass-DND and a full-screen intent* (probe command `notify-alarm`). The channel flag
+     only works when the user's policy allows it, and the Wear OS help lists a per-app "Override Do Not Disturb for" setting on the watch, so
+     the user may have to switch the app on there once ([NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel),
+     [Wear OS help](https://support.google.com/wearos/answer/6056897)). The probe prints `channelBypassDnd`, `policyAccess` and
+     `canUseFullScreenIntent` and the user notes whether the watch vibrated and the screen woke, with and without that setting.
+  2. *An alarm clock*: `AlarmManager.setAlarmClock`, which the system treats as a real alarm; its receiver vibrates with alarm usage (probe
+     command `alarm-clock`, fires 15 s later). The Android DND exception for alarms is meant for exactly this.
+  3. *Do Not Disturb access* (`ACCESS_NOTIFICATION_POLICY`, granted by the user in settings) so that the app can lift the filter while an alert
+     is raised. Heavy-handed (it changes the user's setting), and whether the watch offers the settings screen is unknown; not probed, a fallback.
+  4. *None works*: then under Do Not Disturb the alert may be silent. That would need the user's decision (for example: turn Do Not Disturb off
+     when this app matters, or accept it). `FLAG_BYPASS_INTERRUPTION_POLICY` is for privileged apps and is not an option.
+- Bedtime mode: Samsung says alarms still sound
+  ([Samsung](https://www.samsung.com/us/support/answer/ANS00080310/)). Unverified for this alert (same question as above).
+- **Theater mode: Samsung says it turns off all alerts, alarms and wake-up gestures. Expect no alert at all in theater mode;
+  nothing in an app overrides it.**
+- The user's vibration-intensity setting: the system keeps separate intensity settings, including one for alarms
+  ([AOSP change](https://gitlab.e.foundation/e/os/android_frameworks_base/-/commit/095b3d31dbe1bb5614880a801b7c31c2facb3645)).
+  Whether the Galaxy Watch's own "vibration intensity" setting scales an app's vibration down, and whether alarm usage is
+  exempt, is **Unverified**. The probe (section 6) measures it by sending the same pattern at each setting.
+- Do not rely on the full-screen alert alone: the screen can be covered by a dismissed or restricted notification, so the
+  vibration and the `/alert` history entry are the minimum that always happens when the watch can run the code.
+
+**Full-screen alert mechanism.** An app cannot just start an activity from the background (Android restricts it); the
+supported way is a notification with a **full-screen intent**. Verified: from Android 14 the full-screen-intent permission
+(`USE_FULL_SCREEN_INTENT`) is granted by default only to apps with calling or alarm functionality, others must ask the user,
+and Play Console needs a declaration ([Play policy](https://support.google.com/googleplay/android-developer/answer/16965181),
+[AOSP](https://source.android.com/docs/core/permissions/fsi-limits)). Unverified: whether Wear OS applies the same rules and how
+the screen is woken on the Galaxy Watch6 Classic. Consequence: this alert may need a manual permission step on the watch and
+a Play declaration (step 7.x) that a health-alert app might not get by default. For a private build that is acceptable; it is a
+Play-readiness item to decide with the user.
+
+## 4a. The phone raises the alert too (D5, Decided)
+
+The user wants the **phone** to shake and flash, not only the watch. Consequences:
+
+- The watch's `/alert/<id>` item (urgent, already in the protocol) is the trigger. The phone app's listener service receives it,
+  stores it in the history as today and **also raises the alert**: maximum-importance alarm-category notification channel, a
+  repeating maximum-amplitude vibration, a full-screen alert that flashes, and optional sound. Level 2 is stronger than level 1,
+  as on the watch.
+- This only works while the link delivers the item. With the watch away from the phone the phone shows nothing until the item
+  arrives (items queue and are delivered on reconnect; a late alert is shown with its original time).
+- The phone has the same limits as the watch (section 4): Do Not Disturb and silent modes, the full-screen-intent permission on
+  Android 14 and later (Unverified for the Galaxy A55 5G here), and the vibration-intensity setting. The phone also needs the
+  full-screen-intent step, asked during the same onboarding as the watch permission (D7).
+- **"I'm OK" on the phone also ends the episode on the watch** (user decision, recorded in the body of issue #55 on 2026-10-16). The
+  phone sends an end-episode item to the watch (new item, protocol 1.2, Shared lane); when the watch receives it, it stops
+  its repeats, closes its alert and starts the next breach again at level 1. Watch lane: plan and test it with 6.5 and 6.6
+  (TC-W-084, TC-W-085), tests first, once the item's path and body are defined in `docs/protocol.md`. Nothing is built before that.
+- Owner: Android lane (phone alert and its "I'm OK"), after the protocol change (`level`, end-episode item). Watch lane: the watch alert and stopping on the end-episode item.
+
+## 5. Permission requested from the phone (D7)
+
+- Verified: the heart-rate permission is a runtime permission of the **watch app** (`BODY_SENSORS` up to API 35,
+  `android.permission.health.READ_HEART_RATE` targeting API 36; background: `BODY_SENSORS_BACKGROUND`, or
+  `READ_HEALTH_DATA_IN_BACKGROUND` on API 36)
+  ([permissions](https://developer.android.com/health-and-fitness/health-services/permissions)). A phone app cannot grant it.
+- Verified: a phone app can open an activity on the watch with `RemoteActivityHelper.startRemoteActivity(intent, watchNodeId)`;
+  the intent must be `ACTION_VIEW`, carry a data URI and the `BROWSABLE` category
+  ([reference](https://developer.android.com/reference/androidx/wear/remote/interactions/RemoteActivityHelper)), and it is
+  unavailable while the devices are disconnected.
+- **Proposed flow:** onboarding on the phone has a button "Allow heart rate on the watch". It calls `startRemoteActivity` with
+  `adhdpal://permission/heart-rate`. The watch app has an activity with a matching `BROWSABLE` intent filter that requests
+  the permissions. The system prompt appears **on the watch** and the user taps Allow there: this cannot be avoided.
+  The watch then reports the granted state to the phone (new item or a field in `/hello/watch`: protocol change, section 7)
+  and the phone shows it. If denied, no alerts, and both apps say why.
+- Unverified (to test on the devices): that the remote activity starts with the watch screen off or locked (the user may need
+  to wake the watch), that the background permission is a second prompt or a settings page on Wear OS 5, and the behaviour on
+  Wear OS 6.
+
+## 6. What must be verified on the real watch before building (H2)
+
+A short probe (debug-only, 6.4 first task) on the Galaxy Watch6 Classic:
+
+1. `getCapabilitiesAsync()` reports passive `HEART_RATE_BPM`.
+2. Register a passive listener; record arrival times and sample counts with the screen on, off and while the watch sits on a
+   desk, for at least 24 hours. This sets what "best effort" means (D6) and whether the 24-hourly-values baseline in section 2
+   is reachable. If readings arrive only every several minutes, or not at all in the background, the user decides whether
+   biometric alerts are still worth building (Samsung may restrict third-party background heart rate:
+   [forum thread](https://forum.developer.samsung.com/t/read-heart-rate-every-5-minutes-in-background-service-on-wear-os/34328),
+   secondhand).
+3. The vibration/DND/Bedtime/intensity checks of section 4, and the remote permission flow of section 5.
+
+### First result on the real watch (Galaxy Watch6 Classic, Wear OS 6, 2026-10-17)
+
+Probe step 1 and 2, as reported by the user through the coordinator. Verified on the device, one run, not yet repeated:
+
+- `getCapabilitiesAsync()` reports passive `HEART_RATE_BPM` supported (`heartRatePassive=true`).
+- `pm grant` worked for both `android.permission.health.READ_HEART_RATE` and `READ_HEALTH_DATA_IN_BACKGROUND`; without the first, `start` fails
+  with `SecurityException: Missing permissions: [android.permission.health.READ_HEART_RATE]` (section 5 therefore holds for Wear OS 6).
+- The background app does receive heart-rate data, but in **large, delayed batches**: after `start` at 09:49:41 the only batch in about ten
+  minutes arrived at 09:57:22 (7 min 41 s later) with 318 samples, about 0.7 samples per second. So the watch collects at about 1 sample per
+  1.4 s while worn, and delivers them minutes later. Consequence for the alert: the delay from a high heart rate to the alert can be several
+  minutes (D6, best effort, holds; it is now measured, not assumed; see the longer run below, which supersedes the sample rate), and the hourly lows and the baseline have enough samples.
+- The batch was logged with the screen off although the user says the screen stays lit on the wrist: the first probe read `isInteractive`, which
+  is false in the always-on display. The probe now records the display state (on, doze, off) and the age of the newest sample, and step 2 runs
+  30 minutes to see several batches. Not yet known: the gap between batches and the delay with the screen on.
+- **Off the wrist (step 3, old build, 2026-10-17):** the watch lay on a table with the screen off from 10:02:48 (after `clear`). One batch of **1 sample** arrived at
+  10:04:13, about 85 s after `clear` (probably while the watch was being taken off); the report at 10:12:51 showed `batches=1 samples=1`, no gap.
+  So off the wrist the watch delivers essentially nothing, as expected: no alerts can come from a watch that is not worn (and the baseline gets no
+  samples then).
+
+### Longer run: batch sizes and delay (user via the coordinator, 2026-10-17, same watch)
+
+The first probe registration stayed active after step 2 and kept logging while the new build was installed. The wrist state between 10:29 and 11:25
+is not known (the user did other things), so the gaps below are not a clean worn run. Raw `PROBE` lines, old build (its screen flag is unreliable):
+
+| Time | Samples in the batch |
+|---|---|
+| 09:57:22 (start 09:49:41) | 318 |
+| 10:04:13 (off the wrist) | 1 |
+| 10:29:52 | 574 |
+| 10:32:20 | 4 |
+| 10:37:08 | 371 |
+| 10:40:03 | 83 |
+| 10:48:14 | 565 |
+| 10:55:21 | 404 |
+| 11:05:08 | 600 |
+| 11:15:00 | 590 (the line said 600) |
+
+New build (installed about 11:24): 11:25:13 one batch, 600 samples, `display=doze`, `newestAgeMs=7874`, `spanMs=599000`.
+
+What this shows (Verified on the device, one watch, wrist state partly unknown):
+
+- The watch records about **1 sample per second** (600 samples span 599 s). The earlier "0.7 per second" was a partial batch.
+- Batches hold **up to about 600 samples, a window of about 10 minutes**, and arrive **seconds after the window ends** (newest sample 7.9 s old).
+  Irregular partial batches also occur (4, 83, 371, 404 samples), probably when the watch was taken off or the window was cut.
+- Consequence for D6 (best effort): a high heart rate can reach the app **up to about 10 minutes plus a few seconds late** (a rise at the start of a
+  window is seen when the window closes), and sometimes sooner in a partial batch. No bound shorter than that is promised. The cooldown (5 minutes)
+  and repeats (2 minutes) of section 3 count from the reading's own timestamp, so a late batch can raise level 1 and level 2 in the same delivery;
+  this follows the evaluator as built.
+- The baseline of section 2 is reachable: one hour of wear gives thousands of samples.
+- Still not measured: a clean worn run with the display on, and the delay when the watch is on the wrist but still. Checklist step 2 stays as it is for that run.
+
+## 7. What changes elsewhere (not done in this document)
+
+| Change | Owner | Why |
+|---|---|---|
+| `AlertSettings`: `offsetBpm` (20 to 50, default 30) and a fallback absolute threshold; `cooldownSeconds` default 300. Protocol 1.2 | Shared lane | D3, D4: a relative threshold is not expressible today (absolute `value` only) |
+| `Alert`: add `level` (1 or 2) | Shared lane | D4 |
+| Watch status (baseline, permission granted) to the phone: a field in `/hello/watch` or a new item | Shared lane | D3, D7 |
+| Phone onboarding screen for the permission, the full-screen-intent step and the offset setting | Android lane | D3, D7 |
+| End-episode item phone to watch (path, body, urgent), protocol 1.2 | Shared lane | "I'm OK" on the phone ends the episode on the watch (section 4a) |
+| Phone raises its own alert when an `/alert` arrives: alarm-channel notification, repeating maximum vibration, flashing full-screen alert, level 2 stronger (section 4a) | Android lane | D5 |
+| `EpisodeEvaluator` and `BaselineTracker` (in `:protocol`, `alerts/`): resting-relative threshold, escalation level, episode end (replace the first `AlertEvaluator` with absolute thresholds, deleted) | Watch lane (6.5), tests first (TC-W-086 to 089, 120 to 131, 138) | D3, D4 |
+| Passive listener, baseline store (hourly values), alert activity with full-screen intent, vibration patterns | Watch lane (6.3, 6.4, 6.6) | D5 |
+| Play declaration for the full-screen intent | Step 7.x | section 4 |
+
+## 8. Answers and what is still open
+
+Answered by the user (2026-10-15 in this lane's session; 2026-10-16 relayed by the coordinator with the user's exact words):
+
+1. Initial value until a baseline exists: **110 bpm** (Decided, section 2).
+2. Baseline rule: "The baseline as you defined it is accepted by me." (Decided, section 2: hourly low = median of the lowest 3
+   consecutive samples per hour; baseline = 20th percentile of the hourly values of the last 7 days; known after 24 hourly
+   values.) An earlier relayed wording, "the baseline is defined with taking the average", was withdrawn by the user.
+3. Escalation: after the 5-minute cooldown, alerts every **2 minutes** while above the threshold (Decided, section 3). The
+   alert must shake and flash the **phone** too and act like an alert there (Decided, section 4a).
+4. Theater mode, and possibly the watch's vibration-intensity setting, can silence the alert, and nothing in an app overrides
+   them: **accepted**.
+5. The full-screen-intent permission step and the later Play declaration: **accepted**.
+
+Approved by the user on 2026-10-16 (their words, relayed by the coordinator): "the two remaing items: "I'm OK" and the cap of 6
+repeats is approved".
+
+- Cap of **6 level-2 repeats** per episode: **Decided** (section 3).
+- **"I'm OK" button** that ends an episode early, on the watch and the phone: **Decided** (sections 3 and 4a).
+
+**Nothing is open.** This is the user's confirmed document for step 6.2 (confirmed 2026-10-16). The remaining "Proposal" marks in
+section 4 (exact vibration patterns, screen and sound details) are implementation details that tests in 6.6 pin down, not
+questions for the user. The one-line PR that flips H1 follows.
+
+## 9. Could the Galaxy Watch's stress value be a trigger or a second condition? (research, 2026-10-17)
+
+**In three lines:**
+
+1. The watch's stress value is computed inside Samsung Health from heart-rate variability, and no route open to an ordinary app gives it to us: not Health
+   Services, not Samsung's Sensor SDK, not the Samsung Health Data SDK, and (as far as I could find) not Health Connect. It is reachable only through Samsung's
+   closed partner programs.
+2. What we can get is heart rate and movement; the beat-to-beat intervals that make heart-rate variability come only through the Sensor SDK, which Samsung
+   restricts to developer-mode testing unless Samsung accepts us as a partner.
+3. Recommendation: **not possible as Samsung's stress value now**; use **movement (steps) as the second condition** to tell stress from exercise, and revisit
+   the stress value only if Samsung approves a partnership.
+
+Each statement is marked **Verified** (an official page I read, cited), **Secondhand** (forum, blog or search excerpt of a page I could not open) or
+**Unverified**.
+
+### 9.1 What Samsung's stress measure is
+
+- HRV-based. **Secondhand** (Samsung support text seen as excerpts; the pages returned 403 to my fetch tool): the watch estimates stress from heart-rate
+  variability ([Samsung](https://www.samsung.com/us/support/answer/ANS10001394/)).
+- Continuous or on demand. **Secondhand**: the Stress setting offers "Measure continuously" and "Manual only". Continuously, it measures about once per
+  second while heart rate is normal and there is no movement; a manual reading takes 1 to 2 minutes with the wrist still. A Samsung community answer says
+  it does not measure automatically while you sleep or move a lot
+  ([Samsung](https://www.samsung.com/ae/support/mobile-devices/how-can-i-use-stress-level-feature-on-samsung-watch-5/)). Exact intervals: **Unverified**.
+- The algorithm is proprietary. **Secondhand**: a Samsung developer-relations reply on the developer forum says so and suggests building one's own estimate
+  with Wear Health Services ([Samsung forum, via a search excerpt](https://forum.developer.samsung.com/)).
+
+### 9.2 Every route an ordinary app has
+
+| Route | Does it give the stress value? | What I found |
+|---|---|---|
+| Health Services on Wear OS (our current route) | **No.** Verified | The data types required for passive monitoring are heart rate, steps, distance, speed, calories, elevation and floors; heart-rate variability, inter-beat interval and stress do not appear ([Google](https://developer.android.com/health-and-fitness/health-services/compatibility)). A given watch may add types; the capabilities call lists them (**Unverified** for this watch). |
+| Samsung Health Sensor SDK (watch, Galaxy Watch4 and later) | **No stress tracker.** Verified | Continuous trackers: accelerometer, heart rate (its inter-beat interval "can be used to calculate HRV"), PPG, skin temperature; on demand: body composition, ECG. It does not share data with Samsung Health. **Developer mode is "intended only for testing or debugging your app. It is not intended for app users"; to distribute an app you must join the Samsung Partner Program** ([Samsung FAQ](https://developer.samsung.com/health/sensor/faq.html)). |
+| Samsung Health Data SDK (phone) | **No stress, no HRV type.** Verified | The release notes list heart rate, sleep, sleep apnea, irregular rhythm notification, energy score, skin temperature, steps and others, with user consent for all reads; the access code for developer mode and distribution come through the partner program ([Samsung](https://developer.samsung.com/health/data/release-note.html)). Its energy score is derived from HRV (**Secondhand**) but is a different value. |
+| Health Connect (phone) | **Probably not.** Mixed | A heart-rate-variability record type exists (`HeartRateVariabilityRmssdRecord`, API 34; Verified, [Android](https://developer.android.com/reference/kotlin/androidx/health/connect/client/records/HeartRateVariabilityRmssdRecord)); I saw no stress record type (**Unverified**: I did not read the whole type list). Whether Samsung Health writes HRV or stress there: **Secondhand and conflicting**, a sync vendor's page says overnight HRV and a stress score are written ([FitMesh](https://www.fitmesh.fit/en/sync/galaxy-watch/watch-6)); a Samsung forum thread suggests HRV may need the privileged partnership ([Samsung forum](https://forum.developer.samsung.com/t/hrv-heart-rate-variability-heart-rate/41364)). The user can check the Health Connect data-sources screen on the phone for what Samsung Health writes. |
+| Samsung Privileged Health SDK / Samsung Health Platform server API | **Closed to us.** Secondhand | Samsung's developer blog presents the Privileged Health SDK as the route for processed sensor data such as SpO2, ECG and PPG ([Samsung](https://developer.samsung.com/sdp/blog/en/2022/05/25/check-which-sensor-you-can-use-in-galaxy-watch-running-wear-os-powered-by-samsung)); a developer-relations reply says only premium health partners have access to Samsung Health data; aggregators list a stress score behind a server-side program that needs Samsung's approval ([Open Wearables](https://openwearables.io/blog/samsung-health-api-galaxy-watch-data-for-developers), a vendor page, low trust). |
+
+### 9.3 What it would cost
+
+- **Permissions and approval.** Stress value: no open route at all. Own HRV from inter-beat intervals: the Sensor SDK in developer mode, a build installed only for testing; shipping needs the Samsung Partner Program (Verified). Whether a single-user private build is acceptable to Samsung: **Unverified**. Play: a health-data app has its own declarations (step 7.x), plus the partner terms.
+- **Latency.** Heart rate through Health Services arrives in minutes-long batches (measured on this watch, section 6). The Sensor SDK's continuous trackers are described as continuous with finer-grained results ([Samsung FAQ](https://developer.samsung.com/health/sensor/faq.html)); real delivery delay on the Watch6 Classic: **Unverified**. Samsung's own stress values are produced only without movement and about once a second at best (Secondhand), and reach other apps (if at all) through Samsung Health on a sync schedule: **Unverified**.
+- **Battery.** Continuous PPG or inter-beat tracking costs more battery than passive heart rate and would likely need a foreground service; the amount is **Unverified** and would need a measurement.
+
+### 9.4 Would it help tell stress from exercise?
+
+- The Samsung stress value is, by its design, measured only while the wrist is still (**Secondhand**), so during exercise there is normally no value: its presence is a weak "not exercising" hint, and its absence says nothing.
+- Heart-rate variability itself (low variability at a raised heart rate without movement) is the signal that separates stress from exercise, but it needs inter-beat intervals, which only the restricted Sensor SDK gives.
+- A cheaper discriminator is open to us now: **movement from Health Services** (steps and calories are required passive types, Verified, [Google](https://developer.android.com/health-and-fitness/health-services/compatibility)). The optional improvement in section 2 (ignore a breach while the user is clearly moving) is exactly this second condition. It would cut walking and stair false alerts; it cannot tell a still, anxious state from a still, calm one, which the stress value would.
+
+### 9.5 Recommendation
+
+- **Samsung's stress value as a trigger or second condition: not possible now** (no open route).
+- **Second condition from movement (steps): use it, as a later step.** It needs one more passive data type and its permission (`ACTIVITY_RECOGNITION` for steps on the watch; **Unverified** which runtime permission the passive client asks for on Wear OS 6) and is within what the probe approach can measure. Proposed as a follow-up to 6.4/6.5, not part of the current decisions.
+- **Own HRV-based stress: use later, only if wanted.** It needs Samsung's Sensor SDK, developer mode on the watch and, to ship, the partner program.
+
+**What a probe on the real watch would need (not built; this section is research only):**
+
+1. The `capabilities` command printing the whole list of passive types the watch supports (to see whether the Watch6 Classic offers anything beyond the required list); a few lines in the existing probe.
+2. The user opening Health Connect on the phone (data and access, Samsung Health) to see which types Samsung Health writes: no code.
+3. For the HRV route only: a debug-only app that asks the Sensor SDK for its tracking capability and an inter-beat-interval tracker in developer mode, printing counts and times only. Not recommended before the user decides to pursue Samsung's partner program.
+
+## 10. Can the app tell a heart-rate rise from stress from one caused by exercise? (research, 2026-10-17)
+
+**In three lines:**
+
+1. Partly. The watch app can see movement in the background (steps and the system's "user activity state" through Health Services, or the raw step and
+   accelerometer sensors), so it can hold back an alert while the user is moving and for a few minutes after; it cannot know the *reason* for a rise
+   (it cannot tell a still, anxious body from a still, calm one without heart-rate variability, section 9).
+2. The movement data arrives in the same minutes-long batches as heart rate, with timestamps, so the pairing works and only the alert time is late; it costs one more
+   runtime permission (`ACTIVITY_RECOGNITION`). Exercise without steps (cycling, weights) is the main gap.
+3. Recommendation: **build later, small** (steps + activity state as a "user is still" condition, with a configurable quiet time), after a short probe on the real watch
+   that shows what these signals really do on this watch; it changes the decided design, so it needs the user's yes first.
+
+Each statement is marked **Verified** (an official page I read, cited), **Secondhand** or **Unverified**.
+
+### 10.1 Signals the watch app can get in the background
+
+| Signal | What it gives | Facts |
+|---|---|---|
+| Health Services **user activity state** | `USER_ACTIVITY_PASSIVE` (awake, not exercising), `USER_ACTIVITY_EXERCISE`, `USER_ACTIVITY_ASLEEP`, `USER_ACTIVITY_UNKNOWN` | Verified ([state reference](https://developer.android.com/reference/kotlin/androidx/health/services/client/data/UserActivityState), seen as a search excerpt; the rest on the Google page I read): switched on with `setShouldUserActivityInfoBeRequested(true)` in the passive config, needs the `ACTIVITY_RECOGNITION` runtime permission, arrives in `onUserActivityInfoReceived` with a `stateChangeTime` that "may be in the past" ([Google](https://developer.android.com/health-and-fitness/health-services/monitor-background)). Whether the Watch6 Classic reports EXERCISE for brisk walking or only for tracked workouts: **Unverified**. |
+| Health Services **steps, calories, distance** (passive data types) | Step counts and similar per interval | Verified: steps, daily steps, distance, speed, calories and elevation are required passive types on every Wear OS device ([Google](https://developer.android.com/health-and-fitness/health-services/compatibility)). Which of them arrive per interval and how fine: **Unverified**; the daily-goal feature (`PassiveGoal`) is a per-day counter and does not suit minutes ([Google](https://developer.android.com/health-and-fitness/health-services/monitor-background)). |
+| Raw **step counter / step detector** (SensorManager) | Steps since boot / one event per step | Verified ([Android](https://developer.android.com/develop/sensors-and-location/sensors/sensors_motion)): both need `ACTIVITY_RECOGNITION`; step counter latency up to 10 s, step detector below 2 s. Hardware batching and background delivery: **Unverified** (the page does not cover them); listening continuously in the background would likely need a foreground service. |
+| Raw **accelerometer** | Movement intensity (including arm movement without steps) | Verified (same page): it "uses about 10 times less power than the other motion sensors"; from Android 12 it is rate-limited. A movement measure such as the moving average of the acceleration norm is the usual way to classify low and high activity (**Secondhand**, a patent excerpt). Continuous listening costs battery: **Unverified**, needs a measurement. |
+| **Samsung's automatic workout detection** | A workout recorded by Samsung Health | **Secondhand** (Samsung support excerpts): it starts after about 10 minutes of activity and only for some activities (walking and running, cycling, elliptical, rowing, swimming, a "dynamic workout" option), can mistake driving for a workout, and must be switched on in Samsung Health ([Samsung](https://www.samsung.com/us/support/answer/ANS10003306/)). There is no API for an ordinary app to be told about it. |
+| **The user starting a workout** | An exercise tracked by Health Services | Verified ([Google](https://developer.android.com/health-and-fitness/health-services/active-data)): only one exercise at a time on the device; `getCurrentExerciseInfoAsync()` returns `OTHER_APP_IN_PROGRESS`, `OWNED_EXERCISE_IN_PROGRESS` or `NO_EXERCISE_IN_PROGRESS` when asked, but there is no notification for exercises of other apps ("your listener only receives updates about exercises your app owns"), and the answer does not say which app or what exercise. Whether Samsung's own tracker answers `OTHER_APP_IN_PROGRESS`: **Unverified**. If a workout were started inside our app we would of course know. |
+
+### 10.2 Permissions, latency and batching compared with heart rate
+
+- **Permission.** One more runtime permission, `ACTIVITY_RECOGNITION` (Verified, above), on top of the heart-rate ones; it fits the phone onboarding of D7 the same way (whether `pm grant` and a remote prompt work for it: **Unverified**, the heart-rate permissions did on this watch).
+- **Latency and batching.** Data received in the background "is delivered in batches", data points of different types can be in one batch, and the guidance is to order them by their own timestamps rather than by arrival
+  ([Google](https://developer.android.com/health-and-fitness/health-services/monitor-background), Verified). Our measurement for heart rate: one batch of 318 samples 7 min 41 s after start (section 6). So movement data is expected to be as late as heart rate, which is fine: each heart-rate sample can be judged against the steps in the minutes *before its own timestamp*, and the delay only moves the alert time (D6, best effort). Whether steps and heart rate really come in the same batch on this watch: **Unverified**, the probe below shows it.
+- **Battery.** Passive steps and activity state come from the same background channel as heart rate (small extra cost, **Unverified**); a raw accelerometer listener is the expensive option.
+
+### 10.3 The usual rules, and their risks
+
+The literature on cutting false heart-rate alarms uses the same idea: static thresholds ignore context, and an activity-dependent expectation or accelerometer-based suppression reduces false alarms (a 2015 body-sensor study cut false alarms from 9.58% to 1.43% with a rule-based filter on a chest ECG and an accelerometer; a Twente thesis predicts the expected heart rate from activity; both small and not for a wrist device, so a design direction, not proof)
+([MDPI](https://www.mdpi.com/1424-8220/15/2/3952), [Twente](https://essay.utwente.nl/essays/90703); **Secondhand**, search excerpts).
+
+| Rule | False alarms it removes | Missed alarms it causes |
+|---|---|---|
+| **R1** suppress while recent steps or movement are high | Walking, stairs, running | A stress episode while walking |
+| **R2** keep suppressing for N minutes after movement stops (heart rate recovers slowly) | The drop-off after a run or stairs | Stress that starts right after exercise |
+| **R3** suppress while the heart rate is falling | Recovery tail | Noisy wrist readings can look like falling; a real peak that is already falling is missed |
+| **R4** compare with an activity-dependent expected heart rate (a model) | The most, in studies | Complex, needs training data and tuning; not for v1 |
+| **R5** treat `USER_ACTIVITY_EXERCISE` as a hard suppress | Tracked workouts | Reliability on this watch **Unverified**; a workout the system does not detect is not covered |
+
+The main gap for every rule that uses steps: exercise **without steps** (cycling, weights, rowing) does not count steps; the accelerometer or the activity state would catch more, at more battery cost. And none of them can say a still body is calm or anxious.
+
+### 10.4 How it fits the decided design
+
+Threshold (resting + offset), cooldown (5 min), level 2 every 2 min up to 6 repeats and "I'm OK" stay as decided. The new part would be a **gate on each reading before it can start or continue an episode**: a reading counts as a breach only if the user has been still for N minutes (no steps and not in the exercise state). Proposed handling (**Proposal**, needs the user's yes):
+
+- a reading while the user is moving, or inside the quiet time after moving, is treated like a reading at or below the threshold: it ends a running episode (the rise has an explanation) and raises nothing;
+- N is a phone setting next to the offset (default to be chosen, for example 10 minutes), and a switch to turn the gate off; both are protocol 1.3 fields (Shared lane), and the evaluator in `:protocol` takes the context as an input (Watch lane, tests first);
+- the baseline is unaffected (hourly lows are low by construction).
+
+### 10.5 Recommendation and what to probe
+
+**Build later, small:** steps + user activity state as the "user is still" gate (R1, R2, R5) after the probe confirms the signals work on this watch; no model (R4), no heart-rate slope (R3) in v1. Not part of the current decisions; the user decides.
+
+**Probe on the real watch (not built; research only):**
+
+1. The `capabilities` command listing every passive data type and user activity state the watch supports (a few lines in the existing probe).
+2. A probe run that registers heart rate, steps and user activity info together (with `ACTIVITY_RECOGNITION` granted) and logs counts, times and the activity state per batch, never values, while the user sits 5 minutes, walks 5 minutes, climbs stairs, then does one exercise without steps (cycling or weights): do steps arrive in the same batch as heart rate, how late is the state change, and what does the state say for each activity.
+3. With Samsung's automatic workout detection switched on and a detected workout running, `getCurrentExerciseInfoAsync()` from a probe command: does it answer `OTHER_APP_IN_PROGRESS`.
+4. Optional, if steps miss too much: a short foreground accelerometer-variance measurement for the same activities, with the battery drop noted.

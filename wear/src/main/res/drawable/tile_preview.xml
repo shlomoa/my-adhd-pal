@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Placeholder tile preview (a bell on a dark background); replace with a screenshot of the real tile. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+    <path
+        android:fillColor="#FF202124"
+        android:pathData="M0,0h400v400h-400z" />
+    <path
+        android:fillColor="#FFE8EAED"
+        android:pathData="M200,110c-33,0 -60,27 -60,60v70l-20,20v10h160v-10l-20,-20v-70c0,-33 -27,-60 -60,-60zM200,300c16,0 28,-12 28,-28h-56c0,16 12,28 28,28z" />
+</vector>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ask your watch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph">
+<div class="bar"><button type="button" class="ib" aria-label="Back"><i class="ic i-back" aria-hidden="true"></i></button><h1>Ask your watch</h1></div>
+<div class="body">
+<div class="field"><small>Question (short)</small><span>What next?</span></div>
+<p class="sec-h">Options (2 to 4)</p>
+<div class="field"><small>Option 1</small><span>Start</span></div>
+<div class="field"><small>Option 2</small><span>Break</span></div>
+<div class="field"><small>Option 3</small><span>Skip</span></div>
+<button type="button" class="btn sec" style="align-self: flex-start"><i class="ic i-plus" aria-hidden="true"></i>Add an option</button>
+<div class="field"><small>Expires after</small><span>10 minutes</span></div>
+<div style="flex: 1"></div>
+<div class="card note-warm"><div class="row"><i class="ic i-clock" aria-hidden="true"></i><p class="t2 grow">Waiting for your answer on the watch.</p></div></div>
+<button type="button" class="btn pri" style="width: 100%">Send to watch</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

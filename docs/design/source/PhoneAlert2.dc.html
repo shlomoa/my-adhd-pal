@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone alert level 2</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph" style="background: radial-gradient(ellipse 80% 40% at 0% 0%, rgba(255,150,46,.55), transparent 70%), radial-gradient(ellipse 80% 40% at 100% 100%, rgba(255,60,120,.55), transparent 70%), var(--alert2-bg); align-items: center; justify-content: center; text-align: center; padding: 40px 28px; gap: 20px">
+<i class="ic i-alert" aria-hidden="true" style="width: 72px; height: 72px; color: #FFE45C"></i>
+<h1 style="font-size: 40px; font-weight: 800; line-height: 1.05">Still high. Stop for a moment.</h1>
+<p class="big" style="font-size: 88px">121</p>
+<p style="font-size: 22px; color: var(--text-soft)">bpm. Your alert is at 92.</p>
+<p style="font-size: 22px; font-weight: 800">Sit down. Slow breath in, slower out.</p>
+<button type="button" class="btn warn" style="width: 100%; min-height: 72px; font-size: 26px"><i class="ic i-check" aria-hidden="true"></i>I'm OK</button>
+<button type="button" class="btn" style="background: none; box-shadow: none; color: #fff; text-decoration: underline; min-height: 44px; font-size: 16px">Turn off flashing</button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

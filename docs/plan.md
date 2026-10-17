@@ -3,6 +3,8 @@
 Status: **approved** in a section-by-section review (2026-10-11) that merged the architecture thread's plan with the
 watch thread's hand-off. Documentation only; no code changes accompany this document.
 
+Screen designs (a proposed design until the user approves it): [`design/README.md`](design/README.md).
+
 ## 1. Context
 
 `my-adhd-pal` started as a single-module Wear OS app (Kotlin + Compose, `com.shlomoa.myadhdpal`, minSdk 30,
@@ -80,8 +82,9 @@ DataItems and network-communication pages and the fitness integration guide.
 | both | `/hello/phone`, `/hello/watch` | protocol and app version, overwritten at start | no |
 | watch to phone | `/debug/biometrics` | raw samples, debug builds only | no |
 
-**Rules:** every event item has a unique `<id>` and a timestamp. Consumers are idempotent by id. The consumer deletes
-an item after storing it. `setUrgent()` is used only where delay hurts. Payloads stay well under the 100 KB limit.
+**Rules:** every event item has a unique `<id>` and a timestamp. Consumers are idempotent by id. Cleanup follows the
+writer-owns-cleanup rule in section 4 (the emulator spike showed that a quick delete by the other node can be lost).
+`setUrgent()` is used only where delay hurts. Payloads stay well under the 100 KB limit.
 
 **What this does and does not mean:** the app contains no Bluetooth or socket code and no message-based protocol.
 Google Play services moves the items over Bluetooth when the devices are connected and through Google's servers
@@ -95,6 +98,11 @@ item can be deleted and does not reappear, (4) urgent-item delay when nearby, re
 
 **Fallback rule, decided now:** if the spike fails on 2 or 3, or urgent alerts are too slow, add `MessageClient` for
 urgent alerts only. Everything else stays as items.
+
+**Result (G-SPK1, G-DEC):** the fallback rule was not triggered, on the emulators (0b.2a) or on the Galaxy Watch6 Classic
+and Galaxy A55 5G (0b.2b): listener wake-up with the app closed, deletion in both directions and urgent delay (about
+0.2 s nearby, about 1.8 s relayed round trip) all passed, so the transport is **DataItems only** and `MessageClient` is
+not added. Details, numbers and what is not verified are in [`protocol.md`](protocol.md).
 
 ## 4. Protocol
 
@@ -120,7 +128,11 @@ acknowledgements, selections and alerts flow to the phone and never edit master 
 - **Version and compatibility:** each side publishes a state item (`/hello/phone`, `/hello/watch`) with protocol and app
   version, overwritten at start. A receiver ignores items whose major version it does not support and shows
   Incompatible. There is no request and reply.
-- **Cleanup:** the consumer deletes an item after storing it.
+- **Cleanup (writer owns cleanup; decided from the emulator spike at G-SPK1, kept after the hardware spike):** a node deletes the
+  items it wrote. The watch never deletes phone-written items (`/prompt/<id>`, `/schedule`); the phone removes a prompt
+  when it receives the answer or when it expires. The phone may delete watch-written events (`/ack/<id>`,
+  `/selection/<id>`, `/alert/<id>`) after storing them. Consumers stay idempotent by id, so an item that survives a lost
+  delete is handled once. Evidence: [`protocol.md`](protocol.md).
 - **Errors:** no RPC error codes. An item that fails validation is dropped, and the failure is logged in debug builds.
 
 **Spec contents:** item catalog, Mermaid sequence diagrams, state machines for the link and for prompts, and a
@@ -203,8 +215,8 @@ Every step becomes a GitHub issue labelled with its milestone, starting with its
   5 seconds nearby and about 30 seconds relayed, calibrated by the spike). *Validate:* results table with device,
   Android, One UI and Wear OS versions and the battery settings used. If the listener is cut off, how to handle it is
   decided with the user.
-- **0b.3 Decide and record.** Apply the fallback rule if needed and update the Transport section. The spike code is
-  discarded. *Validate:* the decision and its evidence are in the work log.
+- **0b.3 Decide and record.** Apply the fallback rule if needed and update the Transport section. The spike apps and runners are kept as
+  debug-only test tooling (`docs/spikes/`). *Validate:* the decision and its evidence are in the work log.
 
 ### 1. Protocol (`docs/protocol.md` and `:protocol`)
 

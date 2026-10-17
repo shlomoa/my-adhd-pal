@@ -1,0 +1,5 @@
+﻿1791865771347 role=watch pid=2402 processUptimeMs=3682 fg=false SERVICE-CREATED
+1791865771747 role=watch pid=2402 processUptimeMs=4082 fg=false RECV path=/spike/del/4a84f4b4-bfb4-4622-ae0b-91860d217a8c from=phone sentTs=1791865709521 recvTs=1791865771747 delayMs=62226
+1791865772359 role=watch pid=2402 processUptimeMs=4694 fg=false RECV path=/spike/keep/438fc27c-d431-4d01-a0d4-2b687f63865d from=phone sentTs=1791865709772 recvTs=1791865772359 delayMs=62587
+1791865772888 role=watch pid=2402 processUptimeMs=5223 fg=false DELETE-OK path=/spike/del/4a84f4b4-bfb4-4622-ae0b-91860d217a8c count=1
+1791865772911 role=watch pid=2402 processUptimeMs=5246 fg=false EVENT-DELETED path=/spike/del/4a84f4b4-bfb4-4622-ae0b-91860d217a8c host=faf82461

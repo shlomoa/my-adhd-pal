@@ -45,8 +45,8 @@
       "requires": [
         "G0"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 89
     },
     {
       "id": "G-DEC",
@@ -56,8 +56,8 @@
         "G-SPK1",
         "H2"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 124
     },
     {
       "id": "G1",
@@ -66,29 +66,39 @@
       "requires": [
         "G-SPK1"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 90
     },
     {
-      "id": "G2",
-      "name": "1.4-1.8 compatibility, link states, schedule logic, fake transport",
+      "id": "G2a",
+      "name": "1.4, 1.6, 1.7, 1.8a compatibility, schedule logic, LinkTransport + LinkState + fake transport, transport-neutral diagrams",
       "owner": "S",
       "requires": [
-        "G1",
+        "G1"
+      ],
+      "status": "merged",
+      "pr": 100
+    },
+    {
+      "id": "G2b",
+      "name": "1.5, 1.8b link-state function, link-state and alert diagrams (need the hardware observations)",
+      "owner": "S",
+      "requires": [
+        "G2a",
         "G-DEC"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 131
     },
     {
       "id": "G3a",
       "name": "phone data contract: WatchLinkDataSource, repository interfaces, fakes",
       "owner": "S",
       "requires": [
-        "G2"
+        "G2a"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 104
     },
     {
       "id": "G3",
@@ -96,10 +106,11 @@
       "owner": "S",
       "requires": [
         "G3a",
-        "G-LIB"
+        "G-LIB",
+        "G2b"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 138
     },
     {
       "id": "G4",
@@ -109,18 +120,18 @@
         "G3a",
         "G-LIB"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 117
     },
     {
       "id": "G5",
       "name": "watch core 3.1-3.7",
       "owner": "W",
       "requires": [
-        "G2"
+        "G2a"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 112
     },
     {
       "id": "G6",
@@ -147,20 +158,50 @@
       "pr": null
     },
     {
+      "id": "G-VAL",
+      "name": "V validation lane: script tests run after each merge to main (issue 190)",
+      "owner": "V",
+      "requires": [
+        "G-BOOT"
+      ],
+      "status": "merged",
+      "pr": 192
+    },
+    {
+      "id": "G-DOC",
+      "name": "D1 UI/UX design documentation in docs/design",
+      "owner": "D",
+      "requires": [
+        "G-BOOT"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G-INDEX",
+      "name": "D2 documentation index and generated site in CI",
+      "owner": "D",
+      "requires": [
+        "G-DOC"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
       "id": "H1",
       "name": "biometric metrics and thresholds agreed (human)",
       "owner": "user",
       "requires": [],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 147
     },
     {
       "id": "H2",
       "name": "Galaxy Watch6 Classic + Galaxy A55 5G available (human)",
       "owner": "user",
       "requires": [],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 124
     }
   ]
 }

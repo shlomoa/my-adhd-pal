@@ -1,0 +1,227 @@
+# Watch lane baseline (red)
+
+Evidence that the W1c-a tests fail before any implementation exists (part a: cases that need only the G1 contract).
+Red commit: `d53e22e` (tests only). Part b (link state, schedule logic, transport cases) waits for G2a.
+Cases from earlier steps (TC-W-050 to TC-W-057) were red-first in their own PRs (#79, #80), see `docs/work-log/watch.md`.
+
+## TC-W-070 to TC-W-076: alert evaluator (`protocol/src/test/.../alerts/AlertEvaluatorTest.kt`)
+
+Command: `./gradlew :protocol:test`. Build fails before any test runs.
+
+```
+e: protocol/src/test/kotlin/.../alerts/AlertEvaluatorTest.kt:27:9 Unresolved reference 'Reading'.
+e: protocol/src/test/kotlin/.../alerts/AlertEvaluatorTest.kt:31:22 Unresolved reference 'AlertEvaluator'.
+```
+
+## TC-W-030, TC-W-031: haptic catalogue and reminder actions (`wear/src/test/.../reminder/ReminderUiSpecTest.kt`)
+
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../reminder/ReminderUiSpecTest.kt:3:30 Unresolved reference 'protocol'.
+e: wear/src/test/.../reminder/ReminderUiSpecTest.kt:12:24 Unresolved reference 'Haptic'.
+```
+
+`:wear` does not yet depend on `:protocol`, and `Haptic`, `ReminderAction` do not exist.
+
+## TC-W-042, TC-W-043: prompt expiry (`wear/src/test/.../reminder/PromptExpiryTest.kt`)
+
+Decision (coordinator, 2026-10-14): `Prompt.expiresAt` is an absolute time on the phone clock; the watch never shows a prompt whose
+expiry is at or before its own clock and hides a shown one when its clock reaches it. Red commit: `0beced5` (test only).
+
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../reminder/PromptExpiryTest.kt:20:36 Unresolved reference 'isExpiredAt' on receiver of type 'Prompt'.
+```
+
+## Step 3.2: link client (TC-W-001 to TC-W-007, `wear/src/test/.../link/LinkClientTest.kt`)
+
+Each step after G2a records its red evidence here, in its own PR (the red commit precedes the implementation commit in the PR).
+Red commit: `2f97a7c` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../link/LinkClientTest.kt:30:9 Unresolved reference 'LinkClient'.
+```
+
+TC-W-008 (home screen on the watch) is manual and waits for the real transport (step 1.5, G2b).
+
+## Step 3.3: schedule receive (TC-W-005, 010 to 014, 016; `wear/src/test/.../schedule/`)
+
+Red commit: `9993415` (tests only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../schedule/FileScheduleStoreTest.kt:32:9 Unresolved reference 'FileScheduleStore'.
+e: wear/src/test/.../schedule/FileScheduleStoreTest.kt:32:40 Unresolved reference 'StoredSchedule'.
+```
+
+TC-W-015 (schedule from the phone on the watch) is manual and waits for the real transport (1.5, G2b).
+
+## Step 3.4, logic part: reminder scheduler (TC-W-020 to TC-W-024; `wear/src/test/.../scheduler/`)
+
+Red commit: `dceb6f0` (tests only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../scheduler/FakeAlarmPort.kt:6:56 Unresolved reference 'AlarmPort'.
+e: wear/src/test/.../scheduler/InMemorySnoozeStore.kt:3:29 Unresolved reference 'SnoozeStore'.
+```
+
+TC-W-025 (24-hour run) and TC-W-026 (reboot) are manual and wait for the Android parts of 3.4 (see the work log).
+
+## Step 3.5, Android part: notification channel (TC-W-032; `wear/src/test/.../reminder/ReminderChannelTest.kt`)
+
+Red commit: `095725f` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../reminder/ReminderChannelTest.kt:11:35 Unresolved reference 'ReminderChannel'.
+e: wear/src/test/.../reminder/ReminderChannelTest.kt:13:31 Unresolved reference 'channel_reminders'.
+```
+
+TC-W-033 and TC-W-034 are manual (the user's checklist is in the work log).
+
+## Step 3.7: prompt inbox and selections (TC-W-040 to TC-W-044; `wear/src/test/.../prompt/PromptInboxTest.kt`)
+
+Red commit: `b62df3f` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../prompt/PromptInboxTest.kt:24:27 Unresolved reference 'PromptInbox'.
+```
+
+TC-W-045 (prompt from the phone on the watch) is manual and waits for the real transport (1.5, G2b).
+
+## Step 3.4, Android part: inexact fallback and manifest (TC-W-023 changed, TC-W-027; `wear/src/test/.../scheduler/`, `ManifestTest.kt`)
+
+Decision (coordinator, 2026-10-14): with no exact-alarm permission the scheduler sets an inexact alarm and reports it, instead of
+setting nothing. TC-W-023 was rewritten to that behaviour. Red commit: `0dc5da4` (tests only). Command:
+`./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../scheduler/FakeAlarmPort.kt:6:1 Class 'FakeAlarmPort' is not abstract and does not implement abstract member:
+e: wear/src/test/.../scheduler/ReminderSchedulerTest.kt:74:57 No parameter with name 'exact' found.
+```
+
+TC-W-025 (24-hour run) and TC-W-026 (reboot) are manual (checklist in the work log).
+
+## Step 3.6: acknowledgements (TC-W-035 to TC-W-038, TC-W-020 occurrence; `wear/src/test/.../reminder/ReminderActionHandlerTest.kt`)
+
+Protocol 1.1 (PR #105) added `reminderId` and `occurrenceAt` to `Acknowledgement`. Red commit: `3cc8a13` (tests only).
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../reminder/FakeTimerPort.kt:3:23 Unresolved reference 'TimerPort'.
+e: wear/src/test/.../reminder/ReminderActionHandlerTest.kt:40:9 Unresolved reference 'ReminderActionHandler'.
+e: wear/src/test/.../reminder/ReminderActionHandlerTest.kt:66:38 Too many arguments for 'fun snooze(reminderId: String, snoozeCount: Int): SnoozeResult'.
+```
+
+## Step 5.2: tile (TC-W-060 to TC-W-063; `wear/src/test/.../tile/TileModelTest.kt`)
+
+The tile libraries were added first and compile under AGP 9.4 and Kotlin 2.4 (the stop-and-ask check from the 5.1 research).
+The layout needs an Android `Context` and cannot run in a JVM unit test, so the tile is split: `tileModel(...)` (tested here) decides
+what is shown and the service only draws it (TC-W-066, manual). Red commit: `75ff287` (test only). Command:
+`./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../tile/TileModelTest.kt:29:21 Unresolved reference 'tileModel'.
+```
+
+## Step 5.3: tile update triggers (TC-W-064, TC-W-065; `wear/src/test/.../tile/TileUpdateTest.kt`)
+
+Red commit: `fde0a8a` (test only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../tile/TileUpdateTest.kt:32:28 Unresolved reference 'TileUpdateTriggers'.
+e: wear/src/test/.../tile/TileUpdateTest.kt:47:9 No parameter with name 'onHandled' found.
+e: wear/src/test/.../tile/TileUpdateTest.kt:84:46 Unresolved reference 'tileFreshness'.
+```
+
+## Demo hooks (TC-W-100, TC-W-101; `wear/src/test/.../demo/DemoLogTest.kt`, `wear/src/testDebug/.../debug/DemoActionTest.kt`)
+
+Red commit: `0261b13` (tests only). Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/test/.../demo/DemoLogTest.kt:30:9 Unresolved reference 'DemoLog'.
+e: wear/src/testDebug/.../debug/DemoActionTest.kt:22:23 Unresolved reference 'performDemoAction'.
+```
+
+## Data Layer transport (TC-W-110 to TC-W-117; `wear/src/test/.../datalayer/`)
+
+Red commit: `03b5d22` (tests only). Command: `./gradlew :wear:testDebugUnitTest`.
+Build fails before any test runs.
+
+```
+e: wear/src/test/.../datalayer/CachedTransportTest.kt:12:28 Unresolved reference 'ItemWriter'.
+e: wear/src/test/.../datalayer/CachedTransportTest.kt:43:29 Unresolved reference 'CachedTransport'.
+```
+
+## Demo script (TC-W-102; `scripts/demo/test-run-demo.sh`)
+
+The script and its simulated `adb` were written together, because each defines the other's contract, so there is no separate red
+commit. Evidence that the test can fail instead: with the late-reminder rule broken on purpose
+(`if ($lateMs -gt 99999999)`) the test reported `FAIL TC-W-102 late reminder: exit 1 (expected 1, got 0)` and
+`FAIL TC-W-102 late reminder: Reminder FAIL (expected FAIL, got PASS)`; with the real rule it reports no failure (48 checks, including a phone that has nothing new to publish or cannot publish).
+
+### Phone log prefix (Android PR #141 contract check)
+
+The phone app logs `DEMO published ...` (the tag is repeated in the message), the watch app does not. The simulated adb now
+prints the phone lines that way, as on the devices. The script before the fix: 18 of 48 checks FAIL (`./scripts/demo/test-run-demo.sh`,
+the parser did not strip the prefix); after the fix 48 PASS, 0 FAIL.
+
+### `-WaitForTap` (TC-W-102)
+
+Tests and simulated-adb tap injection (`FAKE_TAP=ACTION:MS`) written first. Against the script without the switch: 12 checks FAIL
+(the parameter does not exist, exit 1). After: 61 PASS, 0 FAIL (tap Done, tap Snooze, no tap, and the unchanged default mode).
+
+## Episode evaluator (TC-W-123 to TC-W-131; `protocol/src/test/.../alerts/EpisodeEvaluatorTest.kt`)
+
+Step 6.5 second part. Red commit: the first commit of branch `claude/watch-6-5b` (tests only). Command: `./gradlew :protocol:test`.
+Build fails before any test runs.
+
+```
+e: protocol/src/test/.../alerts/EpisodeEvaluatorTest.kt:28:9 Unresolved reference 'EpisodeEvaluator'.
+```
+
+## Resting baseline (TC-W-086 to TC-W-089, TC-W-120 to TC-W-122; `protocol/src/test/.../alerts/BaselineTrackerTest.kt`)
+
+Step 6.5 first part. Red commit: the first commit of branch `claude/watch-6-5` (tests only). Command: `./gradlew :protocol:test`.
+Build fails before any test runs.
+
+```
+e: protocol/src/test/.../alerts/BaselineTrackerTest.kt:27:23 Unresolved reference 'BaselineTracker'.
+e: protocol/src/test/.../alerts/BaselineTrackerTest.kt:30:29 Unresolved reference 'HourlyLow'.
+```
+
+## Heart-rate probe statistics (TC-W-132 to TC-W-135; `wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt`)
+
+Step 6.4 probe. Red commit: the first commit of branch `claude/watch-6-4-probe` (tests only). Command: `./gradlew :wear:testDebugUnitTest`.
+Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:15:23 Unresolved reference 'ProbeBatch'.
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:16:23 Unresolved reference 'summarize'.
+```
+
+## Probe permissions (TC-W-139 to TC-W-141; `wear/src/testDebug/.../debug/probe/ProbePermissionsTest.kt`)
+
+Found on the real watch (Wear OS 6): `PROBE start failed: SecurityException: Missing permissions: [android.permission.health.READ_HEART_RATE]`;
+the checklist only granted the body sensor permissions. Red commit: the first commit of branch `claude/watch-6-4-permissions` (tests only).
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/ProbePermissionsTest.kt:20:20 Unresolved reference 'requiredPermissions'.
+```
+
+## Probe display state and sample age (TC-W-134, 135, 142, 143; `ProbeStatsTest.kt`)
+
+First real-watch run (user, Wear OS 6): one batch of 318 samples arrived 7 min 41 s after start and was logged `screenOn=false` while the user
+said the screen stayed lit on the wrist: `isInteractive` is false in the always-on (ambient) display, so the probe now records the display state
+and the age of the newest sample. Red commit: the first commit of branch `claude/watch-6-4-probe-display` (tests only).
+Command: `./gradlew :wear:testDebugUnitTest`. Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:10:9 Too many arguments for constructor ProbeBatch.
+e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:73:16 Unresolved reference 'displayName'.
+```
+
+## Not yet written (later steps)
+
+Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

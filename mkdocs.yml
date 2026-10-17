@@ -1,0 +1,21 @@
+# Documentation site (issue #156). Source of truth: the markdown files in docs/; docs/index.md is the entry point.
+# Build: scripts/docs-site.sh (mkdocs build --strict, output in build/docs-site, not committed, not published).
+site_name: ADHD Pal documentation
+repo_url: https://github.com/shlomoa/my-adhd-pal
+docs_dir: docs
+strict: true
+theme:
+  name: material
+  features:
+    - navigation.indexes
+    - navigation.top
+    - content.code.copy
+markdown_extensions:
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

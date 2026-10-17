@@ -44,8 +44,19 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-028 | 0a.8 | script | Maven mirror fallback only on refusal | the mirror is configured only when `repo.maven.apache.org` refuses requests, and not when it answers 200 |
 | TC-S-029 | 0a.8 | script | Fresh state then `./gradlew check` | green |
 | TC-S-030 | 0a.8 | script | Script failure paths | a missing prerequisite (no `curl` or `unzip`) or an interrupted download exits non-zero with a clear message |
+| TC-S-143 | G2 split | script | Gate graph is consistent and G2 is split | `scripts/test/test-gates.sh`: unique ids, existing requirements, no cycle, README table equals `gates.json`, lane plans name existing gates; G2a requires G1 only, G2b requires G2a and G-DEC, G3a and G5 require G2a, G3 requires G2b |
+| TC-S-144 | issue 113 | unit | Compose UI tests run on the JVM | a `createComposeRule()` test finds and clicks a node under Robolectric in `:phone:testDebugUnitTest`; `./gradlew check` stays green |
+| TC-S-145 | spike content | script | Spike apps are debug-only | `scripts/test/test-spike.sh`: the four spike classes are in `src/debug/.../debug/spike` of `:phone` and `:wear`, nothing spike-related is under `src/main` or in the main manifests, the debug manifests declare the three components, and a built release APK contains no spike class |
+| TC-S-146 | spike content | script | Spike runners and their simulated suites | the same script: both runners are in `scripts/spike/` and `test-run-0b2a.sh` and `test-run-0b2b.sh` pass against the simulated adb (needs `pwsh`) |
+| TC-S-150 | protocol 1.2 | unit | Alert level | default 1, 1 and 2 accepted, other values rejected, round trip, a 1.1 body decodes as level 1 |
+| TC-S-151 | protocol 1.2 | unit | Alert episode id | canonical UUID or absent, invalid rejected, not written when absent |
+| TC-S-152 | protocol 1.2 | unit | Relative threshold fields | `offsetBpm` 20-50 default 30, `initialBpm` 30-220 default 110, constants, round trip, a 1.1 schedule body decodes with the defaults |
+| TC-S-153 | protocol 1.2 | unit | `EpisodeEnd` model | round trip, invalid episode id and negative time rejected, extra fields ignored |
+| TC-S-154 | protocol 1.2 | unit | `/episode-end/<id>` path | builds, parses, rejects bad ids and shapes, `pathFor` |
+| TC-S-155 | protocol 1.2 | unit | `WatchStatus` | round trip with and without optional numbers, unknown permission invalid, path `/status/watch`, ranges |
+| TC-S-156 | protocol 1.2 | unit | Version 1.2 and compatibility | `Protocol.VERSION` 1.2, major 1, a 1.1 hello is compatible, new items decode |
 
-## Part b: protocol (milestone 1, `:protocol`; needs G-SPK1 for 1.1-1.3, G1 and G-DEC for 1.4-1.8)
+## Part b: protocol (milestone 1, `:protocol`; needs G-SPK1 for 1.1-1.3; G1 for 1.4, 1.6, 1.7 and 1.8a (gate G2a); G2a and G-DEC for 1.5 and 1.8b (gate G2b))
 
 | Id | Step | Kind | Case | Pass criteria |
 |---|---|---|---|---|
@@ -55,7 +66,7 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-043 | 1.2 | unit | Path parsers | each builder output parses back to its kind and id; unknown paths and empty ids return null |
 | TC-S-044 | 1.2 | unit | Path edge cases | ids with `/`, whitespace or non-UUID text are rejected; trailing slash is rejected |
 | TC-S-045 | 1.2 | unit | Keys and version constants | `v`, `id`, `ts`, `body` and the protocol major version equal the spec values |
-| TC-S-046 | 1.3 | unit | Round trip: schedule | encode then decode equals the original, including thresholds, cooldown and version |
+| TC-S-046 | 1.3 | unit | Round trip: schedule | encode then decode equals the original, including the alert settings, cooldown and version |
 | TC-S-047 | 1.3 | unit | Round trip: prompt | with and without expiry, one to n options |
 | TC-S-048 | 1.3 | unit | Round trip: acknowledgement | each action (Done, Snooze, Start 2 min, Dismiss) |
 | TC-S-049 | 1.3 | unit | Round trip: selection | chosen key and time |
@@ -90,7 +101,7 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-078 | 1.8 | manual | Diagrams render | the PR's rendered view shows every diagram without error |
 | TC-S-079 | 1.8 | script | Diagram states match code | every link state in the diagram is a member of the `LinkState` type |
 
-## Part b: phone data layer (milestone 2; 2.3 needs G2, the rest need G3a and G-LIB)
+## Part b: phone data layer (milestone 2; 2.3 needs G2a, 2.1 and 2.2 need G3a and G-LIB, 2.4 and 2.5 also need G2b)
 
 | Id | Step | Kind | Case | Pass criteria |
 |---|---|---|---|---|
@@ -139,3 +150,32 @@ commit SHA); final in `docs/test-reports/shared-final.md` (each id `PASS`, zero 
 | TC-S-140 | Full suite on merged `main` | `./gradlew check assembleDebug assembleRelease` and docs lint are green |
 | TC-S-141 | All lane cases | every `TC-S-*` is PASS in `shared-final.md` and `scripts/check-test-cases.sh shared final` passes, zero skipped |
 | TC-S-142 | Consumers compile against the final protocol | `:wear` and `:phone` compile against the final `:protocol` |
+
+## No absolute thresholds in the protocol (protocol 1.3, issue 55 decision)
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-S-180 | unit | An encoded schedule has no `thresholds` key | `AlertSettings` has only the cooldown, the offset and the initial value |
+| TC-S-181 | unit | A 1.2 schedule body that still has a `thresholds` list | decodes; the list is ignored |
+| TC-S-182 | unit | Protocol version 1.3 | the major is 1; peers 1.0 to 1.3 are compatible, 2.0 is not |
+
+## Script tests after the merge (issue 190)
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-S-170 | script | The pull request workflow has no `script-tests` job | `build.yml` keeps `build`, `external-links` and `docs-site` and has no `script-tests` |
+| TC-S-171 | script | Retired (workflow removed, see TC-V-004) | the post-merge workflow existed only briefly; the validation lane runs the tests itself |
+| TC-S-172 | script | No script test is lost | every `scripts/test/test-*.sh` is run by a pull request workflow or by `scripts/ci-post-merge/run-tests.sh` |
+| TC-S-173 | script | The runner | runs every listed test even after a failure, exits 1 on any failure, and writes a report naming the failing script and case (and no passing script) |
+| TC-S-174 | script | Retired (handler removed, see TC-V-005) | lane V opens, updates and closes the `main-red` issue itself with its issue tool |
+
+## The phone removes its own prompts (issue 198)
+
+| Id | Kind | Case | Pass criteria |
+|---|---|---|---|
+| TC-S-190 | android | `PromptCleaner.answered` | a stored ack or selection whose id is a published prompt removes that prompt once and forgets it; an ack that answers no published prompt, and an alert, remove nothing |
+| TC-S-191 | android | `PromptCleaner.sweepExpired` | prompts with an expiry at or before now are removed and forgotten; open and no-expiry prompts stay; a second sweep removes nothing more |
+| TC-S-192 | android | `WatchEventProcessor` with the cleaner | the prompt is removed after the answer row is stored; when the row could not be stored the prompt stays |
+| TC-S-193 | android | `WatchEventProcessor` sweep | expired prompts are removed at start and again about every minute while the app runs |
+| TC-S-194 | android | `DefaultPromptRepository` | a sent prompt is remembered with its expiry; a failed or rejected one is not |
+| TC-S-195 | android | `PublishedPrompts` contract (in memory and DataStore) | add, list, remove, replace; the DataStore version survives a new store on the same file |

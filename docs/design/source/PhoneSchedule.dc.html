@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Schedule</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph">
+<div class="bar"><button type="button" class="ib" aria-label="Back"><i class="ic i-back" aria-hidden="true"></i></button><h1>Schedule</h1></div>
+<div class="body">
+<div class="card" style="padding: 20px; gap: 6px">
+<p class="cap">What your watch will have</p>
+<p class="t1" style="font-size: 24px">4 reminders, 3 tasks</p>
+<p class="t2">Next: Water the plants, Sun 18:00</p>
+</div>
+<p class="sec-h">Today</p>
+<div class="card"><div class="row"><p class="t1" style="width: 64px">08:00</p><p class="t2 grow">Take the pills</p></div></div>
+<div class="card"><div class="row"><p class="t1" style="width: 64px">10:00</p><p class="t2 grow">Start the report</p></div></div>
+<div class="card"><div class="row"><p class="t1" style="width: 64px">14:00</p><p class="t2 grow">Start the report</p></div></div>
+<div style="flex: 1"></div>
+<div class="card note"><div class="row"><i class="ic i-check" aria-hidden="true"></i><p class="t2 grow">Version 3 is on your watch. Sent 2 min ago.</p></div></div>
+<button type="button" class="btn pri" style="width: 100%">Send to watch</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

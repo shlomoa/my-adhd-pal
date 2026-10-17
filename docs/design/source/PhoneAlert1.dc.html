@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone alert level 1</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="ph" style="background: radial-gradient(ellipse 80% 40% at 0% 0%, rgba(138,77,255,.55), transparent 70%), radial-gradient(ellipse 80% 40% at 100% 100%, rgba(255,92,214,.40), transparent 70%), var(--alert1-bg); align-items: center; justify-content: center; text-align: center; padding: 40px 28px; gap: 20px">
+<i class="ic i-heart" aria-hidden="true" style="width: 64px; height: 64px; color: #D2B0FF"></i>
+<h1 style="font-size: 36px; font-weight: 800; line-height: 1.1">Your heart rate is high</h1>
+<p class="big" style="font-size: 72px">118</p>
+<p style="font-size: 20px; color: var(--text-soft)">bpm. Your alert is at 92.</p>
+<div style="width: 160px; height: 160px; border-radius: 50%; border: 10px solid #D2B0FF; display: grid; place-items: center; font-size: 22px; font-weight: 800; margin: 8px 0">Breathe</div>
+<p style="font-size: 20px">Breathe in slowly. Breathe out slower.</p>
+<button type="button" class="btn pri" style="width: 100%; min-height: 64px; font-size: 22px"><i class="ic i-check" aria-hidden="true"></i>I'm OK</button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

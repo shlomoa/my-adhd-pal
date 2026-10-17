@@ -1,0 +1,32 @@
+{
+  "images": {
+    "P1": "777a9f8cb0799e33b376e2255350f2724b8cee426ddddb37bc8ae22d51877d78",
+    "P2": "a6450edd9d1db34b747c95b67a6cdb3ab9f3abc39acaafd5bd1a405941091f58",
+    "P3": "f3e6cb9887e873ceb55c8d59484dd26aa4ecf5ba3810dd84e8e2ef03e7853880",
+    "P4": "911a06388e79c7855ba88b806de67d7a33bae3fa95841b83c83558da6d57b50b",
+    "P5": "bd897d116c0ca34cfc97927c84694f217d80cc2fd9f5388f97cba41b565d1171",
+    "P6": "f1896dd7712a438034752627a5e74ff870de2a0f36196d540f5890c55b3c791b",
+    "P7": "487366c23ee49dbf73de49efc7591c78e3b1bbe28f340dbf218757c3ffa18fc0",
+    "P8": "f92d2a8f20ba868c1ec588de56cf82f13673cf533b845746aad22d1fcc89a81c",
+    "P9": "747a96e93126c519170ad871eec66325dc39521a9cc4f9bf4a783754ce4314d2",
+    "P10": "09ca53b41a0f0d0b80ac97555b40d602e5c663bb3fb0999a0ad5dc508a53c1d9",
+    "P11": "5357fcbec53b5411b1c42613f786d0a26a6e3eeece68b94923e24d19b843ad77",
+    "P12": "98fe6ba25bff80fd94de3013e56fac72aa236726baafea4c4e118c88c7bb1ec5",
+    "P13": "c169d670a3b68eb6188942364091182e79cd7a82e8d377794fddf85a5de2baba",
+    "overview": "6b8400b35cf225217bcb357fcab86fb585ab6def66e9214329f5e992fda0f827"
+  },
+  "supplied": [
+    "W1",
+    "W2",
+    "W3",
+    "W4",
+    "W5",
+    "W6",
+    "W7",
+    "W8",
+    "W9"
+  ],
+  "reference": {
+    "W4": "images/W4-choice.png"
+  }
+}

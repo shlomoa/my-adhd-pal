@@ -150,7 +150,7 @@ You can do this even while the Gradle sync is failing: Device Manager does not u
 
 The spike apps are the normal `:phone` and `:wear` apps plus an extra launcher icon named **Spike**. Its screen has
 buttons that send small test items between the phone and the watch through the Wearable Data Layer and log what
-arrives. The code is on the throwaway branch `claude/shared-0b2a-spike` and is never merged. The question it
+arrives. The code is in the debug builds on `main` (`src/debug`, package `...debug.spike`). The question it
 answers: do items cross the pairing, survive a disconnect, wake the phone's listener with its app closed, and stay
 deleted once deleted.
 
@@ -160,7 +160,8 @@ deleted once deleted.
 
    ```powershell
    git fetch origin
-   git checkout claude/shared-0b2a-spike
+   git checkout main
+   git pull
    ```
 
    Android Studio may offer to sync Gradle again (say yes) or may not ask at all; the build below runs from the
@@ -168,10 +169,10 @@ deleted once deleted.
 
    ```powershell
    git branch --show-current
-   Test-Path phone\src\main\java\com\shlomoa\myadhdpal\phone\spike\SpikeActivity.kt
+   Test-Path phone\src\debug\java\com\shlomoa\myadhdpal\phone\debug\spike\SpikeActivity.kt
    ```
 
-   The first command prints `claude/shared-0b2a-spike` and the second prints `True`.
+   The first command prints `main` and the second prints `True`.
 2. Build both apps:
 
    ```powershell
@@ -295,18 +296,84 @@ Anything unexpected (copy the SPIKE log lines):
 
 ### 6.5 Afterwards
 
-Switch back with `git checkout main` (and `git stash pop` if you stashed). The spike branch stays unmerged; its code is
-discarded once the results are recorded in the protocol document.
+If you stashed, run `git stash pop`. The spike code stays in the debug builds (`docs/spikes/README.md`).
+
+### 6.6 Running a spike from a script instead of buttons
+
+The tap-through run above was replaced by a script. `scripts/spike/run-0b2a.ps1` (emulators) and `scripts/spike/run-0b2b.ps1` (hardware, [`spikes/0b2b-plan.md`](spikes/0b2b-plan.md))
+build, install, drive the cases with `adb`, and push the results as a branch named `spike-results/<run>-<timestamp>`,
+so nothing needs pasting back. Rules that cost time on the first runs:
+
+1. **Keep the PC awake.** A sleeping laptop breaks every `adb` call. Plug in, then run
+   `powercfg /change standby-timeout-ac 0` (undo with `powercfg /change standby-timeout-ac 30`).
+2. **Do not click inside the script window.** In Windows consoles a click selects text (QuickEdit mode) and pauses
+   the script until you press Enter or Esc. A script that has stopped for no reason is often this.
+3. **Start emulators from PowerShell, not Device Manager.** Device Manager can show greyed **Run** buttons for
+   emulators that are already running or half started. Use
+   `& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd <name> -port <port>` (ports 5554 and 5556 give the
+   serials `emulator-5554` and `emulator-5556`), one PowerShell window per emulator.
+4. **Put `adb` on `PATH` permanently** (otherwise every new window needs the `$env:Path` line):
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable('Path', $env:Path + ";$env:LOCALAPPDATA\Android\Sdk\platform-tools", 'User')
+   ```
+
+   Open a new PowerShell window afterwards.
+5. **Work from the repository folder.** The scripts use relative paths (`scripts\spike\...`, `phone\build\...`).
+6. **A FAIL line in the script output is a result, not an error.** The run stopped only if the window shows an
+   exception or the prompt is back. The last lines say which results were published.
+7. **Ignore Android Studio while a script runs.** Its logcat view and the *keeps stopping* dialog of the Google
+   Pixel Watch companion app are noise unless the script reports a problem. Do not use Studio's Run buttons.
+8. **Timing differs per case.** A case that waits for a disconnect to be noticed can take 1 to 4 minutes; lines such
+   as `waiting ... up to 180 s` mean the script is waiting, not stuck. The script prints a timestamp on every line.
+9. **Delay numbers on two emulators are skewed.** The emulator clocks differ by about 1.5 s, so `delayMs` from one
+   device to the other is unreliable; use the round-trip times measured on one clock.
 
 ## 7. Troubleshooting
 
 | Symptom | Cause and fix |
 |---|---|
+| A script stops with *adb call timed out* or *app is not installed* after the laptop slept | The `adb` server lost the devices. Restart the emulators from PowerShell (section 6.6, rule 3), check `adb devices -l`, and run again with `-SkipBuild` (add `-OnlyCases` for the cases that did not finish). |
+| A script is stuck at *stopping watch emulator* or on one `adb` line | An `adb` client is waiting on a device that went away. In a second window run `Get-CimInstance Win32_Process -Filter "Name='adb.exe'"`, then `Stop-Process -Id <ProcessId> -Force` for the stuck client. |
+| The script window stopped moving and nothing is wrong | A click paused the console (section 6.6, rule 2). Press Enter. |
+| The pairing assistant spins after sign-in | Close the Google Pixel Watch app on the phone emulator, open it again, and check that both emulators run before continuing. |
+| Spike app does not start after `adb install` | A freshly installed app is *stopped*. Start it directly: `adb -s <serial> shell am start -n com.shlomoa.myadhdpal/.<activity>` (the Spike activity name is printed by the script), or tap it once. |
+| Buttons or text sit under the system bars | The build is older than the inset fix. Run `git pull` on `main` and rebuild. |
+| Android Studio shows an IDE exception pop-up | Not a build failure. Use the terminal build; report it only if `.\gradlew.bat` itself fails. |
 | Sync fails: *Cannot find a Java installation ... languageVersion=21 ... Toolchain download repositories have not been configured* | No JDK 21 found. Install Temurin 21 and set Gradle JDK (section 3, steps 1 and 5). |
+| `adb devices` lists the watch twice | Pass `-Phone` and `-Watch` explicitly to the 0b.2b script (section 8) |
 | `java -version` is not 21, or `java` is not found | Set `JAVA_HOME` and `Path` by hand (section 3, step 3). The installer does not always do it. |
 | Android Studio warns *Multiple Gradle daemons might be spawned because the Gradle JDK and JAVA_HOME locations are different* | `JAVA_HOME` points at another JDK (such as JDK 23) while Studio uses Temurin 21. Set `JAVA_HOME` to the Temurin 21 folder (section 3, step 3), restart PowerShell and Android Studio. |
 | `.\gradlew.bat` says *JAVA_HOME is not set and no java command could be found* | Same fix: section 3, step 3, in the PowerShell window you are using. |
 | `adb` is not recognized | Add the SDK `platform-tools` folder to `PATH` for this window (section 6.1, step 3). |
 | Emulator is very slow or refuses to start | Virtualization is off. Section 2. |
-| No Spike icon on the emulators | You built a branch other than `claude/shared-0b2a-spike`. Check out the spike branch, rebuild, reinstall. |
+| No Spike icon on the emulators | You installed a release build or an old build. Spike is in debug builds only: run `.\gradlew.bat :phone:assembleDebug :wear:assembleDebug` on `main` and reinstall. |
 | `INSTALL_FAILED_...` on a reinstall | Uninstall first: `adb -s PHONE uninstall com.shlomoa.myadhdpal`, then install again. |
+
+## 8. Run the hardware spike (0b.2b) in 8 steps
+
+Full plan, pass criteria and troubleshooting: [`spikes/0b2b-plan.md`](spikes/0b2b-plan.md). The sequence that worked on the
+Galaxy A55 5G and Galaxy Watch6 Classic (PowerShell 7.6.6):
+
+1. Plug in the laptop, turn off sleep (`powercfg /change standby-timeout-ac 0`), put the watch on its charger.
+2. Phone: Developer options and USB debugging on, cable in, tap **Allow**.
+3. Watch: Developer options, ADB debugging and Wireless debugging on, Wi-Fi **On**; note the connect `ip:port`.
+4. `adb connect <ip:port>`, then `adb devices -l`; note the phone's USB serial and the watch's `ip:port`.
+5. `git checkout main; git pull`.
+6. `.\scripts\spike\run-0b2b.ps1 -Phone <usb serial> -Watch <ip:port> -OnlyCases C1` to prove the chain.
+7. The rest in groups: `C1b,C2a`, then `C3,C3c,C3d`, then `L1,L2`, then `L3`.
+8. Check the phone is back to normal (Bluetooth, Wi-Fi, mobile data on), then clean up (section 9).
+
+Lessons from the first real run (details in the plan):
+
+- The watch is listed twice in `adb devices` (`ip:port` and the `adb-...-tls-connect` name): always pass `-Phone` and `-Watch`.
+- Wireless debugging has two ports: one to pair, another to connect. The script's `-WatchAddress` takes the connect port.
+- The battery gate refuses below 20% but prints "30%"; charge above 30%.
+- A case that fails on a script error shows FAIL with the message; repeat just that case with `-SkipBuild -OnlyCases <case>`.
+- The Watch6 charges wirelessly and stays awake on the charger, which keeps Wi-Fi debugging alive.
+
+## 9. Clean up after a spike
+
+The checklist (what you undo on the laptop, watch and phone, which local and remote branches can go, and what the spike
+branches hold) is in [`spikes/0b2b-plan.md`](spikes/0b2b-plan.md), section "Cleanup after the validation". The
+commands there are for you to run; nothing deletes a branch automatically.
