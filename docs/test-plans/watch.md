@@ -132,6 +132,12 @@ in `docs/work-log/watch.md`. **Pass criterion for the lane:** every case PASS, n
 | TC-W-141 | 6.4 | unit | The probe starts only when no permission is missing | empty missing list |
 | TC-W-142 | 6.4 | unit | A display state is named on, doze (always-on display), off or other | expected names |
 | TC-W-143 | 6.4 | unit | The age of the newest sample and the span of a batch come from the sample times | expected numbers |
+| TC-W-144 | 6.4 | unit | The measure report gives readings, readings per minute and the gap between readings (median, 95th percentile, longest), overall and per screen state | exact lines |
+| TC-W-145 | 6.4 | unit | No readings give zero readings and no gaps; no duration gives no rate | exact lines |
+| TC-W-146 | 6.4 | unit | Availability changes and readings are one line each and read back; a malformed line is skipped; changes are listed in time order | round trip, null for bad lines, ordered lines |
+| TC-W-147 | 6.4 | unit | The battery report gives the drop per hour, and none without a duration or when the level rose | exact lines |
+| TC-W-148 | 6.4 | unit | The 95th percentile is the nearest rank of the sorted values | expected numbers |
+| TC-W-149 | 6.4 | manual | On the real watch: the live heart-rate route over 30 minutes worn (screen on, dim, off): readings per minute, gaps, availability changes, battery drop, and that the service survives without the background permission | user reports the measure report lines (`docs/test-reports/watch-probe-checklist.md` step 6) |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | user reports the three report lines (`docs/test-reports/watch-probe-checklist.md`) |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |

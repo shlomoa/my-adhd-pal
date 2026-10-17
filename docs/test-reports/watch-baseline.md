@@ -222,6 +222,17 @@ e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:10:9 Too many arguments 
 e: wear/src/testDebug/.../debug/probe/ProbeStatsTest.kt:73:16 Unresolved reference 'displayName'.
 ```
 
+## Live heart-rate probe statistics (TC-W-144 to TC-W-148; `wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt`)
+
+D9 (heart rate measured only while the app runs, `docs/plans/biometrics.md` section 11): the probe for the live `MeasureClient` route counts readings, gaps,
+availability changes and battery drop. Red commit: the first commit of branch `claude/watch-measure-probe` (tests only).
+Command: `./gradlew :wear:testDebugUnitTest --tests '*MeasureStatsTest*'`. Build fails before any test runs.
+
+```
+e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:9:58 Unresolved reference 'MeasureReading'.
+e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:29:13 Unresolved reference 'measureReport'.
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
