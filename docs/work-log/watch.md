@@ -390,3 +390,11 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: red first (`docs/test-reports/watch-baseline.md`), then green: `./gradlew detekt spotlessCheck :wear:check :wear:lintDebug
   :wear:assembleRelease checkNoDebugInRelease`, docs lint and index.
 - NOT yet run on the watch: whether `pm grant` works for the health permissions, and the prompt fallback (TC-W-136).
+
+## 2026-10-17 - Cleanup: the first alert evaluator
+
+- Issue and PR: step 6.5 cleanup (standing rule: cleanup is part of every step), branch `claude/watch-cleanup-alert-evaluator`
+- Deleted: `AlertEvaluator` (absolute thresholds, per-threshold cooldown) and its test (TC-W-070 to TC-W-076), unused since `EpisodeEvaluator` implements the decided rules;
+  the seven catalogue rows. `Reading` moved to its own file. The decision document's table no longer promises the old tests.
+- Left for the Shared lane: `AlertSettings.thresholds`, `Threshold` and `Direction` are no longer read by the watch (the schedule still carries them).
+- Validation: `./gradlew detekt spotlessCheck :protocol:check`, docs lint and index.
