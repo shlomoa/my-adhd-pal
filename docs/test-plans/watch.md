@@ -163,6 +163,12 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-170 | 6.4 | script | `-SkipPush` publishes nothing and keeps the local result file | origin refs, file |
 | TC-W-171 | 6.4 | script | A failed push leaves the exit code unchanged, names the branch and prints the retry command; a failed run still publishes its file | output, exit code |
 | TC-W-172 | 6.4 | script | E3 and E6 publish `e3-results/<stamp>` and `e6-results/<stamp>` | origin refs |
+| TC-W-173 | 6.4 | script | `scripts/probe/run-e4.ps1` parses | PowerShell parser, no errors |
+| TC-W-174 | 6.4 | script | A full E4 run against a simulated adb: screen timeout saved, shortened and restored; the front screen started twice (switch off, then `--ez keep true`) with the log cleared before each run; the PROBE front lines and the resumed activity of both runs in one result file | order of the adb calls, content of the result file |
+| TC-W-175 | 6.4 | script | The four questions of checklist step 4 are asked and the typed answers are in the result file; the file holds no ip address and no local path | result file, prompt text |
+| TC-W-176 | 6.4 | script | The E4 result is published as `e4-results/<stamp>` holding only the file; `-SkipPush` publishes nothing | origin refs |
+| TC-W-177 | 6.4 | script | A front screen that cannot be started fails the run, restores the screen timeout and still publishes the file | exit code, call log, origin refs |
+| TC-W-178 | 6.4 | script | The E4 script header says what is untested on the watch | text |
 | TC-W-179 | 6.4 | script | Every probe test that runs a `run-e*.ps1` runs a copy of the scripts inside a throwaway git repository, never the real checkout (so a test can never publish to the real origin); the shared helper `make_repo` exists | static check of the test scripts |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |

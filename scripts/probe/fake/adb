@@ -3,6 +3,7 @@
 # State lives in $FAKE_DIR: calls (every invocation), log (the PROBE logcat), timeout, battery, offline.
 # Failure injection (FAKE_FAIL, comma separated):  noavail  the service never reports AVAILABLE
 #                                                  unavail  the service reports only UNAVAILABLE
+#                                                  nostart  the front screen cannot be started
 #                                                  nonotif  the notification is never listed
 #                                                  svcgone  the measure service is not listed as running
 #                                                  stalled  the report's reading count never grows
@@ -51,6 +52,10 @@ case "$cmd" in
           if [ -n "${FAKE_CHARGING:-}" ]; then echo "  AC powered: true"; else echo "  AC powered: false"; fi
           echo "  level: $n"; echo $((n - 1)) > "$D/battery"; exit 0
         fi
+        if [ "$1" = activity ] && [ "${2:-}" = activities ]; then
+          echo "  mResumedActivity: ActivityRecord{1 u0 com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity t5}"
+          exit 0
+        fi
         if [ "$1" = activity ]; then
           fails svcgone || echo "  * ServiceRecord{1 u0 com.shlomoa.myadhdpal/.wear.debug.probe.ProbeMeasureService}"
           exit 0
@@ -66,6 +71,14 @@ case "$cmd" in
         fi
         exit 0;;
       am)
+        if [ "$1" = start ] && echo "$*" | grep -q ProbeFrontActivity; then
+          if fails nostart; then echo "Error: Activity class {com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity} does not exist." >&2; exit 1; fi
+          keep=false; echo "$*" | grep -q -- '--ez keep true' && keep=true
+          note "PROBE front resumed screen=on inFront=false keepOn=$keep"
+          note "PROBE front focus screen=on inFront=true keepOn=$keep"
+          echo "Starting: Intent { cmp=com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity }"
+          exit 0
+        fi
         if [ "$1" = start ]; then
           note "PROBE measure start registered"
           fails unavail && note "PROBE measure availability UNAVAILABLE"
