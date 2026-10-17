@@ -52,7 +52,8 @@ class MeasureStatsTest {
         assertEquals(change, parseAvailability("30000|ACQUIRING"))
         for (bad in listOf("30000|", "x|AVAILABLE", "30000|A|B", "30000")) assertNull(bad, parseAvailability(bad))
         assertEquals(MeasureReading(5000, "doze"), parseMeasureReading("5000|doze"))
-        for (bad in listOf("5000", "x|on", "5000|weird", "5000|on|1")) assertNull(bad, parseMeasureReading(bad))
+        val badLines = listOf("5000", "x|on", "5000|weird", "5000|on|x", "5000|on|1|2")
+        for (bad in badLines) assertNull(bad, parseMeasureReading(bad))
         assertEquals(
             listOf(
                 "PROBE measure screen=all readings=0 perMin=0.0 gapSec none",
@@ -90,5 +91,102 @@ class MeasureStatsTest {
         assertEquals(5L, percentile(listOf(5L), 95))
         assertEquals(89L, percentile(listOf(1L, 1L, 1L, 1L, 6L, 89L), 95))
         assertNull(percentile(emptyList(), 95))
+    }
+
+    private fun sample(arrivalSec: Long, sampleSec: Long, display: String) =
+        MeasureReading(arrivalSec * 1000, display, sampleSec * 1000)
+
+    @Test
+    fun `TC-W-184 a reading with a sample time has three fields and reads back, one without has two`() {
+        val withSample = MeasureReading(5000, "doze", 4200)
+        assertEquals("5000|doze|4200", withSample.toLine())
+        assertEquals(withSample, parseMeasureReading("5000|doze|4200"))
+        assertEquals("5000|on", MeasureReading(5000, "on").toLine())
+        assertEquals(MeasureReading(5000, "on"), parseMeasureReading("5000|on"))
+    }
+
+    @Test
+    fun `TC-W-185 the sample report gives callbacks, and per screen state the sample gap and the delay`() {
+        val readings = listOf(
+            sample(10, 9, "on"),
+            sample(10, 10, "on"),
+            sample(12, 11, "on"),
+            sample(100, 20, "doze"),
+            sample(100, 21, "doze"),
+            sample(100, 99, "doze")
+        )
+        assertEquals(
+            listOf(
+                "PROBE measure callbacks=3 maxPerCallback=3",
+                "PROBE measure samples screen=on readings=3 sampleGapSec max=1 delaySec median=1.0 p95=1.0 max=1.0",
+                "PROBE measure samples screen=doze readings=3 sampleGapSec max=78 " +
+                    "delaySec median=79.0 p95=80.0 max=80.0",
+                "PROBE measure arrivalsPerMin 3,3",
+                "PROBE measure samplesPerMin 5,1"
+            ),
+            sampleReport(readings, startMs = 0)
+        )
+    }
+
+    @Test
+    fun `TC-W-186 the arrivals and the samples are counted per minute of the run, minutes without any count as zero`() {
+        val readings = listOf(
+            sample(30, 5, "on"),
+            sample(45, 40, "on"),
+            sample(200, 190, "doze")
+        )
+        val lines = sampleReport(readings, startMs = 0)
+        assertEquals("PROBE measure arrivalsPerMin 2,0,0,1", lines[lines.size - 2])
+        assertEquals("PROBE measure samplesPerMin 2,0,0,1", lines.last())
+    }
+
+    @Test
+    fun `TC-W-187 readings without sample times give callbacks and arrivals per minute only`() {
+        assertEquals(
+            listOf("PROBE measure callbacks=2 maxPerCallback=2", "PROBE measure arrivalsPerMin 3"),
+            sampleReport(listOf(reading(1, "on"), reading(1, "on"), reading(2, "on")), startMs = 0)
+        )
+        assertEquals(listOf("PROBE measure callbacks=0 maxPerCallback=0"), sampleReport(emptyList(), startMs = 0))
+    }
+
+    @Test
+    fun `TC-W-188 the live line gives the minute, the arrivals, how long since the last line and the last arrival`() {
+        assertEquals(
+            "PROBE measure live minute=3 arrivals=118 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on",
+            liveMinuteLine(
+                minute = 3,
+                arrivals = 118,
+                sincePrevLineMs = 60_400,
+                sinceLastArrivalMs = 700,
+                display = "on"
+            )
+        )
+        assertEquals(
+            "PROBE measure live minute=4 arrivals=0 sincePrevLineSec=61 sinceLastArrivalSec=125 screen=doze",
+            liveMinuteLine(
+                minute = 4,
+                arrivals = 0,
+                sincePrevLineMs = 61_000,
+                sinceLastArrivalMs = 125_900,
+                display = "doze"
+            )
+        )
+        assertEquals(
+            "PROBE measure live minute=0 arrivals=0 sincePrevLineSec=60 sinceLastArrivalSec=none screen=off",
+            liveMinuteLine(
+                minute = 0,
+                arrivals = 0,
+                sincePrevLineMs = 60_000,
+                sinceLastArrivalMs = null,
+                display = "off"
+            )
+        )
+    }
+
+    @Test
+    fun `TC-W-189 the minute of the run counts from the start and never goes below zero`() {
+        assertEquals(0, minuteOfRun(startMs = 10_000, nowMs = 69_999))
+        assertEquals(1, minuteOfRun(startMs = 10_000, nowMs = 70_000))
+        assertEquals(0, minuteOfRun(startMs = 10_000, nowMs = 5_000))
     }
 }

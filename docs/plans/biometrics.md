@@ -590,6 +590,19 @@ but only while the app is running". Neither page gives an interval for a given w
 | Passive background listener, off the wrist | 1 reading in 10 minutes | 10:02 to 10:12 |
 | Passive background listener, long run | Readings delivered together about every **10 minutes**, 577 to 598 per delivery, window 580 to 599 s, arriving 0.4 to 11.5 s after the window closes (12:45, 12:55, 13:05, 13:15, 13:25, 13:35) | 12:45 to 13:35 |
 | Live `MeasureClient` in a foreground service, screen on, worn | Capability true; readings AVAILABLE 4 s after start; **734 readings in 5 minutes** (about 2 per second); gap median under 1 s, 95th percentile 1 s, longest **60 s** (cause unknown); battery 68% to 67% (too coarse to give a rate, reported as 11.7 %/hour) | 13:44 to 13:49 |
+| Live `MeasureClient`, first E1 run, phase A: screen on, 10 minutes, worn. Times are ARRIVAL times in the app (`e1-results/20261018-003737`) | 462 readings in 610 s (45.4 per minute); gap median 0 s, 95th percentile 0 s, longest **374 s**; all arrivals `on`; availability only `ACQUIRING`, `AVAILABLE` at second 0; battery 97 to 96; notification listed | 00:42 to 00:52 |
+| Same run, phase B: display dim (Always On Display), 10 minutes | total 750 readings (37.0 per minute): `on` 462, `doze` 288; `doze` longest gap **290 s**; battery 95; notification listed | 00:52 to 01:02 |
+| Same run, phase C: screen off, 10 minutes (the user touched the watch for 111 s before the sleep key) | total 1912 readings (59.3 per minute) in 1934 s: `on` 1026 (longest gap **562 s**), `doze` 288, `off` 598 (longest gap **606 s**, longer than the 602 s phase); median and 95th percentile 0 s in every state; battery 93 (7.4 per hour, whole-percent resolution); notification listed | 01:04 to 01:14 |
+
+Conditions of the three E1 rows above, which the earlier rows did not have, so **they are not comparable to the earlier live runs (the 5-minute run and the manual run of 2026-10-17 18:46 to 18:53) until the run with the background permission granted exists**:
+
+- the script had REVOKED `READ_HEALTH_DATA_IN_BACKGROUND` and `BODY_SENSORS_BACKGROUND` before the start; the earlier probe steps had granted them with `pm grant` and a grant persists, so the earlier live runs very probably had them granted (unverified: the permission state was not logged then, and the E1 file does not log it either);
+- the service was started 4.5 minutes after the `measure-stop`, `measure-clear` and `measure-capabilities` commands (the script waited for the user's answer), by the same `am start` of the activity as in the manual runs;
+- the screen timeout was set to 720000 ms and the log buffer to 4 MB by the script;
+- the times are ARRIVAL times of the callbacks, which run on the main executor of the app (`ContextCompat.getMainExecutor` in `health-services-client` 1.1.0), so a delayed main thread or a suspended CPU delays them; the sample times of the readings are not recorded in this run;
+- the watch was on the wrist the whole time and the user touched it only at the Always On Display prompt between phases B and C (the user's answers, relayed by the coordinator).
+
+No verdict is written from these numbers (E2 waits for the next run; analysis: issue #228).
 
 Consequence: the passive background route delivers readings about every 10 minutes on this watch, so it does **not** meet "reported immediately". The live route delivers within
 about a second with the screen on. Not measured yet: the live route with the display dim (always-on) and with the screen off, 30 minutes worn, battery over a longer time,

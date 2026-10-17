@@ -107,7 +107,11 @@ adb shell am broadcast -n $P --es cmd measure-report; Start-Sleep 2; adb logcat 
 The report prints `PROBE measure screen=all readings=... perMin=... gapSec median=... p95=... max=...`, one such line per
 screen state that occurred (`on`, `doze` is the always-on display, `off`), one `availability` line per sensor change with
 `atSec` (seconds since start; compare with the longest gap to find the cause of the 60 s gap seen earlier) and
-`PROBE measure battery start=... now=... dropPerHour=...`. When the three phases are done, write down the battery
+`PROBE measure battery start=... now=... dropPerHour=...`. The lines after the battery line tell a lost reading from a late one: `PROBE measure callbacks=...`,
+`PROBE measure samples screen=... sampleGapSec max=... delaySec median=... p95=... max=...` (the gap between the times of the samples and how late each
+reading arrived), and `arrivalsPerMin` / `samplesPerMin` (one number per minute of the run, so the position of every gap is visible). The service also writes a `PROBE measure live` line every minute as it happens
+(arrivals, seconds since the previous line, seconds since the last arrival, screen state); the script copies them into the result file as `live:` lines. Optional second
+run to compare: `.\scripts\probe\run-e1.ps1 -Watch ... -GrantBackgroundPermission` grants the background permission instead of revoking it (the result file says so). When the three phases are done, write down the battery
 percentage on the watch (**after**), leave the service running for step 3 or stop it with
 `adb shell am broadcast -n $P --es cmd measure-stop`.
 

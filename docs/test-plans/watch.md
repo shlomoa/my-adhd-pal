@@ -174,6 +174,14 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-181 | 6.4 | script | E3: a watch that never comes back does not fail the run; the file says no report was possible and the growth is unknown | result file, exit 0 |
 | TC-W-182 | 6.4 | script | E3: a watch that is away during Sleep mode: the in-mode report is logged as impossible and taken after the mode is off | result file |
 | TC-W-183 | 6.4 | script | The prompts of E1, E3 and E6 carry the verified watch menu paths | prompt text |
+| TC-W-184 | 6.4 | unit | A reading with a sample time is written with three fields and read back; a reading without one with two | round trip |
+| TC-W-185 | 6.4 | unit | The sample report gives the callbacks and, per screen state, the longest gap between sample times and the delay (arrival minus sample time: median, 95th percentile, longest) | exact lines |
+| TC-W-186 | 6.4 | unit | The arrivals and the samples are counted per minute of the run; minutes without any count as zero | exact lines |
+| TC-W-187 | 6.4 | unit | Readings without sample times give the callbacks and the arrivals per minute only; no readings give one line | exact lines |
+| TC-W-188 | 6.4 | unit | The live line (written by the service every minute as it happens) gives the minute, the arrivals, the time since the previous line, the time since the last arrival and the screen state | exact lines |
+| TC-W-189 | 6.4 | unit | The minute of the run counts from the start and never goes below zero | numbers |
+| TC-W-190 | 6.4 | script | The E1 result file shows the permission state; `-GrantBackgroundPermission` grants the background permission instead of revoking it and the file says so | call log, result file |
+| TC-W-191 | 6.4 | script | The live per-minute lines are copied into the result file before the log is cleared | result file |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |

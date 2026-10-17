@@ -106,8 +106,13 @@ function Ask-Answer([string]$question) {
 # Returns when the service reported AVAILABLE; throws when it did not.
 function Start-ProbeService {
     foreach ($p in 'android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND', 'android.permission.BODY_SENSORS_BACKGROUND') {
-        Invoke-Adb @('shell', 'pm', 'revoke', $pkg, $p) | Out-Null
+        if ($GrantBackgroundPermission) {
+            Invoke-Adb @('shell', 'pm', 'grant', $pkg, $p) | Out-Null
+        } else {
+            Invoke-Adb @('shell', 'pm', 'revoke', $pkg, $p) | Out-Null
+        }
     }
+    if ($GrantBackgroundPermission) { Log 'background permission GRANTED by -GrantBackgroundPermission' }
     foreach ($p in 'android.permission.health.READ_HEART_RATE', 'android.permission.POST_NOTIFICATIONS') {
         Invoke-Adb @('shell', 'pm', 'grant', $pkg, $p) | Out-Null
     }
@@ -130,10 +135,17 @@ function Wait-ServiceAvailable {
     Log 'service registered and AVAILABLE'
 }
 
+# Copies the live per-minute lines the service wrote since the last copy into the result file; call before logcat -c.
+function Save-LiveLines {
+    Invoke-Adb @('logcat', '-d', '-s', 'PROBE:I') | Where-Object { $_ -match 'PROBE measure live' } |
+        ForEach-Object { Log ('live: ' + $_) }
+}
+
 # adb connect, logcat -c, the report, then the new PROBE lines and whether the notification is listed.
 # Returns the reading count of the "screen=all" line (-1 when there is none).
 function Report([string]$phase) {
     & adb connect $Watch 2>&1 | Out-Null
+    Save-LiveLines
     Invoke-Adb @('logcat', '-c') | Out-Null
     Probe 'measure-report'
     Start-Sleep -Seconds $ReportWaitSec
@@ -155,6 +167,7 @@ function Log-Permissions {
 # The end of a run: stop the service, log the battery after.
 function Stop-ProbeService {
     & adb connect $Watch 2>&1 | Out-Null
+    Save-LiveLines
     Probe 'measure-stop'
     Log ("battery after: " + (BatteryLevel (BatteryText)))
 }

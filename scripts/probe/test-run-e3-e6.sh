@@ -44,9 +44,9 @@ before "$(first 'cmd measure-stop')" "$(first 'cmd measure-clear')" && before "$
 ok=0
 for i in 1 2 3 4 5 6 7; do
   r="$(nth 'cmd measure-report' $i)"
-  [ "$(calls | sed -n "$((r-2))p")" = "connect 192.168.1.16:41613" ] && calls | sed -n "$((r-1))p" | grep -q 'logcat -c' || ok=1
+  [ "$(calls | sed -n "$((r-3))p")" = "connect 192.168.1.16:41613" ] && calls | sed -n "$((r-2))p" | grep -q 'logcat -d' && calls | sed -n "$((r-1))p" | grep -q 'logcat -c' || ok=1
 done
-check "TC-W-161 before every report: adb connect, then logcat -c, then the report" 0 $ok
+check "TC-W-161 before every report: adb connect, the live lines are read (logcat -d), then logcat -c, then the report" 0 $ok
 grep -q '== report block-10' "$result" && grep -q '== report block-30' "$result" && grep -q '== report sleep-mode-before' "$result" && grep -q '== report sleep-mode-end' "$result" && grep -q '== report power-saving-before' "$result" && grep -q '== report power-saving-after-off' "$result"; check "TC-W-161 the result file names each report" 0 $?
 ! grep -q '== report power-saving-end' "$result"; check "TC-W-180 no report is taken while power saving is on (it turns Wi-Fi off)" 0 $?
 grep -q 'service running: True' "$result" && grep -q 'readings grew: True' "$result"; check "TC-W-161 the result file says the service runs and readings grew" 0 $?
