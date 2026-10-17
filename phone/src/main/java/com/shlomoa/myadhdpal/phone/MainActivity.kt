@@ -16,6 +16,7 @@ import com.shlomoa.myadhdpal.phone.ui.history.HistoryViewModel
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateViewModel
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditViewModel
 import com.shlomoa.myadhdpal.phone.ui.reminders.TaskRemindersViewModel
+import com.shlomoa.myadhdpal.phone.ui.schedule.ScheduleSyncViewModel
 import com.shlomoa.myadhdpal.phone.ui.settings.SettingsScreen
 import com.shlomoa.myadhdpal.phone.ui.settings.SettingsViewModel
 import com.shlomoa.myadhdpal.phone.ui.tasks.TaskEditViewModel
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
     private val history: HistoryViewModel by viewModels()
     private val taskList: TaskListViewModel by viewModels()
     private val settings: SettingsViewModel by viewModels()
+    private val scheduleSync: ScheduleSyncViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +41,7 @@ class MainActivity : ComponentActivity() {
                     history = history.uiState.collectAsState().value,
                     onFilter = history::setFilter,
                     onRetry = history::retry,
-                    tasks = { TasksTab(taskList, ::taskEditor, ::taskReminders, ::reminderEditor) },
+                    tasks = { TasksTab(taskList, scheduleSync, ::taskEditor, ::taskReminders, ::reminderEditor) },
                     settings = {
                         SettingsScreen(
                             state = settings.uiState.collectAsState().value,

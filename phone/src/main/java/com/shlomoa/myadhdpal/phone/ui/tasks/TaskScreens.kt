@@ -22,7 +22,7 @@ import com.shlomoa.myadhdpal.phone.R
 import com.shlomoa.myadhdpal.phone.data.Task
 import com.shlomoa.myadhdpal.phone.ui.ListState
 
-/** Stateless task list with its loading, empty and failed states. */
+/** Stateless task list with its loading, empty and failed states; [top] is room for the schedule bar. */
 @Composable
 fun TaskListScreen(
     state: ListState<Task>,
@@ -30,9 +30,11 @@ fun TaskListScreen(
     onOpen: (Task) -> Unit,
     onDelete: (Task) -> Unit,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    top: @Composable () -> Unit = {}
 ) {
     Column(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        top()
         Button(onAdd) { Text(stringResource(R.string.task_add)) }
         when (state) {
             ListState.Loading -> Text(stringResource(R.string.state_loading))
