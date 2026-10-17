@@ -80,6 +80,7 @@ case "$cmd" in
         if [ "$1" = notification ]; then
           fails nonotif || echo "      android.title=Probe: measuring heart rate"
           k=$(( $(cat "$D/notifs" 2>/dev/null || echo 0) + 1 )); echo "$k" > "$D/notifs"
+          note "PROBE measure live minute=$k arrivals=100 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on"
           [ -n "${FAKE_AWAY_AFTER:-}" ] && [ "$k" -eq "$FAKE_AWAY_AFTER" ] && touch "$D/away"
           exit 0
         fi

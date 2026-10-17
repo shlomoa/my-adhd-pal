@@ -148,4 +148,27 @@ class MeasureStatsTest {
         )
         assertEquals(listOf("PROBE measure callbacks=0 maxPerCallback=0"), sampleReport(emptyList(), startMs = 0))
     }
+
+    @Test
+    fun `TC-W-188 the live line gives the minute, the arrivals, how long since the last line and the last arrival`() {
+        assertEquals(
+            "PROBE measure live minute=3 arrivals=118 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on",
+            liveMinuteLine(minute = 3, arrivals = 118, sincePrevLineMs = 60_400, sinceLastArrivalMs = 700, display = "on")
+        )
+        assertEquals(
+            "PROBE measure live minute=4 arrivals=0 sincePrevLineSec=61 sinceLastArrivalSec=125 screen=doze",
+            liveMinuteLine(minute = 4, arrivals = 0, sincePrevLineMs = 61_000, sinceLastArrivalMs = 125_900, display = "doze")
+        )
+        assertEquals(
+            "PROBE measure live minute=0 arrivals=0 sincePrevLineSec=60 sinceLastArrivalSec=none screen=off",
+            liveMinuteLine(minute = 0, arrivals = 0, sincePrevLineMs = 60_000, sinceLastArrivalMs = null, display = "off")
+        )
+    }
+
+    @Test
+    fun `TC-W-189 the minute of the run counts from the start and never goes below zero`() {
+        assertEquals(0, minuteOfRun(startMs = 10_000, nowMs = 69_999))
+        assertEquals(1, minuteOfRun(startMs = 10_000, nowMs = 70_000))
+        assertEquals(0, minuteOfRun(startMs = 10_000, nowMs = 5_000))
+    }
 }
