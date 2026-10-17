@@ -202,6 +202,28 @@
       "requires": [],
       "status": "merged",
       "pr": 124
+    },
+    {
+      "id": "G-E2",
+      "name": "E2 live route verified against the user's definition (issue 229)",
+      "owner": "D + W",
+      "requires": [
+        "G5",
+        "H2"
+      ],
+      "status": "open",
+      "pr": null
+    },
+    {
+      "id": "G-LIVE",
+      "name": "6.4 live measure service (issue 57), replaces the passive listener",
+      "owner": "W",
+      "requires": [
+        "G-E2",
+        "G5"
+      ],
+      "status": "open",
+      "pr": null
     }
   ],
   "deferred": [

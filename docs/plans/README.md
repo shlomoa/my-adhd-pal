@@ -64,6 +64,8 @@ A **gate** exists once its PR is merged to `main`. Gates and their prerequisites
 | **G-DOC** | D1 design documentation: `docs/design/` with overview, four sections, solution diagrams and screen images; design approved by the user (recorded in issue #154) | D | G-BOOT |
 | **G-INDEX** | D2 documentation index `docs/index.md` and generated site in CI (issue #156), user approves the structure | D | G-DOC |
 | **G-VAL** | V lane set up; the slow script tests run after each merge to `main`, not on pull requests (issue #190) | V | G-BOOT |
+| **G-E2** | E2 (issue 229): the live route verified against the user's definition (continuous measurement, continuous comparison with the baseline, immediate report), per screen state, with the measured numbers of E1 | D + W | G5, H2 |
+| **G-LIVE** | 6.4 live measure service (issue 57): foreground health service with `MeasureClient` and an ongoing notification replaces the passive listener | W | G-E2, G5 |
 | **H1** (human) | 6.2 biometric metrics and thresholds agreed by the user, recorded in the issue | user | none |
 | **H2** (human) | Galaxy Watch6 Classic + Galaxy A55 5G available and a test window confirmed by the user, recorded in the issue | user | none |
 
