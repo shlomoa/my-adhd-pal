@@ -157,6 +157,16 @@ e: ScheduleSyncViewModelTest.kt:34:48 Unresolved reference 'SyncStatus'.
 
 TC-A-122 to TC-A-127 are red until this step lands.
 
+## 4.4 Ask the watch a question (prompt publishing)
+
+Red commit: the first commit of the 4.4 PR (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*PromptCompose*' --tests '*PromptWiring*'`. Exit 1, the test sources do not compile:
+
+```
+e: PromptComposeViewModelTest.kt:27:30 Unresolved reference 'PromptComposeViewModel'.
+```
+
+TC-A-039 to TC-A-043, TC-A-128, TC-A-133 and TC-A-135 are red until this step lands (the catalogue already had 039 to 043 for the same behaviour, so the tests carry those ids instead of new ones).
+
 ## 4.6 Empty and error states, accessibility
 
 No red run: 4.6 checks states that earlier steps already built (the reminder list, the schedule bar), so the new `EmptyStatesTest` cases (TC-A-055, 056, 057 for the reminder list) passed on first run against existing code. The other 4.6 cases already have tests from 4.1 to 4.4 (TC-A-053, 054, 056, 057, 058, 059). The change that matters here is the traceability: TC-A-028 and TC-A-029 are now carried by the schedule-send tests, replacing the duplicate rows TC-A-124 and TC-A-125.

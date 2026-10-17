@@ -17,6 +17,7 @@ import com.shlomoa.myadhdpal.phone.alert.AlertPrefs
 import com.shlomoa.myadhdpal.phone.alert.AlertScreen
 import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryType
+import com.shlomoa.myadhdpal.phone.data.PromptError
 import com.shlomoa.myadhdpal.phone.data.SettingsDefaults
 import com.shlomoa.myadhdpal.phone.data.SettingsError
 import com.shlomoa.myadhdpal.phone.data.Task
@@ -25,6 +26,9 @@ import com.shlomoa.myadhdpal.phone.ui.history.HistoryUiState
 import com.shlomoa.myadhdpal.phone.ui.link.LastSync
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateScreen
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
+import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeActions
+import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeScreen
+import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeUiState
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditScreen
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditUiState
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderError
@@ -122,6 +126,16 @@ class AccessibilityTest {
                 onAlertPrefs = {}
             )
         },
+        "ask with errors" to {
+            PromptComposeScreen(
+                PromptComposeUiState(
+                    options = listOf("Yes", "", ""),
+                    expiryMinutes = 15,
+                    errors = setOf(PromptError.BLANK_TITLE, PromptError.TOO_FEW_OPTIONS)
+                ),
+                PromptComposeActions({}, { _, _ -> }, {}, {}, {}, {})
+            )
+        },
         "home with tabs" to {
             HomeScreen(
                 link = LinkStateUiState(LinkState.AWAY, LastSync.Never),
@@ -129,7 +143,8 @@ class AccessibilityTest {
                 onFilter = {},
                 onRetry = {},
                 tasks = {},
-                settings = {}
+                settings = {},
+                ask = {}
             )
         },
         "history failed" to {

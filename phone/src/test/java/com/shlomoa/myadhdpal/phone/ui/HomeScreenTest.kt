@@ -29,7 +29,8 @@ class HomeScreenTest {
                     onFilter = {},
                     onRetry = {},
                     tasks = {},
-                    settings = {}
+                    settings = {},
+                    ask = {}
                 )
             }
         }

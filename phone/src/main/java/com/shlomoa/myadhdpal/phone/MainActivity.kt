@@ -14,6 +14,9 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.shlomoa.myadhdpal.phone.ui.HomeScreen
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryViewModel
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateViewModel
+import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeActions
+import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeScreen
+import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeViewModel
 import com.shlomoa.myadhdpal.phone.ui.reminders.ReminderEditViewModel
 import com.shlomoa.myadhdpal.phone.ui.reminders.TaskRemindersViewModel
 import com.shlomoa.myadhdpal.phone.ui.schedule.ScheduleSyncViewModel
@@ -31,6 +34,7 @@ class MainActivity : ComponentActivity() {
     private val taskList: TaskListViewModel by viewModels()
     private val settings: SettingsViewModel by viewModels()
     private val scheduleSync: ScheduleSyncViewModel by viewModels()
+    private val promptCompose: PromptComposeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +51,19 @@ class MainActivity : ComponentActivity() {
                             state = settings.uiState.collectAsState().value,
                             onSave = settings::save,
                             onAlertPrefs = settings::setAlertPrefs
+                        )
+                    },
+                    ask = {
+                        PromptComposeScreen(
+                            state = promptCompose.uiState.collectAsState().value,
+                            actions = PromptComposeActions(
+                                onTitle = promptCompose::setTitle,
+                                onOption = promptCompose::setOption,
+                                onAddOption = promptCompose::addOption,
+                                onRemoveOption = promptCompose::removeOption,
+                                onExpiry = promptCompose::setExpiry,
+                                onSend = promptCompose::send
+                            )
                         )
                     }
                 )

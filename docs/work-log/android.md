@@ -162,6 +162,13 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Validation: tests first, red (`docs/test-reports/android-baseline.md`), now green: `ScheduleSyncViewModelTest` 5 (TC-A-122 to 126), `ScheduleWiringTest` 1 (TC-A-127, real Hilt graph, one `/schedule` item written, the second tap writes nothing); `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
 - Open items: cleanup check: nothing became unused. The debug demo receivers (`DemoSchedulePublisher`, history dump) are kept on purpose: they put a reminder a few minutes ahead from `adb` without typing and the history dump has no screen equivalent; the user decides if they go after the manual test TC-A-080. 4.4 (prompt publishing) is next.
 
+## 2026-10-17 - 4.4 Ask the watch a question (prompt publishing)
+
+- Issue and PR: #66 (4.4); PR below. Lane S request: #198 (the phone removes its own `/prompt/<id>` when answered or expired).
+- Changed: a new Ask tab (`PromptComposeScreen`, `PromptComposeViewModel`): a question, 2 to 6 answers (add and remove), how long it can be answered (no limit, 5 minutes, 15 minutes, 1 hour as radio rows of at least 48 dp), and "Send to the watch". It publishes through the real `PromptRepository.publish` (validation and ids stay in the data layer); empty answers are dropped before sending; errors show next to the fields; a failure keeps the form for a retry; a sent question empties the form and says so. `HomeScreen` gets an `ask` slot.
+- Validation: tests first, red (`docs/test-reports/android-baseline.md`), now green: `PromptComposeViewModelTest` 7 (TC-A-039 to 043, 128, 133), `PromptWiringTest` 1 (TC-A-135, real Hilt graph, one `/prompt/` item written), accessibility test with the Ask form in its error state, `HomeScreenTest`; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
+- Open items: cleanup check: nothing became unused. Found while reading the data layer: nothing calls `WatchLinkDataSource.removePrompt`, so prompts stay in the Data Layer after the answer or expiry; opened #198 (lane S). Manual TC-A-044 (the watch's answer shows in the history) still needs the user with the watch. Update: #198 landed (#203): the phone removes its own prompt when the answer is stored and for expired ones; the Ask screen needed no change, only my test builds `DefaultPromptRepository` with the new `PublishedPrompts` argument.
+
 ## 2026-10-17 - 4.6 Empty and error states, accessibility (traceability pass)
 
 - Issue and PR: #68 (4.6); PR below.
