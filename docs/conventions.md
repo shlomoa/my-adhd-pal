@@ -106,8 +106,10 @@ open question are in the "Recipe (lane S)" section of issue #205.
 for i in 1 2 3 4; do ./gradlew --console=plain check --rerun-tasks; done
 ```
 
-**What clears it.** Running the same command again, or a clean git worktree. Not yet tested on its own:
-`./gradlew --stop` and removing `phone/build` and `.gradle`.
+**What clears it.** Running the same command again, or a clean git worktree. `./gradlew --stop` before the command
+looked like it helps: without it 3 of 6 full `check --rerun-tasks` runs crashed in one checkout (the crashes came on
+daemons 11 minutes old or more), with it 0 of 5 did (issue 205; few runs, so not proof). `test-checks.sh` stops the
+daemons before its TC-S-017 check. Removing `phone/build` and `.gradle` was not tested on its own.
 
 What to do:
 

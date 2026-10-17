@@ -36,3 +36,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: four groups balanced by measured time (checks | structure ci pairing | spike suite 0b2a | spike suite 0b2b and the short tests); a unit `test-x.sh@arg` passes `POST_MERGE_ARG`, `test-spike.sh` reads it; every unit prints `== <unit> took Ns`; one Gradle dry run in the checkout before the groups installs the Android build-tools (three worktrees installing build-tools 36.0.0 at once raced in a fresh container and failed `test-structure.sh`). Catalogue TC-V-011, TC-V-012, TC-V-014; TC-V-007 updated.
 - Validation: tests red (commit 7b95199), then green. Same sha, 4 cores, warm caches: three groups 744 s, four groups 585 s (checks 577, spike a 383, spike b 277, ci 166, design-style 140). Tried and dropped, both slower: `test-checks.sh` in two parts in a fifth group 647 s; in three parts over four groups 930 s (the scaffold part alone takes 283 s on an idle machine and 797 s beside the others). Concurrent Gradle builds in separate worktrees contend for the four cores and memory, so more Gradle units slow each other.
 - Open items: `test-checks.sh` is the floor (about 580 s; `check --rerun-tasks` is 283 s of it); a faster run needs less Gradle work, not more groups.
+
+## 2026-10-17 - Issue 205: fresh Gradle daemon for the TC-S-017 check
+
+- Issue and PR: #205; PR linked from the issue.
+- Changed: `test-checks.sh` runs `./gradlew --stop` before its TC-S-017 check; new case TC-S-198; the lint crash note in `docs/conventions.md` names the evidence.
+- Validation: TC-S-198 red in b3b099b, then green. Evidence for the idea is thin: `check --rerun-tasks` in one checkout crashed in 3 of 6 runs without `--stop` and in 0 of 5 with it. This PR does not claim the crash is fixed.
+- Open items: the cause of the crash is unknown; #205 stays open.

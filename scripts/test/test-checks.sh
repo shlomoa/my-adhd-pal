@@ -35,12 +35,18 @@ fixture() { # path: writes stdin there; remembers the topmost directory it had t
 ! grep -nE '/tmp/[A-Za-z]|TMPDIR:-/tmp\}/[A-Za-z]' scripts/*.sh scripts/test/*.sh scripts/ci-post-merge/*.sh | grep -v '^[^:]*:[0-9]*:\s*#'
 check "TC-S-196 no script writes a fixed-name file in /tmp" 0 $?
 
+# TC-S-198 the TC-S-017 check starts on a fresh Gradle daemon: full lint analysis in a daemon that already ran other
+# builds crashed (issue 205, evidence in docs/conventions.md)
+n="$(grep -n '^gradle check --rerun-tasks' "$0" | head -n 1 | cut -d: -f1)"
+sed -n "$((n - 1))p" "$0" | grep -q '^\./gradlew --stop'; check "TC-S-198 the TC-S-017 check is preceded by ./gradlew --stop" 0 $?
+
 # TC-S-016 the tools run behind ./gradlew check and the workflow carries no tool list
 tasks="$(./gradlew --console=plain -q check --dry-run 2>&1)"
 for t in spotlessCheck detekt lintDebug lintDocs; do echo "$tasks" | grep -q "$t"; check "TC-S-016 check includes $t" 0 $?; done
 ! grep -qiE 'markdownlint|ktlint|detekt|spotless|remark' .github/workflows/*.yml; check "TC-S-016 workflows name no lint tool" 0 $?
 
 # TC-S-017 every tool runs on the scaffold (compatibility with AGP 9.4 and Kotlin 2.4)
+./gradlew --stop >/dev/null 2>&1 # a fresh daemon: full lint analysis crashed in daemons that had run other builds (docs/conventions.md)
 gradle check --rerun-tasks; check "TC-S-017 check is green on the scaffold" 0 $?
 for t in ":spotlessCheck" ":detekt" ":lintDocs" ":phone:lintDebug"; do grep -qF "Task $t" "$out"; check "TC-S-017 $t ran as part of check" 0 $?; done
 
