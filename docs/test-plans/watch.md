@@ -140,6 +140,9 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-147 | 6.4 | unit | The battery report gives the drop per hour, and none without a duration or when the level rose | exact lines |
 | TC-W-148 | 6.4 | unit | The 95th percentile is the nearest rank of the sorted values | expected numbers |
 | TC-W-149 | 6.4 | manual | On the real watch: the live heart-rate route over 30 minutes worn (screen on, dim, off): readings per minute, gaps, availability changes, battery drop, and that the service survives without the background permission | user reports the measure report lines (`docs/test-reports/watch-probe-checklist.md` steps 1 to 4: E1, E3, E4) |
+| TC-W-150 | 6.4 | unit | The front line gives the event, the screen state (on, doze, off), whether the debug screen is in front and keep-screen-on | exact lines |
+| TC-W-151 | 6.4 | unit | A screen state the probe does not know is named other | exact line |
+| TC-W-152 | 6.4 | unit | The debug screen is in front only when it is resumed and has window focus | true and false cases |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |

@@ -50,6 +50,13 @@
             android:permission="android.permission.DUMP"
             android:taskAffinity="" />
 
+        <!-- A screen that stays in front, with a keep-screen-on switch, for experiment E4: adb shell am start. -->
+        <activity
+            android:name=".debug.probe.ProbeFrontActivity"
+            android:exported="true"
+            android:permission="android.permission.DUMP"
+            android:taskAffinity="" />
+
         <service
             android:name=".debug.probe.ProbeMeasureService"
             android:exported="false"

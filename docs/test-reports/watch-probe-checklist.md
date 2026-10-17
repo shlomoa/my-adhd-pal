@@ -97,18 +97,33 @@ Stop with `measure-stop` at the end. State whether any permission prompt appeare
 
 ## 4. E4: does the app stay the top app and top window (issue #231)
 
-Observed on the watch, no command needed beyond the start in step 2. The current probe activity closes at once (it only
-starts the service), so what you see is what the system does with a started app: say what the watch face and the
-screen show after a minute of leaving it alone. Answer, in your own words:
+The debug build has a screen that stays in front (`ProbeFrontActivity`) with a keep-screen-on switch. It measures nothing;
+it writes a `PROBE front` line when it is resumed or paused, gains or loses focus, the switch changes or the screen goes
+on, dim (`doze`) or off. `inFront=true` means resumed and has focus. Do this step with the watch worn, 3 minutes per
+run. Start it the way the app would start:
 
-1. After the start, which screen is shown, the app or the watch face? After the screen timeout, and after waking it?
-2. In the always-on display (phase B of step 2): app, watch face, or other?
+```powershell
+adb logcat -c; adb shell am start -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity
+```
+
+Run 1, switch off: leave the arm still and let the screen time out and go to the always-on display, then off; wake it;
+then read the lines:
+
+```powershell
+adb logcat -d -s PROBE:I
+```
+
+Run 2, switch on: `adb shell am start -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity --ez keep true`
+(or tap the switch on the watch), leave the arm still for 3 minutes, read the lines again.
+
+Report the `PROBE front` lines of both runs and answer, in your own words:
+
+1. After the start, is the app shown? After the screen timeout (run 1), what is shown in the always-on display: the app,
+   the watch face, or other? After waking it?
+2. In run 2, does the screen stay on, and for how long? Does it dim?
 3. What is the screen timeout setting, and does any setting keep the screen on while the app runs (say which: for example
    "Keep screen on", "Touch to wake", "Wake up gesture")?
-4. After you tap the notification, does the app come to the front?
-
-If the probe cannot show the app staying in front (it has no screen of its own), say so: the lane then adds a screen that stays
-in front with a keep-screen-on switch to the debug build, and this step is repeated with it.
+4. With the measuring service of step 2 running, tap its notification: does the app come to the front?
 
 ## 5. E6: Do Not Disturb routes, Bedtime, Theater, vibration intensity (issue #233)
 
