@@ -38,6 +38,12 @@ for f in scripts/test/test-*.sh; do
 done
 [ -z "$lost" ]; check "TC-S-172 every script test runs somewhere (not run:$lost)" 0 $?
 
+# TC-S-175 the two Gradle-free tests that take about a second stay per pull request and are not repeated after the merge
+gates=.github/workflows/gates.yml
+has 'scripts/test/test-protocol-spec.sh' "$gates" && has 'scripts/test/test-gates.sh' "$gates"
+check "TC-S-175 gates.yml runs test-protocol-spec.sh and test-gates.sh per pull request" 0 $?
+! grep -qE 'test-(protocol-spec|gates)\.sh' "$runner"; check "TC-S-175 the post-merge runner does not repeat them" 0 $?
+
 # TC-S-173 the runner runs every listed test, keeps going after a failure, and names what failed
 dir="$tmp/tests"; mkdir -p "$dir"
 printf '#!/usr/bin/env bash\necho "PASS TC-X-001 fine"\n' > "$dir/test-good.sh"
