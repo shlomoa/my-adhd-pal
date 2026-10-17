@@ -12,10 +12,12 @@ separate one-line PR. Research notes: [`../research/watch.md`](../research/watch
 
 | Situation | What happens | Route |
 |---|---|---|
-| The user has started the watch app (D9) | The app stays on. It measures heart rate continuously (other biometrics: to be discussed), compares it to the baseline continuously, and sends an urgent event to the phone, and receives one from it, immediately. The local response runs on the watch at once. | Live `MeasureClient` in a foreground service (section 11); measured about 2 readings per second with the screen on |
+| The user has started the watch app (D9) | The app stays on: it is always the top app and top window, visible all the time, and the user can read the time on it. It measures heart rate continuously (other biometrics: to be discussed), compares it to the baseline continuously, and sends an urgent event to the phone, and receives one from it, immediately. The local response runs on the watch at once. | Live `MeasureClient` in a foreground service (section 11); measured about 2 readings per second with the screen on |
 | The app is not running | Nothing is measured (D9). | None |
 | The link or a device is down: disconnect, phone down, watch down, pairing down, network down and similar | The only case where events are kept and delivered together ("batch") once the link is back. Local response on the watch is not delayed. Rules (how long kept, order, what the phone shows) are to be discussed. | The queue between watch and phone, not a Health Services route |
 | Never | Normal measurement and urgent events are not held back to be delivered later. | The passive background route is **not** used for alerts: measured readings arrive about every 10 minutes (section 6, section 12.3) |
+
+"Stays on" (user, 2026-10-17) means the app is the top app and window all the time, so the screen is on or dim (always-on), not switched off; the screen-off case of the probe is then a failure case, not the normal one.
 
 Still to prove on the real watch with the live route: readings with the screen dim and off, 30 minutes, the battery cost, and what the user must do (section 11).
 Sections 2 to 10 were written for the passive route; where they say "passive", they describe how the data was first measured, and the route above applies.
