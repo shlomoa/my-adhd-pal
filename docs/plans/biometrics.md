@@ -29,6 +29,16 @@ on the real watch (section 6).
 | D8 | Privacy | Decided | Raw readings are never logged in release builds; raw feed only in `wear/src/debug/`. `/alert` carries the numeric value (already accepted). |
 | D9 | When it measures | Decided (2026-10-17) | Heart rate is measured **only while the watch app is running**, started by the user; not as an always-on background service. Consequences and open points: section 11. |
 
+**User definition (2026-10-17), verbatim:**
+
+1. Heart rate is measured continuously.
+2. Heart rate is compared to the baseline continuously.
+3. A stress event is reported immediately and the local response is activated.
+
+This is separate from D9 (measure only while the watch app runs). "Immediately" is read as within seconds. The route that meets it is
+open until the probe of section 11.5 has run; the user picks the route then. The passive background route does **not** meet "immediately"
+as measured: batches of up to about 600 samples spanning about 10 minutes, delivered seconds after the window (section 6).
+
 ## 2. The resting baseline (D3)
 
 **What the platform offers on the watch.**
@@ -450,6 +460,15 @@ Threshold (resting + offset), cooldown (5 min), level 2 every 2 min up to 6 repe
 
 Decided by the user (2026-10-17, via the coordinator): heart rate is measured **only while the watch app is running**, started by the user,
 not as an always-on background service. Nothing below is built. Where something is open it is marked **Proposal**.
+
+### 11.0 How each route meets the definition
+
+| Route | Continuous | Immediate (seconds) | Local response, report to the phone | Status |
+|---|---|---|---|---|
+| Passive listener service (background) | Yes | **No**: measured batches of about 10 minutes (section 6) | Yes | Measured |
+| Passive callback while the app runs | Yes | The page says "a slightly faster rate" than the service, not quantified | Yes | Unverified, not probed |
+| Live `MeasureClient` while the app runs (11.1) | Expected, about once per second | Expected seconds | Yes | Unverified, probe in 11.5 |
+| `ExerciseClient` | Yes | Batched in ambient mode, up to about 150 s (11.1) | Yes | Not chosen: it is for workouts |
 
 ### 11.1 The live route: `MeasureClient`
 
