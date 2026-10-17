@@ -340,3 +340,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `PublishedPrompts` and `DataStorePublishedPrompts` (the prompts sent and not yet removed, with their expiry), `PromptCleaner` (removes on the stored answer and for expired prompts), `WatchEventProcessor` calls it after `markStored` and sweeps at start and every minute, `DefaultPromptRepository` records each sent prompt, Hilt wiring in `StorageModule`; `docs/data-layer.md`. The Ask screen needs no change.
 - Validation: TC-S-190 to TC-S-195 written first and red (`shared-baseline.md`), then green; `detekt spotlessCheck check` green.
 - Open items: none; lane A is told the removal happens without UI code. A prompt published by an older install (before this change) is not in the store and stays until the Data Layer drops it.
+
+## 2026-10-17 - Tooling freshness check
+
+- Issue and PR: question from the user via the coordinator (no issue); PR linked from the coordinator message.
+- Changed: new `docs/research/tooling.md` (every pin in `gradle/libs.versions.toml`, the wrapper, `tools/docs/package.json`, `tools/docs-site/requirements.txt` and the workflows against the latest stable release, with sources and the read date, and a recommendation per row); link in `docs/index.md`. Nothing upgraded.
+- Validation: docs only, no script checks this page; markdownlint, links and the docs index check pass.
+- Open items: the user decides on upgrades (recommendation: none now; the GitHub Actions majors in one later PR). No newer stable AGP, Kotlin or Gradle exists, so none fixes the lint crash.
