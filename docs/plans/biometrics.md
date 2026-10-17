@@ -6,6 +6,8 @@ proposal are in the body of the issue (section "Decisions"). **Confirmed by the 
 separate one-line PR. Research notes: [`../research/watch.md`](../research/watch.md) sections 3 to 5. Steps 6.3 to 6.8 in
 [`watch.md`](watch.md) follow once H1 and G2b are merged.
 
+**Latest findings and direction: [section 12](#12-findings-and-direction-so-far-2026-10-17).**
+
 **In short (D9, 2026-10-17, user decision):**
 heart rate is measured only while the watch app is running, because the user started it; there is no always-on background service.
 That should give a reading about every second and an alert within seconds, instead of the readings delivered together about every 10 minutes that the passive route showed.
@@ -538,3 +540,56 @@ states, or the exact behaviour per state is recorded; the service survives 30 mi
 1. Confirm the proposal of 11.2 (the "monitoring" state shown on the phone) and of 11.3 (option c for the baseline), or choose another option.
 2. Run the 30-minute probe of 11.5 when its code is merged.
 3. State whether the app should also run at night.
+
+## 12. Findings and direction so far (2026-10-17)
+
+Written from the user's runs on the Galaxy Watch6 Classic (Wear OS 6) and the user's decisions in [issue #55](https://github.com/shlomoa/my-adhd-pal/issues/55).
+Facts are measurements or quotes; each says where it comes from.
+
+### 12.1 What the user defined (Decided, 2026-10-17)
+
+The acceptance test for every measurement route, in the user's words:
+
+- heart rate is **measured continuously**;
+- heart rate is **compared to the baseline continuously**;
+- a **stress event is reported immediately** and the **local response is activated**.
+
+Separate decision **D9** (Decided): heart rate is measured **only while the watch app is running** (started by the user), not as an always-on background
+service. The route that meets the definition is not chosen yet; the user chooses after the probes below.
+
+### 12.2 What Google says about delivery (Verified, read 2026-10-17)
+
+[Health Services compatibility](https://developer.android.com/health-and-fitness/health-services/compatibility), passive monitoring: "Devices may return heart rate readings at
+different intervals. Some devices may take reading every second. Other devices may take a reading every ten minutes. These intervals are not made available to apps."
+The [background monitoring page](https://developer.android.com/health-and-fitness/health-services/monitor-background) says the callback "receives data at a slightly faster rate,
+but only while the app is running". Neither page gives an interval for a given watch; it is measured below.
+
+### 12.3 Measured on the user's watch
+
+| Route | Result | When |
+|---|---|---|
+| Passive background listener, worn | 318 readings delivered together 7 min 41 s after start | 09:49 to 09:57 |
+| Passive background listener, off the wrist | 1 reading in 10 minutes | 10:02 to 10:12 |
+| Passive background listener, long run | Readings delivered together about every **10 minutes**, 577 to 598 per delivery, window 580 to 599 s, arriving 0.4 to 11.5 s after the window closes (12:45, 12:55, 13:05, 13:15, 13:25, 13:35) | 12:45 to 13:35 |
+| Live `MeasureClient` in a foreground service, screen on, worn | Capability true; readings AVAILABLE 4 s after start; **734 readings in 5 minutes** (about 2 per second); gap median under 1 s, 95th percentile 1 s, longest **60 s** (cause unknown); battery 68% to 67% (too coarse to give a rate, reported as 11.7 %/hour) | 13:44 to 13:49 |
+
+Consequence: the passive background route delivers readings about every 10 minutes on this watch, so it does **not** meet "reported immediately". The live route delivers within
+about a second with the screen on. Not measured yet: the live route with the display dim (always-on) and with the screen off, 30 minutes worn, battery over a longer time,
+and whether the "Probe: measuring heart rate" notification is visible (the user saw no pop-up; the notification list was not checked).
+
+### 12.4 Other findings (from earlier sections)
+
+- The Samsung stress value cannot be read by an ordinary app; Samsung's partner programme is the only route (section 9).
+- Movement (steps, activity state) can gate alerts later, after a probe (section 10).
+- A plain app vibration (alarm usage, maximum amplitude, amplitude control available) was felt normally and **not** under Do Not Disturb (priority mode); the routes to get through are
+  in section 4, untested.
+- Every Gradle, npm and PyPI pin was at its latest stable release on 2026-10-17 ([tooling research](../research/tooling.md)).
+
+### 12.5 Direction
+
+1. The live route in a foreground service is the candidate that meets the definition; prove it with the live probe (checklist step 6): screen dim, screen off, 30 minutes, battery,
+   the notification, the 60 s gap.
+2. Until the user chooses the route, nothing is built on the passive background route.
+3. Open decisions for the user (issue #55, D9): show a "monitoring" state of the watch on the phone; how the baseline is kept when the app is not running; whether the app also
+   runs at night.
+4. The Watch, Android and Shared lanes are stopped by the user until the route is decided; their open pull requests are not merged.
