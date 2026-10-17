@@ -164,8 +164,8 @@
       "requires": [
         "G-BOOT"
       ],
-      "status": "open",
-      "pr": null
+      "status": "merged",
+      "pr": 192
     },
     {
       "id": "G-DOC",
