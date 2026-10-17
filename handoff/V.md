@@ -1,22 +1,30 @@
 # Handoff of lane V (Validation)
 
-Written 2026-10-17 about 14:30 UTC by the lane V session (session_017kTHt4tKxpY8bpkxPWbpNM) for the next lane V session.
+Written 2026-10-17 about 14:50 UTC by the lane V session (session_017kTHt4tKxpY8bpkxPWbpNM) for the next lane V session.
 Coordinator: session_01SicxwYxR11J2rccj3we8WY. Repository: shlomoa/my-adhd-pal. The new session knows nothing but this
 file and the repository. Where a statement is a guess it says so. No secrets, tokens or full logs are in this file.
 
 ## 1. Status
 
-- **Last green run:** `69feaa5` (#220), all 12 script tests, 556 s, no lint-crash rerun. Every merge before it that I was told
-  about is covered by a green run (table in section 3).
-- **NOT validated:** `444b5b1` (#236, lane S, `gates.json` gates G-E2 and G-LIVE), merged 2026-10-17 14:25 UTC, after my last
-  run. I was told to start no new runs; the first job of the next session is to run the 12 tests on `444b5b1` or later main.
-- **Open `main-red` issues:** none. The only one ever opened is #205 (closed).
+- **Last run: `444b5b1` (#236, lane S, `gates.json` gates G-E2 and G-LIVE), RED, 528 s.** 11 of 12 tests passed.
+  `test-structure.sh` failed TC-S-006 (two cases) and TC-S-002 (wear debug APK exists) because its Gradle build was killed:
+  `Gradle build daemon has been stopped: stop command received`. Cause: `scripts/test/test-checks.sh` runs `./gradlew --stop`
+  before its TC-S-017 check (added by #218); `--stop` stops EVERY Gradle daemon of the user, including the one a different
+  runner group is building with at that moment (groups run at the same time, same Gradle user home). Run alone,
+  `bash scripts/test/test-structure.sh` passes on `444b5b1`. #236 itself (only `gates.json`) is not the cause. Runs `1ffdc5b`
+  and `69feaa5` passed only because the Gradle calls did not overlap. Issue **#237** (`main-red`, bug, lane:V) has the diagnosis
+  and the proposed fix. **No sub-agent has been created yet.** I wrote the result in the body of #223 (lane S's issue for #236).
+- **Last green run:** `69feaa5` (#220), all 12 script tests, 556 s, no lint-crash rerun. Every merge before `444b5b1` that I was
+  told about is covered by a green run (table in section 3).
+- **Open `main-red` issues:** #237 (above). #205 (Android lint crash) is closed.
 - **#205 (Android lint crash, `test-checks.sh` TC-S-017):** closed by the owner (shlomoa) at 13:08 UTC when #218 merged. The
   cause is UNKNOWN; the mitigation (#218: `./gradlew --stop` before the TC-S-017 check) has weak evidence (without the stop
-  3 of 6 full `check --rerun-tasks` runs crashed, with it 0 of 5). Runs since the fix: `1ffdc5b` clean, `69feaa5` clean (2).
-  Rule for reopening: if a post-merge run shows the crash again (a `test-checks.first.log` appears in the run output, or
-  `test-checks.sh` fails with `Unexpected failure during lint analysis`), open a NEW `main-red` issue (new sub-agent), and
-  link #205. My own target for calling it solved was 5 clean runs in a row; I never reached it.
+  3 of 6 full `check --rerun-tasks` runs crashed, with it 0 of 5). Runs since the fix: `1ffdc5b` clean, `69feaa5` clean,
+  `444b5b1` clean for the lint crash (`test-checks.sh` passed in 500 s, no `*.first.log`) = 3. Careful: #237 means the
+  mitigation has a side effect; its fix must keep the TC-S-017 check away from a daemon that ran other builds (that was the
+  point of #218). Rule for reopening #205: if a post-merge run shows the crash again (a `test-checks.first.log` appears in the
+  run output, or `test-checks.sh` fails with `Unexpected failure during lint analysis`), open a NEW `main-red` issue
+  (new sub-agent) and link #205. My own target for calling it solved was 5 clean runs in a row.
 - **Sub-agents:** none alive. Archived: `session_014DEQ4ch8XmLtYGnKnkUvQk` (#205, broken SDK), `session_01TQAVa5p8RdXHUqYVNPa3oE`
   (#205, shipped #212 and #218), `session_014Ckg3GX7ztViNb2s2LZK5V` (speed-up, shipped #215).
 - **Issue #221 (P3 gate, "every merged PR validated"):** I wrote the report into its body ("all merged PRs validated 69feaa5",
@@ -75,7 +83,7 @@ file and the repository. Where a statement is a guess it says so. No secrets, to
 
 **13:42 coordinator:**
 > report when the #205 crash has not recurred over N consecutive post-merge runs since #218 (1ffdc5b), with N and the run shas; then close #205 and archive its sub-agent.
-(The owner closed #205 himself before that; the sub-agent is archived. I chose N = 5 and have 2 runs.)
+(The owner closed #205 himself before that; the sub-agent is archived. I chose N = 5 and have 3 runs.)
 
 **14:11 new coordinator (session_01SicxwYxR11J2rccj3we8WY), the P3 request:**
 > Lane V: please report the P3 gate (issue #221): is every merged PR validated on the final main sha? Please do: 1. Run the post-merge tests on the latest main sha (not older than 69feaa5), as in docs/plans/validation.md. 2. Confirm that #212, #215, #216, #218 and #220 are each covered by a green run. 3. Put the result in the body of issue #221 (decisions and status live in the issue body, never in comments) and reply with one line: "all merged PRs validated <sha>", or the failing test ids, owning lane and sub-agent id per your red procedure. Waves 0 to 5 start only after your report. From now on I send `merged <pr> <sha>` after every merge, as before.
@@ -83,7 +91,11 @@ file and the repository. Where a statement is a guess it says so. No secrets, to
 
 **14:24 new coordinator, this handoff:**
 > write your handoff file now (status + history), then stop. Keep only what is already running; after that, no new runs until the new session takes over, except: do not abandon a run in progress, put its result in the handoff file. [...] create branch `claude/handoff-V` from origin/main, add ONE file `handoff/V.md`, push it. No PR, no change to main.
-(No run was in progress. `git push` is denied in my container; I created the branch and the file with the GitHub MCP file tools instead.)
+(`git push` is denied in my container; I created the branch and the file with the GitHub MCP file tools instead.)
+
+**14:25 new coordinator (arrived while I wrote the handoff):**
+> merged 236 444b5b1628bc9de3917e850104eab718ee6825d2. PR #236 (lane S, C3: gates G-E2 and G-LIVE, test case TC-S-184) is squash-merged on main, head before merge f4e81ab, all 8 checks green. Run the post-merge tests on 444b5b1 as usual and put the result in the body of issue #223 (lane S's issue for C3). Write your handoff file first if you have not finished it.
+(Done: the run was red, see section 1; result written in the body of #223; issue #237 opened.)
 
 The message format for each merge is a single line such as `merged #236 444b5b1`.
 
@@ -100,6 +112,7 @@ The message format for each merge is a single line such as `merged #236 444b5b1`
 | #205 hygiene | mktemp log name and stray directories (no crash claim) | #212, merged `269ab94` |
 | #205 mitigation | `test-checks.sh` runs `./gradlew --stop` before the TC-S-017 check (TC-S-198) | #218, merged `1ffdc5b` |
 | P3 | gate report written into the body of #221 | issue #221 |
+| #237 | run on `444b5b1` red: the `--stop` of #218 kills the Gradle build of another parallel group (structure) | issue #237 |
 
 Decisions of mine worth knowing: `--no-parallel` was dropped (Gradle's project execution is already sequential here); I stopped
 my own A/B experiment on `--stop` when the user said it was not my responsibility; the runner keeps a single automatic rerun of
@@ -126,6 +139,7 @@ Post-merge runs I made (12 tests unless noted; seconds = whole run):
 | 8bbaaa8 | #217 | green | 455 |
 | 1ffdc5b | #218 | green (first with the lint mitigation) | 516 |
 | 69feaa5 | #219 #220 | green | 556 |
+| 444b5b1 | #236 | RED: test-structure.sh killed by the `--stop` of test-checks.sh (issue #237); the other 11 green, test-checks.sh 500 s | 528 |
 
 ## 4. Environment facts
 
@@ -135,12 +149,15 @@ Post-merge runs I made (12 tests unless noted; seconds = whole run):
   `test-spike.sh`). Install pwsh from the GitHub release tarball `powershell-7.5.1-linux-x64.tar.gz` into a directory of your
   own (I used `/root/tools/pwsh`) and put it on `PATH` for the run. Node, Python and `convert` were already present.
 - Hardware seen: 4 cores, 15 GB RAM. Do not run two full sets at once and do not time anything while another run uses the cores.
-  Splitting `test-checks.sh` made runs slower (Gradle builds contend); `test-checks.sh` alone takes 520 to 580 s and is the floor.
+  Splitting `test-checks.sh` made runs slower (Gradle builds contend); `test-checks.sh` alone takes 500 to 580 s and is the floor.
 - A run: `POST_MERGE_OUT=<dir outside the repo> bash scripts/ci-post-merge/run-tests.sh` from a detached checkout of the sha.
   `--groups` prints the four groups. Output: `<test>.log`, `report.md` ("All script tests passed." or the failing scripts and
   `FAIL` lines), and per-test "took Ns" lines on stdout. Exit 0 = green. Each group runs in its own `git worktree` of HEAD and
   copies `local.properties`; the runner removes the worktrees. Run it as a background job and wait for its exit line; a
   launcher's "completed" notice is NOT the end of the run.
+- All groups share one Gradle user home and therefore one set of Gradle daemons: anything that stops daemons (`./gradlew --stop`)
+  or deletes shared caches breaks the other groups' builds (issue #237). The error text is "Gradle build daemon has been
+  stopped: stop command received".
 - The tests edit and restore files while they run (fixtures such as `unused_fixture.xml`, `docs/zz-fixture-external.md`); a Stop
   hook that complains about untracked or modified files during a run is looking at those; do not commit them.
 - Lint crash recipe (`docs/conventions.md`, "When lint itself crashes"): task `:phone:lintAnalyzeDebugUnitTest` fails with
@@ -155,11 +172,19 @@ Post-merge runs I made (12 tests unless noted; seconds = whole run):
 
 ## 5. Next steps
 
-1. Run the 12 tests on `444b5b1` (#236, merged 14:25 UTC) or the latest main, silent if green.
-2. On every `merged <pr> <sha>` the coordinator sends: run the 12 tests on that sha (latest if several), silent if green, the red
-   procedure of section 2 if not. Count lint-crash reruns (`*.first.log`) for the #205 tally (2 clean runs so far: `1ffdc5b`,
-   `69feaa5`; add `444b5b1` and later).
-3. The coordinator said #236 (lane S, gates) would be merged next; it now is. No PR of lane V is open or planned.
+1. **Issue #237:** create ONE sub-agent for it with `create_session` (brief: the body of #237, its proposed fix, the standing
+   rules of section 2, branch `claude/validation-fix-daemon-stop`; the fix touches `scripts/test/test-checks.sh`, the case
+   TC-S-198 and maybe `scripts/ci-post-merge/run-tests.sh`; lane S's file edits are allowed for this fix as for #205). Proposal in
+   the issue: run the TC-S-017 command with `--no-daemon` instead of `./gradlew --stop`; fallback: a separate `GRADLE_USER_HOME`
+   per runner group. Tell the coordinator in one line (failing test ids: test-structure.sh TC-S-006/TC-S-002; owning lane: V and
+   S; sub-agent id). Archive the sub-agent and close #237 when the fix is merged and a later run is green.
+2. Until #237 is fixed a post-merge run can fail in whichever test builds with Gradle at the moment `test-checks.sh` reaches its
+   `--stop` (about 10 s into the run). If a run is red with the "stop command received" error, rerun the failed test alone
+   (`bash scripts/test/<test>.sh`); if it passes, the red is #237, not a new defect; mention #237 in your report.
+3. On every `merged <pr> <sha>` the coordinator sends: run the 12 tests on that sha (latest if several), silent if green, the
+   red procedure of section 2 if not. Count lint-crash reruns (`*.first.log`) for the #205 tally (3 clean runs so far:
+   `1ffdc5b`, `69feaa5`, `444b5b1`).
+4. No PR of lane V is open or planned apart from the #237 fix by its sub-agent.
 
 ## 6. How to resume (the first three commands)
 
@@ -169,4 +194,5 @@ scripts/bootstrap-android.sh && ls "${ANDROID_HOME:-$HOME/Android/Sdk}"/build-to
 POST_MERGE_OUT=/root/tools/out-$(git rev-parse --short HEAD) bash scripts/ci-post-merge/run-tests.sh; cat /root/tools/out-*/report.md
 ```
 
-Then read `docs/plans/validation.md`, `docs/conventions.md` ("What runs when"), and issue #221 and #205 (bodies).
+Then read `docs/plans/validation.md`, `docs/conventions.md` ("What runs when"), the bodies of issues #237, #223, #221 and #205,
+and do step 1 of section 5.
