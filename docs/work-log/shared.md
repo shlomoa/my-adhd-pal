@@ -340,3 +340,10 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Changed: `docs/conventions.md` "When lint itself crashes": how to recognise it, when it was seen (three reports), the failing recipe, what clears it. Docs only; the fix is the #205 sub-agent's PR.
 - Validation: docs only; markdownlint, links and the docs index check pass. Not reproducible on demand: one crash in four sequential `check --rerun-tasks` runs, so the recipe says it may need several tries.
 - Open items: which of `--rerun-tasks`, a reused daemon or stale `build/` state is necessary (suggested experiment is in the issue body).
+
+## 2026-10-17 - Tooling freshness check
+
+- Issue and PR: question from the user via the coordinator (no issue); PR linked from the coordinator message.
+- Changed: new `docs/research/tooling.md` (every pin in `gradle/libs.versions.toml`, the wrapper, `tools/docs/package.json`, `tools/docs-site/requirements.txt` and the workflows against the latest stable release, with sources and the read date, and a recommendation per row); link in `docs/index.md`. Nothing upgraded.
+- Validation: docs only, no script checks this page; markdownlint, links and the docs index check pass.
+- Open items: the user decides on upgrades (recommendation: none now; the GitHub Actions majors in one later PR). No newer stable AGP, Kotlin or Gradle exists, so none fixes the lint crash.

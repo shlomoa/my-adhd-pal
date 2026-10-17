@@ -79,7 +79,7 @@ Android lint sometimes stops with `Unexpected failure during lint analysis of <f
 Kotlin Analysis API, not a lint finding about the code. It was seen with AGP 9.4.1, Kotlin 2.4.x and Gradle 9.8.1. The
 same signature is reported in [bluecard issue 227](https://github.com/bryancassell/bluecard/issues/227); no fix is
 named there, none is in the AGP 9.4 or 9.5 alpha release notes, and no newer stable AGP, Kotlin or Gradle exists
-(see `docs/research/tooling.md`, PR 207).
+(see [Tooling freshness](research/tooling.md)).
 
 **How to recognise it.** The failed task is `:phone:lintAnalyzeDebugUnitTest` (lint of the phone's unit-test sources,
 for example `AlertActivityTest.kt`), the output has three of these messages, and there is no lint finding with a rule id
