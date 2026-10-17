@@ -341,3 +341,7 @@ Red commit: `scripts/test/test-post-merge.sh` (TC-S-170 to TC-S-174: no `script-
 ## The phone removes its own prompts (issue 198, red)
 
 Red commit: `PromptCleanerTest` (TC-S-190, TC-S-191), `WatchEventProcessorTest` (TC-S-192, TC-S-193), `DefaultPromptRepositoryCleanupTest` (TC-S-194), `PublishedPromptsContract` with `InMemoryPublishedPromptsTest` and `DataStorePublishedPromptsTest` (TC-S-195), the in-memory `InMemoryPublishedPrompts`, no implementation. `./gradlew :phone:testDebugUnitTest`: test compilation fails, `Unresolved reference 'PublishedPrompt'`, `'PublishedPrompts'`, `'PromptCleaner'`, `'DataStorePublishedPrompts'`.
+
+## Deferred steps in the gate graph (wave 0 row C3, red)
+
+Red commit: `scripts/test/test-gates.sh` (TC-S-183: a `deferred` array in `gates.json` with step, gate and reason; the seven steps; G5, G6 and G7 deferrals; no requirement changes), no implementation. `scripts/test/test-gates.sh`: `FAIL TC-S-183 gates.json has a deferred array`, `FAIL ... G6 defers 4.1 and 4.2 only, so 4.3, 4.4 and 4.6 can close it (expected '4.1,4.2', got '')`; 6 checks fail.
