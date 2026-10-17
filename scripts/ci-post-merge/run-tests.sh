@@ -11,15 +11,21 @@
 set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 out="${POST_MERGE_OUT:-$root/build/post-merge}"
-groups="${POST_MERGE_GROUPS:-test-checks.sh|test-structure.sh test-ci.sh test-pairing.sh|test-spike.sh@test-run-0b2a|\
-test-spike.sh@test-run-0b2b test-design-style.sh test-doc-checks.sh test-docs-site.sh test-design-docs.sh \
-test-protocol-spec.sh test-gates.sh test-post-merge.sh}"
+groups="${POST_MERGE_GROUPS:-test-checks.sh@scaffold test-design-style.sh|test-checks.sh@format test-checks.sh@lint \
+test-doc-checks.sh test-docs-site.sh test-design-docs.sh test-protocol-spec.sh test-gates.sh test-post-merge.sh|\
+test-spike.sh@test-run-0b2a test-pairing.sh|test-spike.sh@test-run-0b2b test-structure.sh test-ci.sh}"
 IFS='|' read -r -a group_list <<<"$groups"
 if [ "${1:-}" = "--groups" ]; then
   for i in "${!group_list[@]}"; do echo "group $((i + 1)): $(echo ${group_list[$i]})"; done
   exit 0
 fi
 mkdir -p "$out"
+# One Gradle run in the checkout first: it installs the SDK components the builds need (Android build-tools), which the
+# groups would otherwise install at the same time in a fresh container and fail.
+if [ -z "${POST_MERGE_TEST_DIR:-}" ] && [ -x "$root/gradlew" ]; then
+  (cd "$root" && ./gradlew --console=plain :wear:compileDebugJavaWithJavac :phone:compileDebugJavaWithJavac --dry-run >"$out/warm-up.log" 2>&1) ||
+    echo "warm-up Gradle run failed (see $out/warm-up.log), the groups go on"
+fi
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 

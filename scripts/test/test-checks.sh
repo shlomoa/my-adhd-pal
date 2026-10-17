@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Checking tools (step 0a.5): negative fixtures must fail `check`'s parts, then pass again once removed.
 # Run: scripts/test/test-checks.sh   (needs the Android SDK and Node; see scripts/bootstrap-android.sh)
+# POST_MERGE_ARG runs one part only: scaffold (TC-S-016, 017: the full `check`), format (TC-S-011, 012), lint (TC-S-013 to 015);
+# default: all three (the post-merge run starts the parts in separate groups, each in its own worktree).
 set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$root"
@@ -24,6 +26,7 @@ trap cleanup EXIT
 gradle() { ./gradlew --console=plain "$@" >"$out" 2>&1; }
 # fails_with <expected text...>: the last gradle run failed for the stated reason (not because a task is missing)
 fails_with() { local rc=$1; shift; [ "$rc" -ne 0 ] && ! grep -q "not found in root project\|not found in project" "$out" && for t in "$@"; do grep -qF -- "$t" "$out" || return 1; done; }
+want() { [ -z "${POST_MERGE_ARG:-}" ] || [ "$POST_MERGE_ARG" = "$1" ]; }
 fixture() { # path: writes stdin there; remembers the topmost directory it had to create so cleanup removes it too
   local top; top="$(dirname "$1")"
   while [ ! -d "$(dirname "$top")" ]; do top="$(dirname "$top")"; done
@@ -35,6 +38,7 @@ fixture() { # path: writes stdin there; remembers the topmost directory it had t
 ! grep -nE '/tmp/[A-Za-z]|TMPDIR:-/tmp\}/[A-Za-z]' scripts/*.sh scripts/test/*.sh scripts/ci-post-merge/*.sh | grep -v '^[^:]*:[0-9]*:\s*#'
 check "TC-S-196 no script writes a fixed-name file in /tmp" 0 $?
 
+if want scaffold; then
 # TC-S-016 the tools run behind ./gradlew check and the workflow carries no tool list
 tasks="$(./gradlew --console=plain -q check --dry-run 2>&1)"
 for t in spotlessCheck detekt lintDebug lintDocs; do echo "$tasks" | grep -q "$t"; check "TC-S-016 check includes $t" 0 $?; done
@@ -43,7 +47,9 @@ for t in spotlessCheck detekt lintDebug lintDocs; do echo "$tasks" | grep -q "$t
 # TC-S-017 every tool runs on the scaffold (compatibility with AGP 9.4 and Kotlin 2.4)
 gradle check --rerun-tasks; check "TC-S-017 check is green on the scaffold" 0 $?
 for t in ":spotlessCheck" ":detekt" ":lintDocs" ":phone:lintDebug"; do grep -qF "Task $t" "$out"; check "TC-S-017 $t ran as part of check" 0 $?; done
+fi
 
+if want format; then
 # TC-S-011 mis-formatted Kotlin fails spotlessCheck; spotlessApply repairs it
 bad=wear/src/main/java/com/shlomoa/myadhdpal/wear/BadFormat.kt
 fixture $bad <<'KT'
@@ -113,7 +119,9 @@ KT
 gradle detekt; rc=$?
 fails_with $rc FunctionNaming; check "TC-S-012 the same name in src/main is still flagged" 0 $?
 rm -f $bad
+fi
 
+if want lint; then
 # TC-S-013 a new Android lint issue (not in the baseline) fails lint
 bad=phone/src/main/res/values/unused_fixture.xml
 fixture $bad <<'XML'
@@ -156,4 +164,5 @@ cleanup
 [ "$(find wear/src phone/src protocol/src -type d -empty | sort | tr '\n' ' ')" = "$empty_dirs_before" ]
 fail_stray=$?; trap - EXIT
 out=/dev/null; check "TC-S-197 the fixtures leave no empty directory behind" 0 $fail_stray
+fi
 exit $fail
