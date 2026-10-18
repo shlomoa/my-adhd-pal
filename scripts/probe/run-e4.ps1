@@ -75,14 +75,18 @@ try {
 
     Ask-Answer 'What is the screen timeout setting in the watch settings (Settings > Display > Screen timeout; path not verified), and does any setting keep the screen on while the app runs (for example Keep screen on, Touch to wake, Wake up gesture; path not verified)? Say which.' | Out-Null
     Ask-Answer 'If the measuring service of experiment E1 or E3 is running: after you tap its notification (swipe up from the watch face to the notification list; path not verified), does the app come to the front? Answer skip if it is not running.' | Out-Null
+    $script:RunDone = $true
 } catch {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    Connect-Watch
-    if ($savedTimeout) { Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', $savedTimeout) | Out-Null }
-    Log "screen timeout restored to $savedTimeout; result file: $(Split-Path -Leaf $script:LogFile)"
+    try {
+        Connect-Watch
+        if ($savedTimeout) { Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', $savedTimeout) | Out-Null }
+        Log "screen timeout restored to $savedTimeout; result file: $(Split-Path -Leaf $script:LogFile)"
+    } finally {
+        Finish-Run 'e4' $failed
+    }
 }
-Publish-Result 'e4'
 if ($failed) { exit 1 }
 exit 0

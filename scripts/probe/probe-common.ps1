@@ -53,6 +53,11 @@ function Initialize-Probe([string]$Prefix) {
     Log "$Prefix result file: $(Split-Path -Leaf $script:LogFile)"
     Write-Host "result file: $script:LogFile"
     $script:UnreachableSec = 0
+    $script:Steps = @()
+    $script:Asked = 0
+    $script:RunStart = Get-Date
+    $script:RunDone = $false
+    $script:PendingRead = $null
     $script:WatchIp = if (Test-MdnsName $Watch) { $null } else { ($Watch -split ':')[0] }
     if (-not (Test-MdnsName $Watch)) { & adb connect $Watch 2>&1 | Out-Null }
     # the device serial number is in the mDNS name; it is kept in memory only (never written to the result file)
@@ -70,11 +75,88 @@ function Test-NotCharging {
     Log ("battery before: " + (BatteryLevel $text))
 }
 
-function Ask([string]$question) {
-    if ($Unattended) { Log "(unattended) $question"; return }
-    Log $question
-    Read-Host 'Press Enter when done' | Out-Null
+# --- Questions to the user: a time limit, a banner and a beep; a step that is not confirmed is marked UNCONFIRMED -------------------
+
+function Beep {
+    try { [Console]::Beep(880, 250) } catch { }
+    Write-Host "`a" -NoNewline
 }
+
+# The run and wait time limits (seconds): PROBE_MAX_RUN_SEC for the whole run (default 10800), PROBE_MAX_STEP_SEC for one wait or
+# question (default 3600). Throws when exceeded; the run script's catch and finally still stop the service and publish the file.
+function Test-Limits {
+    $maxRun = if ($env:PROBE_MAX_RUN_SEC) { [double]$env:PROBE_MAX_RUN_SEC } else { 10800 }
+    if ($script:RunStart -and ((Get-Date) - $script:RunStart).TotalSeconds -gt $maxRun) { throw "run time limit of $maxRun s exceeded" }
+}
+
+function Test-StepLimit([datetime]$since) {
+    $maxStep = if ($env:PROBE_MAX_STEP_SEC) { [double]$env:PROBE_MAX_STEP_SEC } else { 3600 }
+    if (((Get-Date) - $since).TotalSeconds -gt $maxStep) { throw "phase time limit of $maxStep s exceeded" }
+}
+
+# Records how a step ended; the summary at the end of the file lists them.
+function Set-Step([string]$name, [string]$state) {
+    $script:Steps += [pscustomobject]@{ Name = $name; State = $state }
+    Log "step ${name}: $state"
+}
+
+# One line typed by the user, or $null when nobody answered within PROBE_ASK_TIMEOUT_SEC (default 180) or the input is closed.
+# While waiting: a banner, and a beep every PROBE_BEEP_SEC (default 30). A read that timed out is kept and answers the next question.
+function Read-Answer {
+    $timeout = if ($env:PROBE_ASK_TIMEOUT_SEC) { [double]$env:PROBE_ASK_TIMEOUT_SEC } else { 180 }
+    $beepEvery = if ($env:PROBE_BEEP_SEC) { [double]$env:PROBE_BEEP_SEC } else { 30 }
+    Write-Host ''
+    Write-Host ("==== ACTION NEEDED: answer or press Enter within " + [int][Math]::Round($timeout) + " s, then the run continues without you ====")
+    Beep
+    if (-not $script:PendingRead) { $script:PendingRead = [Console]::In.ReadLineAsync() }
+    $started = Get-Date
+    $nextBeep = $started.AddSeconds($beepEvery)
+    while (-not $script:PendingRead.IsCompleted) {
+        Start-Sleep -Milliseconds 200
+        Test-Limits
+        $now = Get-Date
+        if ($now -ge $started.AddSeconds($timeout)) { return $null }
+        if ($now -ge $nextBeep) { Beep; Write-Host '==== still waiting for you (see the question above) ===='; $nextBeep = $now.AddSeconds($beepEvery) }
+    }
+    $line = $script:PendingRead.Result
+    $script:PendingRead = $null
+    return $line
+}
+
+# Asks the user to do something and press Enter. -Step names it in the summary. -Verify is a script block that checks by adb that the
+# user really did it (true = done); when it fails the user is asked again, twice at most, with -VerifyHint. Never blocks for ever.
+function Ask([string]$question, [string]$Step = '', [scriptblock]$Verify = $null, [string]$VerifyHint = '') {
+    if (-not $Step) { $script:Asked++; $Step = "question-$($script:Asked)" }
+    if ($Unattended) { Log "(unattended) $question"; Set-Step $Step 'UNCONFIRMED (unattended, not asked)'; return }
+    $tries = if ($Verify) { 3 } else { 1 }
+    for ($t = 1; $t -le $tries; $t++) {
+        Log $question
+        $line = Read-Answer
+        if ($null -eq $line) { Log 'no answer, continued'; Set-Step $Step 'UNCONFIRMED (no answer)'; return }
+        if (-not $Verify) { Set-Step $Step 'ANSWERED (not verifiable by adb)'; return }
+        if (& $Verify) { Set-Step $Step 'CONFIRMED (the watch is reachable)'; return }
+        $question = "adb cannot reach the watch yet: $VerifyHint Do it, wait until Wi-Fi is back, then press Enter."
+    }
+    Log 'no confirmation by adb, continued'
+    Set-Step $Step 'UNCONFIRMED (adb cannot reach the watch after the answer)'
+}
+
+# The end of the file: how each step ended.
+function Write-Summary([bool]$failed) {
+    foreach ($st in $script:Steps) { Log ("summary: step " + $st.Name + ": " + $st.State) }
+    $open = @($script:Steps | Where-Object { $_.State -like 'UNCONFIRMED*' }).Count
+    Log "summary: unconfirmed steps: $open"
+    $result = if ($failed) { 'FAILED' } elseif (-not $script:RunDone) { 'INTERRUPTED' } else { 'completed' }
+    Log "summary: run $result"
+}
+
+# The last thing a run does, in its finally: the summary, then the result file is published (also after an error, a time limit or Ctrl+C).
+function Finish-Run([string]$Prefix, [bool]$failed) {
+    if (-not $script:RunDone -and -not $failed) { Log 'the run was interrupted (Ctrl+C) before it was complete' }
+    Write-Summary $failed
+    Publish-Result $Prefix
+}
+
 
 # The mDNS service name of a watch in `adb devices` (adb-<serial>-<id>._adb-tls-connect._tcp): it does not change with the port.
 function Test-MdnsName([string]$address) { return ($address -match '^adb-.+_adb-tls-connect\._tcp$') }
@@ -127,8 +209,9 @@ function Ask-Watch {
     if ($Unattended -or $script:AskedWatch) { return $false }
     $script:AskedWatch = $true
     Log 'The watch cannot be reached and was not found on another port.'
-    $answer = Read-Host 'Which address does the watch show now (Settings > Developer options > Wireless debugging, ip:port)? Enter gives up'
-    if ($answer -notmatch '^\d+\.\d+\.\d+\.\d+:\d+$') { Log 'no valid address given'; return $false }
+    Write-Host 'Which address does the watch show now (Settings > Developer options > Wireless debugging, ip:port)? Enter gives up'
+    $answer = Read-Answer
+    if ($null -eq $answer -or $answer -notmatch '^\d+\.\d+\.\d+\.\d+:\d+$') { Log 'no valid address given'; return $false }
     if (-not (Test-Watch $answer)) { Log 'the watch did not answer at the given address'; return $false }
     Use-Watch $answer
     return $true
@@ -137,7 +220,7 @@ function Ask-Watch {
 # Tries to reach the watch over wireless adb: adb connect and a trivial shell command, every $ReconnectRetrySec seconds, up to
 # $ReconnectSec seconds (defaults 5 and 120). When that fails it looks for the watch on another port (Find-Watch) and then asks the
 # user once for the address (Ask-Watch). Returns true when the watch answered.
-function Wait-Adb {
+function Wait-Adb([switch]$NoAsk) {
     $limit = if ($null -ne $ReconnectSec) { $ReconnectSec } else { 120 }
     $every = if ($null -ne $ReconnectRetrySec) { $ReconnectRetrySec } else { 5 }
     $attempts = [Math]::Max(1, [int][Math]::Ceiling($limit / [Math]::Max($every, 0.01)))
@@ -149,7 +232,7 @@ function Wait-Adb {
         $found = Test-Watch $script:Watch
     }
     if (-not $found) { $found = (Find-Watch) }
-    if (-not $found) { $found = (Ask-Watch) }
+    if (-not $found -and -not $NoAsk) { $found = (Ask-Watch) }
     Add-Unreachable ((Get-Date) - $lost).TotalSeconds
     return $found
 }
@@ -165,11 +248,14 @@ function Add-Unreachable([double]$seconds) {
 function Wait-Phase([double]$sec) {
     $slice = if ($env:PROBE_KEEPALIVE_SEC) { [double]$env:PROBE_KEEPALIVE_SEC } else { 30 }
     $end = (Get-Date).AddSeconds($sec)
+    $since = Get-Date
     while ($true) {
         $left = ($end - (Get-Date)).TotalSeconds
         if ($left -le 0) { break }
         $began = Get-Date
         Start-Sleep -Seconds ([Math]::Min($left, $slice))
+        Test-Limits
+        Test-StepLimit $since
         if (((Get-Date) -ge $end)) { break }
         if (-not (Test-Watch $script:Watch)) {
             if (-not (Find-Watch)) { $script:UnreachableSec += ((Get-Date) - $began).TotalSeconds }
@@ -185,11 +271,15 @@ function Report-Safe([string]$phase) {
     return -1
 }
 
-# Asks a question and returns the typed answer (E6). The answer is logged.
-function Ask-Answer([string]$question) {
+# Asks a question and returns the typed answer (E6, E4); '' when nobody answered. The answer is logged.
+function Ask-Answer([string]$question, [string]$Step = '') {
+    if (-not $Step) { $script:Asked++; $Step = "question-$($script:Asked)" }
+    if ($Unattended) { Log "(unattended) $question"; Set-Step $Step 'UNCONFIRMED (unattended, not asked)'; return '' }
     Log $question
-    $answer = Read-Host 'Your answer'
+    $answer = Read-Answer
+    if ($null -eq $answer) { Log 'no answer, continued'; Set-Step $Step 'UNCONFIRMED (no answer)'; return '' }
     Log "answer: $answer"
+    Set-Step $Step 'ANSWERED'
     return $answer
 }
 
@@ -247,6 +337,7 @@ function Report([string]$phase) {
     Log ("notification visible: " + ($listed -match [regex]::Escape($title)))
     $m = ($lines -join "`n") | Select-String -Pattern 'screen=all readings=(\d+)'
     if ($m) { return [int]$m.Matches[0].Groups[1].Value }
+    Log "report $phase failed: no reading count in the report"
     return -1
 }
 
@@ -257,7 +348,7 @@ function Log-Permissions {
 
 # The end of a run: stop the service, log the battery after.
 function Stop-ProbeService {
-    if (-not (Wait-Adb)) { Log 'the watch could not be reached over adb: the service may still be running; stop it on the watch' }
+    if (-not (Wait-Adb -NoAsk)) { Log 'the watch could not be reached over adb: the service may still be running; stop it on the watch' }
     Save-LiveLines
     Probe 'measure-stop'
     Log ("watch unreachable in total: " + [int][Math]::Round($script:UnreachableSec) + " s")

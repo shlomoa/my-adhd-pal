@@ -89,14 +89,18 @@ try {
     Ask "Set the watch vibration strength to the HIGHEST (Strong) now: $PathVibration."
     Try-Vibrate 'vibration intensity highest'
     Ask "Put the watch vibration strength back to your usual value: $PathVibration."
+    $script:RunDone = $true
 } catch {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    Connect-Watch
-    Invoke-Adb @('shell', 'cmd', 'notification', 'set_dnd', 'off') | Out-Null
-    Log "Do Not Disturb switched off; result file: $(Split-Path -Leaf $script:LogFile)"
+    try {
+        Connect-Watch
+        Invoke-Adb @('shell', 'cmd', 'notification', 'set_dnd', 'off') | Out-Null
+        Log "Do Not Disturb switched off; result file: $(Split-Path -Leaf $script:LogFile)"
+    } finally {
+        Finish-Run 'e6' $failed
+    }
 }
-Publish-Result 'e6'
 if ($failed) { exit 1 }
 exit 0

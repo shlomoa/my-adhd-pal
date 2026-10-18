@@ -89,28 +89,34 @@ try {
 
     # Sleep mode: the reports around it are taken while adb works; a report in the mode is tried, and repeated after it if it failed.
     $before = Report 'sleep-mode-before'
-    Ask "Turn Sleep mode ON now. $PathSleep."
+    Ask "Turn Sleep mode ON now. $PathSleep." -Step 'sleep-mode-on'
     Start-Sleep -Seconds $StateSec
     $end = Report-Safe 'sleep-mode-end'
-    Ask "Turn Sleep mode OFF now (Quick panel > Modes > Sleep, or Settings > Modes and Routines > Sleep)."
+    Ask "Turn Sleep mode OFF now (Quick panel > Modes > Sleep, or Settings > Modes and Routines > Sleep)." -Step 'sleep-mode-off' `
+        -Verify { Wait-Adb -NoAsk } -VerifyHint 'is Sleep mode really OFF? It turns Wi-Fi off while it is on.'
     if ($end -lt 0) { $end = Report-Safe 'sleep-mode-after-off' }
     Judge 'sleep mode:' $before $end
 
     # Power saving turns Wi-Fi off, so wireless adb stops: no report during the block; one after it, when Wi-Fi is back.
     $before = Report 'power-saving-before'
-    Ask "Turn Power saving ON now. $PathPowerSaving."
+    Ask "Turn Power saving ON now. $PathPowerSaving." -Step 'power-saving-on'
     Log 'power saving: no report is possible while power saving is on (Wi-Fi is off); one report is taken after it is turned off'
     Start-Sleep -Seconds $StateSec
-    Ask "Turn Power saving OFF now (Quick panel Power saving icon, or Settings > Battery > Power saving), then wait until Wi-Fi is back."
+    Ask "Turn Power saving OFF now (Quick panel Power saving icon, or Settings > Battery > Power saving), then wait until Wi-Fi is back." `
+        -Step 'power-saving-off' -Verify { Wait-Adb -NoAsk } -VerifyHint 'is Power saving really OFF? It turns Wi-Fi off while it is on.'
     $after = Report-Safe 'power-saving-after-off'
     Judge 'power saving:' $before $after
+    $script:RunDone = $true
 } catch {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    Stop-ProbeService
-    Log "result file: $(Split-Path -Leaf $script:LogFile)"
+    try {
+        Stop-ProbeService
+        Log "result file: $(Split-Path -Leaf $script:LogFile)"
+    } finally {
+        Finish-Run 'e3' $failed
+    }
 }
-Publish-Result 'e3'
 if ($failed) { exit 1 }
 exit 0
