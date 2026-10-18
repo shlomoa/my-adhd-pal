@@ -197,3 +197,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: `AlertObserver` (stored and raised hooks of `AlertRaiser`, empty set in release through a `@Multibinds`), and in `src/debug`: `DemoAlertTrace` (logs `DEMO alert stored id= watchAt= storedAt=` and `DEMO alert raised id= raisedAt= sound=` live, ids and epoch milliseconds only), `DemoAlertModule`, and the `DUMP_ALERTS` broadcast to `DemoAlertsReceiver` that prints them again per alert row and `DEMO alerts end count=n`. Catalogue TC-A-140 to 145.
 - Validation: tests red first (does not compile), now green; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green (includes the release-has-no-debug check).
 - Open items: the in-app permission card (PR-A) waits. Until then the demo script grants the permissions with adb. Not run on the Galaxy A55 5G yet.
+
+## 2026-10-18 - M0 phone walkthrough, part b: screen images
+
+- Issue and PR: user order through the coordinator (a phone demo, images first); no plan step. PR linked from the coordinator message.
+- Changed: test-side `PhoneScreens` (14 screens, fixed example data, the real composables) and `PhoneScreensTest` (Robolectric native graphics, `captureToImage`, no new library); the rendered PNGs and an index page in `docs/demo/phone/`, linked from `docs/demo.md`. Catalogue TC-A-146 and 147.
+- Validation: tests red first (does not compile), now green; I looked at three of the images (history, settings, permission card) and they show the real screens; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
+- Open items: part a (the one-command device script with screenshots and a recording) follows. The images are Compose renders on a JVM, not photos of the Galaxy A55 5G; fonts and system bars differ. The Tasks edit form and the reminder form are not in the list yet.

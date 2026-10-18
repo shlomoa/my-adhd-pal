@@ -2,6 +2,10 @@ package com.shlomoa.myadhdpal.phone.ui.screens
 
 import android.graphics.Bitmap
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -36,8 +40,10 @@ class PhoneScreensTest {
         val screens = PhoneScreens.all
         assertTrue("the catalogue is empty", screens.isNotEmpty())
         assertEquals("screen ids are unique", screens.size, screens.map { it.id }.toSet().size)
+        var shown by mutableStateOf(screens.first())
+        compose.setContent { MaterialTheme { key(shown.id) { shown.content() } } }
         for (screen in screens) {
-            compose.setContent { MaterialTheme { screen.content() } }
+            shown = screen
             screen.openTab?.let { compose.onNodeWithText(it).performClick() }
             compose.waitForIdle()
             val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
