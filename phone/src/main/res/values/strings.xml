@@ -49,6 +49,10 @@
     <string name="alert_title">Heart rate alert</string>
     <string name="alert_text">Heart rate %1$.0f (threshold %2$.0f)</string>
     <string name="alert_watch_not_told">Your watch could not be told. Its alert may continue.</string>
+    <string name="permissions_title">Allow heart rate alerts</string>
+    <string name="permissions_text">Without these permissions an alert from your watch cannot show on this phone.</string>
+    <string name="permissions_notifications">Allow notifications</string>
+    <string name="permissions_full_screen">Allow full-screen alerts</string>
     <string name="alert_ok">I\'m OK</string>
     <string name="alert_channel_sound">Heart rate alerts (with sound)</string>
     <string name="alert_channel_silent">Heart rate alerts (silent)</string>

@@ -26,6 +26,7 @@ import com.shlomoa.myadhdpal.phone.ui.history.HistoryUiState
 import com.shlomoa.myadhdpal.phone.ui.link.LastSync
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateScreen
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
+import com.shlomoa.myadhdpal.phone.ui.permissions.AlertPermissions
 import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeActions
 import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeScreen
 import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeUiState
@@ -144,7 +145,10 @@ class AccessibilityTest {
                 onRetry = {},
                 tasks = {},
                 settings = {},
-                ask = {}
+                ask = {},
+                alertPermissions = AlertPermissions(notifications = false, fullScreen = false),
+                onAllowNotifications = {},
+                onAllowFullScreen = {}
             )
         },
         "history failed" to {

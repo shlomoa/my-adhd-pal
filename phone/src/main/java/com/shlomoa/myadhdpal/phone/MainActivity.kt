@@ -1,11 +1,22 @@
 package com.shlomoa.myadhdpal.phone
 
+import android.Manifest
+import android.app.NotificationManager
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.os.bundleOf
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.ViewModel
@@ -14,6 +25,7 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.shlomoa.myadhdpal.phone.ui.HomeScreen
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryViewModel
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateViewModel
+import com.shlomoa.myadhdpal.phone.ui.permissions.AlertPermissions
 import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeActions
 import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeScreen
 import com.shlomoa.myadhdpal.phone.ui.prompts.PromptComposeViewModel
@@ -36,6 +48,40 @@ class MainActivity : ComponentActivity() {
     private val scheduleSync: ScheduleSyncViewModel by viewModels()
     private val promptCompose: PromptComposeViewModel by viewModels()
 
+    private var alertPermissions by mutableStateOf(AlertPermissions(notifications = true, fullScreen = true))
+
+    private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        refreshAlertPermissions()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshAlertPermissions()
+    }
+
+    /** Read again after returning from the system dialog or settings page, where the user may have changed them. */
+    private fun refreshAlertPermissions() {
+        val notificationsGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        val canUseFullScreen = Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE ||
+            getSystemService(NotificationManager::class.java).canUseFullScreenIntent()
+        alertPermissions = AlertPermissions.of(Build.VERSION.SDK_INT, notificationsGranted, canUseFullScreen)
+    }
+
+    private fun allowNotifications() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    private fun allowFullScreen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startActivity(
+                Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.fromParts("package", packageName, null))
+            )
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -45,6 +91,9 @@ class MainActivity : ComponentActivity() {
                     history = history.uiState.collectAsState().value,
                     onFilter = history::setFilter,
                     onRetry = history::retry,
+                    alertPermissions = alertPermissions,
+                    onAllowNotifications = ::allowNotifications,
+                    onAllowFullScreen = ::allowFullScreen,
                     tasks = { TasksTab(taskList, scheduleSync, ::taskEditor, ::taskReminders, ::reminderEditor) },
                     settings = {
                         SettingsScreen(
