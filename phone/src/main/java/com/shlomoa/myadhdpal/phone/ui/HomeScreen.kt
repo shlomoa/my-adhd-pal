@@ -1,6 +1,7 @@
 package com.shlomoa.myadhdpal.phone.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
@@ -20,6 +21,8 @@ import com.shlomoa.myadhdpal.phone.ui.history.HistoryScreen
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryUiState
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateScreen
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
+import com.shlomoa.myadhdpal.phone.ui.permissions.AlertPermissions
+import com.shlomoa.myadhdpal.phone.ui.permissions.AlertPermissionsCard
 
 private const val TAB_LINK = 0
 private const val TAB_TASKS = 1
@@ -29,7 +32,7 @@ private const val TAB_ASK = 4
 
 /**
  * Stateless apart from the selected tab. [tasks] and [settings] are the Tasks and Settings tabs; later screens of
- * steps 4.1 to 4.4 add tabs.
+ * steps 4.1 to 4.4 add tabs. The Watch tab starts with the card that asks for the missing alert permissions.
  */
 @Composable
 fun HomeScreen(
@@ -40,6 +43,9 @@ fun HomeScreen(
     tasks: @Composable () -> Unit,
     settings: @Composable () -> Unit,
     ask: @Composable () -> Unit,
+    alertPermissions: AlertPermissions,
+    onAllowNotifications: () -> Unit,
+    onAllowFullScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var tab by rememberSaveable { mutableIntStateOf(TAB_LINK) }
@@ -83,10 +89,17 @@ fun HomeScreen(
         Box(Modifier.padding(padding)) {
             when (tab) {
                 TAB_TASKS -> tasks()
+
                 TAB_ASK -> ask()
+
                 TAB_SETTINGS -> settings()
+
                 TAB_HISTORY -> HistoryScreen(history, onFilter, onRetry)
-                else -> LinkStateScreen(link)
+
+                else -> Column {
+                    AlertPermissionsCard(alertPermissions, onAllowNotifications, onAllowFullScreen)
+                    LinkStateScreen(link)
+                }
             }
         }
     }

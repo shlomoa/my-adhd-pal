@@ -183,3 +183,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: `docs/plans/gates.json`: G6 to `merged`, `pr` 199; `docs/plans/README.md`: G6 row marked done. The `deferred` list is untouched: 4.1 and 4.2 stay deferred and are not part of the exit criteria.
 - Validation: `scripts/test/test-gates.sh` and `scripts/check-pr-gates.sh` with `Requires: G3,G4` and `Produces: G6`.
 - Open items: manual TC-A-044, 088, 103, 109 and 116 still wait for the user; they are not part of the gate. #66 and #68 stay open until then.
+
+## 2026-10-18 - Alert permission card (phone alert, demo scope)
+
+- Issue and PR: user order through the coordinator (stress demo); no plan step. It is the first part of A-alert-2 (permissions on the phone); the watch's heart-rate permission through `RemoteActivityHelper` stays open.
+- Changed: `ui/permissions/AlertPermissions` (state and card), shown at the top of the Watch tab with one button per missing permission; `MainActivity` reads the two permissions on resume and opens the system dialog (notifications, Android 13+) or the full-screen settings page (Android 14+); strings. Catalogue TC-A-136 to 139.
+- Validation: `AlertPermissionsTest` (TC-A-136 to 138) red first (does not compile), now green; the accessibility test now also covers the card; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green after one rerun of the known lint crash.
+- Open items: manual TC-A-139 on the Galaxy A55 5G (granting on a real Android 14 phone, then a watch alert shows the full-screen alert). A permission denied twice cannot be asked again by the system dialog; the card then needs the settings page, not built.
