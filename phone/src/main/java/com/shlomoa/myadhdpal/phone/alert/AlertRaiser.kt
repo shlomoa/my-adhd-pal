@@ -12,6 +12,13 @@ interface AlertNotifier {
     fun stop()
 }
 
+/** Watches the raiser: [stored] for each new alert it sees, [raised] for the one it shows (the debug demo trace). */
+interface AlertObserver {
+    fun stored(alert: HistoryEntry.AlertRaised)
+
+    fun raised(alert: HistoryEntry.AlertRaised, plan: AlertPlan)
+}
+
 /** The ids of the alerts already raised, in the order they were raised. Null until the feature has run once. */
 interface RaisedAlertsStore {
     suspend fun load(): Set<String>?
@@ -46,7 +53,8 @@ class AlertRaiser(
     private val notifier: AlertNotifier,
     private val prefsProvider: suspend () -> AlertPrefs,
     private val hasAmplitudeControl: () -> Boolean,
-    private val endEpisode: suspend (episodeId: String) -> PublishResult
+    private val endEpisode: suspend (episodeId: String) -> PublishResult,
+    private val observers: Set<AlertObserver> = emptySet()
 ) {
     private var known: Set<String>? = null
 
@@ -77,9 +85,12 @@ class AlertRaiser(
         }
         val fresh = alerts.filter { it.id !in raisedBefore }
         val kept = LinkedHashSet(raisedBefore.filter { it in present }).apply { addAll(fresh.map { it.id }) }
+        fresh.forEach { alert -> observers.forEach { it.stored(alert) } }
         if (fresh.isNotEmpty()) {
             val newest = fresh.maxBy { it.at }
-            notifier.raise(newest, AlertPlanner.plan(newest.level, prefsProvider(), hasAmplitudeControl()))
+            val plan = AlertPlanner.plan(newest.level, prefsProvider(), hasAmplitudeControl())
+            notifier.raise(newest, plan)
+            observers.forEach { it.raised(newest, plan) }
         }
         if (kept != raisedBefore) store.save(kept)
         known = kept

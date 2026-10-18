@@ -189,7 +189,7 @@ repositories exist (G3).
 
 | ID | What | How | Pass criteria |
 |---|---|---|---|
-| TC-A-140 | An observer of the alert raiser sees each new alert stored and only the newest raised | Unit | Order `stored a-1`, `stored a-2`, `raised a-2` with the plan's sound flag |
+| TC-A-140 | An observer sees each new alert stored (newest first, as the history lists them) and only the newest raised | Unit | Order `stored a-2`, `stored a-1`, `raised a-2` with the plan's sound flag |
 | TC-A-141 | Alerts already in the history at the first run are not reported | Unit | No observer call |
 | TC-A-142 | A new alert logs `DEMO alert stored ...` and `DEMO alert raised ...` live | Unit | The two exact lines |
 | TC-A-143 | `DUMP_ALERTS` lists every alert row with the times seen so far, `none` for the rest, then the end line | Unit | Exact lines in history order |

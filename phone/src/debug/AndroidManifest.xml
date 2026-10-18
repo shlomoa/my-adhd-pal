@@ -39,6 +39,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".debug.DemoAlertsReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.shlomoa.myadhdpal.debug.DUMP_ALERTS" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".debug.spike.SpikeListenerService"
             android:exported="true">

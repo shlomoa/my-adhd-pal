@@ -170,3 +170,15 @@ TC-A-039 to TC-A-043, TC-A-128, TC-A-133 and TC-A-135 are red until this step la
 ## 4.6 Empty and error states, accessibility
 
 No red run: 4.6 checks states that earlier steps already built (the reminder list, the schedule bar), so the new `EmptyStatesTest` cases (TC-A-055, 056, 057 for the reminder list) passed on first run against existing code. The other 4.6 cases already have tests from 4.1 to 4.4 (TC-A-053, 054, 056, 057, 058, 059). The change that matters here is the traceability: TC-A-028 and TC-A-029 are now carried by the schedule-send tests, replacing the duplicate rows TC-A-124 and TC-A-125.
+
+## Demo alert trace (debug only, stress demo)
+
+Red commit: ba89bf0 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*AlertRaiserTest*' --tests '*DemoAlertTraceTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: AlertRaiserTest.kt:60:24 Unresolved reference 'AlertObserver'.
+e: AlertRaiserTest.kt:68:9 No parameter with name 'observers' found.
+e: DemoAlertTraceTest.kt:28:25 Unresolved reference 'DemoAlertTrace'.
+```
+
+TC-A-140 to TC-A-145 are red until this step lands. TC-A-140 was then corrected once: the history lists newest first, so the stored order is a-2, a-1.

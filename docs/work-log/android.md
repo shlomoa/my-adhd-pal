@@ -183,3 +183,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: `docs/plans/gates.json`: G6 to `merged`, `pr` 199; `docs/plans/README.md`: G6 row marked done. The `deferred` list is untouched: 4.1 and 4.2 stay deferred and are not part of the exit criteria.
 - Validation: `scripts/test/test-gates.sh` and `scripts/check-pr-gates.sh` with `Requires: G3,G4` and `Produces: G6`.
 - Open items: manual TC-A-044, 088, 103, 109 and 116 still wait for the user; they are not part of the gate. #66 and #68 stay open until then.
+
+## 2026-10-18 - Demo alert trace (stress demo, phone stage)
+
+- Issue and PR: user order through the coordinator (stress demo today); no plan step. PR linked from the coordinator message.
+- Changed: `AlertObserver` (stored and raised hooks of `AlertRaiser`, empty set in release through a `@Multibinds`), and in `src/debug`: `DemoAlertTrace` (logs `DEMO alert stored id= watchAt= storedAt=` and `DEMO alert raised id= raisedAt= sound=` live, ids and epoch milliseconds only), `DemoAlertModule`, and the `DUMP_ALERTS` broadcast to `DemoAlertsReceiver` that prints them again per alert row and `DEMO alerts end count=n`. Catalogue TC-A-140 to 145.
+- Validation: tests red first (does not compile), now green; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green (includes the release-has-no-debug check).
+- Open items: the in-app permission card (PR-A) waits. Until then the demo script grants the permissions with adb. Not run on the Galaxy A55 5G yet.

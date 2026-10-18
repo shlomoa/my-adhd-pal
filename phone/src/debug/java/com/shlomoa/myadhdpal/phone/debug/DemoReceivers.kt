@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
+import com.shlomoa.myadhdpal.phone.data.HistoryType
 import com.shlomoa.myadhdpal.phone.data.ScheduleRepository
 import com.shlomoa.myadhdpal.phone.data.TaskRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,6 +14,7 @@ import java.time.Clock
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 private fun logLine(line: String) {
@@ -72,4 +75,20 @@ class DemoScheduleReceiver : DemoReceiver(DemoActions.PUBLISH_DEMO_SCHEDULE) {
 @AndroidEntryPoint
 class DemoHistoryReceiver : DemoReceiver(DemoActions.DUMP_HISTORY) {
     override suspend fun run(intent: Intent, commands: DemoCommands) = commands.dumpHistory()
+}
+
+/**
+ * `adb shell am broadcast -a com.shlomoa.myadhdpal.debug.DUMP_ALERTS
+ *   -n com.shlomoa.myadhdpal/.phone.debug.DemoAlertsReceiver`
+ */
+@AndroidEntryPoint
+class DemoAlertsReceiver : BroadcastReceiver() {
+    @Inject lateinit var history: HistoryRepository
+
+    @Inject lateinit var trace: DemoAlertTrace
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != DemoActions.DUMP_ALERTS) return
+        async { trace.dump(history.history(HistoryType.ALERT).first().filterIsInstance<HistoryEntry.AlertRaised>()) }
+    }
 }

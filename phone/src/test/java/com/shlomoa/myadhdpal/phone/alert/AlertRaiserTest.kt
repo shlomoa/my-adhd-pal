@@ -215,7 +215,7 @@ class AlertRaiserTest {
         val job = launch(UnconfinedTestDispatcher(testScheduler)) {
             raiser(prefs = AlertPrefs(soundOn = false), observers = setOf(observer)).run()
         }
-        assertEquals(listOf("stored a-1", "stored a-2", "raised a-2 sound=false"), events)
+        assertEquals(listOf("stored a-2", "stored a-1", "raised a-2 sound=false"), events)
         job.cancel()
     }
 
