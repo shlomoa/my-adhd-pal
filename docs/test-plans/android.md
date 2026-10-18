@@ -215,6 +215,13 @@ repositories exist (G3).
 | TC-A-151 | With an alert it adds one new alert row per run and logs its id, no health value | Unit | Unique ids, episode id set, no bpm text in the lines |
 | TC-A-152 | The seed and dismiss receivers are exported and need the DUMP permission | Unit (Robolectric) | One receiver per action, permission `android.permission.DUMP` |
 
+## Screen images (M0 phone walkthrough)
+
+| ID | What | How | Pass criteria |
+|---|---|---|---|
+| TC-A-146 | Every phone screen of the catalogue renders from the real Compose code to a PNG | Unit (Robolectric native graphics) | A non-empty PNG per screen with more than one colour; unique ids |
+| TC-A-147 | The index page lists each screen with its title and image | Unit | A heading and an image line per screen |
+
 ## Final (A-final)
 
 | Id | Case | How | Pass criteria |

@@ -204,3 +204,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: `HomeTab` (the tabs as an enum, `named(text)`), `HomeScreen(initialTab)` and `MainActivity` reading the intent extra `tab` (so a script opens a screen with `am start --es tab history`, no taps); debug only: `DemoFixtures` and the broadcasts `SEED_FIXTURES` (two tasks with reminders, an acknowledgement, a snooze and an answer in the history; `--ez alert true` also stores one new alert, which the running app raises like a watch alert) and `DISMISS_ALERT` ("I'm OK" without a tap). Catalogue TC-A-148 to 152.
 - Validation: tests red first (does not compile), now green; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
 - Open items: the one-command device script (part a2) uses these. The five link states cannot be forced on a real phone (the state comes from the real watch); they are in the images of part b. Not run on the Galaxy A55 5G.
+
+## 2026-10-18 - M0 phone walkthrough, part b: screen images
+
+- Issue and PR: user order through the coordinator (a phone demo, images first); no plan step. PR linked from the coordinator message.
+- Changed: test-side `PhoneScreens` (14 screens, fixed example data, the real composables) and `PhoneScreensTest` (Robolectric native graphics, `captureToImage`, no new library); the rendered PNGs and an index page in `docs/demo/phone/`, linked from `docs/demo.md`. Catalogue TC-A-146 and 147.
+- Validation: tests red first (does not compile), now green; I looked at three of the images (history, settings, permission card) and they show the real screens; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
+- Open items: part a (the one-command device script with screenshots and a recording) follows. The images are Compose renders on a JVM, not photos of the Galaxy A55 5G; fonts and system bars differ. The Tasks edit form and the reminder form are not in the list yet.

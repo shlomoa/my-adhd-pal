@@ -203,3 +203,13 @@ e: DemoFixturesTest.kt:64:43 Unresolved reference 'SEED_FIXTURES'.
 ```
 
 TC-A-148 to TC-A-152 are red until this step lands.
+
+## Screen images (M0 phone walkthrough)
+
+Red commit: the first commit of the PR (test and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*PhoneScreensTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: PhoneScreensTest.kt:36:23 Unresolved reference 'PhoneScreens'.
+```
+
+TC-A-146 and TC-A-147 are red until this step lands.

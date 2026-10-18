@@ -5,6 +5,7 @@
 # key, the sleep key, `dumpsys power`, keep-screen-on): that is the user's run. Needs PowerShell 7 as `pwsh` (or set PWSH).
 # Run: scripts/probe/test-run-screen.sh
 set -u
+export PROBE_STABLE_SEC="${PROBE_STABLE_SEC:-1}"
 here="$(cd "$(dirname "$0")" && pwd)"
 PWSH="${PWSH:-pwsh}"
 fail=0

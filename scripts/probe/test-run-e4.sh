@@ -4,6 +4,7 @@
 # the result file and its publishing. It does NOT prove how the Galaxy Watch6 Classic behaves (screen timeout, Always-on display,
 # keep-screen-on, `dumpsys` output): that is the user's run. Needs PowerShell 7 as `pwsh` (or set PWSH). Run: scripts/probe/test-run-e4.sh
 set -u
+export PROBE_STABLE_SEC="${PROBE_STABLE_SEC:-1}"
 here="$(cd "$(dirname "$0")" && pwd)"
 PWSH="${PWSH:-pwsh}"
 fail=0
