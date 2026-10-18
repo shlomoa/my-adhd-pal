@@ -82,7 +82,7 @@ try {
     Log "== 30 minutes worn, three blocks of $BlockSec s"
     $counts = @()
     foreach ($i in 1, 2, 3) {
-        Start-Sleep -Seconds $BlockSec
+        Wait-Phase $BlockSec
         $counts += Report ("block-" + ($i * 10))
     }
     Judge 'after 30 minutes:' $counts[1] $counts[2]

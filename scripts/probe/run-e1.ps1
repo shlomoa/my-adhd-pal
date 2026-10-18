@@ -56,7 +56,7 @@ param(
 
 function Phase([string]$phase, [string]$what) {
     Log "== phase $phase ($what) for $PhaseSec s"
-    Start-Sleep -Seconds $PhaseSec
+    Wait-Phase $PhaseSec
     Report $phase | Out-Null
 }
 

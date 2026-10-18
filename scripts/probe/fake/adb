@@ -40,7 +40,7 @@ if [ -e "$D/away" ] && fails portchange; then
       if [ "${1:-}" = "192.168.1.16:42000" ]; then rm -f "$D/away"; touch "$D/moved"; echo "connected to 192.168.1.16:42000"; exit 0; fi
       echo "failed to connect to $1" >&2; exit 1;;
     *)
-      if [ -n "${FAKE_MDNSNAME:-}" ] && [ "$serial" = "adb-FAKE1234-abc._adb-tls-connect._tcp" ]; then :; else echo "error: no devices/emulators found" >&2; exit 1; fi;;
+      if [ -n "${FAKE_MDNSNAME:-}" ] && [ "$serial" = "adb-FAKE1234-abc._adb-tls-connect._tcp" ]; then rm -f "$D/away"; touch "$D/moved"; else echo "error: no devices/emulators found" >&2; exit 1; fi;;
   esac
 fi
 if [ -e "$D/moved" ]; then
