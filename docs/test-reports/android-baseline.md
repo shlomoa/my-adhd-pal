@@ -192,3 +192,14 @@ e: DemoAlertTraceTest.kt:28:25 Unresolved reference 'DemoAlertTrace'.
 ```
 
 TC-A-140 to TC-A-145 are red until this step lands. TC-A-140 was then corrected once: the history lists newest first, so the stored order is a-2, a-1.
+
+## Demo seed and tab by intent (M0 phone walkthrough)
+
+Red commit: the first commit of the PR (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*DemoFixturesTest*' --tests '*HomeScreenTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: DemoFixturesTest.kt:37:28 Unresolved reference 'DemoFixtures'.
+e: DemoFixturesTest.kt:64:43 Unresolved reference 'SEED_FIXTURES'.
+```
+
+TC-A-148 to TC-A-152 are red until this step lands.
