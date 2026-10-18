@@ -47,7 +47,7 @@ grep -q 'screen state before the report keep-on: ON' "$result" && grep -q 'scree
 grep -q 'live: .*PROBE measure live' "$result"; check "TC-W-193 the live lines are in the file" 0 $?
 b="$(git -C "$tmp/origin.git" for-each-ref --format='%(refname:short)' 'refs/heads/screen-results/*')"; [ -n "$b" ] && grep -q "^PUSHED $b\$" "$tmp/stdout"; check "TC-W-196 the result is published as screen-results/<stamp>" 0 $?
 ! grep -qE '192\.168|/tmp/' "$result"; check "TC-W-196 the file holds no ip address and no local path" 0 $?
-[ "$(grep -ci 'always on display' "$tmp/stdout")" -ge 1 ] && ! grep -q 'Press Enter' "$tmp/stdout"; check "TC-W-193 no prompt when the Always On Display can be switched by adb" 0 $?
+grep -q 'aod: secure:doze_always_on was 1' "$tmp/stdout" && ! grep -q 'Press Enter' "$tmp/stdout"; check "TC-W-193 no prompt when the Always On Display can be switched by adb" 0 $?
 
 run -SkipPush
 [ -z "$(git -C "$tmp/origin.git" for-each-ref 'refs/heads/screen-results/*')" ]; check "TC-W-196 -SkipPush publishes nothing" 0 $?
