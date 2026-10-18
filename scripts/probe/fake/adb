@@ -9,6 +9,9 @@
 #                                                  nonotif  the notification is never listed
 #                                                  svcgone  the measure service is not listed as running
 #                                                  stalled  the report's reading count never grows
+#                                                  nodebug  the debug probe build is not installed (no Probe components in dumpsys package)
+#                                                  flaky    every 3rd `shell echo` fails (an unstable connection)
+#                                                  dead     every command fails (the watch cannot be reached)
 #                                                  reportfail  the measure-report command fails and logs nothing
 # FAKE_AWAY_AFTER=N (+ FAKE_AWAY_CALLS=K): after the Nth report the watch goes away (Wi-Fi off): every adb call fails, and the first K
 #   `adb connect` calls fail too; the next one brings it back.
@@ -17,6 +20,7 @@
 #   command needs ANDROID_SERIAL=192.168.1.16:42000 (or -s with it). `adb devices` lists the connected address.
 # FAKE_MDNSNAME=1: `adb devices` also lists the mDNS name adb-FAKE1234-abc._adb-tls-connect._tcp (it never changes with the port), `-s <name>` works
 #   in every state (also after a port change), `adb connect <name>` fails like the real adb, `getprop ro.serialno` answers FAKE1234.
+# FAKE_BATTERY=N: the starting battery level (default 68).
 # FAKE_DROP=1: after `input keyevent KEYCODE_SLEEP` the connection drops (device offline) until `adb connect`.
 # FAKE_CHARGING=1: the watch is on its charger. It simulates the commands; it proves nothing about the watch.
 set -u
@@ -25,11 +29,12 @@ fails() { case ",${FAKE_FAIL:-}," in *",$1,"*) return 0;; esac; return 1; }
 echo "$*" >> "$D/calls"
 touch "$D/log"
 [ -e "$D/timeout" ] || echo 30000 > "$D/timeout"
-[ -e "$D/battery" ] || echo 68 > "$D/battery"
+[ -e "$D/battery" ] || echo "${FAKE_BATTERY:-68}" > "$D/battery"
 [ -e "$D/readings" ] || echo 0 > "$D/readings"
 serial="${ANDROID_SERIAL:-}"
 [ "${1:-}" = "-s" ] && { serial="$2"; shift 2; }
 cmd="${1:-}"; shift || true
+if fails dead; then echo "error: device offline" >&2; exit 1; fi
 if [ -e "$D/away" ] && fails portchange; then
   case "$cmd" in
     mdns)
@@ -71,7 +76,8 @@ case "$cmd" in
   logcat)
     for a in "$@"; do
       case "$a" in
-        -G) exit 0;;
+        -G) echo "${2:-4M}" > "$D/logbuf"; exit 0;;
+        -g) if [ -e "$D/logbuf" ]; then echo "main: ring buffer is 4 MiB (3 MiB consumed), max entry size 5120 B"; else echo "main: ring buffer is 256 KiB (3 KiB consumed), max entry size 5120 B"; fi; exit 0;;
         -c) : > "$D/log"; exit 0;;
         -d) cat "$D/log"; exit 0;;
       esac
@@ -80,7 +86,9 @@ case "$cmd" in
   shell)
     sub="${1:-}"; shift || true
     case "$sub" in
-      echo) echo "$@"; exit 0;;
+      echo)
+        if fails flaky; then n=$(( $(cat "$D/echoes" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$D/echoes"; [ $((n % 3)) -eq 0 ] && { echo "error: closed" >&2; exit 1; }; fi
+        echo "$@"; exit 0;;
       getprop) [ "${1:-}" = ro.serialno ] && echo FAKE1234; exit 0;;
       settings)
         if [ "$1" = get ]; then
@@ -120,6 +128,7 @@ case "$cmd" in
           exit 0
         fi
         if [ "$1" = package ]; then
+          fails nodebug || echo "      com.shlomoa.myadhdpal/.wear.debug.probe.ProbeReceiver com.shlomoa.myadhdpal/.wear.debug.probe.ProbeMeasureService com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity"
           echo "      android.permission.health.READ_HEART_RATE: granted=true"
           echo "      android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND: granted=false"
           exit 0

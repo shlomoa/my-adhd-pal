@@ -397,6 +397,19 @@ FAIL TC-W-209 a run over its time limit ends, stops the service and publishes wh
 FAIL TC-W-211 Ctrl+C ends the run, stops the service and publishes what exists (expected 0, got 1)
 ```
 
+## Pre-flight and heartbeat of the probe runs (TC-W-213 to TC-W-224; `scripts/probe/test-preflight.sh`)
+
+A long run must not start when the watch cannot finish it, and the coordinator must see from far away where a run is. The pre-flight (watch reachable, not charging, battery at least 40 %, debug build installed, adb stable for 30 s, `git push` possible by dry run, log buffer set)
+fails fast with ONE message; the heartbeat pushes a tiny status file to `probe-status/<script>-<run-id>` every 5 minutes. Red commit: the first commit of branch `claude/watch-preflight-heartbeat` (tests, simulated adb modes `dead`, `flaky`, `nodebug`, `FAKE_BATTERY`, catalogue rows).
+Command: `PWSH=pwsh scripts/probe/test-preflight.sh`. Most checks FAIL before the change, for example:
+
+```
+FAIL TC-W-213 the file says the pre-flight was ok (expected 0, got 1)
+FAIL TC-W-214 an unreachable watch: ONE message, exit 3 (expected 0, got 1)
+FAIL TC-W-220 several heartbeats are pushed during the run (expected 0, got 1)
+FAIL TC-W-221 the final status holds state=finished (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

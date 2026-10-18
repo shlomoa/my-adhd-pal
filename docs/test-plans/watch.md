@@ -203,6 +203,18 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-210 | 6.4 | script | A wait over `PROBE_MAX_STEP_SEC` ends the run the same way (`phase time limit`) | exit code, file |
 | TC-W-211 | 6.4 | script | Ctrl+C (SIGINT) ends the run, writes the summary, stops the service and publishes what exists | stdout, file |
 | TC-W-212 | 6.4 | script | A report that fails (no reading count) is logged as `report <name> failed` and does not abort the run | exit code, file |
+| TC-W-213 | 6.4 | script | A healthy watch passes the pre-flight (`preflight: ok`); the log buffer is set with `logcat -G` and read back with `logcat -g` | result file, call log |
+| TC-W-214 | 6.4 | script | An unreachable watch fails the pre-flight with ONE message (`PREFLIGHT FAILED: ...`) and exit 3; no step runs (no grant, revoke or start) | stdout, call log |
+| TC-W-215 | 6.4 | script | A watch on its charger, or with a battery under 40 % (`PROBE_MIN_BATTERY`), fails the pre-flight; `-AllowCharging` lets the charger pass | stdout, exit code |
+| TC-W-216 | 6.4 | script | A missing debug probe build (no ProbeReceiver, ProbeMeasureService, ProbeFrontActivity in `dumpsys package`) fails the pre-flight | stdout |
+| TC-W-217 | 6.4 | script | A connection that is not stable for `PROBE_STABLE_SEC` (default 30 s) fails the pre-flight | stdout |
+| TC-W-218 | 6.4 | script | A `git push` that cannot work (dry run) fails the pre-flight; under `-SkipPush` it is not checked | stdout, exit code |
+| TC-W-219 | 6.4 | script | Several problems at once are listed in ONE message | stdout |
+| TC-W-220 | 6.4 | script | While a run waits, a heartbeat is pushed every `PROBE_HEARTBEAT_SEC` (default 300 s) to `probe-status/<script>-<run-id>`, force-updated (one commit without history) | origin refs, result file |
+| TC-W-221 | 6.4 | script | The status file holds script, run, step, elapsed_sec, waiting_on_prompt, watch_reachable, last_reading_count, battery and state (`finished` at the end); no ip address; the branch holds only that file | origin tree, text |
+| TC-W-222 | 6.4 | script | The heartbeat does not touch the working tree, the index or HEAD of the checkout | git status |
+| TC-W-223 | 6.4 | script | A heartbeat during a question says `waiting_on_prompt=yes` | result file |
+| TC-W-224 | 6.4 | script | Under `-SkipPush` no heartbeat is pushed | result file, origin refs |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
