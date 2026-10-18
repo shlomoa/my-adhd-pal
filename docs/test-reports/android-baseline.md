@@ -180,3 +180,15 @@ e: AlertPermissionsTest.kt:23:13 Unresolved reference 'AlertPermissions'.
 ```
 
 TC-A-136 to TC-A-138 are red until this step lands; TC-A-139 is manual.
+
+## Demo alert trace (debug only, stress demo)
+
+Red commit: ba89bf0 (tests and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*AlertRaiserTest*' --tests '*DemoAlertTraceTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: AlertRaiserTest.kt:60:24 Unresolved reference 'AlertObserver'.
+e: AlertRaiserTest.kt:68:9 No parameter with name 'observers' found.
+e: DemoAlertTraceTest.kt:28:25 Unresolved reference 'DemoAlertTrace'.
+```
+
+TC-A-140 to TC-A-145 are red until this step lands. TC-A-140 was then corrected once: the history lists newest first, so the stored order is a-2, a-1.

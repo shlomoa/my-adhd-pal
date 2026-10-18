@@ -190,3 +190,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: `ui/permissions/AlertPermissions` (state and card), shown at the top of the Watch tab with one button per missing permission; `MainActivity` reads the two permissions on resume and opens the system dialog (notifications, Android 13+) or the full-screen settings page (Android 14+); strings. Catalogue TC-A-136 to 139.
 - Validation: `AlertPermissionsTest` (TC-A-136 to 138) red first (does not compile), now green; the accessibility test now also covers the card; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green after one rerun of the known lint crash.
 - Open items: manual TC-A-139 on the Galaxy A55 5G (granting on a real Android 14 phone, then a watch alert shows the full-screen alert). A permission denied twice cannot be asked again by the system dialog; the card then needs the settings page, not built.
+
+## 2026-10-18 - Demo alert trace (stress demo, phone stage)
+
+- Issue and PR: user order through the coordinator (stress demo today); no plan step. PR linked from the coordinator message.
+- Changed: `AlertObserver` (stored and raised hooks of `AlertRaiser`, empty set in release through a `@Multibinds`), and in `src/debug`: `DemoAlertTrace` (logs `DEMO alert stored id= watchAt= storedAt=` and `DEMO alert raised id= raisedAt= sound=` live, ids and epoch milliseconds only), `DemoAlertModule`, and the `DUMP_ALERTS` broadcast to `DemoAlertsReceiver` that prints them again per alert row and `DEMO alerts end count=n`. Catalogue TC-A-140 to 145.
+- Validation: tests red first (does not compile), now green; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green (includes the release-has-no-debug check).
+- Open items: the in-app permission card (PR-A) waits. Until then the demo script grants the permissions with adb. Not run on the Galaxy A55 5G yet.

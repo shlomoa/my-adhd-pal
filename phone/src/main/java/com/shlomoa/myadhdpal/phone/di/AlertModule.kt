@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.shlomoa.myadhdpal.phone.alert.AlertObserver
 import com.shlomoa.myadhdpal.phone.alert.AlertPreferences
 import com.shlomoa.myadhdpal.phone.alert.AlertRaiser
 import com.shlomoa.myadhdpal.phone.alert.AndroidAlertNotifier
@@ -18,6 +19,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.Multibinds
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +28,14 @@ import kotlinx.coroutines.flow.first
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class AlertStore
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class AlertObserversModule {
+    /** The observers of the raiser; empty in release, the debug demo trace joins it from `src/debug`. */
+    @Multibinds
+    abstract fun alertObservers(): Set<AlertObserver>
+}
 
 /** The phone alert: its own small DataStore file (outside `data/`), the notifier and the raiser. */
 @Module
@@ -60,13 +70,15 @@ object AlertModule {
         raised: RaisedAlertsStore,
         notifier: AndroidAlertNotifier,
         preferences: DataStoreAlertPreferences,
-        source: WatchLinkDataSource
+        source: WatchLinkDataSource,
+        observers: Set<@JvmSuppressWildcards AlertObserver>
     ): AlertRaiser = AlertRaiser(
         history,
         raised,
         notifier,
         prefsProvider = { preferences.prefs.first() },
         hasAmplitudeControl = notifier::hasAmplitudeControl,
-        endEpisode = source::publishEpisodeEnd
+        endEpisode = source::publishEpisodeEnd,
+        observers = observers
     )
 }
