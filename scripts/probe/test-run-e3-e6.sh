@@ -22,7 +22,7 @@ run() {
   script="$(basename "$1")"; shift
   make_repo
   yes "${STDIN_WORD:-strong}" | head -80 | FAKE_DIR="$tmp/state" PATH="$tmp/repo/scripts/probe/fake:$PATH" timeout "${RUN_TIMEOUT:-180}" "$PWSH" -NoProfile -File "$tmp/repo/scripts/probe/$script" \
-    -SkipPush -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -ReportWaitSec 0.2 "$@" > "$tmp/stdout" 2>&1
+    -SkipPush -Watch "${WATCH_ARG:-192.168.1.16:41613}" -OutDir "$tmp/out" -ReportWaitSec 0.2 "$@" > "$tmp/stdout" 2>&1
   rc=${PIPESTATUS[2]}
   result="$(ls "$tmp/out"/e[36]-*.txt 2>/dev/null | head -1)"
 }
@@ -111,6 +111,28 @@ check "TC-W-200 an invalid address answer does not fail the run (exit 0)" 0 $rc
 ! grep -q 'nonsense' "$result"; check "TC-W-200 the typed text is not copied into the result file" 0 $?
 FAKE_FAIL=portchange,nomdns FAKE_AWAY_AFTER=6 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
 [ "$(grep -c 'Which address' "$tmp/stdout")" -eq 0 ] && [ "$rc" -eq 0 ]; check "TC-W-200 -Unattended never asks for the address" 0 $?
+
+# the mDNS name never changes with the port: found in `adb devices` when the ip lists no other port
+FAKE_FAIL=portchange,nomdns FAKE_MDNSNAME=1 FAKE_AWAY_AFTER=6 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+check "TC-W-202 a watch found again by its mDNS name: exit 0" 0 $rc
+grep -q 'address changed: now by mDNS name' "$result" && grep -q 'power saving: readings grew: True' "$result"; check "TC-W-202 the change is logged and the report is taken" 0 $?
+! grep -q '192.168' "$result" && ! grep -q 'FAKE1234' "$result"; check "TC-W-202 the result file holds no ip address and no serial number" 0 $?
+[ ! -s "$tmp/state/rejected" ]; check "TC-W-202 after the change every adb call uses the mDNS name" 0 $?
+
+# -Watch may be the mDNS name: no adb connect is run for it
+FAKE_MDNSNAME=1 WATCH_ARG=adb-FAKE1234-abc._adb-tls-connect._tcp run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+check "TC-W-203 -Watch given as the mDNS name: exit 0" 0 $rc
+[ "$(count 'connect adb-')" -eq 0 ]; check "TC-W-203 adb connect is not run for an mDNS name" 0 $?
+
+# waits keep the connection alive and count the time the watch was unreachable
+PROBE_KEEPALIVE_SEC=1 run "$E3" -BlockSec 3 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+keep=$(count '^connect ')
+run "$E3" -BlockSec 3 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+[ "$keep" -gt "$(( $(count '^connect ') + 4 ))" ]; check "TC-W-204 a wait of several seconds runs adb connect periodically (PROBE_KEEPALIVE_SEC)" 0 $?
+FAKE_AWAY_AFTER=6 FAKE_AWAY_CALLS=1000 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+grep -qE 'watch unreachable in total: [1-9][0-9]* s' "$result"; check "TC-W-205 the result file counts the seconds the watch was unreachable" 0 $?
+run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+grep -q 'watch unreachable in total: 0 s' "$result"; check "TC-W-205 a run with a stable connection says 0 s" 0 $?
 
 # ---------------- E6
 run "$E6" -AlarmWaitSec 1

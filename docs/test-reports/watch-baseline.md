@@ -373,6 +373,17 @@ FAIL TC-W-200 asked once, the invalid answer is logged and the report is marked 
 FAIL TC-W-201 the end of the run reconnects: the service is stopped and the battery after is read (expected 0, got 1)
 ```
 
+Added after the user's `adb devices` showed the watch twice (new ip:port and the mDNS name `adb-<serial>-<id>._adb-tls-connect._tcp`, which does not change with the port): TC-W-202 to TC-W-205 (mDNS name as `-Watch` and as the way back, keep-alive `adb connect` during waits, the unreachable-seconds counter).
+Red commit: "Tests for the mDNS name, keep-alive and the unreachable counter (red)" on the same branch. 5 checks FAIL before the change:
+
+```
+FAIL TC-W-202 the change is logged and the report is taken (expected 0, got 1)
+FAIL TC-W-203 adb connect is not run for an mDNS name (expected 0, got 1)
+FAIL TC-W-204 a wait of several seconds runs adb connect periodically (PROBE_KEEPALIVE_SEC) (expected 0, got 1)
+FAIL TC-W-205 the result file counts the seconds the watch was unreachable (expected 0, got 1)
+FAIL TC-W-205 a run with a stable connection says 0 s (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
