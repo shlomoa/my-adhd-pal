@@ -54,13 +54,18 @@ class AlertRaiserTest {
     private fun alert(id: String, at: Long, level: Int = 1, episodeId: String? = null) =
         WatchEvent.AlertReceived(id, at, Alert(Metric.HEART_RATE, 138.0, 110.0, at, level, episodeId))
 
-    private fun raiser(store: RaisedAlertsStore = this.store, prefs: AlertPrefs = AlertPrefs()) = AlertRaiser(
+    private fun raiser(
+        store: RaisedAlertsStore = this.store,
+        prefs: AlertPrefs = AlertPrefs(),
+        observers: Set<AlertObserver> = emptySet()
+    ) = AlertRaiser(
         history,
         store,
         notifier,
         prefsProvider = { prefs },
         hasAmplitudeControl = { true },
-        endEpisode = source::publishEpisodeEnd
+        endEpisode = source::publishEpisodeEnd,
+        observers = observers
     )
 
     private fun ids() = notifier.raised.map { it.first.id }
@@ -188,6 +193,47 @@ class AlertRaiserTest {
         val plan = notifier.raised.single().second
         assertEquals(false, plan.sound)
         assertEquals(null, plan.flash)
+        job.cancel()
+    }
+
+    @Test
+    fun `TC-A-140 an observer sees every new alert stored, and only the newest raised, in that order`() = runTest {
+        val events = mutableListOf<String>()
+        val observer = object : AlertObserver {
+            override fun stored(alert: HistoryEntry.AlertRaised) {
+                events += "stored ${alert.id}"
+            }
+
+            override fun raised(alert: HistoryEntry.AlertRaised, plan: AlertPlan) {
+                events += "raised ${alert.id} sound=${plan.sound}"
+            }
+        }
+        history.store(alert("old", 100))
+        store.ids = setOf("old")
+        history.store(alert("a-1", 1_000))
+        history.store(alert("a-2", 3_000))
+        val job = launch(UnconfinedTestDispatcher(testScheduler)) {
+            raiser(prefs = AlertPrefs(soundOn = false), observers = setOf(observer)).run()
+        }
+        assertEquals(listOf("stored a-1", "stored a-2", "raised a-2 sound=false"), events)
+        job.cancel()
+    }
+
+    @Test
+    fun `TC-A-141 an observer is not told about alerts already in the history at the first run`() = runTest {
+        var told = 0
+        val observer = object : AlertObserver {
+            override fun stored(alert: HistoryEntry.AlertRaised) {
+                told++
+            }
+
+            override fun raised(alert: HistoryEntry.AlertRaised, plan: AlertPlan) {
+                told++
+            }
+        }
+        history.store(alert("before", 1_000))
+        val job = launch(UnconfinedTestDispatcher(testScheduler)) { raiser(observers = setOf(observer)).run() }
+        assertEquals(0, told)
         job.cancel()
     }
 }
