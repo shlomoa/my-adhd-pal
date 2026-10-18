@@ -1,0 +1,19 @@
+2026-10-18 15:52:30 e4 result file: e4-20261018-155230.txt
+2026-10-18 15:52:31 screen timeout was 600000, set to 15000
+2026-10-18 15:52:31 Run 1 (keep-screen-on OFF): wear the watch and, after you press Enter, leave the arm still for the whole run and let the screen time out.
+2026-10-18 15:53:11 == run 1 (keep-screen-on off)
+2026-10-18 15:56:15 10-18 15:53:12.619 27936 27936 I PROBE   : PROBE front resumed screen=on inFront=false keepOn=false
+2026-10-18 15:56:15 10-18 15:53:13.283 27936 27936 I PROBE   : PROBE front focus screen=on inFront=true keepOn=false
+2026-10-18 15:56:16 resumed activity: topResumedActivity=ActivityRecord{26126982 u0 com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity t111}
+2026-10-18 15:56:16 Run 1: after the start, was the app shown? After the screen timeout, what was shown in the always-on display: the app, the watch face or other? After waking it?
+2026-10-18 15:57:06 answer: KEEP SCREEN ON OFF
+2026-10-18 15:57:06 Run 2 (keep-screen-on ON): leave the arm still again after you press Enter.
+2026-10-18 15:57:14 == run 2 (keep-screen-on on)
+2026-10-18 16:00:18 resumed activity: topResumedActivity=ActivityRecord{26126982 u0 com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity t111}
+2026-10-18 16:00:18 Run 2: did the screen stay on, and for how long? Did it dim?
+2026-10-18 16:03:33 answer: yes, allthe time, no
+2026-10-18 16:03:33 What is the screen timeout setting in the watch settings (Settings > Display > Screen timeout; path not verified), and does any setting keep the screen on while the app runs (for example Keep screen on, Touch to wake, Wake up gesture; path not verified)? Say which.
+2026-10-18 16:03:51 answer: unknown
+2026-10-18 16:03:51 If the measuring service of experiment E1 or E3 is running: after you tap its notification (swipe up from the watch face to the notification list; path not verified), does the app come to the front? Answer skip if it is not running.
+2026-10-18 16:04:12 answer: unknow
+2026-10-18 16:04:12 screen timeout restored to 600000; result file: e4-20261018-155230.txt
