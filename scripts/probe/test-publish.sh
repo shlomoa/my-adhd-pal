@@ -53,7 +53,10 @@ setup; runit run-e1.ps1 $E1 -SkipPush
 [ -z "$(branches e1)" ] && ! grep -q '^PUSHED' "$tmp/stdout"; check "TC-W-170 -SkipPush publishes nothing" 0 $?
 ls "$tmp/out"/e1-*.txt >/dev/null 2>&1; check "TC-W-170 -SkipPush still leaves the local result file" 0 $?
 
-setup; git -C "$tmp/repo" remote set-url origin "$tmp/does-not-exist.git"; runit run-e1.ps1 $E1
+# the pre-flight dry run passes; the push at the end fails (a git on the PATH that fails every push except a dry run)
+setup; mkdir -p "$tmp/bin"; real="$(command -v git)"
+printf '#!/usr/bin/env bash\ncase " $* " in *" --dry-run "*) ;; *" push "*) echo "fatal: unable to access the remote" >&2; exit 128;; esac\nexec %s "$@"\n' "$real" > "$tmp/bin/git"; chmod +x "$tmp/bin/git"
+PATH="$tmp/bin:$PATH" runit run-e1.ps1 $E1
 check "TC-W-171 a failed push leaves the exit code unchanged (0)" 0 $rc
 grep -q 'Push failed' "$tmp/stdout" && grep -q 'e1-results/' "$tmp/stdout" && grep -qE 'git push origin [0-9a-f]{40}:refs/heads/e1-results/' "$tmp/stdout"; check "TC-W-171 the failure names the branch and prints the retry command" 0 $?
 ls "$tmp/out"/e1-*.txt >/dev/null 2>&1; check "TC-W-171 the local result file is kept" 0 $?
