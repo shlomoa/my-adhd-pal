@@ -73,7 +73,7 @@ try {
 
     Start-ProbeService
     Log-Permissions
-    Ask "Check that the Always On Display is ON (phase B needs it): $PathAod."
+    Ask "Check that the Always On Display is ON (phase B needs it): $PathAod." -Step 'aod-on'
     Wait-ServiceAvailable
 
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP') | Out-Null
@@ -82,17 +82,21 @@ try {
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_SLEEP') | Out-Null
     Phase 'B' 'display dim'
 
-    Ask "Turn the Always On Display OFF now (phase C needs the screen off): $PathAod."
+    Ask "Turn the Always On Display OFF now (phase C needs the screen off): $PathAod." -Step 'aod-off'
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_SLEEP') | Out-Null
     Phase 'C' 'screen off'
+    $script:RunDone = $true
 } catch {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    Stop-ProbeService
-    if ($savedTimeout) { Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', $savedTimeout) | Out-Null }
-    Log ("screen timeout restored to $savedTimeout; result file: $(Split-Path -Leaf $script:LogFile)")
+    try {
+        Stop-ProbeService
+        if ($savedTimeout) { Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', $savedTimeout) | Out-Null }
+        Log ("screen timeout restored to $savedTimeout; result file: $(Split-Path -Leaf $script:LogFile)")
+    } finally {
+        Finish-Run 'e1' $failed
+    }
 }
-Publish-Result 'e1'
 if ($failed) { exit 1 }
 exit 0

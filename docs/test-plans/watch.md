@@ -196,6 +196,13 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-203 | 6.4 | script | `-Watch` may be the mDNS name (`adb-<serial>-<id>._adb-tls-connect._tcp`); `adb connect` is not run for it | call log |
 | TC-W-204 | 6.4 | script | Waits of a script are cut into slices of `PROBE_KEEPALIVE_SEC` (default 30) seconds; each slice runs `adb connect` and tries to find the watch again if it is lost | call log |
 | TC-W-205 | 6.4 | script | The result file ends with `watch unreachable in total: N s` (0 with a stable connection) | result file |
+| TC-W-206 | 6.4 | script | Every question of a run has a time limit (`PROBE_ASK_TIMEOUT_SEC`, default 180 s), a banner `ACTION NEEDED` and a beep every `PROBE_BEEP_SEC` (default 30 s); when nobody answers the run continues and logs `no answer, continued` | exit code, result file, stdout |
+| TC-W-207 | 6.4 | script | Each question is a named step; the file ends with `summary: step <name>: <state>` lines (CONFIRMED when adb verified it, ANSWERED when adb cannot verify, UNCONFIRMED when unanswered, unattended or not verified) and `summary: unconfirmed steps: N` | result file |
+| TC-W-208 | 6.4 | script | After the user pressed Enter for a mode turned off, adb must reach the watch again (Wi-Fi is on); if not the user is asked again (twice at most); a watch that never comes back leaves the step UNCONFIRMED and does not fail the run | stdout, result file |
+| TC-W-209 | 6.4 | script | A run over `PROBE_MAX_RUN_SEC` ends with exit 1, `run time limit` in the file, the service stopped and the result published | exit code, file, call log |
+| TC-W-210 | 6.4 | script | A wait over `PROBE_MAX_STEP_SEC` ends the run the same way (`phase time limit`) | exit code, file |
+| TC-W-211 | 6.4 | script | Ctrl+C (SIGINT) ends the run, writes the summary, stops the service and publishes what exists | stdout, file |
+| TC-W-212 | 6.4 | script | A report that fails (no reading count) is logged as `report <name> failed` and does not abort the run | exit code, file |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |

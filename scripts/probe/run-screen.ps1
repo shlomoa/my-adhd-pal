@@ -99,7 +99,7 @@ $failed = $false
 try {
     Invoke-Adb @('logcat', '-G', '4M') | Out-Null
     if (-not (Disable-Aod)) {
-        Ask 'Turn the Always On Display OFF now (the screen must be able to go fully off): Settings > Display > Always On Display.'
+        Ask 'Turn the Always On Display OFF now (the screen must be able to go fully off): Settings > Display > Always On Display.' -Step 'aod-off'
     }
     Start-ProbeService
     Log-Permissions
@@ -126,15 +126,19 @@ try {
     Wait-Phase $PhaseSec
     Log ("screen state before the report screen-off: " + (Get-ScreenState))
     Report 'screen-off' | Out-Null
+    $script:RunDone = $true
 } catch {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    Connect-Watch
-    Restore-Aod
-    Stop-ProbeService
-    Log "result file: $(Split-Path -Leaf $script:LogFile)"
+    try {
+        Connect-Watch
+        Restore-Aod
+        Stop-ProbeService
+        Log "result file: $(Split-Path -Leaf $script:LogFile)"
+    } finally {
+        Finish-Run 'screen' $failed
+    }
 }
-Publish-Result 'screen'
 if ($failed) { exit 1 }
 exit 0

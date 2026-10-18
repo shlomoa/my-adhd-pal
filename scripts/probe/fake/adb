@@ -9,6 +9,7 @@
 #                                                  nonotif  the notification is never listed
 #                                                  svcgone  the measure service is not listed as running
 #                                                  stalled  the report's reading count never grows
+#                                                  reportfail  the measure-report command fails and logs nothing
 # FAKE_AWAY_AFTER=N (+ FAKE_AWAY_CALLS=K): after the Nth report the watch goes away (Wi-Fi off): every adb call fails, and the first K
 #   `adb connect` calls fail too; the next one brings it back.
 # FAKE_FAIL=portchange (with FAKE_AWAY_AFTER=N): after the Nth report the watch comes back on port 42000: the old address never answers
@@ -156,6 +157,7 @@ case "$cmd" in
           alarm-clock) note "PROBE alarm-clock scheduled in 15 s"; note "PROBE alarm-clock fired"; note "PROBE alert screen shown";;
           measure-capabilities) note "PROBE measure capabilities heartRateMeasure=true";;
           measure-report)
+            if fails reportfail; then echo "error: broadcast failed" >&2; exit 1; fi
             if fails stalled; then r=$(cat "$D/readings"); [ "$r" -gt 0 ] || r=100; else r=$(( $(cat "$D/readings") + 100 )); fi
             echo "$r" > "$D/readings"
             note "PROBE measure screen=all readings=$r perMin=10.0 gapSec median=1 p95=1 max=2"

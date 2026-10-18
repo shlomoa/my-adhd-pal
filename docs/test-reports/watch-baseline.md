@@ -384,6 +384,19 @@ FAIL TC-W-205 the result file counts the seconds the watch was unreachable (expe
 FAIL TC-W-205 a run with a stable connection says 0 s (expected 0, got 1)
 ```
 
+## Self-controlling probe runs (TC-W-206 to TC-W-212; `scripts/probe/test-self-control.sh`)
+
+Unattended E3 and E4 runs stalled on questions nobody saw and on a dead address. A question gets a time limit, a banner and a beep and never blocks for ever; unanswered or unverified steps are marked UNCONFIRMED in the file and a summary;
+adb verifies after Enter where it can; a time limit per wait and per run ends the run, and Ctrl+C included publishes what exists; a failed report never aborts the run. Red commit: the first commit of branch `claude/watch-self-control`
+(tests, the `reportfail` mode of the simulated adb and the catalogue rows). Command: `PWSH=pwsh scripts/probe/test-self-control.sh`. 13 checks FAIL before the change, for example:
+
+```
+FAIL TC-W-206 every question that timed out is logged 'no answer, continued' (expected 0, got 1)
+FAIL TC-W-207 the file and the summary mark the steps UNCONFIRMED (expected 0, got 1)
+FAIL TC-W-209 a run over its time limit ends, stops the service and publishes what exists (expected 0, got 1)
+FAIL TC-W-211 Ctrl+C ends the run, stops the service and publishes what exists (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
