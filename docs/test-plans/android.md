@@ -185,6 +185,15 @@ repositories exist (G3).
 | TC-A-087 | `MainActivity` shows both screens from the real Hilt graph | Unit (Hilt + Compose, fake Data Layer client) | "Never synced" on the link tab; the empty-history message on the History tab |
 | TC-A-088 | The user sees the link state and the arriving acknowledgement on the real devices | Manual | Link state changes with Bluetooth/distance; an acknowledgement from the watch appears in History |
 
+## Alert permissions (phone alert, demo scope)
+
+| ID | What | How | Pass criteria |
+|---|---|---|---|
+| TC-A-136 | Which alert permissions are missing | Unit | Below Android 13 notifications count as granted; below Android 14 full-screen alerts count as granted; otherwise the values given |
+| TC-A-137 | The Watch tab asks for each missing permission | Unit (Compose) | One button per missing permission, each calls its own callback |
+| TC-A-138 | Nothing is shown when both are granted | Unit (Compose) | No permission text and no button |
+| TC-A-139 | On the Galaxy A55 5G the card grants both permissions and a watch alert then shows the full-screen alert | Manual | Card gone after granting; alert screen, sound and vibration on the next watch alert |
+
 ## Final (A-final)
 
 | Id | Case | How | Pass criteria |
