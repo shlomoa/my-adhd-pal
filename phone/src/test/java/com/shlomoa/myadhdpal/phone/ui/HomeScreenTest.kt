@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryUiState
 import com.shlomoa.myadhdpal.phone.ui.link.LastSync
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
+import com.shlomoa.myadhdpal.phone.ui.permissions.AlertPermissions
 import com.shlomoa.myadhdpal.protocol.LinkState
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +31,10 @@ class HomeScreenTest {
                     onRetry = {},
                     tasks = {},
                     settings = {},
-                    ask = {}
+                    ask = {},
+                    alertPermissions = AlertPermissions(notifications = true, fullScreen = true),
+                    onAllowNotifications = {},
+                    onAllowFullScreen = {}
                 )
             }
         }
