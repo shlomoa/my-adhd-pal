@@ -64,6 +64,7 @@ function Try-Routes([string]$state) {
 }
 
 Initialize-Probe 'e6'
+Test-Preflight
 Invoke-Adb @('shell', 'pm', 'grant', $pkg, 'android.permission.POST_NOTIFICATIONS') | Out-Null
 
 $failed = $false

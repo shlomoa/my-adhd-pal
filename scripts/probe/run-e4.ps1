@@ -56,6 +56,7 @@ function Run-Front([string]$title, [string[]]$extra) {
 }
 
 Initialize-Probe 'e4'
+Test-Preflight
 
 $failed = $false
 $savedTimeout = $null
