@@ -3,6 +3,8 @@
 # State lives in $FAKE_DIR: calls (every invocation), log (the PROBE logcat), timeout, battery, offline.
 # Failure injection (FAKE_FAIL, comma separated):  noavail  the service never reports AVAILABLE
 #                                                  unavail  the service reports only UNAVAILABLE
+#                                                  noaod    no always-on-display setting key is present
+#                                                  nosleep  the sleep key does not turn the screen off
 #                                                  nostart  the front screen cannot be started
 #                                                  nonotif  the notification is never listed
 #                                                  svcgone  the measure service is not listed as running
@@ -48,7 +50,14 @@ case "$cmd" in
     case "$sub" in
       echo) echo "$@"; exit 0;;
       settings)
-        if [ "$1" = get ]; then cat "$D/timeout"; else echo "$4" > "$D/timeout"; fi; exit 0;;
+        if [ "$1" = get ]; then
+          if [ "$3" = screen_off_timeout ]; then cat "$D/timeout"
+          elif [ "$2/$3" = secure/doze_always_on ] && ! fails noaod && [ ! -e "$D/set-secure-doze_always_on" ]; then echo 1
+          elif [ -e "$D/set-$2-$3" ]; then cat "$D/set-$2-$3"
+          else echo null; fi
+        elif [ "$3" = screen_off_timeout ]; then echo "$4" > "$D/timeout"
+        else echo "$4" > "$D/set-$2-$3"; fi
+        exit 0;;
       pm)
         if [ "$1" = revoke ]; then echo "java.lang.SecurityException: Permission $3 is not granted" >&2; exit 255; fi
         exit 0;;
@@ -57,12 +66,17 @@ case "$cmd" in
         exit 0;;
       input)
         [ "$2" = KEYCODE_SLEEP ] && [ -n "${FAKE_DROP:-}" ] && touch "$D/offline"
+        if [ "$2" = KEYCODE_SLEEP ] && ! fails nosleep; then echo OFF > "$D/screen"; fi
+        if [ "$2" = KEYCODE_WAKEUP ]; then echo ON > "$D/screen"; fi
         exit 0;;
       dumpsys)
         if [ "$1" = battery ]; then
           n="$(cat "$D/battery")"
           if [ -n "${FAKE_CHARGING:-}" ]; then echo "  AC powered: true"; else echo "  AC powered: false"; fi
           echo "  level: $n"; echo $((n - 1)) > "$D/battery"; exit 0
+        fi
+        if [ "$1" = power ]; then
+          echo "  mWakefulness=Awake"; echo "Display Power: state=$(cat "$D/screen" 2>/dev/null || echo ON)"; exit 0
         fi
         if [ "$1" = activity ] && [ "${2:-}" = activities ]; then
           echo "  mResumedActivity: ActivityRecord{1 u0 com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity t5}"

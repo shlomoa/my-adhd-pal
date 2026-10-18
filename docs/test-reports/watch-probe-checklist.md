@@ -149,6 +149,16 @@ Step 1 already left the background permission off, so step 2 is the first half o
 
 Stop with `measure-stop` at the end. State whether any permission prompt appeared on the watch during these runs.
 
+## 3b. Delivery with the screen kept on and with the screen really off (issue #228, about 23 minutes)
+
+The two E1 runs could not control the screen state. This script does: 10 minutes with the screen kept on (the debug front screen), 10 minutes with the screen off. Wear the watch, **off the charger**, do not touch it, then:
+
+```powershell
+.\scripts\probe\run-screen.ps1 -Watch 192.168.1.16:41613
+```
+
+It switches the Always On Display off by adb when it finds the setting key (and restores it), otherwise it asks you once to turn it off (Settings, Display, Always On Display). At the end it publishes the result as the branch `screen-results/<time>` (it prints `PUSHED screen-results/<time>`; `-SkipPush` keeps it local): tell the coordinator "done". Untested on the watch.
+
 ## 4. E4: does the app stay the top app and top window (issue #231)
 
 **Run the script (recommended).** Wear the watch and look at it, then:

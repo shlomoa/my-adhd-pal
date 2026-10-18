@@ -349,6 +349,18 @@ e: wear/src/testDebug/.../debug/probe/MeasureStatsTest.kt:125:13 Unresolved refe
 Added after the audit of the recording (issue #228, TC-W-188 to TC-W-191): the service writes a live line every minute as it happens (`liveMinuteLine`, `minuteOfRun`), the run scripts copy those lines into the result file before they clear the log,
 the E1 file shows the permission state, and `run-e1.ps1 -GrantBackgroundPermission` grants the background permission instead of revoking it (to compare a run with and without it). Red commit: the "Tests for the live per-minute log" commit of the same branch.
 
+## Controlled-screen run script (TC-W-192 to TC-W-197; `scripts/probe/test-run-screen.sh`)
+
+The two E1 runs could not control the screen state (issue #228): the screen timeout did not hold the screen on, and the sleep key did not turn it off in run 2. `scripts/probe/run-screen.ps1` runs 10 minutes with the screen kept on
+(`ProbeFrontActivity` with keep-screen-on) and 10 minutes with the screen really off (the Always On Display switched off by adb when a candidate key exists, the sleep key repeated until `dumpsys power` says OFF), with only `-Watch` as argument,
+and publishes `screen-results/<stamp>`. Red commit: the first commit of branch `claude/watch-run-screen` (tests and the extended simulated adb only). Command: `PWSH=pwsh scripts/probe/test-run-screen.sh`. 25 checks FAIL before the script exists, for example:
+
+```
+FAIL TC-W-192 run-screen.ps1 parses without errors (expected 0, got 1)
+FAIL TC-W-193 a full run with only -Watch exits 0 (expected 0, got 64)
+FAIL TC-W-196 the result is published as screen-results/<stamp> (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
