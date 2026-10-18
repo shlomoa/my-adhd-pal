@@ -1,0 +1,108 @@
+2026-10-18 13:54:39 e3 result file: e3-20261018-135439.txt
+2026-10-18 13:54:39 battery before: 30
+2026-10-18 13:54:48 10-18 13:54:46.859 27936 27936 I PROBE   : measure capabilities heartRateMeasure=true
+2026-10-18 13:54:48 permission: android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND
+2026-10-18 13:54:48 permission: android.permission.health.READ_HEART_RATE
+2026-10-18 13:54:48 permission: android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+2026-10-18 13:54:48 permission: android.permission.health.READ_HEART_RATE: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+2026-10-18 13:54:49 service registered and AVAILABLE
+2026-10-18 13:54:49 == 30 minutes worn, three blocks of 600 s
+2026-10-18 14:04:50 live: 10-18 13:55:48.861 27936 27936 I PROBE   : PROBE measure live minute=1 arrivals=73 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:50 live: 10-18 13:56:48.867 27936 27936 I PROBE   : PROBE measure live minute=2 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:50 live: 10-18 13:57:48.869 27936 27936 I PROBE   : PROBE measure live minute=3 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:50 live: 10-18 13:58:48.871 27936 27936 I PROBE   : PROBE measure live minute=4 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:50 live: 10-18 13:59:48.875 27936 27936 I PROBE   : PROBE measure live minute=5 arrivals=58 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:50 live: 10-18 14:00:48.877 27936 27936 I PROBE   : PROBE measure live minute=6 arrivals=59 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:50 live: 10-18 14:01:48.892 27936 27936 I PROBE   : PROBE measure live minute=7 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:50 live: 10-18 14:02:48.895 27936 27936 I PROBE   : PROBE measure live minute=8 arrivals=59 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:50 live: 10-18 14:03:48.897 27936 27936 I PROBE   : PROBE measure live minute=9 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 14:04:54 == report block-10
+2026-10-18 14:04:56 --------- beginning of main
+2026-10-18 14:04:56 10-18 14:04:51.936 27936 27936 I PROBE   : PROBE measure screen=all readings=557 perMin=55.4 gapSec median=1 p95=1 max=2
+2026-10-18 14:04:56 10-18 14:04:51.936 27936 27936 I PROBE   : PROBE measure screen=on readings=557 gapSec median=1 p95=1 max=2
+2026-10-18 14:04:56 10-18 14:04:51.936 27936 27936 I PROBE   : PROBE measure availability UNAVAILABLE atSec=0
+2026-10-18 14:04:56 10-18 14:04:51.936 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 14:04:56 10-18 14:04:51.936 27936 27936 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 14:04:56 10-18 14:04:51.936 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=547
+2026-10-18 14:04:56 10-18 14:04:51.936 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=547
+2026-10-18 14:04:56 10-18 14:04:51.937 27936 27936 I PROBE   : PROBE measure battery start=30 now=27 dropPerHour=17.9
+2026-10-18 14:04:56 10-18 14:04:51.937 27936 27936 I PROBE   : PROBE measure callbacks=543 maxPerCallback=15
+2026-10-18 14:04:56 10-18 14:04:51.937 27936 27936 I PROBE   : PROBE measure samples screen=on readings=557 sampleGapSec max=2 delaySec median=0.0 p95=0.1 max=14.2
+2026-10-18 14:04:56 10-18 14:04:51.937 27936 27936 I PROBE   : PROBE measure arrivalsPerMin 73,60,60,59,59,59,60,59,60,8
+2026-10-18 14:04:56 10-18 14:04:51.937 27936 27936 I PROBE   : PROBE measure samplesPerMin 73,60,60,60,58,59,60,59,60,8
+2026-10-18 14:04:56 notification visible: True
+2026-10-18 14:14:56 live: 10-18 14:06:20.022 27936 27936 I PROBE   : PROBE measure live minute=11 arrivals=8 sincePrevLineSec=151 sinceLastArrivalSec=143 screen=off
+2026-10-18 14:14:56 live: 10-18 14:09:17.489 27936 27936 I PROBE   : PROBE measure live minute=14 arrivals=0 sincePrevLineSec=177 sinceLastArrivalSec=321 screen=off
+2026-10-18 14:14:56 live: 10-18 14:12:13.022 27936 27936 I PROBE   : PROBE measure live minute=17 arrivals=0 sincePrevLineSec=175 sinceLastArrivalSec=496 screen=off
+2026-10-18 14:15:00 == report block-20
+2026-10-18 14:15:01 --------- beginning of main
+2026-10-18 14:15:01 10-18 14:14:57.415 27936 27936 I PROBE   : PROBE measure screen=all readings=1138 perMin=56.5 gapSec median=0 p95=1 max=608
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure screen=on readings=557 gapSec median=1 p95=1 max=2
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure screen=off readings=581 gapSec median=0 p95=0 max=608
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure availability UNAVAILABLE atSec=0
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=547
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=547
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure battery start=30 now=25 dropPerHour=14.9
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure callbacks=544 maxPerCallback=581
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure samples screen=on readings=557 sampleGapSec max=2 delaySec median=0.0 p95=0.1 max=14.2
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure samples screen=off readings=581 sampleGapSec max=12 delaySec median=308.8 p95=572.8 max=601.8
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure arrivalsPerMin 73,60,60,59,59,59,60,59,60,8,0,0,0,0,0,0,0,0,0,581
+2026-10-18 14:15:01 10-18 14:14:57.416 27936 27936 I PROBE   : PROBE measure samplesPerMin 73,60,60,60,58,59,60,59,60,55,58,60,59,60,60,60,60,55,49,13
+2026-10-18 14:15:01 notification visible: True
+2026-10-18 14:25:02 live: 10-18 14:15:02.035 27936 27936 I PROBE   : PROBE measure live minute=20 arrivals=581 sincePrevLineSec=169 sinceLastArrivalSec=57 screen=off
+2026-10-18 14:25:02 live: 10-18 14:17:39.156 27936 27936 I PROBE   : PROBE measure live minute=22 arrivals=54 sincePrevLineSec=157 sinceLastArrivalSec=156 screen=off
+2026-10-18 14:25:02 live: 10-18 14:20:13.193 27936 27936 I PROBE   : PROBE measure live minute=25 arrivals=173 sincePrevLineSec=154 sinceLastArrivalSec=106 screen=off
+2026-10-18 14:25:02 live: 10-18 14:22:41.017 27936 27936 I PROBE   : PROBE measure live minute=27 arrivals=124 sincePrevLineSec=147 sinceLastArrivalSec=11 screen=off
+2026-10-18 14:25:06 == report block-30
+2026-10-18 14:25:06 --------- beginning of main
+2026-10-18 14:25:06 10-18 14:25:03.195 27936 27936 I PROBE   : PROBE measure screen=all readings=1514 perMin=50.1 gapSec median=0 p95=1 max=608
+2026-10-18 14:25:06 10-18 14:25:03.195 27936 27936 I PROBE   : PROBE measure screen=on readings=739 gapSec median=0 p95=1 max=120
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure screen=off readings=775 gapSec median=0 p95=0 max=608
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure availability UNAVAILABLE atSec=0
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=547
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=547
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure battery start=30 now=23 dropPerHour=13.9
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure callbacks=562 maxPerCallback=581
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure samples screen=on readings=739 sampleGapSec max=120 delaySec median=0.0 p95=83.6 max=119.6
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure samples screen=off readings=775 sampleGapSec max=30 delaySec median=211.8 p95=563.8 max=601.8
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure arrivalsPerMin 73,60,60,59,59,59,60,59,60,8,0,0,0,0,0,0,0,0,0,581,54,0,0,173,0,104,0,20,25
+2026-10-18 14:25:06 10-18 14:25:03.196 27936 27936 I PROBE   : PROBE measure samplesPerMin 73,60,60,60,58,59,60,59,60,55,58,60,59,60,60,60,60,55,49,56,27,60,60,59,60,22,0,29,16
+2026-10-18 14:25:06 10-18 14:25:04.790 27936 27936 I PROBE   : PROBE measure live minute=30 arrivals=25 sincePrevLineSec=143 sinceLastArrivalSec=112 screen=off
+2026-10-18 14:25:06 notification visible: True
+2026-10-18 14:25:07 after 30 minutes: service running: True
+2026-10-18 14:25:07 after 30 minutes: readings grew: True (1138 -> 1514)
+2026-10-18 14:25:07 live: 10-18 14:25:04.790 27936 27936 I PROBE   : PROBE measure live minute=30 arrivals=25 sincePrevLineSec=143 sinceLastArrivalSec=112 screen=off
+2026-10-18 14:25:10 == report sleep-mode-before
+2026-10-18 14:25:11 --------- beginning of main
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure screen=all readings=1514 perMin=50.0 gapSec median=0 p95=1 max=608
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure screen=on readings=739 gapSec median=0 p95=1 max=120
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure screen=off readings=775 gapSec median=0 p95=0 max=608
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure availability UNAVAILABLE atSec=0
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=547
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure availability ACQUIRING atSec=547
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure battery start=30 now=23 dropPerHour=13.9
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure callbacks=562 maxPerCallback=581
+2026-10-18 14:25:11 10-18 14:25:07.480 27936 27936 I PROBE   : PROBE measure samples screen=on readings=739 sampleGapSec max=120 delaySec median=0.0 p95=83.6 max=119.6
+2026-10-18 14:25:11 10-18 14:25:07.481 27936 27936 I PROBE   : PROBE measure samples screen=off readings=775 sampleGapSec max=30 delaySec median=211.8 p95=563.8 max=601.8
+2026-10-18 14:25:11 10-18 14:25:07.481 27936 27936 I PROBE   : PROBE measure arrivalsPerMin 73,60,60,59,59,59,60,59,60,8,0,0,0,0,0,0,0,0,0,581,54,0,0,173,0,104,0,20,25
+2026-10-18 14:25:11 10-18 14:25:07.481 27936 27936 I PROBE   : PROBE measure samplesPerMin 73,60,60,60,58,59,60,59,60,55,58,60,59,60,60,60,60,55,49,56,27,60,60,59,60,22,0,29,16
+2026-10-18 14:25:11 notification visible: True
+2026-10-18 14:25:11 Turn Sleep mode ON now. Sleep mode (called Bedtime on older firmware): swipe down from the top of the watch face for the Quick panel, tap Modes, then Sleep; or Settings > Modes and Routines > Sleep > Turn on.
+2026-10-18 14:47:48 no report possible during sleep-mode-end: the watch could not be reached over adb
+2026-10-18 14:47:48 Turn Sleep mode OFF now (Quick panel > Modes > Sleep, or Settings > Modes and Routines > Sleep).
+2026-10-18 14:51:42 no report possible during sleep-mode-after-off: the watch could not be reached over adb
+2026-10-18 14:51:42 sleep mode: readings grew: unknown (no report possible)
+2026-10-18 15:50:58 adb dropped (shell am broadcast -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbeReceiver --es cmd measure-stop): reconnecting, try 1
+2026-10-18 15:51:02 adb dropped (shell am broadcast -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbeReceiver --es cmd measure-stop): reconnecting, try 2
+2026-10-18 15:51:06 adb dropped (shell am broadcast -n com.shlomoa.myadhdpal/.wear.debug.probe.ProbeReceiver --es cmd measure-stop): reconnecting, try 3
+2026-10-18 15:51:10 adb dropped (shell dumpsys battery): reconnecting, try 1
+2026-10-18 15:51:13 adb dropped (shell dumpsys battery): reconnecting, try 2
+2026-10-18 15:51:17 adb dropped (shell dumpsys battery): reconnecting, try 3
+2026-10-18 15:51:21 battery after: -1
+2026-10-18 15:51:21 result file: e3-20261018-135439.txt
