@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.first
 object DemoActions {
     const val PUBLISH_DEMO_SCHEDULE = "com.shlomoa.myadhdpal.debug.PUBLISH_DEMO_SCHEDULE"
     const val DUMP_HISTORY = "com.shlomoa.myadhdpal.debug.DUMP_HISTORY"
+    const val SEED_FIXTURES = "com.shlomoa.myadhdpal.debug.SEED_FIXTURES"
+    const val DISMISS_ALERT = "com.shlomoa.myadhdpal.debug.DISMISS_ALERT"
+    const val EXTRA_WITH_ALERT = "alert"
     const val DUMP_ALERTS = "com.shlomoa.myadhdpal.debug.DUMP_ALERTS"
     const val EXTRA_MINUTES_AHEAD = "minutes_ahead"
     const val EXTRA_TITLE = "title"

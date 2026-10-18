@@ -10,7 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -23,12 +23,6 @@ import com.shlomoa.myadhdpal.phone.ui.link.LinkStateScreen
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateUiState
 import com.shlomoa.myadhdpal.phone.ui.permissions.AlertPermissions
 import com.shlomoa.myadhdpal.phone.ui.permissions.AlertPermissionsCard
-
-private const val TAB_LINK = 0
-private const val TAB_TASKS = 1
-private const val TAB_SETTINGS = 2
-private const val TAB_HISTORY = 3
-private const val TAB_ASK = 4
 
 /**
  * Stateless apart from the selected tab. [tasks] and [settings] are the Tasks and Settings tabs; later screens of
@@ -46,40 +40,41 @@ fun HomeScreen(
     alertPermissions: AlertPermissions,
     onAllowNotifications: () -> Unit,
     onAllowFullScreen: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    initialTab: HomeTab = HomeTab.WATCH
 ) {
-    var tab by rememberSaveable { mutableIntStateOf(TAB_LINK) }
+    var tab by rememberSaveable { mutableStateOf(initialTab) }
     Scaffold(
         modifier = modifier,
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    selected = tab == TAB_LINK,
-                    onClick = { tab = TAB_LINK },
+                    selected = tab == HomeTab.WATCH,
+                    onClick = { tab = HomeTab.WATCH },
                     icon = {},
                     label = { Text(stringResource(R.string.nav_link)) }
                 )
                 NavigationBarItem(
-                    selected = tab == TAB_TASKS,
-                    onClick = { tab = TAB_TASKS },
+                    selected = tab == HomeTab.TASKS,
+                    onClick = { tab = HomeTab.TASKS },
                     icon = {},
                     label = { Text(stringResource(R.string.nav_tasks)) }
                 )
                 NavigationBarItem(
-                    selected = tab == TAB_ASK,
-                    onClick = { tab = TAB_ASK },
+                    selected = tab == HomeTab.ASK,
+                    onClick = { tab = HomeTab.ASK },
                     icon = {},
                     label = { Text(stringResource(R.string.nav_ask)) }
                 )
                 NavigationBarItem(
-                    selected = tab == TAB_SETTINGS,
-                    onClick = { tab = TAB_SETTINGS },
+                    selected = tab == HomeTab.SETTINGS,
+                    onClick = { tab = HomeTab.SETTINGS },
                     icon = {},
                     label = { Text(stringResource(R.string.nav_settings)) }
                 )
                 NavigationBarItem(
-                    selected = tab == TAB_HISTORY,
-                    onClick = { tab = TAB_HISTORY },
+                    selected = tab == HomeTab.HISTORY,
+                    onClick = { tab = HomeTab.HISTORY },
                     icon = {},
                     label = { Text(stringResource(R.string.nav_history)) }
                 )
@@ -88,13 +83,13 @@ fun HomeScreen(
     ) { padding: PaddingValues ->
         Box(Modifier.padding(padding)) {
             when (tab) {
-                TAB_TASKS -> tasks()
+                HomeTab.TASKS -> tasks()
 
-                TAB_ASK -> ask()
+                HomeTab.ASK -> ask()
 
-                TAB_SETTINGS -> settings()
+                HomeTab.SETTINGS -> settings()
 
-                TAB_HISTORY -> HistoryScreen(history, onFilter, onRetry)
+                HomeTab.HISTORY -> HistoryScreen(history, onFilter, onRetry)
 
                 else -> Column {
                     AlertPermissionsCard(alertPermissions, onAllowNotifications, onAllowFullScreen)

@@ -197,3 +197,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: `AlertObserver` (stored and raised hooks of `AlertRaiser`, empty set in release through a `@Multibinds`), and in `src/debug`: `DemoAlertTrace` (logs `DEMO alert stored id= watchAt= storedAt=` and `DEMO alert raised id= raisedAt= sound=` live, ids and epoch milliseconds only), `DemoAlertModule`, and the `DUMP_ALERTS` broadcast to `DemoAlertsReceiver` that prints them again per alert row and `DEMO alerts end count=n`. Catalogue TC-A-140 to 145.
 - Validation: tests red first (does not compile), now green; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green (includes the release-has-no-debug check).
 - Open items: the in-app permission card (PR-A) waits. Until then the demo script grants the permissions with adb. Not run on the Galaxy A55 5G yet.
+
+## 2026-10-18 - M0 phone walkthrough, part a1: seed fixtures and tabs by intent
+
+- Issue and PR: user order through the coordinator (a phone demo); no plan step. PR linked from the coordinator message.
+- Changed: `HomeTab` (the tabs as an enum, `named(text)`), `HomeScreen(initialTab)` and `MainActivity` reading the intent extra `tab` (so a script opens a screen with `am start --es tab history`, no taps); debug only: `DemoFixtures` and the broadcasts `SEED_FIXTURES` (two tasks with reminders, an acknowledgement, a snooze and an answer in the history; `--ez alert true` also stores one new alert, which the running app raises like a watch alert) and `DISMISS_ALERT` ("I'm OK" without a tap). Catalogue TC-A-148 to 152.
+- Validation: tests red first (does not compile), now green; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
+- Open items: the one-command device script (part a2) uses these. The five link states cannot be forced on a real phone (the state comes from the real watch); they are in the images of part b. Not run on the Galaxy A55 5G.
