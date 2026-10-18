@@ -108,7 +108,7 @@ try {
     Log "== phase K (screen kept on) for $PhaseSec s"
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP') | Out-Null
     Invoke-Adb @('shell', 'am', 'start', '-n', "$pkg/.wear.debug.probe.ProbeFrontActivity", '--ez', 'keep', 'true') | Out-Null
-    Start-Sleep -Seconds $PhaseSec
+    Wait-Phase $PhaseSec
     Log ("screen state before the report keep-on: " + (Get-ScreenState))
     Report 'keep-on' | Out-Null
 
@@ -123,14 +123,14 @@ try {
         Log "sleep key sent, screen state $state"
     } while ($state -ne 'OFF' -and (Get-Date) -lt $deadline)
     if ($state -ne 'OFF') { Log "screen did not reach OFF within $OffTrySec s (last state $state); the phase goes on anyway" }
-    Start-Sleep -Seconds $PhaseSec
+    Wait-Phase $PhaseSec
     Log ("screen state before the report screen-off: " + (Get-ScreenState))
     Report 'screen-off' | Out-Null
 } catch {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    & adb connect $Watch 2>&1 | Out-Null
+    Connect-Watch
     Restore-Aod
     Stop-ProbeService
     Log "result file: $(Split-Path -Leaf $script:LogFile)"

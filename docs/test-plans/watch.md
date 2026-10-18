@@ -188,6 +188,14 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-195 | 6.4 | script | A screen that never goes off, a service that never becomes available and a watch on its charger: the first does not fail the run and repeats the sleep key, the second fails it, the third is refused; the Always On Display setting is restored | exit code, call log |
 | TC-W-196 | 6.4 | script | The result is published as `screen-results/<stamp>` holding only the file; `-SkipPush` publishes nothing; no ip address and no local path in the file | origin refs, text |
 | TC-W-197 | 6.4 | script | The script header says what is untested on the watch | text |
+| TC-W-198 | 6.4 | script | The watch comes back on another wireless-debugging port: the probe rediscovers it (mdns, same ip), logs `address changed: port <old> -> <new>` (no ip), uses it for every later call and takes the report | result file, rejected calls |
+| TC-W-199 | 6.4 | script | The watch is not found: the user is asked once for the new address; a valid `ip:port` is used for the rest of the run | prompt count, result file |
+| TC-W-200 | 6.4 | script | An invalid or empty answer is logged without the typed text, the report is marked impossible, the run does not fail; `-Unattended` never asks | exit code, result file |
+| TC-W-201 | 6.4 | script | The end of the run reconnects before stopping the service and reading the battery | result file |
+| TC-W-202 | 6.4 | script | When the ip lists no other port, the watch is found by its mDNS name in `adb devices` (the name holds the device serial, found with `getprop ro.serialno`); the change is logged without ip or serial; every later call uses the name | result file, rejected calls |
+| TC-W-203 | 6.4 | script | `-Watch` may be the mDNS name (`adb-<serial>-<id>._adb-tls-connect._tcp`); `adb connect` is not run for it | call log |
+| TC-W-204 | 6.4 | script | Waits of a script are cut into slices of `PROBE_KEEPALIVE_SEC` (default 30) seconds; each slice runs `adb connect` and tries to find the watch again if it is lost | call log |
+| TC-W-205 | 6.4 | script | The result file ends with `watch unreachable in total: N s` (0 with a stable connection) | result file |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |

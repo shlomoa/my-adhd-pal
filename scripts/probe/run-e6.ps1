@@ -41,7 +41,7 @@ param(
 
 # Sends one probe command with a clean log, logs the new PROBE lines.
 function Run-Probe([string]$command, [double]$waitSec) {
-    & adb connect $Watch 2>&1 | Out-Null
+    Connect-Watch
     Invoke-Adb @('logcat', '-c') | Out-Null
     Probe $command
     Start-Sleep -Seconds $waitSec
@@ -93,7 +93,7 @@ try {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    & adb connect $Watch 2>&1 | Out-Null
+    Connect-Watch
     Invoke-Adb @('shell', 'cmd', 'notification', 'set_dnd', 'off') | Out-Null
     Log "Do Not Disturb switched off; result file: $(Split-Path -Leaf $script:LogFile)"
 }

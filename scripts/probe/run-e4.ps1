@@ -42,13 +42,13 @@ param(
 
 function Run-Front([string]$title, [string[]]$extra) {
     Log "== $title"
-    & adb connect $Watch 2>&1 | Out-Null
+    Connect-Watch
     Invoke-Adb @('logcat', '-c') | Out-Null
     Invoke-Adb @('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP') | Out-Null
     $started = Invoke-Adb (@('shell', 'am', 'start', '-n', "$pkg/.wear.debug.probe.ProbeFrontActivity") + $extra)
     if (($started -join ' ') -match 'Error|does not exist|Exception') { throw "the front screen could not be started: $($started -join ' ')" }
-    Start-Sleep -Seconds $RunSec
-    & adb connect $Watch 2>&1 | Out-Null
+    Wait-Phase $RunSec
+    Connect-Watch
     Start-Sleep -Seconds $ReportWaitSec
     Invoke-Adb @('logcat', '-d', '-s', 'PROBE:I') | Where-Object { $_ -match 'PROBE front' } | ForEach-Object { Log $_ }
     Invoke-Adb @('shell', 'dumpsys', 'activity', 'activities') | Where-Object { $_ -match 'mResumedActivity|topResumedActivity' } |
@@ -79,7 +79,7 @@ try {
     $failed = $true
     Log "FAILED: $_"
 } finally {
-    & adb connect $Watch 2>&1 | Out-Null
+    Connect-Watch
     if ($savedTimeout) { Invoke-Adb @('shell', 'settings', 'put', 'system', 'screen_off_timeout', $savedTimeout) | Out-Null }
     Log "screen timeout restored to $savedTimeout; result file: $(Split-Path -Leaf $script:LogFile)"
 }

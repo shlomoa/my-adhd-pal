@@ -27,7 +27,7 @@ function Invoke-Adb([string[]]$AdbArgs) {
         $text = @(& adb @AdbArgs 2>&1 | ForEach-Object { "$_" })
         if ($LASTEXITCODE -eq 0 -or ($text -join ' ') -notmatch 'offline|no devices|not found|cannot connect|closed|unauthorized') { return $text }
         Log "adb dropped ($($AdbArgs -join ' ')): reconnecting, try $try"
-        & adb connect $Watch 2>&1 | Out-Null
+        Connect-Watch
         Start-Sleep -Seconds 1
     }
     return $text
@@ -52,7 +52,12 @@ function Initialize-Probe([string]$Prefix) {
     $script:LogFile = Join-Path $OutDir ("$Prefix-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.txt')
     Log "$Prefix result file: $(Split-Path -Leaf $script:LogFile)"
     Write-Host "result file: $script:LogFile"
-    & adb connect $Watch 2>&1 | Out-Null
+    $script:UnreachableSec = 0
+    $script:WatchIp = if (Test-MdnsName $Watch) { $null } else { ($Watch -split ':')[0] }
+    if (-not (Test-MdnsName $Watch)) { & adb connect $Watch 2>&1 | Out-Null }
+    # the device serial number is in the mDNS name; it is kept in memory only (never written to the result file)
+    $sn = (& adb shell getprop ro.serialno 2>&1 | Out-String).Trim()
+    $script:WatchSerialNo = if ($sn -match '^[A-Za-z0-9]{6,}$') { $sn } else { $null }
 }
 
 # Refuses a watch that is charging (the battery drop would be hidden); logs the battery level before. Exits 3 when refused.
@@ -71,19 +76,105 @@ function Ask([string]$question) {
     Read-Host 'Press Enter when done' | Out-Null
 }
 
+# The mDNS service name of a watch in `adb devices` (adb-<serial>-<id>._adb-tls-connect._tcp): it does not change with the port.
+function Test-MdnsName([string]$address) { return ($address -match '^adb-.+_adb-tls-connect\._tcp$') }
+
+# adb connect to the current watch address (not for an mDNS name: that is not connectable).
+function Connect-Watch { if (-not (Test-MdnsName $script:Watch)) { & adb connect $script:Watch 2>&1 | Out-Null } }
+
+# One try to reach the watch at $address: adb connect (not for an mDNS name) and a trivial shell command. True when the watch answered.
+function Test-Watch([string]$address) {
+    if (-not (Test-MdnsName $address)) { & adb connect $address 2>&1 | Out-Null }
+    $answer = (& adb -s $address shell echo ok 2>&1 | Out-String)
+    return ($LASTEXITCODE -eq 0 -and $answer -match 'ok')
+}
+
+# Uses $address from now on: the watch address of this script, ANDROID_SERIAL for every adb call. Logs the change without the ip.
+function Use-Watch([string]$address) {
+    $old = $script:Watch
+    $script:Watch = $address
+    $env:ANDROID_SERIAL = $address
+    if (Test-MdnsName $address) { Log 'address changed: now by mDNS name'; return }
+    $newPort = ($address -split ':')[-1]
+    if (Test-MdnsName $old) { Log "address changed: now on port $newPort" } else { Log ("address changed: port " + ($old -split ':')[-1] + " -> $newPort") }
+}
+
+# The wireless-debugging port can change when Wi-Fi goes off and on. Looks for the same ip with another port in `adb mdns services`
+# and `adb devices`, then for the mDNS name of this watch (its serial number) in `adb devices`, and tries each. Returns true when the
+# watch answered (it is then used for the rest of the run).
+function Find-Watch {
+    $seen = (& adb mdns services 2>&1 | Out-String) + (& adb devices 2>&1 | Out-String)
+    if ($script:WatchIp) {
+        $ports = [regex]::Matches($seen, [regex]::Escape($script:WatchIp) + ':(\d+)') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique
+        foreach ($port in $ports) {
+            if ("$($script:WatchIp):$port" -eq $script:Watch) { continue }
+            if (Test-Watch "$($script:WatchIp):$port") { Use-Watch "$($script:WatchIp):$port"; return $true }
+        }
+    }
+    if ($script:WatchSerialNo) {
+        $names = [regex]::Matches($seen, 'adb-' + [regex]::Escape($script:WatchSerialNo) + '-\S+_adb-tls-connect\._tcp') | ForEach-Object { $_.Value } | Select-Object -Unique
+        foreach ($name in $names) {
+            if ($name -eq $script:Watch) { continue }
+            if (Test-Watch $name) { Use-Watch $name; return $true }
+        }
+    }
+    return $false
+}
+
+# Asks ONCE per run for the new ip:port (not with -Unattended). A valid answer is tried; the typed text is never logged
+# (it holds the ip address). Returns true when the watch answered at the typed address.
+function Ask-Watch {
+    if ($Unattended -or $script:AskedWatch) { return $false }
+    $script:AskedWatch = $true
+    Log 'The watch cannot be reached and was not found on another port.'
+    $answer = Read-Host 'Which address does the watch show now (Settings > Developer options > Wireless debugging, ip:port)? Enter gives up'
+    if ($answer -notmatch '^\d+\.\d+\.\d+\.\d+:\d+$') { Log 'no valid address given'; return $false }
+    if (-not (Test-Watch $answer)) { Log 'the watch did not answer at the given address'; return $false }
+    Use-Watch $answer
+    return $true
+}
+
 # Tries to reach the watch over wireless adb: adb connect and a trivial shell command, every $ReconnectRetrySec seconds, up to
-# $ReconnectSec seconds (defaults 5 and 120). Returns true when the watch answered.
+# $ReconnectSec seconds (defaults 5 and 120). When that fails it looks for the watch on another port (Find-Watch) and then asks the
+# user once for the address (Ask-Watch). Returns true when the watch answered.
 function Wait-Adb {
     $limit = if ($null -ne $ReconnectSec) { $ReconnectSec } else { 120 }
     $every = if ($null -ne $ReconnectRetrySec) { $ReconnectRetrySec } else { 5 }
     $attempts = [Math]::Max(1, [int][Math]::Ceiling($limit / [Math]::Max($every, 0.01)))
-    for ($i = 1; $i -le $attempts; $i++) {
-        & adb connect $Watch 2>&1 | Out-Null
-        $answer = (& adb shell echo ok 2>&1 | Out-String)
-        if ($LASTEXITCODE -eq 0 -and $answer -match 'ok') { return $true }
+    if (Test-Watch $script:Watch) { return $true }
+    $lost = Get-Date
+    $found = $false
+    for ($i = 2; $i -le $attempts -and -not $found; $i++) {
         Start-Sleep -Seconds $every
+        $found = Test-Watch $script:Watch
     }
-    return $false
+    if (-not $found) { $found = (Find-Watch) }
+    if (-not $found) { $found = (Ask-Watch) }
+    Add-Unreachable ((Get-Date) - $lost).TotalSeconds
+    return $found
+}
+
+# Adds seconds to the time the watch was unreachable and logs the episode.
+function Add-Unreachable([double]$seconds) {
+    $script:UnreachableSec += $seconds
+    Log ("watch was unreachable for " + [int][Math]::Round($seconds) + " s")
+}
+
+# A wait of $sec seconds cut into slices of $env:PROBE_KEEPALIVE_SEC (default 30): after each slice adb connect keeps the connection
+# alive, and a watch that was lost is looked for (no question is asked here).
+function Wait-Phase([double]$sec) {
+    $slice = if ($env:PROBE_KEEPALIVE_SEC) { [double]$env:PROBE_KEEPALIVE_SEC } else { 30 }
+    $end = (Get-Date).AddSeconds($sec)
+    while ($true) {
+        $left = ($end - (Get-Date)).TotalSeconds
+        if ($left -le 0) { break }
+        $began = Get-Date
+        Start-Sleep -Seconds ([Math]::Min($left, $slice))
+        if (((Get-Date) -ge $end)) { break }
+        if (-not (Test-Watch $script:Watch)) {
+            if (-not (Find-Watch)) { $script:UnreachableSec += ((Get-Date) - $began).TotalSeconds }
+        }
+    }
 }
 
 # Report when the watch may be unreachable (Wi-Fi off in a mode): waits for it, and logs that no report was possible instead of failing.
@@ -144,7 +235,7 @@ function Save-LiveLines {
 # adb connect, logcat -c, the report, then the new PROBE lines and whether the notification is listed.
 # Returns the reading count of the "screen=all" line (-1 when there is none).
 function Report([string]$phase) {
-    & adb connect $Watch 2>&1 | Out-Null
+    Connect-Watch
     Save-LiveLines
     Invoke-Adb @('logcat', '-c') | Out-Null
     Probe 'measure-report'
@@ -166,9 +257,10 @@ function Log-Permissions {
 
 # The end of a run: stop the service, log the battery after.
 function Stop-ProbeService {
-    & adb connect $Watch 2>&1 | Out-Null
+    if (-not (Wait-Adb)) { Log 'the watch could not be reached over adb: the service may still be running; stop it on the watch' }
     Save-LiveLines
     Probe 'measure-stop'
+    Log ("watch unreachable in total: " + [int][Math]::Round($script:UnreachableSec) + " s")
     Log ("battery after: " + (BatteryLevel (BatteryText)))
 }
 
