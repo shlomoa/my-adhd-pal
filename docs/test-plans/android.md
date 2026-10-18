@@ -185,6 +185,17 @@ repositories exist (G3).
 | TC-A-087 | `MainActivity` shows both screens from the real Hilt graph | Unit (Hilt + Compose, fake Data Layer client) | "Never synced" on the link tab; the empty-history message on the History tab |
 | TC-A-088 | The user sees the link state and the arriving acknowledgement on the real devices | Manual | Link state changes with Bluetooth/distance; an acknowledgement from the watch appears in History |
 
+## Demo alert trace (debug only)
+
+| ID | What | How | Pass criteria |
+|---|---|---|---|
+| TC-A-140 | An observer sees each new alert stored (newest first, as the history lists them) and only the newest raised | Unit | Order `stored a-2`, `stored a-1`, `raised a-2` with the plan's sound flag |
+| TC-A-141 | Alerts already in the history at the first run are not reported | Unit | No observer call |
+| TC-A-142 | A new alert logs `DEMO alert stored ...` and `DEMO alert raised ...` live | Unit | The two exact lines |
+| TC-A-143 | `DUMP_ALERTS` lists every alert row with the times seen so far, `none` for the rest, then the end line | Unit | Exact lines in history order |
+| TC-A-144 | An empty dump logs only the end line; no line holds a health value | Unit | `DEMO alerts end count=0`; no bpm or metric text |
+| TC-A-145 | The alerts receiver is exported and needs the DUMP permission | Unit (Robolectric) | One receiver for the action, permission `android.permission.DUMP` |
+
 ## Final (A-final)
 
 | Id | Case | How | Pass criteria |
