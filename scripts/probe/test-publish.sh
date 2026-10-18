@@ -4,6 +4,7 @@
 # repository with a bare "origin". Needs PowerShell 7 as `pwsh` (or set PWSH). It does NOT prove git behaviour with the user's
 # credentials. Run: scripts/probe/test-publish.sh
 set -u
+export PROBE_STABLE_SEC="${PROBE_STABLE_SEC:-1}"
 here="$(cd "$(dirname "$0")" && pwd)"
 PWSH="${PWSH:-pwsh}"
 fail=0

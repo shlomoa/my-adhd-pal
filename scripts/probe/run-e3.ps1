@@ -69,7 +69,7 @@ function Judge([string]$what, [int]$before, [int]$after) {
 }
 
 Initialize-Probe 'e3'
-Test-NotCharging
+Test-Preflight
 
 $failed = $false
 try {

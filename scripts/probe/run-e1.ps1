@@ -61,7 +61,7 @@ function Phase([string]$phase, [string]$what) {
 }
 
 Initialize-Probe 'e1'
-Test-NotCharging
+Test-Preflight
 
 $failed = $false
 $savedTimeout = $null

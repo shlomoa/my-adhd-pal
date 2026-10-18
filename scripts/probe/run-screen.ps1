@@ -93,7 +93,7 @@ function Get-ScreenState {
 }
 
 Initialize-Probe 'screen'
-Test-NotCharging
+Test-Preflight
 
 $failed = $false
 try {

@@ -40,7 +40,7 @@ check "TC-W-213 a healthy watch passes the pre-flight and the run exits 0" 0 $rc
 grep -q 'preflight: ok' "$result"; check "TC-W-213 the file says the pre-flight was ok" 0 $?
 [ "$(grep -c 'logcat -g' "$tmp/state/calls")" -ge 1 ] && grep -q 'log buffer' "$result"; check "TC-W-213 the log buffer is set and read back" 0 $?
 
-FAKE_FAIL=dead ORIGIN=good run "${FAST[@]}" -ReconnectSec 1
+FAKE_FAIL=dead ORIGIN=good run "${FAST[@]}"
 [ "$rc" -eq 3 ] && [ "$(grep -c 'PREFLIGHT FAILED' "$tmp/stdout")" -eq 1 ] && grep -q 'the watch cannot be reached' "$tmp/stdout"; check "TC-W-214 an unreachable watch: ONE message, exit 3" 0 $?
 [ "$(count 'pm grant|pm revoke|am start')" -eq 0 ]; check "TC-W-214 no step ran after a failed pre-flight" 0 $?
 FAKE_CHARGING=1 ORIGIN=good run "${FAST[@]}"
