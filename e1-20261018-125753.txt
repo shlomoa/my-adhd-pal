@@ -1,0 +1,90 @@
+2026-10-18 12:57:53 e1 result file: e1-20261018-125753.txt
+2026-10-18 12:57:55 battery before: 42
+2026-10-18 12:57:56 screen timeout was 600000, set to 720000
+2026-10-18 12:57:56 background permission GRANTED by -GrantBackgroundPermission
+2026-10-18 12:57:58 10-18 12:57:57.153 16946 16946 I PROBE   : measure capabilities heartRateMeasure=true
+2026-10-18 12:57:59 permission: android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND
+2026-10-18 12:57:59 permission: android.permission.health.READ_HEART_RATE
+2026-10-18 12:57:59 permission: android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+2026-10-18 12:57:59 permission: android.permission.health.READ_HEART_RATE: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+2026-10-18 12:57:59 Check that the Always On Display is ON (phase B needs it): Settings > Display > Always On Display.
+2026-10-18 13:00:24 service registered and AVAILABLE
+2026-10-18 13:00:25 == phase A (screen on) for 600 s
+2026-10-18 13:10:25 live: 10-18 12:57:46.457 16946 16946 I PROBE   : PROBE measure live minute=198 arrivals=0 sincePrevLineSec=114 sinceLastArrivalSec=166 screen=off
+2026-10-18 13:10:25 live: 10-18 13:02:33.201 16946 16946 I PROBE   : PROBE measure live minute=2 arrivals=14 sincePrevLineSec=128 sinceLastArrivalSec=114 screen=doze
+2026-10-18 13:10:25 live: 10-18 13:04:43.898 16946 16946 I PROBE   : PROBE measure live minute=4 arrivals=0 sincePrevLineSec=130 sinceLastArrivalSec=245 screen=doze
+2026-10-18 13:10:25 live: 10-18 13:07:12.051 16946 16946 I PROBE   : PROBE measure live minute=6 arrivals=0 sincePrevLineSec=148 sinceLastArrivalSec=393 screen=doze
+2026-10-18 13:10:25 live: 10-18 13:09:45.975 16946 16946 I PROBE   : PROBE measure live minute=9 arrivals=0 sincePrevLineSec=153 sinceLastArrivalSec=547 screen=doze
+2026-10-18 13:10:29 == report A
+2026-10-18 13:10:31 --------- beginning of main
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure screen=all readings=585 perMin=58.4 gapSec median=0 p95=0 max=574
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure screen=on readings=585 gapSec median=0 p95=0 max=574
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure battery start=42 now=40 dropPerHour=12.0
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure callbacks=19 maxPerCallback=567
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure samples screen=on readings=585 sampleGapSec max=5 delaySec median=274.4 p95=537.4 max=568.4
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure arrivalsPerMin 14,0,0,0,0,0,0,0,0,571
+2026-10-18 13:10:31 10-18 13:10:25.996 16946 16946 I PROBE   : PROBE measure samplesPerMin 53,60,60,60,60,60,60,60,60,52
+2026-10-18 13:10:31 notification visible: True
+2026-10-18 13:10:31 == phase B (display dim) for 600 s
+2026-10-18 13:20:32 live: 10-18 13:12:03.915 16946 16946 I PROBE   : PROBE measure live minute=11 arrivals=571 sincePrevLineSec=137 sinceLastArrivalSec=107 screen=doze
+2026-10-18 13:20:32 live: 10-18 13:14:04.787 16946 16946 I PROBE   : PROBE measure live minute=13 arrivals=0 sincePrevLineSec=120 sinceLastArrivalSec=228 screen=doze
+2026-10-18 13:20:32 live: 10-18 13:16:07.248 16946 16946 I PROBE   : PROBE measure live minute=15 arrivals=282 sincePrevLineSec=122 sinceLastArrivalSec=65 screen=doze
+2026-10-18 13:20:32 live: 10-18 13:18:25.439 16946 16946 I PROBE   : PROBE measure live minute=18 arrivals=0 sincePrevLineSec=138 sinceLastArrivalSec=204 screen=doze
+2026-10-18 13:20:35 == report B
+2026-10-18 13:20:35 --------- beginning of main
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure screen=all readings=867 perMin=43.1 gapSec median=0 p95=0 max=574
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure screen=on readings=585 gapSec median=0 p95=0 max=574
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure screen=doze readings=282 gapSec median=0 p95=0 max=285
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure availability ACQUIRING atSec=1009
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure availability ACQUIRING atSec=1010
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure battery start=42 now=38 dropPerHour=11.9
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure callbacks=20 maxPerCallback=567
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure samples screen=on readings=585 sampleGapSec max=5 delaySec median=274.4 p95=537.4 max=568.4
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure samples screen=doze readings=282 sampleGapSec max=3 delaySec median=140.7 p95=267.2 max=281.2
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure arrivalsPerMin 14,0,0,0,0,0,0,0,0,571,0,0,0,0,282
+2026-10-18 13:20:35 10-18 13:20:32.494 16946 16946 I PROBE   : PROBE measure samplesPerMin 53,60,60,60,60,60,60,60,60,57,60,60,60,60,37
+2026-10-18 13:20:36 notification visible: True
+2026-10-18 13:20:36 Turn the Always On Display OFF now (phase C needs the screen off): Settings > Display > Always On Display.
+2026-10-18 13:44:29 == phase C (screen off) for 600 s
+2026-10-18 13:54:30 live: 10-18 13:20:40.255 16946 16946 I PROBE   : PROBE measure live minute=20 arrivals=0 sincePrevLineSec=134 sinceLastArrivalSec=338 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:23:01.335 16946 16946 I PROBE   : PROBE measure live minute=22 arrivals=462 sincePrevLineSec=141 sinceLastArrivalSec=10 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:25:42.167 16946 16946 I PROBE   : PROBE measure live minute=25 arrivals=13 sincePrevLineSec=160 sinceLastArrivalSec=159 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:28:07.598 16946 16946 I PROBE   : PROBE measure live minute=27 arrivals=0 sincePrevLineSec=145 sinceLastArrivalSec=304 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:30:55.192 16946 16946 I PROBE   : PROBE measure live minute=30 arrivals=0 sincePrevLineSec=167 sinceLastArrivalSec=472 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:33:33.191 16946 16946 I PROBE   : PROBE measure live minute=33 arrivals=567 sincePrevLineSec=157 sinceLastArrivalSec=23 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:35:57.185 16946 16946 I PROBE   : PROBE measure live minute=35 arrivals=112 sincePrevLineSec=143 sinceLastArrivalSec=56 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:38:41.134 16946 16946 I PROBE   : PROBE measure live minute=38 arrivals=0 sincePrevLineSec=163 sinceLastArrivalSec=220 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:41:04.759 16946 16946 I PROBE   : PROBE measure live minute=40 arrivals=272 sincePrevLineSec=143 sinceLastArrivalSec=89 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:43:55.222 16946 16946 I PROBE   : PROBE measure live minute=43 arrivals=0 sincePrevLineSec=170 sinceLastArrivalSec=259 screen=doze
+2026-10-18 13:54:30 live: 10-18 13:45:01.982 16946 16946 I PROBE   : PROBE measure live minute=44 arrivals=324 sincePrevLineSec=66 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:30 live: 10-18 13:46:01.985 16946 16946 I PROBE   : PROBE measure live minute=45 arrivals=58 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:30 live: 10-18 13:47:01.987 16946 16946 I PROBE   : PROBE measure live minute=46 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:30 live: 10-18 13:48:01.990 16946 16946 I PROBE   : PROBE measure live minute=47 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:30 live: 10-18 13:49:01.997 16946 16946 I PROBE   : PROBE measure live minute=48 arrivals=59 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:30 live: 10-18 13:50:02.002 16946 16946 I PROBE   : PROBE measure live minute=49 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:30 live: 10-18 13:51:02.010 16946 16946 I PROBE   : PROBE measure live minute=50 arrivals=60 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:30 live: 10-18 13:52:02.017 16946 16946 I PROBE   : PROBE measure live minute=51 arrivals=59 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:30 live: 10-18 13:53:02.058 16946 16946 I PROBE   : PROBE measure live minute=52 arrivals=21 sincePrevLineSec=60 sinceLastArrivalSec=39 screen=on
+2026-10-18 13:54:30 live: 10-18 13:54:02.067 16946 16946 I PROBE   : PROBE measure live minute=53 arrivals=59 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on
+2026-10-18 13:54:34 == report C
+2026-10-18 13:54:34 --------- beginning of main
+2026-10-18 13:54:34 10-18 13:54:31.166 16946 16946 I PROBE   : PROBE measure screen=all readings=3141 perMin=58.1 gapSec median=0 p95=1 max=607
+2026-10-18 13:54:34 10-18 13:54:31.166 16946 16946 I PROBE   : PROBE measure screen=on readings=2177 gapSec median=0 p95=1 max=574
+2026-10-18 13:54:34 10-18 13:54:31.166 16946 16946 I PROBE   : PROBE measure screen=doze readings=964 gapSec median=0 p95=0 max=607
+2026-10-18 13:54:34 10-18 13:54:31.167 16946 16946 I PROBE   : PROBE measure availability ACQUIRING atSec=0
+2026-10-18 13:54:34 10-18 13:54:31.167 16946 16946 I PROBE   : PROBE measure availability AVAILABLE atSec=0
+2026-10-18 13:54:34 10-18 13:54:31.167 16946 16946 I PROBE   : PROBE measure availability ACQUIRING atSec=1009
+2026-10-18 13:54:34 10-18 13:54:31.167 16946 16946 I PROBE   : PROBE measure availability ACQUIRING atSec=1010
+2026-10-18 13:54:34 10-18 13:54:31.167 16946 16946 I PROBE   : PROBE measure battery start=42 now=30 dropPerHour=13.3
+2026-10-18 13:54:34 10-18 13:54:31.167 16946 16946 I PROBE   : PROBE measure callbacks=605 maxPerCallback=567
+2026-10-18 13:54:34 10-18 13:54:31.167 16946 16946 I PROBE   : PROBE measure samples screen=on readings=2177 sampleGapSec max=41 delaySec median=120.0 p95=461.0 max=568.4
+2026-10-18 13:54:34 10-18 13:54:31.168 16946 16946 I PROBE   : PROBE measure samples screen=doze readings=964 sampleGapSec max=23 delaySec median=184.6 p95=523.1 max=601.1
+2026-10-18 13:54:34 10-18 13:54:31.168 16946 16946 I PROBE   : PROBE measure arrivalsPerMin 14,0,0,0,0,0,0,0,0,571,0,0,0,0,282,0,0,0,0,0,0,0,475,0,0,0,0,0,0,0,0,0,567,0,112,0,0,0,0,272,0,0,0,286,60,59,60,59,60,60,59,58,22,59,6
+2026-10-18 13:54:34 10-18 13:54:31.168 16946 16946 I PROBE   : PROBE measure samplesPerMin 53,60,60,60,60,60,60,60,60,57,60,60,60,60,56,60,60,60,60,59,58,60,46,39,60,60,60,59,59,60,60,59,60,60,57,60,60,60,60,57,60,60,60,60,60,59,60,59,60,60,59,58,22,59,6
+2026-10-18 13:54:35 notification visible: True
+2026-10-18 13:54:35 battery after: 30
+2026-10-18 13:54:35 screen timeout restored to 600000; result file: e1-20261018-125753.txt
