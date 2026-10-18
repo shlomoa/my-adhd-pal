@@ -11,13 +11,13 @@ export GIT_AUTHOR_NAME=probe-test GIT_AUTHOR_EMAIL=probe-test@invalid GIT_COMMIT
 check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1 (expected $2, got $3)"; fail=1; fi; }
 . "$here/test-lib.sh"
 
-# run [extra args]: sets $rc, $tmp, $result, $secs (seconds the run took); HANGGIT=1 puts a git on the PATH that hangs on push
+# run [extra args]: sets $rc, $tmp, $result, $secs (seconds the run took); HANGGIT=1 puts a git on the PATH that hangs on every push except a dry run
 run() {
   make_repo
   git init -q --bare "$tmp/origin.git"; git -C "$tmp/repo" remote set-url origin "$tmp/origin.git"
   mkdir -p "$tmp/bin"
   real="$(command -v git)"
-  printf '#!/usr/bin/env bash\ncase " $* " in *" push "*) [ -n "${HANGGIT:-}" ] && exec sleep 600;; esac\nexec %s "$@"\n' "$real" > "$tmp/bin/git"; chmod +x "$tmp/bin/git"
+  printf '#!/usr/bin/env bash\ncase " $* " in *" --dry-run "*) ;; *" push "*) [ -n "${HANGGIT:-}" ] && exec sleep 600;; esac\nexec %s "$@"\n' "$real" > "$tmp/bin/git"; chmod +x "$tmp/bin/git"
   start=$SECONDS
   yes strong | head -80 | FAKE_DIR="$tmp/state" PATH="$tmp/bin:$tmp/repo/scripts/probe/fake:$PATH" timeout "${RUN_TIMEOUT:-200}" "$PWSH" -NoProfile -File "$tmp/repo/scripts/probe/run-e3.ps1" \
     -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -ReportWaitSec 0.2 -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended "$@" > "$tmp/stdout" 2>&1
@@ -36,6 +36,6 @@ grep -q 'PUSHED e3-results/' "$tmp/stdout"; check "TC-W-225 the result is publis
 
 # a hung git push at the end of the run: the run still ends and says where the file is
 HANGGIT=1 PROBE_GIT_TIMEOUT_SEC=2 PROBE_ADB_TIMEOUT_SEC=5 run
-grep -q 'Push failed' "$tmp/stdout" && grep -q "$result" "$tmp/stdout"; check "TC-W-226 a hung git push ends and names the local result file" 0 $?
+grep -q 'Push failed' "$tmp/stdout" && grep -q "$(basename "$result")" "$tmp/stdout" && grep -q 'timed out after 2' "$tmp/stdout"; check "TC-W-226 a hung git push ends and names the local result file" 0 $?
 [ "$secs" -lt 150 ]; check "TC-W-226 the run did not wait for the hung push" 0 $?
 exit $fail

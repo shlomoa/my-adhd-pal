@@ -25,7 +25,7 @@ function Log([string]$text) {
 # Runs adb; when the connection dropped (device offline, not found) reconnects and tries again, up to 3 times.
 function Invoke-Adb([string[]]$AdbArgs) {
     for ($try = 1; $try -le 3; $try++) {
-        $text = @(& adb @AdbArgs 2>&1 | ForEach-Object { "$_" })
+        $text = @(Run-Adb $AdbArgs)
         if ($LASTEXITCODE -eq 0 -or ($text -join ' ') -notmatch 'offline|no devices|not found|cannot connect|closed|unauthorized') { return $text }
         Log "adb dropped ($($AdbArgs -join ' ')): reconnecting, try $try"
         Connect-Watch
@@ -68,31 +68,46 @@ function Initialize-Probe([string]$Prefix) {
     $script:RunDone = $false
     $script:PendingRead = $null
     $script:WatchIp = if (Test-MdnsName $Watch) { $null } else { ($Watch -split ':')[0] }
-    if (-not (Test-MdnsName $Watch)) { & adb connect $Watch 2>&1 | Out-Null }
+    if (-not (Test-MdnsName $Watch)) { Run-Adb @('connect', $Watch) | Out-Null }
     # the device serial number is in the mDNS name; it is kept in memory only (never written to the result file)
-    $sn = (& adb shell getprop ro.serialno 2>&1 | Out-String).Trim()
+    $sn = ((Run-Adb @('shell', 'getprop', 'ro.serialno')) -join '').Trim()
     $script:WatchSerialNo = if ($sn -match '^[A-Za-z0-9]{6,}$') { $sn } else { $null }
 }
 
-# Runs `git` with a time limit (default 30 s) and no terminal prompt, so a stalled network or a credential question cannot hang a run.
-# Returns @{ Code; Text }; Code -1 means it timed out.
-function Invoke-GitTimeout([string[]]$GitArgs, [int]$TimeoutSec = 30) {
+# Runs a program with a hard time limit, no terminal prompt and its output captured. Returns @{ Code; Text }; Code -1 means it timed out
+# and the process was killed. A hung adb.exe or git must never hang a run.
+function Invoke-Native([string]$Exe, [string[]]$NativeArgs, [double]$TimeoutSec) {
     $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = 'git'
-    $psi.Arguments = ($GitArgs | ForEach-Object { '"' + ($_ -replace '"', '\"') + '"' }) -join ' '
+    $psi.FileName = $Exe
+    $psi.Arguments = ($NativeArgs | ForEach-Object { '"' + ($_ -replace '"', '\"') + '"' }) -join ' '
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.UseShellExecute = $false
     $psi.EnvironmentVariables['GIT_TERMINAL_PROMPT'] = '0'
-    $p = [System.Diagnostics.Process]::Start($psi)
+    try { $p = [System.Diagnostics.Process]::Start($psi) } catch { return @{ Code = 127; Text = "$Exe could not be started: $_" } }
     $out = $p.StandardOutput.ReadToEndAsync()
     $err = $p.StandardError.ReadToEndAsync()
-    if (-not $p.WaitForExit($TimeoutSec * 1000)) {
+    if (-not $p.WaitForExit([int]($TimeoutSec * 1000))) {
         try { $p.Kill() } catch { }
-        return @{ Code = -1; Text = "git timed out after $TimeoutSec s" }
+        return @{ Code = -1; Text = "timed out after $TimeoutSec s" }
     }
     $p.WaitForExit()
     return @{ Code = $p.ExitCode; Text = ($out.Result + $err.Result) }
+}
+
+function Invoke-GitTimeout([string[]]$GitArgs, [int]$TimeoutSec = 0) {
+    if (-not $TimeoutSec) { $TimeoutSec = if ($env:PROBE_GIT_TIMEOUT_SEC) { [int]$env:PROBE_GIT_TIMEOUT_SEC } else { 30 } }
+    return (Invoke-Native 'git' $GitArgs $TimeoutSec)
+}
+
+# adb with a hard time limit (PROBE_ADB_TIMEOUT_SEC, default 30). Returns the output lines and sets $LASTEXITCODE (-1 = timed out; logged,
+# with the first words of the command only, so no address reaches the file).
+function Run-Adb([string[]]$AdbArgs) {
+    $sec = if ($env:PROBE_ADB_TIMEOUT_SEC) { [double]$env:PROBE_ADB_TIMEOUT_SEC } else { 30 }
+    $r = Invoke-Native 'adb' $AdbArgs $sec
+    $global:LASTEXITCODE = $r.Code
+    if ($r.Code -eq -1) { Log ("adb timed out after $sec s (" + (($AdbArgs | Where-Object { $_ -notmatch '[:.]\d' } | Select-Object -First 3) -join ' ') + ")") }
+    return @($r.Text -split "`r?`n" | Where-Object { $_ -ne '' })
 }
 
 # One commit without a parent that holds only $file (entry name $entry), built with git plumbing and a temporary index, so the working
@@ -142,7 +157,7 @@ function Test-Preflight {
         $checks = 0; $bad = 0
         do {
             $checks++
-            $answer = (& adb shell echo ok 2>&1 | Out-String)
+            $answer = (Run-Adb @('shell', 'echo', 'ok')) -join ' '
             if ($LASTEXITCODE -ne 0 -or $answer -notmatch 'ok') { $bad++ }
             if ((Get-Date) -lt $until) { Start-Sleep -Seconds $every }
         } while ((Get-Date) -lt $until)
@@ -298,12 +313,12 @@ function Finish-Run([string]$Prefix, [bool]$failed) {
 function Test-MdnsName([string]$address) { return ($address -match '^adb-.+_adb-tls-connect\._tcp$') }
 
 # adb connect to the current watch address (not for an mDNS name: that is not connectable).
-function Connect-Watch { if (-not (Test-MdnsName $script:Watch)) { & adb connect $script:Watch 2>&1 | Out-Null } }
+function Connect-Watch { if (-not (Test-MdnsName $script:Watch)) { Run-Adb @('connect', $script:Watch) | Out-Null } }
 
 # One try to reach the watch at $address: adb connect (not for an mDNS name) and a trivial shell command. True when the watch answered.
 function Test-Watch([string]$address) {
-    if (-not (Test-MdnsName $address)) { & adb connect $address 2>&1 | Out-Null }
-    $answer = (& adb -s $address shell echo ok 2>&1 | Out-String)
+    if (-not (Test-MdnsName $address)) { Run-Adb @('connect', $address) | Out-Null }
+    $answer = (Run-Adb @('-s', $address, 'shell', 'echo', 'ok')) -join ' '
     return ($LASTEXITCODE -eq 0 -and $answer -match 'ok')
 }
 
@@ -321,7 +336,7 @@ function Use-Watch([string]$address) {
 # and `adb devices`, then for the mDNS name of this watch (its serial number) in `adb devices`, and tries each. Returns true when the
 # watch answered (it is then used for the rest of the run).
 function Find-Watch {
-    $seen = (& adb mdns services 2>&1 | Out-String) + (& adb devices 2>&1 | Out-String)
+    $seen = ((Run-Adb @('mdns', 'services')) -join "`n") + "`n" + ((Run-Adb @('devices')) -join "`n")
     if ($script:WatchIp) {
         $ports = [regex]::Matches($seen, [regex]::Escape($script:WatchIp) + ':(\d+)') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique
         foreach ($port in $ports) {
@@ -505,8 +520,8 @@ function Publish-Result([string]$Prefix) {
         $repo = Get-RepoRoot
         if (-not $repo) { throw 'the script is not inside a git checkout' }
         $commit = New-FileCommit $repo $script:LogFile $name "$Prefix result $stamp"
-        $pushOutput = (& git -C $repo push origin "${commit}:refs/heads/$branch" 2>&1 | Out-String)
-        if ($LASTEXITCODE -ne 0) { throw "git push said: $pushOutput" }
+        $push = Invoke-GitTimeout @('-C', $repo, 'push', 'origin', "${commit}:refs/heads/$branch")
+        if ($push.Code -ne 0) { throw "git push said: $($push.Text)" }
         Write-Host "PUSHED $branch"
     } catch {
         Write-Host "Push failed ($_). The result file is $script:LogFile (branch $branch)."
