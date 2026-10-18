@@ -25,6 +25,18 @@ To feel and see the reminder yourself, add `-WaitForTap`: the script does not pr
 the watch (Done, Snooze, Start 2 min or Dismiss). The Done stage then names the action you tapped and the Ack stage checks that
 action in the phone history. Without a tap in time the Done stage fails and the Ack stage is not run.
 
+## Phone screens without a device
+
+[`demo/phone/index.md`](demo/phone/index.md) shows every screen of the phone app as an image: the five watch link states,
+the alert permission card, history (full, empty, failed), settings, the Ask form, tasks (full, empty) and the alert screen.
+They are rendered from the real Compose code with fixed example data, on a JVM with no phone. To refresh them:
+
+```text
+./gradlew :phone:testDebugUnitTest --tests "*PhoneScreensTest*"
+```
+
+then copy `phone/build/screens/*` to `docs/demo/phone/`.
+
 ## Stages
 
 | Stage | What is checked | Where it is read from |
