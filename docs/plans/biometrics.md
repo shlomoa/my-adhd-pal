@@ -626,6 +626,8 @@ Two runs of `run-e1.ps1` on the same watch, both worn, with the sample time of e
 | Availability | `ACQUIRING` twice at 4484 s, no `AVAILABLE` afterwards, samples continued | `ACQUIRING` twice at 1009 and 1010 s, no `AVAILABLE` afterwards, samples continued |
 | Battery (whole percent) | 69 to 42 in 198 min, 8.2 per hour | 42 to 30 in 54 min, 13.3 per hour (about 10 minutes of it with the screen on) |
 
+**Phases A and C of both E1 runs were NOT controlled screen states.** The script cannot keep the screen on or off (the screen timeout set to 720000 ms did not hold it, and the sleep key did not turn the screen off in run 2). The screen state of a phase is the state the watch chose, as the `screen=` field and the live lines show. From these two runs only two things count: the delivery pattern with the display in `doze` or `off`, and the comparison of the background permission revoked and granted. The "screen on" figures (1 reading per second, delay at most 1 s) are what happened while the watch itself had the screen on, for 7.6 minutes in run 1 and 10 minutes at the end of run 2; they are not a measurement of a screen kept on for a chosen time.
+
 What these numbers show without interpretation:
 
 - The sensor produced a sample about every second in every minute of both runs, in every screen state; the arrival times differ by state.
