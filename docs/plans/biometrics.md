@@ -18,7 +18,7 @@ separate one-line PR. Research notes: [`../research/watch.md`](../research/watch
 
 | Route | Measured on the user's watch | Against the words above |
 |---|---|---|
-| Live `MeasureClient` while the app runs (section 11) | About 2 readings per second, screen on; dim, off and 30 minutes not measured yet (section 12.3) | The candidate; confirmed by the probe of section 11.5 |
+| Live `MeasureClient` while the app runs (section 11) | About 2 readings per second with the screen on; display dim or off: readings in bursts, delay median 184.6 to 278.1 s (section 12.3, 12.3.1) | Screen on: reading to app within about a second; dim and off: not "immediately" as measured (12.3.1) |
 | Passive background listener | A delivery about every 10 minutes (section 6, section 12.3) | Not "immediately" |
 
 When the app is not running nothing is measured (D9).
@@ -39,7 +39,7 @@ on the real watch (section 6).
 | D3 | Threshold | Decided | Relative: **resting heart rate + offset**. Default offset **30 bpm**; the offset is a phone setting, range **20 to 50**. The baseline is the **20th percentile of the hourly lows of the last 7 days** (Decided, section 2); until a baseline exists the threshold is an absolute **110 bpm** (Decided). |
 | D4 | Cooldown and escalation | Decided | Cooldown **5 minutes**. If the rate is still above the threshold when it ends, raise a **different, stronger** alert (escalation level), not the same one again; after that, **every 2 minutes** while the rate stays above, at most **6 repeats** per episode (Decided). Details: section 3. |
 | D5 | The alert itself | Decided, details open | Strong enough to break the state: maximum-amplitude repeating vibration, a screen wake with a large full-screen alert, optional sound, stronger at the escalation level. **The phone raises the same kind of alert** (it vibrates and flashes a full-screen alert, not only the watch). The full-screen alert has an **"I'm OK"** button that ends the episode (Decided). Sections 4 and 4a. |
-| D6 | Latency | Decided | **Measured latency** (section 12.3). Passive background route: readings delivered together about every 10 minutes (577 to 598 readings, window 580 to 599 s, arriving 0.4 to 11.5 s after the window closes; first run 318 readings after 7 min 41 s). Live `MeasureClient`, screen on: 734 readings in 5 minutes (about 2 per second), gap median under 1 s, 95th percentile 1 s, longest 60 s, AVAILABLE 4 s after start. Live with the display dim, off, and for 30 minutes: to be measured. Alert-to-phone latency: to be measured. |
+| D6 | Latency | Decided | **Measured latency** (section 12.3). Passive background route: readings delivered together about every 10 minutes (577 to 598 readings, window 580 to 599 s, arriving 0.4 to 11.5 s after the window closes; first run 318 readings after 7 min 41 s). Live `MeasureClient`, screen on: 734 readings in 5 minutes (about 2 per second), gap median under 1 s, 95th percentile 1 s, longest 60 s, AVAILABLE 4 s after start. Live with the display dim or off, and 30 minutes: measured, see 12.3.1 (delay median 184.6 to 278.1 s, longest about 603 s). Alert-to-phone latency: to be measured. |
 | D7 | Permission | Decided, feasibility checked | Requested from the **phone** app (onboarding). Section 5. |
 | D8 | Privacy | Decided | Raw readings are never logged in release builds; raw feed only in `wear/src/debug/`. `/alert` carries the numeric value (already accepted). |
 | D9 | When it measures | Decided (2026-10-17) | Heart rate is measured **only while the watch app is running**, started by the user; not as an always-on background service. Consequences and open points: section 11. |
@@ -461,7 +461,7 @@ not as an always-on background service. Nothing below is built. Where something 
 |---|---|---|---|---|
 | Passive listener service (background) | Yes | **No**: measured delay up to about 10 minutes (section 6) | Yes | Measured; not used for alerts |
 | Passive callback while the app runs | Yes | The page says "a slightly faster rate" than the service, not quantified | Yes | Unverified, not probed; not used |
-| Live `MeasureClient` while the app runs (11.1) | Yes: about 2 readings per second, screen on (section 12.3) | Yes: within about a second, screen on | Yes | Measured with the screen on; dim, off and 30 minutes open (11.5) |
+| Live `MeasureClient` while the app runs (11.1) | Samples about every second in every screen state (section 12.3); readings arrive about one per second with the screen on, in bursts with the display dim or off | Screen on: reading to app within about a second (12.3). Display dim or off: **no**, delay median 184.6 to 278.1 s, longest about 603 s (12.3.1) | Not measured (C4, C5, E7) | Measured (E2 record, 12.3.1): screen on met as measured; dim and off not met |
 | `ExerciseClient` | Yes | See the Google text in 11.1 | Yes | Not chosen: it is for workouts |
 
 ### 11.1 The live route: `MeasureClient`
@@ -516,7 +516,7 @@ not as an always-on background service. Nothing below is built. Where something 
 
 | Item | Before (passive route) | With D9 |
 |---|---|---|
-| Latency | Measured delay up to about 10 minutes (section 6) | Expected seconds (Unverified until probed) |
+| Latency | Measured delay up to about 10 minutes (section 6) | Live route, screen on: reading to app within about a second; display dim or off: delay median 184.6 to 278.1 s, longest about 603 s (12.3.1). Alert to phone: not measured (E7) |
 | Cooldown (5 min), level 2 every 2 min, cap 6, "I'm OK" | Decided | Unchanged |
 | Baseline (20th percentile of hourly lows, 7 days, after 24 values) | Accumulates around the clock | Accumulates **only while the app runs** |
 | Fallback 110 bpm | Until 24 hourly values | Until 24 hourly values exist; longer in calendar time |
@@ -639,8 +639,39 @@ What these numbers show without interpretation:
 Not measured: whether keeping the screen on (E4) keeps delivery at one per second for 10 minutes or longer; what sets the delivery period; the battery per screen state (whole-percent resolution, and the display state changed during the runs).
 
 Consequence: the passive background route delivers readings about every 10 minutes on this watch, so it does **not** meet "reported immediately". The live route delivers within
-about a second with the screen on. Not measured yet: the live route with the display dim (always-on) and with the screen off, 30 minutes worn, battery over a longer time,
-and whether the "Probe: measuring heart rate" notification is visible (the user saw no pop-up; the notification list was not checked).
+about a second with the screen on. The live route with the display dim and with the screen off was measured in E1 and E3; the record against the user's definition is in 12.3.1. Not measured: see "Not measured" in 12.3.1.
+
+#### 12.3.1 E2: the measurements against the user's definition (2026-10-18, issue #229)
+
+The user's definition, verbatim:
+
+1. "Heart rate is measured continuously."
+2. "Heart rate is compared to the baseline continuously."
+3. "A stress event is reported immediately and the local response is activated."
+
+The definition decides. The words "continuously" and "immediately" carry no number in the user's words; none is added here. The screen states are the states the watch chose (`screen=on`, `doze` = display dim, `off`); no run kept the screen on or really off for a chosen time. Sources: the rows of 12.3 above (PRs #252 and #253), the result file `e3-20261018-135439.txt` (branch `e3-results/20261018-135439`) and `e4-20261018-155230.txt` (branch `e4-results/20261018-155230`).
+
+| Screen state | 1 "measured continuously" | 2 "compared to the baseline continuously" | 3 "reported immediately, local response activated" |
+|---|---|---|---|
+| on | A sample about every second; longest gap between sample times 28 s (E1 re-run 1) and 41 s (re-run 2); E3 block 1, 10 min, `READ_HEALTH_DATA_IN_BACKGROUND` granted=false: 557 readings, gap median 1 s, 95th percentile 1 s, longest 2 s. Met as measured | Readings arrive about one per second (E1 re-run 1: 454 in 7.6 min; E3: 557 in 10 min). The evaluator fed by live readings does not exist yet (C5, #58). Arrival allows it; the comparison itself not measured | Delay sample time to arrival: E1 re-run 1 median 0.0 s, 95th percentile 0.1 s, at most 1 s; E3 median 0.0 s, 95th percentile 0.1 s, longest 14.2 s. Reading to app: met as measured. Report and local response (C4 #57, C5 #58) and the watch-to-phone alert (E7 #234): not measured |
+| display dim (`doze`) | About 60 samples in nearly every minute (198 min and 54 min); longest gap between sample times 24 s and 23 s. Met as measured (samples exist; they arrive late) | Readings arrive in callbacks of up to 600 readings; re-run 1 intervals between the large ones usually 10 minutes, re-run 2 intervals of 2 to 10 minutes. **Not met**: the comparison can only happen when readings arrive | Delay sample time to arrival: re-run 1 median 278.1 s, 95th percentile 563.3 s, longest 602.7 s; re-run 2 median 184.6 s, 95th percentile 523.1 s, longest 601.1 s; permission revoked or granted gave the same pattern. **Not met** |
+| screen off (`off`) | E1 re-run 1: longest gap between sample times 4 s. E3 (screen `off` from about minute 10 to 30): 775 readings, longest sample gap 30 s; the file's `samplesPerMin` shows 22, 0, 29 and 16 samples in minutes 26 to 29 at the time of the report, and whether they were delivered later is not in the file. Met in E1; E3 minutes 26 to 29: **not determined** | E3 arrivals per minute: 8 in minute 10, 0 in minutes 11 to 19 (nine minutes with no arrival), 581 in minute 20, then 54, 0, 0, 173, 0, 104, 0, 20, 25. **Not met** | Delay sample time to arrival: E1 re-run 1 median 216.2 s, 95th percentile 414.2 s, longest 435.2 s; E3 median 211.8 s, 95th percentile 563.8 s, longest 601.8 s. **Not met** |
+
+E3, 30 minutes with the background permission not granted: after 30 minutes the service was running and the readings had grown (1138 to 1514). E4, screen timeout set to 15000 ms, two runs of about 3 minutes each with the front screen `ProbeFrontActivity` (no heart-rate readings): in run 2 (keep-screen-on on) the user's answer to "did the screen stay on, and for how long? Did it dim?" is "yes, allthe time, no"; in run 1 (keep-screen-on off) the user's answer to what the always-on display showed is recorded as "KEEP SCREEN ON OFF"; the answers to the screen-timeout setting question and to whether the app comes to the front after tapping the notification are "unknown" and "unknow".
+
+**Not measured:**
+
+- Screen kept on for a chosen time against really off for a chosen time (the screen test was dropped by the user): the E1 phases A and C were not controlled screen states.
+- Sleep mode and Power saving: not measured, the watch was unreachable over adb during E3 (Sleep mode) and the battery after E3 is recorded as -1.
+- The watch's behaviour with the app in front for 10 minutes: the E4 runs lasted about 3 minutes and recorded no heart-rate readings.
+- The local response and the alert from the watch to the phone: not built (C4, C5), E7 (#234) not run.
+- The evaluator fed by live readings (C5): the comparison with the baseline was not run on live readings.
+
+**Items for the user's attention (failing measurements):**
+
+1. Display dim (`doze`): readings arrive in bursts, delay median 184.6 s to 278.1 s, longest about 603 s. "Reported immediately" and "compared to the baseline continuously" are not met in this state.
+2. Screen off (`off`): delay median 211.8 s to 216.2 s, longest 601.8 s; no arrival in nine consecutive minutes (E3 minutes 11 to 19). The same two parts are not met in this state.
+3. Screen on: the readings arrive within about a second as measured; parts 2 and 3 beyond the arrival in the app were not measured.
 
 ### 12.4 Other findings (from earlier sections)
 
@@ -652,8 +683,7 @@ and whether the "Probe: measuring heart rate" notification is visible (the user 
 
 ### 12.5 Direction
 
-1. The live route in a foreground service is the candidate that meets the definition; prove it with the live probe (checklist step 6): screen dim, screen off, 30 minutes, battery,
-   the notification, the 60 s gap.
-2. Until the route is decided, nothing is built on the passive background route.
+1. The live route in a foreground service was measured against the definition (12.3.1): with the screen on a reading reaches the app within about a second; with the display dim or off it does not meet "compared to the baseline continuously" or "reported immediately" as measured.
+2. Nothing is built on the passive background route.
 3. Deferred, low priority (notes only, user, 2026-10-17): other biometrics, and the "monitoring" status item.
 4. The Watch, Android and Shared lanes are stopped by the user until the route is decided; their open pull requests are not merged.
