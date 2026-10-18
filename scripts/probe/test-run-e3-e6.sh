@@ -21,7 +21,7 @@ run() {
   local script
   script="$(basename "$1")"; shift
   make_repo
-  yes strong | head -80 | FAKE_DIR="$tmp/state" PATH="$tmp/repo/scripts/probe/fake:$PATH" timeout "${RUN_TIMEOUT:-180}" "$PWSH" -NoProfile -File "$tmp/repo/scripts/probe/$script" \
+  yes "${STDIN_WORD:-strong}" | head -80 | FAKE_DIR="$tmp/state" PATH="$tmp/repo/scripts/probe/fake:$PATH" timeout "${RUN_TIMEOUT:-180}" "$PWSH" -NoProfile -File "$tmp/repo/scripts/probe/$script" \
     -SkipPush -Watch 192.168.1.16:41613 -OutDir "$tmp/out" -ReportWaitSec 0.2 "$@" > "$tmp/stdout" 2>&1
   rc=${PIPESTATUS[2]}
   result="$(ls "$tmp/out"/e[36]-*.txt 2>/dev/null | head -1)"
@@ -86,6 +86,31 @@ grep -q 'no report possible during power-saving-after-off' "$result" && grep -q 
 FAKE_AWAY_AFTER=4 FAKE_AWAY_CALLS=13 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
 check "TC-W-182 a watch that is away during Sleep mode: exit 0" 0 $rc
 grep -q 'no report possible during sleep-mode-end' "$result" && grep -q '== report sleep-mode-after-off' "$result"; check "TC-W-182 the in-mode report is logged as impossible and taken after the mode is off" 0 $?
+
+# the watch comes back on another wireless-debugging port (42000) after the 6th report: the old address never answers again
+FAKE_FAIL=portchange FAKE_AWAY_AFTER=6 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+check "TC-W-198 a watch that comes back on another port: exit 0" 0 $rc
+grep -q 'address changed: port 41613 -> 42000' "$result"; check "TC-W-198 the result file says the address changed (ports only)" 0 $?
+grep -q '== report power-saving-after-off' "$result" && grep -q 'power saving: readings grew: True' "$result"; check "TC-W-198 the report after power saving is taken on the new port" 0 $?
+! grep -q '192.168' "$result"; check "TC-W-198 the result file holds no ip address" 0 $?
+[ ! -s "$tmp/state/rejected" ]; check "TC-W-198 after the change every adb call uses the new address (none rejected)" 0 $?
+grep -q 'battery after: [0-9]' "$result"; check "TC-W-201 the end of the run reconnects: the service is stopped and the battery after is read" 0 $?
+[ "$(grep -c 'Which address' "$tmp/stdout")" -eq 0 ]; check "TC-W-198 nothing is asked when the device is found again" 0 $?
+
+# no mdns answer: the user is asked ONCE for the new address
+FAKE_FAIL=portchange,nomdns FAKE_AWAY_AFTER=6 STDIN_WORD=192.168.1.16:42000 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2
+check "TC-W-199 a watch that is not found but whose new address is typed: exit 0" 0 $rc
+[ "$(grep -c 'Which address' "$tmp/stdout")" -eq 1 ]; check "TC-W-199 the question for the new address is asked once" 0 $?
+grep -q 'address changed: port 41613 -> 42000' "$result" && grep -q 'power saving: readings grew: True' "$result"; check "TC-W-199 the typed address is used for the rest of the run" 0 $?
+! grep -q '192.168' "$result"; check "TC-W-199 the result file holds no ip address" 0 $?
+
+# an invalid or empty answer: logged, the run goes on without the report and does not fail
+FAKE_FAIL=portchange,nomdns FAKE_AWAY_AFTER=6 STDIN_WORD=nonsense run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2
+check "TC-W-200 an invalid address answer does not fail the run (exit 0)" 0 $rc
+[ "$(grep -c 'Which address' "$tmp/stdout")" -eq 1 ] && grep -q 'no valid address given' "$result" && grep -q 'no report possible during power-saving-after-off' "$result"; check "TC-W-200 asked once, the invalid answer is logged and the report is marked impossible" 0 $?
+! grep -q 'nonsense' "$result"; check "TC-W-200 the typed text is not copied into the result file" 0 $?
+FAKE_FAIL=portchange,nomdns FAKE_AWAY_AFTER=6 run "$E3" -BlockSec 1 -StateSec 1 -AvailableTimeoutSec 4 -ReconnectSec 2 -ReconnectRetrySec 0.2 -Unattended
+[ "$(grep -c 'Which address' "$tmp/stdout")" -eq 0 ] && [ "$rc" -eq 0 ]; check "TC-W-200 -Unattended never asks for the address" 0 $?
 
 # ---------------- E6
 run "$E6" -AlarmWaitSec 1

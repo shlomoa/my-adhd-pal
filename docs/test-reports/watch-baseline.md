@@ -361,6 +361,18 @@ FAIL TC-W-193 a full run with only -Watch exits 0 (expected 0, got 64)
 FAIL TC-W-196 the result is published as screen-results/<stamp> (expected 0, got 1)
 ```
 
+## Rediscovering the watch after a port change (TC-W-198 to TC-W-201; `scripts/probe/test-run-e3-e6.sh`)
+
+The E3 run lost adb when Sleep mode switched Wi-Fi off and did not get it back 4 minutes after the mode was off; a changed wireless-debugging port is the suspected cause. The simulated adb gets `FAKE_FAIL=portchange` (the old address never answers again,
+`adb mdns services` lists the new port 42000, every call after the change needs the new address) and `nomdns`. Red commit: the first commit of branch `claude/watch-adb-rediscover` (tests and simulation only). Command: `PWSH=pwsh scripts/probe/test-run-e3-e6.sh`. 7 checks FAIL before the change, for example:
+
+```
+FAIL TC-W-198 the result file says the address changed (ports only) (expected 0, got 1)
+FAIL TC-W-199 the question for the new address is asked once (expected 0, got 1)
+FAIL TC-W-200 asked once, the invalid answer is logged and the report is marked impossible (expected 0, got 1)
+FAIL TC-W-201 the end of the run reconnects: the service is stopped and the battery after is read (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

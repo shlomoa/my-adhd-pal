@@ -11,6 +11,9 @@
 #                                                  stalled  the report's reading count never grows
 # FAKE_AWAY_AFTER=N (+ FAKE_AWAY_CALLS=K): after the Nth report the watch goes away (Wi-Fi off): every adb call fails, and the first K
 #   `adb connect` calls fail too; the next one brings it back.
+# FAKE_FAIL=portchange (with FAKE_AWAY_AFTER=N): after the Nth report the watch comes back on port 42000: the old address never answers
+#   again, `adb mdns services` lists the new port (not with nomdns), `adb connect 192.168.1.16:42000` works, and from then on every
+#   command needs ANDROID_SERIAL=192.168.1.16:42000 (or -s with it). `adb devices` lists the connected address.
 # FAKE_DROP=1: after `input keyevent KEYCODE_SLEEP` the connection drops (device offline) until `adb connect`.
 # FAKE_CHARGING=1: the watch is on its charger. It simulates the commands; it proves nothing about the watch.
 set -u
@@ -21,8 +24,31 @@ touch "$D/log"
 [ -e "$D/timeout" ] || echo 30000 > "$D/timeout"
 [ -e "$D/battery" ] || echo 68 > "$D/battery"
 [ -e "$D/readings" ] || echo 0 > "$D/readings"
-[ "${1:-}" = "-s" ] && shift 2
+serial="${ANDROID_SERIAL:-}"
+[ "${1:-}" = "-s" ] && { serial="$2"; shift 2; }
 cmd="${1:-}"; shift || true
+if [ -e "$D/away" ] && fails portchange; then
+  case "$cmd" in
+    mdns)
+      fails nomdns || { echo "List of discovered mdns services"; echo "adb-FAKE-1	_adb-tls-connect._tcp	192.168.1.16:42000"; echo "adb-FAKE-1	_adb-tls-pairing._tcp	192.168.1.16:39999"; }
+      exit 0;;
+    devices) echo "List of devices attached"; exit 0;;
+    connect)
+      if [ "${1:-}" = "192.168.1.16:42000" ]; then rm -f "$D/away"; touch "$D/moved"; echo "connected to 192.168.1.16:42000"; exit 0; fi
+      echo "failed to connect to $1" >&2; exit 1;;
+    *) echo "error: no devices/emulators found" >&2; exit 1;;
+  esac
+fi
+if [ -e "$D/moved" ]; then
+  case "$cmd" in
+    connect) if [ "${1:-}" = "192.168.1.16:42000" ]; then echo "connected to 192.168.1.16:42000"; exit 0; fi; echo "failed to connect to $1" >&2; exit 1;;
+    devices) echo "List of devices attached"; echo "192.168.1.16:42000	device"; exit 0;;
+    mdns) echo "List of discovered mdns services"; exit 0;;
+    *) [ "$serial" = "192.168.1.16:42000" ] || { echo "$cmd" >> "$D/rejected"; echo "error: device '$serial' not found" >&2; exit 1; };;
+  esac
+fi
+if [ "$cmd" = mdns ]; then echo "List of discovered mdns services"; exit 0; fi
+if [ "$cmd" = devices ]; then echo "List of devices attached"; echo "192.168.1.16:41613	device"; exit 0; fi
 if [ -e "$D/away" ]; then
   if [ "$cmd" = connect ]; then
     n=$(( $(cat "$D/awayconnects" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$D/awayconnects"
