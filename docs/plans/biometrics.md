@@ -604,6 +604,40 @@ Conditions of the three E1 rows above, which the earlier rows did not have, so *
 
 No verdict is written from these numbers (E2 waits for the next run; analysis: issue #228).
 
+#### E1 re-runs on the build with sample times and the live per-minute log (2026-10-18, issue #228)
+
+Two runs of `run-e1.ps1` on the same watch, both worn, with the sample time of every reading recorded next to its arrival time (`SampleDataPoint.timeDurationFromBoot`; that its base is the same as `SystemClock.elapsedRealtime()` is not verified, but the delays come out between 0 and 603 s, never negative). Numbers only; no verdict (E2).
+
+| | Run 1: background permission REVOKED (`e1-results/20261018-093807`) | Run 2: background permission GRANTED (`-GrantBackgroundPermission`, `e1-results/20261018-125753`) |
+|---|---|---|
+| Permission lines in the file | `READ_HEALTH_DATA_IN_BACKGROUND granted=false` | `READ_HEALTH_DATA_IN_BACKGROUND granted=true` |
+| Run | 09:39 to 12:57, 198 min (the Always On Display prompt after phase B stayed open 2 h 48 min, so phase B lasted about 168 min; phase C 10 min) | 13:00 to 13:54, 54 min (prompt open 24 min) |
+| Readings | 11436 (57.7 per minute) in 646 callbacks, at most 600 in one | 3141 (58.1 per minute) in 605 callbacks, at most 567 in one |
+| By screen state at arrival | `on` 2207, `doze` 8796, `off` 433 | `on` 2177, `doze` 964, `off` 0 |
+| Sample times | about 60 samples in nearly every minute of 198; longest gap between sample times `on` 28 s, `doze` 24 s, `off` 4 s | about 60 samples in nearly every minute of 54; longest gap `on` 41 s, `doze` 23 s |
+| Delay (arrival minus sample time) `on` | median 98.2 s, 95th percentile 474.7 s, longest 576.3 s (includes the readings flushed at a wake) | median 120.0 s, 95th percentile 461.0 s, longest 568.4 s |
+| Delay `doze` | median 278.1 s, 95th percentile 563.3 s, longest 602.7 s | median 184.6 s, 95th percentile 523.1 s, longest 601.1 s |
+| Delay `off` | median 216.2 s, 95th percentile 414.2 s, longest 435.2 s | no `off` reading |
+| Screen on, first minutes | 454 readings in 7.6 min, 1 per second, 453 callbacks (at most 2 readings in one), gap and delay at most 1 s (delay median 0.0 s, 95th percentile 0.1 s); at about 456 s the live line shows `screen=doze` and arrivals stop | 14 readings in the first minute, then none for 8 minutes (the live line of minute 2 already shows `screen=doze`); one callback with 571 readings arrived at minute 9, at that moment the screen state was `on` |
+| Phase C (key event to sleep) | the screen went off: 433 `off` readings, the last arrival about 2.7 min before the report | the screen stayed `on` for the whole 10 minutes: live lines minute 44 to 53 `screen=on`, 58 to 60 readings per minute, no `off` reading |
+| Delivery in `doze` and `off` | callbacks of 467 to 600 readings; 22 of the 196 minutes had 100 or more arrivals; between the large ones usually 10 minutes (intervals in minutes: 10, 10, 8, 10, 12, 10, 10, 4, 6, 10, 4, 6, then 10 seven times in a row from minute 115 to 185, 2, 8) | 7 of the 55 minutes had 100 or more arrivals, minutes 9, 14, 22, 32, 34, 39, 43 (intervals 5, 8, 10, 2, 5, 4) |
+| Wake | about 580 to 600 readings arrived at minute 85 with the screen `on` (579 in the live window of that minute), then 1 per second while on (minutes 89 and 90) | 324 readings in the live window of minute 44 with `screen=on`, then 58 to 60 per minute |
+| Live line, seconds since the previous line (60 intended) | 60 to 189 s in `doze` (median 131 s, 81 lines); 60 s while `screen=on` except at the changes of state | 120 to 170 s in `doze` (median 143 s, 18 lines); 60 s while `screen=on` |
+| Availability | `ACQUIRING` twice at 4484 s, no `AVAILABLE` afterwards, samples continued | `ACQUIRING` twice at 1009 and 1010 s, no `AVAILABLE` afterwards, samples continued |
+| Battery (whole percent) | 69 to 42 in 198 min, 8.2 per hour | 42 to 30 in 54 min, 13.3 per hour (about 10 minutes of it with the screen on) |
+
+**Phases A and C of both E1 runs were NOT controlled screen states.** The script cannot keep the screen on or off (the screen timeout set to 720000 ms did not hold it, and the sleep key did not turn the screen off in run 2). The screen state of a phase is the state the watch chose, as the `screen=` field and the live lines show. From these two runs only two things count: the delivery pattern with the display in `doze` or `off`, and the comparison of the background permission revoked and granted. The "screen on" figures (1 reading per second, delay at most 1 s) are what happened while the watch itself had the screen on, for 7.6 minutes in run 1 and 10 minutes at the end of run 2; they are not a measurement of a screen kept on for a chosen time.
+
+What these numbers show without interpretation:
+
+- The sensor produced a sample about every second in every minute of both runs, in every screen state; the arrival times differ by state.
+- With the screen on, readings arrived at about one per second with a delay of at most about 1 s. With the display in `doze` or `off`, readings arrived in callbacks of hundreds of readings with delays of up to about 600 s; the delay distribution (median 185 to 278 s in `doze`) is that of a delivery every few minutes up to 10 minutes. A callback with many readings (up to 600) means the readings were collected before they reached the app; the delay of the app's main thread (live line `sincePrevLineSec` above 60 s in `doze`) is a separate observation.
+- Granted and revoked background permission gave the same pattern in the same states (compare the rows). Neither run shows a difference that can be attributed to the permission.
+- In run 2 the screen was `on` in phase C although the key event to sleep was sent, and in phase A it was dim after about 14 s; in run 1 it was on for 7.6 minutes in phase A. The script does not keep the screen on (the screen timeout set to 720000 ms did not hold it); the screen state in a phase is the state the watch chose. An `on` measurement over a chosen time needs a screen that is kept on (experiment E4, `ProbeFrontActivity`).
+- The 10-minute phases of the first run (the table above this one) are explained by the same pattern; the figures of that run are not comparable with these two until read together (different build, no sample times).
+
+Not measured: whether keeping the screen on (E4) keeps delivery at one per second for 10 minutes or longer; what sets the delivery period; the battery per screen state (whole-percent resolution, and the display state changed during the runs).
+
 Consequence: the passive background route delivers readings about every 10 minutes on this watch, so it does **not** meet "reported immediately". The live route delivers within
 about a second with the screen on. Not measured yet: the live route with the display dim (always-on) and with the screen off, 30 minutes worn, battery over a longer time,
 and whether the "Probe: measuring heart rate" notification is visible (the user saw no pop-up; the notification list was not checked).
