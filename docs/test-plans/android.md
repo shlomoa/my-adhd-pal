@@ -196,6 +196,13 @@ repositories exist (G3).
 | TC-A-144 | An empty dump logs only the end line; no line holds a health value | Unit | `DEMO alerts end count=0`; no bpm or metric text |
 | TC-A-145 | The alerts receiver is exported and needs the DUMP permission | Unit (Robolectric) | One receiver for the action, permission `android.permission.DUMP` |
 
+## Screen images (M0 phone walkthrough)
+
+| ID | What | How | Pass criteria |
+|---|---|---|---|
+| TC-A-146 | Every phone screen of the catalogue renders from the real Compose code to a PNG | Unit (Robolectric native graphics) | A non-empty PNG per screen with more than one colour; unique ids |
+| TC-A-147 | The index page lists each screen with its title and image | Unit | A heading and an image line per screen |
+
 ## Final (A-final)
 
 | Id | Case | How | Pass criteria |
