@@ -410,6 +410,15 @@ FAIL TC-W-220 several heartbeats are pushed during the run (expected 0, got 1)
 FAIL TC-W-221 the final status holds state=finished (expected 0, got 1)
 ```
 
+Hard time limit on every adb and git call (TC-W-225, TC-W-226; `scripts/probe/test-timeouts.sh`): a hung adb.exe stopped the E3 run silently for an hour on 2026-10-18. Red commit: "Tests for the hard time limit on adb and git calls (red)" on the same branch
+(simulated adb `FAKE_FAIL=hang`, a git wrapper that hangs on push). Command: `PWSH=pwsh scripts/probe/test-timeouts.sh`. 6 checks FAIL before the change, for example:
+
+```
+FAIL TC-W-225 the hung adb call is logged (expected 0, got 1)
+FAIL TC-W-225 the result is published (expected 0, got 1)
+FAIL TC-W-226 a hung git push ends and names the local result file (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

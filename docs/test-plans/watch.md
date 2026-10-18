@@ -206,7 +206,7 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-213 | 6.4 | script | A healthy watch passes the pre-flight (`preflight: ok`); the log buffer is set with `logcat -G` and read back with `logcat -g` | result file, call log |
 | TC-W-214 | 6.4 | script | An unreachable watch fails the pre-flight with ONE message (`PREFLIGHT FAILED: ...`) and exit 3; no step runs (no grant, revoke or start) | stdout, call log |
 | TC-W-215 | 6.4 | script | A watch on its charger, or with a battery under 40 % (`PROBE_MIN_BATTERY`), fails the pre-flight; `-AllowCharging` lets the charger pass | stdout, exit code |
-| TC-W-216 | 6.4 | script | A missing debug probe build (no ProbeReceiver, ProbeMeasureService, ProbeFrontActivity in `dumpsys package`) fails the pre-flight | stdout |
+| TC-W-216 | 6.4 | script | A missing debug build of the probe (no ProbeReceiver, ProbeMeasureService, ProbeFrontActivity in `dumpsys package`) fails the pre-flight | stdout |
 | TC-W-217 | 6.4 | script | A connection that is not stable for `PROBE_STABLE_SEC` (default 30 s) fails the pre-flight | stdout |
 | TC-W-218 | 6.4 | script | A `git push` that cannot work (dry run) fails the pre-flight; under `-SkipPush` it is not checked | stdout, exit code |
 | TC-W-219 | 6.4 | script | Several problems at once are listed in ONE message | stdout |
@@ -215,6 +215,8 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-222 | 6.4 | script | The heartbeat does not touch the working tree, the index or HEAD of the checkout | git status |
 | TC-W-223 | 6.4 | script | A heartbeat during a question says `waiting_on_prompt=yes` | result file |
 | TC-W-224 | 6.4 | script | Under `-SkipPush` no heartbeat is pushed | result file, origin refs |
+| TC-W-225 | 6.4 | script | Every adb call has a hard time limit (`PROBE_ADB_TIMEOUT_SEC`, default 30 s): a hung adb is killed, logged as `adb timed out after N s` (no ip address) and treated as failed; the run still writes its summary and publishes | result file, run time |
+| TC-W-226 | 6.4 | script | Every git call has a hard time limit (`PROBE_GIT_TIMEOUT_SEC`, default 30 s): a hung push ends, the message names the local result file | stdout, run time |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |

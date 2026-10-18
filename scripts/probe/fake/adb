@@ -12,6 +12,7 @@
 #                                                  nodebug  the debug probe build is not installed (no Probe components in dumpsys package)
 #                                                  flaky    every 3rd `shell echo` fails (an unstable connection)
 #                                                  dead     every command fails (the watch cannot be reached)
+#                                                  hang     `dumpsys notification` never returns (a hung adb)
 #                                                  reportfail  the measure-report command fails and logs nothing
 # FAKE_AWAY_AFTER=N (+ FAKE_AWAY_CALLS=K): after the Nth report the watch goes away (Wi-Fi off): every adb call fails, and the first K
 #   `adb connect` calls fail too; the next one brings it back.
@@ -134,6 +135,7 @@ case "$cmd" in
           exit 0
         fi
         if [ "$1" = notification ]; then
+          fails hang && exec sleep 600
           fails nonotif || echo "      android.title=Probe: measuring heart rate"
           k=$(( $(cat "$D/notifs" 2>/dev/null || echo 0) + 1 )); echo "$k" > "$D/notifs"
           note "PROBE measure live minute=$k arrivals=100 sincePrevLineSec=60 sinceLastArrivalSec=0 screen=on"
