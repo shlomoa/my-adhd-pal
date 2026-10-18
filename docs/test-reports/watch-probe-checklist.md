@@ -26,6 +26,8 @@ the top of the watch face. Anything the scripts ask you to do on the watch that 
 | Always On Display | Settings, Display, Always On Display |
 | Screen timeout, Keep screen on, Touch to wake, Wake up gesture, the notification list | path not verified |
 
+The wireless-debugging port can change when Wi-Fi goes off and on. The run scripts look for the watch on another port by themselves; if they cannot find it they ask once for the new `ip:port` (Enter gives up and the run goes on without that report).
+
 ## 0. Once: install the debug build and connect the watch
 
 1. Take the watch off the charger for the runs (a charger hides the battery drop). Keep the laptop plugged in and awake

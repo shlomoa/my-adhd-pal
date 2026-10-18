@@ -71,19 +71,60 @@ function Ask([string]$question) {
     Read-Host 'Press Enter when done' | Out-Null
 }
 
+# One try to reach the watch at $address: adb connect and a trivial shell command. True when the watch answered.
+function Test-Watch([string]$address) {
+    & adb connect $address 2>&1 | Out-Null
+    $answer = (& adb -s $address shell echo ok 2>&1 | Out-String)
+    return ($LASTEXITCODE -eq 0 -and $answer -match 'ok')
+}
+
+# Uses $address from now on: the watch address of this script, ANDROID_SERIAL for every adb call. Logs the port change (ports only).
+function Use-Watch([string]$address) {
+    $old = ($script:Watch -split ':')[-1]
+    $script:Watch = $address
+    $env:ANDROID_SERIAL = $address
+    Log ("address changed: port $old -> " + ($address -split ':')[-1])
+}
+
+# The wireless-debugging port can change when Wi-Fi goes off and on. Looks for the same ip with another port in `adb mdns services`
+# and `adb devices` and tries each. Returns true when the watch answered on a new port (it is then used for the rest of the run).
+function Find-Watch {
+    $ip = ($script:Watch -split ':')[0]
+    $seen = (& adb mdns services 2>&1 | Out-String) + (& adb devices 2>&1 | Out-String)
+    $ports = [regex]::Matches($seen, [regex]::Escape($ip) + ':(\d+)') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique
+    foreach ($port in $ports) {
+        if ($port -eq ($script:Watch -split ':')[-1]) { continue }
+        if (Test-Watch "${ip}:$port") { Use-Watch "${ip}:$port"; return $true }
+    }
+    return $false
+}
+
+# Asks ONCE per run for the new ip:port (not with -Unattended). A valid answer is tried; the typed text is never logged
+# (it holds the ip address). Returns true when the watch answered at the typed address.
+function Ask-Watch {
+    if ($Unattended -or $script:AskedWatch) { return $false }
+    $script:AskedWatch = $true
+    Log 'The watch cannot be reached and was not found on another port.'
+    $answer = Read-Host 'Which address does the watch show now (Settings > Developer options > Wireless debugging, ip:port)? Enter gives up'
+    if ($answer -notmatch '^\d+\.\d+\.\d+\.\d+:\d+$') { Log 'no valid address given'; return $false }
+    if (-not (Test-Watch $answer)) { Log 'the watch did not answer at the given address'; return $false }
+    Use-Watch $answer
+    return $true
+}
+
 # Tries to reach the watch over wireless adb: adb connect and a trivial shell command, every $ReconnectRetrySec seconds, up to
-# $ReconnectSec seconds (defaults 5 and 120). Returns true when the watch answered.
+# $ReconnectSec seconds (defaults 5 and 120). When that fails it looks for the watch on another port (Find-Watch) and then asks the
+# user once for the address (Ask-Watch). Returns true when the watch answered.
 function Wait-Adb {
     $limit = if ($null -ne $ReconnectSec) { $ReconnectSec } else { 120 }
     $every = if ($null -ne $ReconnectRetrySec) { $ReconnectRetrySec } else { 5 }
     $attempts = [Math]::Max(1, [int][Math]::Ceiling($limit / [Math]::Max($every, 0.01)))
     for ($i = 1; $i -le $attempts; $i++) {
-        & adb connect $Watch 2>&1 | Out-Null
-        $answer = (& adb shell echo ok 2>&1 | Out-String)
-        if ($LASTEXITCODE -eq 0 -and $answer -match 'ok') { return $true }
+        if (Test-Watch $script:Watch) { return $true }
         Start-Sleep -Seconds $every
     }
-    return $false
+    if (Find-Watch) { return $true }
+    return (Ask-Watch)
 }
 
 # Report when the watch may be unreachable (Wi-Fi off in a mode): waits for it, and logs that no report was possible instead of failing.
@@ -166,7 +207,7 @@ function Log-Permissions {
 
 # The end of a run: stop the service, log the battery after.
 function Stop-ProbeService {
-    & adb connect $Watch 2>&1 | Out-Null
+    if (-not (Wait-Adb)) { Log 'the watch could not be reached over adb: the service may still be running; stop it on the watch' }
     Save-LiveLines
     Probe 'measure-stop'
     Log ("battery after: " + (BatteryLevel (BatteryText)))
