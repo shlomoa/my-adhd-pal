@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
-  Experiment E1 (issue 228) in one command: the live heart-rate route on the worn Galaxy Watch6 Classic, 10 minutes with the
-  screen on, 10 minutes with the display dim (Always-on display), 10 minutes with the screen off, one result file.
+  Experiment E1 (issue 228) in one command: the live heart-rate route on the worn Galaxy Watch6 Classic, 2 minutes with the
+  screen on, 2 minutes with the display dim (Always-on display), 2 minutes with the screen off (-PhaseSec), one result file.
 
 .DESCRIPTION
   Works with Windows PowerShell 5.1 and PowerShell 7; needs adb on PATH and the watch connected for wireless debugging
@@ -40,11 +40,11 @@ param(
     # ip:port from the watch's Wireless debugging screen; falls back to $env:ANDROID_SERIAL.
     [string]$Watch = $env:ANDROID_SERIAL,
     [string]$OutDir = (Join-Path $HOME 'probe-results'),
-    [double]$PhaseSec = 600,
+    [double]$PhaseSec = 120,
     [double]$AvailableTimeoutSec = 120,
     [double]$ReportWaitSec = 3,
     # A little longer than a phase, so the screen does not time out before the phase report.
-    [int]$ScreenOffTimeoutMs = 720000,
+    [int]$ScreenOffTimeoutMs = 180000,
     [switch]$Unattended,
     [switch]$AllowCharging,
     # Grant the background permission instead of revoking it (to compare a run with and without it).

@@ -16,7 +16,7 @@
       asked); state 5 and 6 the watch vibration intensity set to the LOWEST and the HIGHEST (you set it);
     - in each state: vibrate, you answer none, weak or strong;
     - under Do Not Disturb, Bedtime and Theater: also the notify-alarm route and the alarm-clock route (it fires after about
-      15 seconds, the script waits -AlarmWaitSec, default 25); for each you answer what you felt and whether the screen woke.
+      15 seconds, the script waits -AlarmWaitSec, default 20: the alarm delay is fixed at 15 s in the debug build, so less would miss it); for each you answer what you felt and whether the screen woke.
   Before the intensity states, put the intensity back to your usual value afterwards.
 
   Send back the whole result file (default folder: probe-results in your home folder). It holds no ip address.
@@ -32,7 +32,7 @@
 param(
     [string]$Watch = $env:ANDROID_SERIAL,
     [string]$OutDir = (Join-Path $HOME 'probe-results'),
-    [double]$AlarmWaitSec = 25,
+    [double]$AlarmWaitSec = 20,
     [double]$ReportWaitSec = 3,
     [switch]$SkipPush
 )

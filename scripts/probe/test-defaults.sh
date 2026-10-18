@@ -20,7 +20,7 @@ check "TC-W-227 screen phase default is 120 s" 120 "$(def run-screen.ps1 PhaseSe
 check "TC-W-227 E3 block default is 120 s (3 blocks worn)" 120 "$(def run-e3.ps1 BlockSec)"
 check "TC-W-227 E3 Sleep mode / Power saving default is 90 s" 90 "$(def run-e3.ps1 StateSec)"
 check "TC-W-227 E4 run default is 60 s" 60 "$(def run-e4.ps1 RunSec)"
-check "TC-W-227 E6 alarm wait default is 15 s" 15 "$(def run-e6.ps1 AlarmWaitSec)"
+check "TC-W-227 E6 alarm wait default is 20 s (the alarm fires after 15 s)" 20 "$(def run-e6.ps1 AlarmWaitSec)"
 e1=$(( 3 * $(def run-e1.ps1 PhaseSec) )); sc=$(( 2 * $(def run-screen.ps1 PhaseSec) ))
 e3=$(( 3 * $(def run-e3.ps1 BlockSec) + 2 * $(def run-e3.ps1 StateSec) )); e4=$(( 2 * $(def run-e4.ps1 RunSec) ))
 [ "$e1" -le 600 ] && [ "$sc" -le 600 ] && [ "$e3" -le 600 ] && [ "$e4" -le 600 ]; check "TC-W-227 no script has more than 10 minutes of waiting" 0 $?

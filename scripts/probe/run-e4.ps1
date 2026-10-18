@@ -32,7 +32,7 @@
 param(
     [string]$Watch = $env:ANDROID_SERIAL,
     [string]$OutDir = (Join-Path $HOME 'probe-results'),
-    [double]$RunSec = 180,
+    [double]$RunSec = 60,
     [int]$TimeoutMs = 15000,
     [double]$ReportWaitSec = 3,
     [switch]$SkipPush
