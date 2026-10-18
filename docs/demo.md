@@ -25,6 +25,31 @@ To feel and see the reminder yourself, add `-WaitForTap`: the script does not pr
 the watch (Done, Snooze, Start 2 min or Dismiss). The Done stage then names the action you tapped and the Ack stage checks that
 action in the phone history. Without a tap in time the Done stage fails and the Ack stage is not run.
 
+## Phone walkthrough with pictures
+
+One command walks through the phone app on the Galaxy A55 5G with no taps and no watch needed:
+
+```text
+.\scripts\demo\run-phone-demo.ps1
+```
+
+Unlock the phone, keep its screen on and connect it by USB (accept the debugging prompt). The script builds and installs the
+debug app with its permissions, puts example data on it (two tasks with reminders, an acknowledgement, a snooze and an
+answer), opens Watch, Tasks, Ask, Settings and History and takes a screenshot of each, stores an alert like one from the
+watch and checks that the phone raises it and shows the full-screen alert (screenshot), sends "I'm OK" and photographs the
+screen after it, and records the whole walk-through (`screenrecord`, at most `-RecordSec` seconds, default 150, never more
+than 180). It prints PASS or FAIL for the stages Ready, Install, Seed, Screens, Alert and Recording and publishes the
+results as a branch `demo-results/phone-<time>` (only `docs/demo/results/phone-<time>/`: `index.md` with the pictures,
+the PNG files, `phone-demo.mp4`, `results.txt` and `phone.log` without the device serial). `-SkipBuild` reuses the installed
+app, `-SkipPush` keeps the results local, `-Phone` names the phone. Every adb call has a hard timeout
+(`-AdbTimeoutSec`). Exit codes: 0 all stages pass, 1 a stage failed, 2 the phone is not ready or a stage could not run,
+3 setup problem.
+
+The five states of the watch link cannot be forced on a real phone; they are in the rendered images above. The alert stage
+needs the notification permission and the full-screen permission (the script grants both; if Samsung's settings still block
+the full-screen alert the stage fails and says where to switch it on). `scripts/demo/test-run-phone-demo.sh` runs the script
+against a simulated `adb` (needs PowerShell 7 as `pwsh`); it does not prove how the real phone behaves.
+
 ## Stages
 
 | Stage | What is checked | Where it is read from |

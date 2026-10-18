@@ -197,3 +197,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: `AlertObserver` (stored and raised hooks of `AlertRaiser`, empty set in release through a `@Multibinds`), and in `src/debug`: `DemoAlertTrace` (logs `DEMO alert stored id= watchAt= storedAt=` and `DEMO alert raised id= raisedAt= sound=` live, ids and epoch milliseconds only), `DemoAlertModule`, and the `DUMP_ALERTS` broadcast to `DemoAlertsReceiver` that prints them again per alert row and `DEMO alerts end count=n`. Catalogue TC-A-140 to 145.
 - Validation: tests red first (does not compile), now green; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green (includes the release-has-no-debug check).
 - Open items: the in-app permission card (PR-A) waits. Until then the demo script grants the permissions with adb. Not run on the Galaxy A55 5G yet.
+
+## 2026-10-18 - M0 phone walkthrough, part a2: run-phone-demo.ps1
+
+- Issue and PR: user order through the coordinator (a phone demo); no plan step. PR linked from the coordinator message. Needs the debug broadcasts of part a1 in the app it installs.
+- Changed: `scripts/demo/run-phone-demo.ps1` (one command, no taps: install with permissions, seed, screenshots of the five tabs, the full-screen alert and the screen after "I'm OK", a screen recording, results with an index page published on `demo-results/phone-<stamp>`, hard timeout on every adb call), `scripts/demo/test-run-phone-demo.sh` and the simulated `scripts/demo/fake/adb` extended for it, `docs/demo.md`. Catalogue TC-A-153 to 159.
+- Validation: the script test red first (script missing: 41 of 48 checks fail), now 48 of 48 pass with PowerShell 7.4.6; breaking the alert-screen check on purpose makes it fail; `./gradlew lintDocs` green.
+- Open items: not run on the Galaxy A55 5G (the user's run, manual TC-A-153). Unknowns on the real phone: whether `screencap` and `screenrecord` over adb work on One UI without prompts, whether `appops set USE_FULL_SCREEN_INTENT allow` is honoured, and whether the lock screen is off (the script cannot unlock the phone and says so).
