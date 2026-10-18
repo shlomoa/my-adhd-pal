@@ -217,6 +217,7 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-224 | 6.4 | script | Under `-SkipPush` no heartbeat is pushed | result file, origin refs |
 | TC-W-225 | 6.4 | script | Every adb call has a hard time limit (`PROBE_ADB_TIMEOUT_SEC`, default 30 s): a hung adb is killed, logged as `adb timed out after N s` (no ip address) and treated as failed; the run still writes its summary and publishes | result file, run time |
 | TC-W-226 | 6.4 | script | Every git call has a hard time limit (`PROBE_GIT_TIMEOUT_SEC`, default 30 s): a hung push ends, the message names the local result file | stdout, run time |
+| TC-W-227 | 6.4 | script | The default durations fit the budget: E1 and screen phases 120 s, E3 blocks 120 s and Sleep mode / Power saving 90 s, E4 run 60 s, E6 alarm wait 15 s; no script waits more than 10 minutes; all together at most 30 minutes of waiting | param defaults |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
