@@ -182,6 +182,12 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-189 | 6.4 | unit | The minute of the run counts from the start and never goes below zero | numbers |
 | TC-W-190 | 6.4 | script | The E1 result file shows the permission state; `-GrantBackgroundPermission` grants the background permission instead of revoking it and the file says so | call log, result file |
 | TC-W-191 | 6.4 | script | The live per-minute lines are copied into the result file before the log is cleared | result file |
+| TC-W-192 | 6.4 | script | `scripts/probe/run-screen.ps1` parses | PowerShell parser, no errors |
+| TC-W-193 | 6.4 | script | A full controlled-screen run against a simulated adb with only `-Watch`: the Always On Display key is read, switched off, read back and restored; the service starts, then the front screen with keep-screen-on; report keep-on; home; the sleep key; report screen-off; the screen state and the live lines in the file; no prompt | order of the adb calls, content of the result file |
+| TC-W-194 | 6.4 | script | Without a usable Always On Display key the run asks the user once (with the path), writes no setting, and goes on; `-Unattended` skips the question | prompt text, call log |
+| TC-W-195 | 6.4 | script | A screen that never goes off, a service that never becomes available and a watch on its charger: the first does not fail the run and repeats the sleep key, the second fails it, the third is refused; the Always On Display setting is restored | exit code, call log |
+| TC-W-196 | 6.4 | script | The result is published as `screen-results/<stamp>` holding only the file; `-SkipPush` publishes nothing; no ip address and no local path in the file | origin refs, text |
+| TC-W-197 | 6.4 | script | The script header says what is untested on the watch | text |
 | TC-W-136 | 6.4 | manual | On the real watch: capability, arrival intervals with screen on, off and the watch off the wrist | dropped with the passive probe (retires with C2, #225); no checklist step |
 | TC-W-137 | 6.6 | manual | On the real watch: the strongest vibration under normal, Do Not Disturb, Bedtime, Theater mode and each vibration-intensity setting | user reports felt or not felt per case (`docs/test-reports/watch-probe-checklist.md` step 5: E6) |
 | TC-W-082 | 6.8 | manual | Emulator synthetic heart-rate data triggers an alert that reaches the phone | user reports |
