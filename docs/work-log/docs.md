@@ -151,3 +151,23 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: docs lint (markdown, links), `check-docs-index.sh`, `test-design-docs.sh` and `test-design-style.sh` green.
 - Open items: #154 and gate G-DOC: the user's approval of the design document and the two open points (the tile primary action, Settings
   opens from the gear on the Watch tab); then #156 gets the Design section of the index.
+
+## 2026-10-19 - D-learnings Learnings (2026-10-19)
+
+- Issue and PR: none (user order relayed by the coordinator: record learnings); PR `claude/docs-learnings`. Work covered: #226 and #227 (PRs #238, closed), the marks of completed tasks (PR #247), the current execution order (PR #249), the standing instruction (PR #251), the E2 record (issue #229, PR #257), the specification facts (PR #268).
+- Changed: this entry only. Facts learned, with sources:
+  - The page fetch tool returns a model's summary of a page for the question asked, not the page. Its quotes are therefore not guaranteed verbatim (said in the body of PR #268). Seven Google pages were read that way on 2026-10-19 (`biometrics.md` section 13).
+  - The request for section 13 contained statements the pages do not make: the passive page has no sentence that only one goal type is handled (its code has one `STEPS_DAILY` branch); the power page says "every minute or two"; the vitals page does not mention stress; the mindfulness page lists no stress detection type. Section 13 says what the pages say.
+  - `list_pull_requests` returned `merged: false` for PRs that are merged (for example #238 and #247); the merge is proven by `git log` on `main` or by the issue's `closed_by_pull_requests` (PR #247 used `git log` and `gates.json`).
+  - `docs/plans/gates.json` has a `pr` field per gate; it was the evidence for the gate marks in PR #247.
+  - CI runs `scripts/check-work-log.sh` only on `docs/work-log/shared.md` and `docs/work-log/docs.md` (`.github/workflows/conventions.yml`); run over all logs it reports missing bullets in `android.md`, `planning.md` and `watch.md`.
+  - Messages to the coordinator reach it only through the Claude Code Remote `send_message` with the session id; the name-based `SendMessage` returned "No agent named ... is reachable" (tried twice on 2026-10-17, so those reports went into issue bodies).
+  - E1 and E3 result files record arrival times of readings; the delays in `biometrics.md` 12.3.1 come from the sample times that the re-runs added (PRs #252, #253).
+- Validation: my own mistakes and what they cost:
+  - Subscribed to PR #248 instead of #249 (I used a guessed number, not the number in the create result): two extra calls and one wrong subscription event, undone.
+  - Told the coordinator "CI suite completed; I am confirming the checks" before reading the checks, then needed a second message: one extra message each time it happened (PR #257).
+  - Two reports to the coordinator by name were lost (see above) before the session-id tool was used: the status of PR #238 was only in the issue body for that time.
+  - Read `list_pull_requests` output of about 200 PRs to build the evidence for PR #247, where `git log` was enough for the merge proof: one very large tool output.
+  - The first record structure for #229 had empty cells to fill later; the record itself was written only after the coordinator said "now". No time was lost, but the structure had no content of its own.
+  - The first draft of section 13 put a Google term in my own sentence; the rule that it appears only in Google quotes caught it before the PR (found by `git grep -n -i batch`).
+- Open items: what I would do differently: (1) read the primary page before relaying a summary of it, and say which parts came from a summary; (2) use the number in the create result for every follow-up call; (3) read the check runs before reporting a head; (4) prove a merge with `git log` first. Open questions: lane W's analysis of lost against late readings (E3 off, minutes 26 to 29 are "not determined" in `biometrics.md` 12.3.1); screen kept on against really off for a chosen time was dropped by the user and is not measured; Sleep mode and Power saving are not measured; the watch user guide (branch `watch-ug`) and the Samsung product page (403) are not read, `biometrics.md` section 13.7; whether "immediately" as 0 to 2 seconds is to be written into `biometrics.md` (12.1 does not carry a number; no word of the user's was added by lane D).
