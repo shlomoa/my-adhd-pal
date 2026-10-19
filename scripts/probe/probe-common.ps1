@@ -215,6 +215,36 @@ function Send-Heartbeat([string]$state = 'running') {
     }
 }
 
+# --- Always On Display, switched by adb when a candidate setting key exists --------------------------------------------------------
+$aodCandidates = @(@('secure', 'doze_always_on'), @('system', 'aod_mode'), @('secure', 'aod_mode'), @('system', 'always_on_display'))
+$script:aodChanged = $null
+
+function Get-Setting([string]$ns, [string]$key) { ((Invoke-Adb @('shell', 'settings', 'get', $ns, $key)) -join '').Trim() }
+
+# Switches the Always On Display off by adb when a candidate key exists; remembers the old value. Returns true when it is off.
+function Disable-Aod {
+    foreach ($c in $aodCandidates) {
+        $old = Get-Setting $c[0] $c[1]
+        if ($old -ne '0' -and $old -ne '1') { continue }
+        if ($old -eq '0') { Log ("aod: $($c[0]):$($c[1]) was 0 (already off)"); return $true }
+        Invoke-Adb @('shell', 'settings', 'put', $c[0], $c[1], '0') | Out-Null
+        $now = Get-Setting $c[0] $c[1]
+        Log ("aod: $($c[0]):$($c[1]) was $old, set to 0, read back $now")
+        if ($now -eq '0') { $script:aodChanged = @($c[0], $c[1], $old); return $true }
+        Invoke-Adb @('shell', 'settings', 'put', $c[0], $c[1], $old) | Out-Null
+    }
+    Log 'aod: no setting key found (or it did not take); the Always On Display stays as it is'
+    return $false
+}
+
+function Restore-Aod {
+    if ($script:aodChanged) {
+        $c = $script:aodChanged
+        Invoke-Adb @('shell', 'settings', 'put', $c[0], $c[1], $c[2]) | Out-Null
+        Log ("aod: $($c[0]):$($c[1]) restored to $($c[2]), read back " + (Get-Setting $c[0] $c[1]))
+    }
+}
+
 # --- Questions to the user: a time limit, a banner and a beep; a step that is not confirmed is marked UNCONFIRMED -------------------
 
 function Beep {

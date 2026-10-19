@@ -175,6 +175,10 @@ The two E1 runs could not control the screen state. This script does: 2 minutes 
 
 It switches the Always On Display off by adb when it finds the setting key (and restores it), otherwise it asks you once to turn it off (Settings, Display, Always On Display). At the end it publishes the result as the branch `screen-results/<time>` (it prints `PUSHED screen-results/<time>`; `-SkipPush` keeps it local): tell the coordinator "done". Untested on the watch.
 
+## 3c. M2: do readings keep arriving with the screen off? (about 14 minutes, no typing)
+
+One command, the watch worn and left alone: `.\scripts\probe\run-m2.ps1 -Watch <ip:port or mDNS name>`. It prints what the watch supports (reporting overrides, passive goals) and tries two documented delivery variants (an exercise session, an exercise session with the 5 second heart-rate reporting; a wake lock control with `-Variants`) for 6 minutes each with the screen off by adb, and copies the screen=off numbers of each (`m2 variant <name>: ...`) into `m2-results/<stamp>`. A variant the watch refuses is `NOT AVAILABLE`. Nothing is asked; the physical action is wearing the watch.
+
 ## 4. E4: does the app stay the top app and top window (issue #231)
 
 **Run the script (recommended).** Wear the watch and look at it, then:
