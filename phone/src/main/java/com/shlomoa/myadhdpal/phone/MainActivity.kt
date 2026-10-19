@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.shlomoa.myadhdpal.phone.ui.HomeScreen
+import com.shlomoa.myadhdpal.phone.ui.HomeTab
 import com.shlomoa.myadhdpal.phone.ui.history.HistoryViewModel
 import com.shlomoa.myadhdpal.phone.ui.link.LinkStateViewModel
 import com.shlomoa.myadhdpal.phone.ui.permissions.AlertPermissions
@@ -94,6 +95,7 @@ class MainActivity : ComponentActivity() {
                     alertPermissions = alertPermissions,
                     onAllowNotifications = ::allowNotifications,
                     onAllowFullScreen = ::allowFullScreen,
+                    initialTab = HomeTab.named(intent.getStringExtra(EXTRA_TAB)),
                     tasks = { TasksTab(taskList, scheduleSync, ::taskEditor, ::taskReminders, ::reminderEditor) },
                     settings = {
                         SettingsScreen(
@@ -118,6 +120,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private companion object {
+        /** `adb shell am start -n ... --es tab history` opens that tab (the phone walkthrough script uses it). */
+        const val EXTRA_TAB = "tab"
     }
 
     /** One edit ViewModel per edit session, started with the task id as its `SavedStateHandle` argument. */

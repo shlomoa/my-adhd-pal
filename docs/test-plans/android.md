@@ -205,6 +205,16 @@ repositories exist (G3).
 | TC-A-144 | An empty dump logs only the end line; no line holds a health value | Unit | `DEMO alerts end count=0`; no bpm or metric text |
 | TC-A-145 | The alerts receiver is exported and needs the DUMP permission | Unit (Robolectric) | One receiver for the action, permission `android.permission.DUMP` |
 
+## Demo seed and tab by intent (M0 phone walkthrough, debug and UI)
+
+| ID | What | How | Pass criteria |
+|---|---|---|---|
+| TC-A-148 | The home screen opens on the tab it is given | Unit (Compose) | Opened on History it shows the history, not the watch state |
+| TC-A-149 | A tab is named by text; unknown or missing opens the Watch tab | Unit | history, settings, ask, tasks map; null and unknown give Watch |
+| TC-A-150 | `SEED_FIXTURES` puts two tasks with reminders and three history rows, idempotent | Unit | Counts 2, 2, 3 after one or two runs; the `DEMO seeded` line |
+| TC-A-151 | With an alert it adds one new alert row per run and logs its id, no health value | Unit | Unique ids, episode id set, no bpm text in the lines |
+| TC-A-152 | The seed and dismiss receivers are exported and need the DUMP permission | Unit (Robolectric) | One receiver per action, permission `android.permission.DUMP` |
+
 ## Screen images (M0 phone walkthrough)
 
 | ID | What | How | Pass criteria |
