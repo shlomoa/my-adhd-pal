@@ -13,6 +13,7 @@
 #                                                  flaky    every 3rd `shell echo` fails (an unstable connection)
 #                                                  dead     every command fails (the watch cannot be reached)
 #                                                  hang     `dumpsys notification` never returns (a hung adb)
+#                                                  novibrator  the vibrator service lists no new vibration after `vibrate`
 #                                                  reportfail  the measure-report command fails and logs nothing
 # FAKE_AWAY_AFTER=N (+ FAKE_AWAY_CALLS=K): after the Nth report the watch goes away (Wi-Fi off): every adb call fails, and the first K
 #   `adb connect` calls fail too; the next one brings it back.
@@ -117,6 +118,14 @@ case "$cmd" in
           if [ -n "${FAKE_CHARGING:-}" ]; then echo "  AC powered: true"; else echo "  AC powered: false"; fi
           echo "  level: $n"; echo $((n - 1)) > "$D/battery"; exit 0
         fi
+        if [ "$1" = vibrator_manager ]; then
+          echo "VibratorManagerService:"; echo "  Recent vibrations:"; cat "$D/vibrations" 2>/dev/null; exit 0
+        fi
+        if [ "$1" = window ]; then
+          if [ -e "$D/alertshown" ]; then echo "  mCurrentFocus=Window{1 u0 com.shlomoa.myadhdpal/com.shlomoa.myadhdpal.wear.debug.probe.ProbeAlertActivity}"
+          else echo "  mCurrentFocus=Window{1 u0 com.sec.android.app.launcher/com.sec.android.app.launcher.Home}"; fi
+          exit 0
+        fi
         if [ "$1" = power ]; then
           echo "  mWakefulness=Awake"; echo "Display Power: state=$(cat "$D/screen" 2>/dev/null || echo ON)"; exit 0
         fi
@@ -163,9 +172,9 @@ case "$cmd" in
         case "$cmdname" in
           measure-stop) note "PROBE measure stopped";;
           measure-clear) note "PROBE measure cleared";;
-          vibrate) note "PROBE vibrate amplitudeControl=true";;
+          vibrate) note "PROBE vibrate amplitudeControl=true"; fails novibrator || echo "    2026-10-18 12:00:$(( $(wc -l < "$D/vibrations" 2>/dev/null || echo 0) + 10 )) | Vibration{id=$RANDOM usage=ALARM amplitude=255 status=FINISHED}" >> "$D/vibrations";;
           notify-alarm) note "PROBE notify-alarm posted channel=probe_alarm";;
-          alarm-clock) note "PROBE alarm-clock scheduled in 15 s"; note "PROBE alarm-clock fired"; note "PROBE alert screen shown";;
+          alarm-clock) note "PROBE alarm-clock scheduled in 15 s"; note "PROBE alarm-clock fired"; note "PROBE alert screen shown"; touch "$D/alertshown"; fails novibrator || echo "    2026-10-18 12:01:$(( $(wc -l < "$D/vibrations" 2>/dev/null || echo 0) + 10 )) | Vibration{id=$RANDOM usage=ALARM amplitude=255 status=FINISHED}" >> "$D/vibrations";;
           measure-capabilities) note "PROBE measure capabilities heartRateMeasure=true";;
           measure-report)
             if fails reportfail; then echo "error: broadcast failed" >&2; exit 1; fi
