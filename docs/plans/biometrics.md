@@ -687,3 +687,81 @@ E3, 30 minutes with the background permission not granted: after 30 minutes the 
 2. Nothing is built on the passive background route.
 3. Deferred, low priority (notes only, user, 2026-10-17): other biometrics, and the "monitoring" status item.
 4. The Watch, Android and Shared lanes are stopped by the user until the route is decided; their open pull requests are not merged.
+
+## 13. Specification facts (official sources, 2026-10-19)
+
+Each fact is Google's sentence, quoted verbatim, with its page (read 2026-10-19), and one line on where it applies. Where the page does not contain what was
+asked, that is stated.
+
+### 13.1 `MeasureClient`
+
+Source: [Health Services](https://developer.android.com/health-and-fitness/health-services).
+
+- "This is suited for short-lived experiences, such as while the user looks at your app UI."
+- "This API is not intended for background capture or workout tracking."
+
+Applies to: the live route (section 11).
+
+### 13.2 `ExerciseClient`
+
+Source: [Active data](https://developer.android.com/health-and-fitness/health-services/active-data).
+
+- Screen off: "As the user starts the workout, the screen might turn off. Health Services can then deliver data less often, but still sampled at the same frequency, to avoid waking the main processor."
+- Maximum reporting period: "The processor delivers messages only when awake or when a maximum reporting period is reached, such as every 150 seconds."
+- Delivery override: "A `BatchingMode` object allows your app to override the default batching behavior to get data deliveries more frequently." The page's code, quoted:
+
+  ```kotlin
+  BatchingMode.HEART_RATE_5_SECONDS in capabilities.supportedBatchingModeOverrides
+  batchingModeOverrides = setOf(BatchingMode.HEART_RATE_5_SECONDS)
+  ```
+
+- Battery warning: "Because of the impact to battery performance, use `BatchingMode` only in scenarios where it is absolutely necessary."
+- Foreground service: "Use a continuously running `ForegroundService` in conjunction with `ExerciseClient` to help ensure correct operation for the entire workout."
+- One exercise: "Health Services supports, at most, one exercise at a time across all apps on the device."
+
+Applies to: `ExerciseClient` is not the chosen route (section 11.0).
+
+### 13.3 Passive monitoring
+
+Source: [Passive data](https://developer.android.com/training/wearables/health-services/passive).
+
+- "When you receive data in the background, it is delivered in batches."
+- "The callback receives data at a slightly faster rate, but only while the app is running and the callback is successfully notified."
+- "When the device is starting up, Health Services might take 10 seconds or more to acknowledge a passive data registration request, and this might exceed the allowable execution time of a `BroadcastReceiver`."
+- Goals: the page has no sentence saying that only one goal type is handled; its example code has a single branch, `DataType.STEPS_DAILY -> { // ... }`.
+
+Applies to: the passive route, measured in section 12.3.
+
+### 13.4 Permissions
+
+Source: [Permissions](https://developer.android.com/health-and-fitness/health-services/permissions).
+
+- The permissions table lists `HEART_RATE_BPM` with `READ_HEART_RATE`.
+- "If your app targets API level 36 or higher, and if it uses `PassiveMonitoringClient` to access body sensor information in the background, request the `READ_HEALTH_DATA_IN_BACKGROUND` permission."
+
+Applies to: section 5 and the permission flow (C10).
+
+### 13.5 Power and notifications on Wear OS
+
+Sources: [Power](https://developer.android.com/training/wearables/apps/power) and [Notifications](https://developer.android.com/training/wearables/notifications).
+
+- "In most cases, avoid any operations that prevent your app from sleeping, such as wakelocks."
+- "Check that your app doesn't wake up more frequently than every minute or two to receive `ExerciseUpdate` data." (The page says "every minute or two".)
+- "Full-screen intent notifications (setFullScreenIntent()) and the USE_FULL_SCREEN_INTENT permission are not supported on Wear OS."
+
+Applies to: the wake-up behaviour of the live service, and the watch alert screen (section 4).
+
+### 13.6 Health Connect
+
+Sources: [Vitals](https://developer.android.com/health-and-fitness/health-connect/experiences/vitals) and [Mindfulness](https://developer.android.com/health-and-fitness/health-connect/features/mindfulness).
+
+- "For frequent updates from sensors (like continuous glucose monitors or heart rate monitors), write data in batches at intervals of up to 15 minutes to balance real-time updates with battery efficiency."
+- The vitals page does not mention stress (the word does not appear on it).
+- "Each mindfulness session record captures any type of mindfulness session a user performs, for example meditation, breathing, and movement." The session types listed for `MindfulnessSessionRecord` are `MINDFULNESS_SESSION_TYPE_UNKNOWN`, `_MEDITATION`, `_BREATHING`, `_MUSIC`, `_MOVEMENT` and `_UNGUIDED`; no stress detection type is listed. The page's introduction says: "Health Connect provides a mindfulness data type to measure various aspects of mental health, such as stress and anxiety."
+
+Applies to: section 9 (the Samsung stress value).
+
+### 13.7 Samsung
+
+- The Samsung product page returned 403 when read; the user guide was not received.
+- ManualsLib lists the SM-R960 manual (167 pages), with Heart Rate around page 77 and Stress around page 79 (the page address was not given).
