@@ -60,4 +60,25 @@ class ManifestTest {
         assertTrue(permissions().contains("android.permission.POST_NOTIFICATIONS"))
         assertEquals("false", androidAttr(application(), "allowBackup"))
     }
+
+    private fun services(): List<Element> = (0 until application().getElementsByTagName("service").length)
+        .map { application().getElementsByTagName("service").item(it) as Element }
+
+    @Test
+    fun `TC-W-243 the monitoring service is a health foreground service and the permissions for it are declared`() {
+        val service = services().single { androidAttr(it, "name") == ".monitor.MonitoringService" }
+        assertEquals("health", androidAttr(service, "foregroundServiceType"))
+        assertEquals("false", androidAttr(service, "exported"))
+        assertTrue(permissions().contains("android.permission.FOREGROUND_SERVICE"))
+        assertTrue(permissions().contains("android.permission.FOREGROUND_SERVICE_HEALTH"))
+        assertTrue(permissions().contains("android.permission.health.READ_HEART_RATE"))
+    }
+
+    @Test
+    fun `TC-W-244 the monitoring screen is declared and only the debug shell can start it`() {
+        val activities = (0 until application().getElementsByTagName("activity").length)
+            .map { application().getElementsByTagName("activity").item(it) as Element }
+        val screen = activities.single { androidAttr(it, "name") == ".monitor.MonitoringActivity" }
+        assertEquals("android.permission.DUMP", androidAttr(screen, "permission"))
+    }
 }

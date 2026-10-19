@@ -123,6 +123,28 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-088 | 6.5 | unit | The baseline is unknown with 23 hourly lows and known with 24 | null, then a value |
 | TC-W-089 | 6.5 | unit | The baseline is the 20th percentile (nearest rank) of the hourly lows | equals the expected value |
 | TC-W-120 | 6.5 | unit | Only the hourly lows of the last 7 days count; older ones are dropped | an old low does not change the baseline |
+| TC-W-231 | 6.4 | unit | Every reading is compared at once with the threshold (the initial value until a baseline exists); the first reading above it raises a level 1 alert whose time is the reading's time | alert at the reading time |
+| TC-W-232 | 6.5 | unit | With a baseline (24 hourly lows) the threshold is baseline + offset and the alert carries it | threshold 90 for baseline 60 |
+| TC-W-233 | 6.5 | unit | A rising series fed one reading at a time raises one level 1 alert, none inside the cooldown, and a calm reading ends the episode | one alert; new episode id |
+| TC-W-234 | 6.5 | unit | `endEpisode` through the monitor ends the running episode; a second call is ignored | true then false |
+| TC-W-235 | 6.5 | unit | Only the hourly lows are kept for saving, never raw readings | 25 lows |
+| TC-W-236 | 6.6 | unit | The local response comes before the send, in the same call as the reading | respond then send |
+| TC-W-237 | 6.6 | unit | A link that is down does not stop the local response; the alert is queued and reaches the phone when the link is back | queued then delivered |
+| TC-W-238 | 6.4 | unit | The state shown on the Monitoring screen has the latest reading, baseline, threshold and reading count after every call | listener gets one state per call |
+| TC-W-239 | 6.5 | unit | An `/episode-end/<id>` item from the phone is applied through the item path | state not stress |
+| TC-W-240 | 6.8 | unit (debug) | The debug injector's rising series: one reading per second from the first to the last value | 31 readings |
+| TC-W-241 | 6.8 | unit (debug) | The debug injector's history: three resting samples in each of the last hours, so a baseline exists | 75 samples, 25 hours |
+| TC-W-242 | 6.8 | unit (debug) | A list of values parses; a bad list is refused | list or null |
+| TC-W-243 | 6.4 | unit | The monitoring service is a health foreground service, not exported; the foreground-service and heart-rate permissions are declared | manifest |
+| TC-W-244 | 6.4 | unit | The Monitoring screen is declared and only the debug shell (DUMP) can start it by intent | manifest |
+| TC-W-245 | 6.8 | script | `run-stress-demo.ps1` parses without errors | parser |
+| TC-W-246 | 6.8 | script | One command with only `-Phone` and `-Watch`: stages preflight, grants, monitoring, baseline, reading, event, response, watch-alert, phone-alert, episode-end, each with PASS/FAIL, its time and the time since the previous stage; the timeline gives the latencies (reading to response, phone latency) | result file |
+| TC-W-247 | 6.8 | script | The demo asks nothing and needs no tap (stdin closed) | no banner |
+| TC-W-248 | 6.8 | script | The result is published as `demo-results/<stamp>`; the file holds no ip address, no serial and no local path | origin refs, text |
+| TC-W-249 | 6.8 | script | No stress event: the event stage fails, the later stages say so, exit 1, the file still ends with a summary and is published | exit code, file |
+| TC-W-250 | 6.8 | script | An alert the phone did not raise fails only the phone stage | stage lines |
+| TC-W-251 | 6.8 | script | With `-Real` nothing is injected (no baseline, no series): the demo waits for a real event | call log |
+| TC-W-252 | 6.8 | script | A hung adb call does not hang the demo (hard limit) | summary written |
 | TC-W-121 | 6.5 | unit | Samples in any order within one hour give the same hourly low as sorted ones | equal results |
 | TC-W-122 | 6.5 | unit | The hourly lows (derived values only) can be saved and restored | restored baseline equals the original |
 | TC-W-132 | 6.4 | unit | The probe summary counts deliveries and samples and reports the min, median and max gap between deliveries | expected numbers |

@@ -14,6 +14,7 @@
 #                                                  dead     every command fails (the watch cannot be reached)
 #                                                  hang     `dumpsys notification` never returns (a hung adb)
 #                                                  novibrator  the vibrator service lists no new vibration after `vibrate`
+#                                                  hangdemo  `am start` of the Monitoring screen never returns
 #                                                  reportfail  the measure-report command fails and logs nothing
 # FAKE_AWAY_AFTER=N (+ FAKE_AWAY_CALLS=K): after the Nth report the watch goes away (Wi-Fi off): every adb call fails, and the first K
 #   `adb connect` calls fail too; the next one brings it back.
@@ -23,6 +24,10 @@
 # FAKE_MDNSNAME=1: `adb devices` also lists the mDNS name adb-FAKE1234-abc._adb-tls-connect._tcp (it never changes with the port), `-s <name>` works
 #   in every state (also after a port change), `adb connect <name>` fails like the real adb, `getprop ro.serialno` answers FAKE1234.
 # FAKE_BATTERY=N: the starting battery level (default 68).
+# FAKE_PHONE (default PHONE123): the serial of a simulated phone; `-s PHONE123` commands use their own log ($D/plog): grants, appops, install,
+#   and `am broadcast ... DUMP_ALERTS`, which prints the DEMO alert lines of the last alert the watch sent (not with FAKE_FAIL=nophonealert).
+# Watch stress demo (MonitoringActivity, MonitorDemoReceiver --es cmd baseline|series|inject|im-ok|status): notes the DEMO monitor lines; FAKE_FAIL=noevent
+#   makes `series` raise no event.
 # FAKE_DROP=1: after `input keyevent KEYCODE_SLEEP` the connection drops (device offline) until `adb connect`.
 # FAKE_CHARGING=1: the watch is on its charger. It simulates the commands; it proves nothing about the watch.
 set -u
@@ -36,6 +41,37 @@ touch "$D/log"
 serial="${ANDROID_SERIAL:-}"
 [ "${1:-}" = "-s" ] && { serial="$2"; shift 2; }
 cmd="${1:-}"; shift || true
+if [ "$serial" = "${FAKE_PHONE:-PHONE123}" ]; then
+  case "$cmd" in
+    logcat)
+      for a in "$@"; do case "$a" in -c) : > "$D/plog"; exit 0;; -d) cat "$D/plog" 2>/dev/null; exit 0;; esac; done; exit 0;;
+    install) echo "Success"; exit 0;;
+    shell)
+      sub="${1:-}"; shift || true
+      case "$sub" in
+        echo) echo "$@"; exit 0;;
+        getprop) echo PHONEFAKE1; exit 0;;
+        date) date +%s; exit 0;;
+        appops) if [ "${1:-}" = get ]; then echo "USE_FULL_SCREEN_INTENT: allow"; fi; exit 0;;
+        dumpsys) echo "      android.permission.POST_NOTIFICATIONS: granted=true"; exit 0;;
+        am)
+          if echo "$*" | grep -q DUMP_ALERTS; then
+            at="$(cat "$D/lastalert" 2>/dev/null || true)"
+            if [ -n "$at" ] && ! fails nophonealert; then
+              echo "DEMO alert stored id=PA1 watchAt=$at storedAt=$((at + 400))" >> "$D/plog"
+              echo "DEMO alert raised id=PA1 raisedAt=$((at + 900)) sound=1" >> "$D/plog"
+              echo "DEMO alerts end count=1" >> "$D/plog"
+            else
+              echo "DEMO alerts end count=0" >> "$D/plog"
+            fi
+            echo "Broadcast completed: result=0"
+          fi
+          exit 0;;
+      esac
+      exit 0;;
+  esac
+  exit 0
+fi
 if fails dead; then echo "error: device offline" >&2; exit 1; fi
 if [ -e "$D/away" ] && fails portchange; then
   case "$cmd" in
@@ -75,6 +111,7 @@ if [ "$cmd" = connect ]; then rm -f "$D/offline"; echo "connected to 192.168.1.1
 if [ -e "$D/offline" ]; then echo "error: device offline" >&2; exit 1; fi
 note() { echo "$1" >> "$D/log"; }
 case "$cmd" in
+  install) echo "Success"; exit 0;;
   logcat)
     for a in "$@"; do
       case "$a" in
@@ -88,6 +125,7 @@ case "$cmd" in
   shell)
     sub="${1:-}"; shift || true
     case "$sub" in
+      date) date +%s; exit 0;;
       echo)
         if fails flaky; then n=$(( $(cat "$D/echoes" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$D/echoes"; [ $((n % 3)) -eq 0 ] && { echo "error: closed" >&2; exit 1; }; fi
         echo "$@"; exit 0;;
@@ -161,6 +199,11 @@ case "$cmd" in
           echo "Starting: Intent { cmp=com.shlomoa.myadhdpal/.wear.debug.probe.ProbeFrontActivity }"
           exit 0
         fi
+        if [ "$1" = start ] && echo "$*" | grep -q MonitoringActivity; then
+          fails hangdemo && exec sleep 600
+          note "DEMO monitor started registered=true"; touch "$D/monitoring"
+          echo "Starting: Intent { cmp=com.shlomoa.myadhdpal/.wear.monitor.MonitoringActivity }"; exit 0
+        fi
         if [ "$1" = start ]; then
           note "PROBE measure start registered"
           fails unavail && note "PROBE measure availability UNAVAILABLE"
@@ -170,6 +213,17 @@ case "$cmd" in
         cmdname=""; prev=""
         for a in "$@"; do [ "$prev" = cmd ] && cmdname="$a"; prev="$a"; done
         case "$cmdname" in
+          baseline) note "DEMO inject baseline fed hours=25"; note "DEMO monitor first reading at=$(date +%s)000"; touch "$D/baselined";;
+          series)
+            if ! fails noevent; then
+              ms="$(date +%s)000"
+              note "DEMO monitor event level=1 episode=00000000-0000-4000-8000-000000000001 at=$ms"
+              note "DEMO monitor response level=1 at=$ms"
+              note "DEMO monitor alert sent level=1 at=$ms"
+              echo "$ms" > "$D/lastalert"
+            fi;;
+          im-ok) [ -e "$D/lastalert" ] && note "DEMO monitor episode ended id=00000000-0000-4000-8000-000000000001";;
+          status) b=false; [ -e "$D/baselined" ] && b=true; note "DEMO monitor status stress=false level=0 readings=21 baselineKnown=$b";;
           measure-stop) note "PROBE measure stopped";;
           measure-clear) note "PROBE measure cleared";;
           vibrate) note "PROBE vibrate amplitudeControl=true"; fails novibrator || echo "    2026-10-18 12:00:$(( $(wc -l < "$D/vibrations" 2>/dev/null || echo 0) + 10 )) | Vibration{id=$RANDOM usage=ALARM amplitude=255 status=FINISHED}" >> "$D/vibrations";;

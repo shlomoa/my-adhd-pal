@@ -24,7 +24,7 @@ dependencies {
     implementation(project(":protocol"))
 
     debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.health.services)
+    implementation(libs.androidx.health.services)
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.wear.tiles.testing)

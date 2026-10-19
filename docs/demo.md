@@ -25,6 +25,31 @@ To feel and see the reminder yourself, add `-WaitForTap`: the script does not pr
 the watch (Done, Snooze, Start 2 min or Dismiss). The Done stage then names the action you tapped and the Ack stage checks that
 action in the phone history. Without a tap in time the Done stage fails and the Ack stage is not run.
 
+## Stress demo (milestone M1)
+
+One command shows the user's definition of stress detection end to end, with no prompts and no taps: a heart-rate reading is compared with
+the baseline, a stress event is reported at once, the local response runs on the watch and the alert reaches the phone, as a PASS/FAIL
+timeline with the time of each stage. Script:
+[`scripts/demo/run-stress-demo.ps1`](https://github.com/shlomoa/my-adhd-pal/blob/main/scripts/demo/run-stress-demo.ps1).
+
+```text
+.\gradlew.bat :wear:assembleDebug :phone:assembleDebug
+.\scripts\demo\run-stress-demo.ps1 -Phone <phone adb serial> -Watch <watch ip:port or adb-...._adb-tls-connect._tcp name>
+```
+
+Wear the watch and keep its screen on; keep the phone unlocked. Stages: preflight, grants, monitoring (the Monitoring screen starts the
+foreground health service), baseline, reading, event, response, watch-alert, phone-alert, episode-end ("I'm OK" on the watch). The result
+is published as `demo-results/<time>`; the file holds no address, serial or heart-rate value. With `-Real` nothing is injected and the demo
+waits (`-WaitSec`) for your own heart rate to cross baseline + offset.
+
+What is real and what is injected: the Monitoring service reads the heart rate with the live route and hands every reading to the same
+evaluator ([`MonitorHub`](https://github.com/shlomoa/my-adhd-pal/blob/main/wear/src/main/java/com/shlomoa/myadhdpal/wear/monitor/MonitorHub.kt))
+as the debug injector (a broadcast receiver in the debug build only) does; the injector is a real code path into the evaluator, not a mock. The
+baseline is injected too (a real baseline needs 24 hours of wear, and the hourly lows are not yet saved across restarts).
+
+Honest limit: this works with the screen on. With the screen dim or off the readings arrive in bursts, minutes late (experiment E2,
+[`plans/biometrics.md`](plans/biometrics.md) section 12.3); making detection work then is a separate follow-up (milestone M2).
+
 ## Phone walkthrough with pictures
 
 One command walks through the phone app on the Galaxy A55 5G with no taps and no watch needed:
