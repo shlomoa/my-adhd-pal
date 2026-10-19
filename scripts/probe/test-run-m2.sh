@@ -30,27 +30,31 @@ nth() { calls | grep -nE -- "$1" | sed -n "${2}p" | cut -d: -f1 | grep . || echo
 run
 check "TC-W-258 a full M2 run exits 0" 0 $rc
 modes="$(calls | grep -oE 'ProbeMeasureActivity.*--es mode [a-z0-9]+' | awk '{print $NF}' | tr '\n' ' ')"
-[ "$modes" = "wakelock exercise exercise5s " ]; check "TC-W-258 the probe is started in the three modes, in order" 0 $?
-[ "$(calls | grep -c 'input keyevent KEYCODE_SLEEP')" -ge 3 ]; check "TC-W-258 the screen is turned off by adb for each variant" 0 $?
-[ "$(grep -c 'm2 variant .*screen=off' "$result")" -eq 3 ] && grep -q 'm2 variant wakelock' "$result" && grep -q 'm2 variant exercise5s' "$result"; check "TC-W-258 each variant has its screen=off numbers in the file" 0 $?
+[ "$modes" = "exercise exercise5s " ]; check "TC-W-258 the probe is started in the two default modes, in order" 0 $?
+[ "$(calls | grep -c 'input keyevent KEYCODE_SLEEP')" -ge 2 ]; check "TC-W-258 the screen is turned off by adb for each variant" 0 $?
+[ "$(grep -c 'm2 variant .*screen=off' "$result")" -eq 2 ] && grep -q 'm2 variant exercise:' "$result" && grep -q 'm2 variant exercise5s' "$result"; check "TC-W-258 each variant has its screen=off numbers in the file" 0 $?
 grep -q 'delaySec median=2.0 p95=4.0 max=8.0' "$result"; check "TC-W-258 the delay numbers are copied from the report" 0 $?
+grep -q 'm2 capabilities reportingOverrides' "$result" && grep -q 'm2 capabilities passiveGoalHeartRate' "$result"; check "TC-W-258 the capabilities line (reporting overrides, passive goal data types) is in the file" 0 $?
+run -Variants wakelock,exercise
+modes="$(calls | grep -oE 'ProbeMeasureActivity.*--es mode [a-z0-9]+' | awk '{print $NF}' | tr '\n' ' ')"
+[ "$modes" = "wakelock exercise " ]; check "TC-W-258 the wake lock control runs only when asked for with -Variants" 0 $?
 ! grep -q 'ACTION NEEDED' "$tmp/stdout"; check "TC-W-258 nothing is asked" 0 $?
-[ "$(calls | grep -c 'cmd measure-stop')" -ge 4 ]; check "TC-W-258 the service is stopped between the variants and at the end" 0 $?
+[ "$(calls | grep -c 'cmd measure-stop')" -ge 3 ]; check "TC-W-258 the service is stopped between the variants and at the end" 0 $?
 grep -q 'aod:.*restored' "$result" || ! grep -q 'aod:.*set to 0' "$result"; check "TC-W-258 the Always On Display is restored" 0 $?
 
 FAKE_FAIL=noexercise run
 check "TC-W-259 a variant that cannot start does not fail the run (exit 0)" 0 $rc
-grep -q 'm2 variant exercise: NOT AVAILABLE' "$result" && grep -q 'm2 variant exercise5s: NOT AVAILABLE' "$result" && grep -q 'm2 variant wakelock: screen=off' "$result"; check "TC-W-259 the two exercise variants are NOT AVAILABLE and the wake lock variant ran" 0 $?
+grep -q 'm2 variant exercise: NOT AVAILABLE' "$result" && grep -q 'm2 variant exercise5s: NOT AVAILABLE' "$result"; check "TC-W-259 both exercise variants are NOT AVAILABLE and the run still ends" 0 $?
 
 FAKE_FAIL=nosleep run
 check "TC-W-260 a screen that never goes off does not fail the run (exit 0)" 0 $rc
-[ "$(grep -c 'screen not off' "$result")" -ge 3 ]; check "TC-W-260 each variant says the screen was not off" 0 $?
-[ "$(calls | grep -c 'input keyevent KEYCODE_SLEEP')" -gt 3 ]; check "TC-W-260 the sleep key is repeated" 0 $?
+[ "$(grep -c 'screen not off' "$result")" -ge 2 ]; check "TC-W-260 each variant says the screen was not off" 0 $?
+[ "$(calls | grep -c 'input keyevent KEYCODE_SLEEP')" -gt 2 ]; check "TC-W-260 the sleep key is repeated" 0 $?
 
 run
 b="$(git -C "$tmp/origin.git" for-each-ref --format='%(refname:short)' 'refs/heads/m2-results/*')"; [ -n "$b" ] && grep -q "^PUSHED $b\$" "$tmp/stdout"; check "TC-W-261 the result is published as m2-results/<stamp>" 0 $?
 ! grep -qE '192\.168|/tmp/' "$result"; check "TC-W-261 the file holds no ip address and no local path" 0 $?
-grep -q 'summary: step wakelock' "$result" && grep -q 'summary: run completed' "$result"; check "TC-W-261 the summary lists the variants" 0 $?
+grep -q 'summary: step exercise5s' "$result" && grep -q 'summary: run completed' "$result"; check "TC-W-261 the summary lists the variants" 0 $?
 FAKE_CHARGING=1 run
 [ "$rc" -eq 3 ] && ! calls | grep -q ProbeMeasureActivity; check "TC-W-261 a watch on its charger is refused by the pre-flight before any variant starts" 0 $?
 exit $fail

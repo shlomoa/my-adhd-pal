@@ -235,6 +235,7 @@ case "$cmd" in
           vibrate) note "PROBE vibrate amplitudeControl=true"; fails novibrator || echo "    2026-10-18 12:00:$(( $(wc -l < "$D/vibrations" 2>/dev/null || echo 0) + 10 )) | Vibration{id=$RANDOM usage=ALARM amplitude=255 status=FINISHED}" >> "$D/vibrations";;
           notify-alarm) note "PROBE notify-alarm posted channel=probe_alarm";;
           alarm-clock) note "PROBE alarm-clock scheduled in 15 s"; note "PROBE alarm-clock fired"; note "PROBE alert screen shown"; touch "$D/alertshown"; fails novibrator || echo "    2026-10-18 12:01:$(( $(wc -l < "$D/vibrations" 2>/dev/null || echo 0) + 10 )) | Vibration{id=$RANDOM usage=ALARM amplitude=255 status=FINISHED}" >> "$D/vibrations";;
+          m2-capabilities) note "PROBE m2 capabilities reportingOverrides=[HEART_RATE_5_SECONDS]"; note "PROBE m2 capabilities passiveGoalHeartRate=false";;
           measure-capabilities) note "PROBE measure capabilities heartRateMeasure=true";;
           measure-report)
             if fails reportfail; then echo "error: broadcast failed" >&2; exit 1; fi

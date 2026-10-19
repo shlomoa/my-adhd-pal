@@ -5,7 +5,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** The delivery variants of the M2 probe: the live route with a wake lock, and the exercise client without and with the 5 second mode. */
+/** The delivery variants of the M2 probe: exercise without and with the 5 second mode, and a wake lock control. */
 class ProbeModeTest {
     @Test
     fun `TC-W-253 the mode names parse and an unknown or missing name means the plain live route`() {

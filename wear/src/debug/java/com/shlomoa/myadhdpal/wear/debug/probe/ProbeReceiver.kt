@@ -101,6 +101,8 @@ class ProbeReceiver : BroadcastReceiver() {
                 }, executor)
             }
 
+            "m2-capabilities" -> m2Capabilities(context, executor)
+
             "measure-stop" -> context.stopService(Intent(context, ProbeMeasureService::class.java))
 
             "measure-report" -> measureLines(context).forEach(ProbeLog::note)
@@ -109,6 +111,28 @@ class ProbeReceiver : BroadcastReceiver() {
 
             else -> ProbeLog.note("unknown measure command: $command")
         }
+    }
+
+    /** What this watch offers for M2: the exercise heart-rate reporting overrides and the passive goal data types. */
+    private fun m2Capabilities(context: Context, executor: Executor) {
+        val services = HealthServices.getClient(context)
+        val exercise = services.exerciseClient.getCapabilitiesAsync()
+        exercise.addListener({
+            runCatching { exercise.get() }
+                .onSuccess { ProbeLog.note("m2 capabilities reportingOverrides=${it.supportedBatchingModeOverrides}") }
+                .onFailure { ProbeLog.note("m2 capabilities exercise failed: ${it.javaClass.simpleName}") }
+        }, executor)
+        val passive = services.passiveMonitoringClient.getCapabilitiesAsync()
+        passive.addListener({
+            runCatching { passive.get() }
+                .onSuccess {
+                    ProbeLog.note(
+                        "m2 capabilities passiveGoalHeartRate=" +
+                            (DataType.HEART_RATE_BPM in it.supportedDataTypesPassiveGoals)
+                    )
+                }
+                .onFailure { ProbeLog.note("m2 capabilities passive failed: ${it.javaClass.simpleName}") }
+        }, executor)
     }
 
     private fun measureLines(context: Context): List<String> {

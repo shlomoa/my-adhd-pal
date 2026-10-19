@@ -15,6 +15,10 @@
 
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
+    <!-- M2 probe variants: a partial wake lock, and exercise sessions (docs/test-reports/watch-probe-checklist.md). -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
     <!-- Debug builds only (docs/conventions.md, Debug code): log sink, log view, injected-message receiver.
          Only `adb shell`, which holds DUMP, can send to the receiver. -->
     <application
