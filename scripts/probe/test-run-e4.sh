@@ -43,8 +43,8 @@ before "$(nth 'logcat -c' 1)" "$(nth 'am start .*ProbeFrontActivity' 1)" && befo
 grep -q '== run 1' "$result" && grep -q '== run 2' "$result"; check "TC-W-174 the result file names both runs" 0 $?
 [ "$(grep -c 'PROBE front' "$result")" -ge 4 ] && grep -q 'keepOn=true' "$result" && grep -q 'keepOn=false' "$result"; check "TC-W-174 the PROBE front lines of both runs are in the result file" 0 $?
 grep -q 'resumed activity:.*ProbeFrontActivity' "$result"; check "TC-W-174 the resumed activity is logged for each run" 0 $?
-[ "$(grep -c '^[0-9-]* [0-9:]* answer: typed-answer' "$result")" -ge 4 ]; check "TC-W-175 the four answers are in the result file" 0 $?
-[ "$(grep -ci 'screen timeout setting' "$tmp/stdout")" -ge 1 ] && [ "$(grep -ci 'notification' "$tmp/stdout")" -ge 1 ]; check "TC-W-175 the script asks the questions of the checklist" 0 $?
+! grep -q 'answer:' "$result"; check "TC-W-175 no typed answer is in the result file (E4 decides from adb)" 0 $?
+! grep -q 'ACTION NEEDED' "$tmp/stdout"; check "TC-W-175 the script asks no question" 0 $?
 ! grep -qE '192\.168|/tmp/' "$result"; check "TC-W-175 the result file holds no ip address and no local path" 0 $?
 b="$(git -C "$tmp/origin.git" for-each-ref --format='%(refname:short)' 'refs/heads/e4-results/*')"; [ -n "$b" ] && grep -q "^PUSHED $b\$" "$tmp/stdout"; check "TC-W-176 the result is published as e4-results/<stamp>" 0 $?
 [ "$(git -C "$tmp/origin.git" ls-tree -r --name-only "$b" | wc -l)" -eq 1 ]; check "TC-W-176 the branch holds only the result file" 0 $?

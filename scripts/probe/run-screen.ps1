@@ -82,16 +82,6 @@ function Restore-Aod {
     }
 }
 
-# The screen state from dumpsys power (Display Power: state=ON|OFF|DOZE), or unknown.
-function Get-ScreenState {
-    $text = (Invoke-Adb @('shell', 'dumpsys', 'power')) -join "`n"
-    $m = $text | Select-String -Pattern 'Display Power: state=(\w+)'
-    if ($m) { return $m.Matches[0].Groups[1].Value }
-    $m = $text | Select-String -Pattern 'mScreenState=(\w+)'
-    if ($m) { return $m.Matches[0].Groups[1].Value }
-    return 'unknown'
-}
-
 Initialize-Probe 'screen'
 Test-Preflight
 
