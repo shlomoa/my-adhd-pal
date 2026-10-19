@@ -218,3 +218,56 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: test-side `PhoneScreens` (14 screens, fixed example data, the real composables) and `PhoneScreensTest` (Robolectric native graphics, `captureToImage`, no new library); the rendered PNGs and an index page in `docs/demo/phone/`, linked from `docs/demo.md`. Catalogue TC-A-146 and 147.
 - Validation: tests red first (does not compile), now green; I looked at three of the images (history, settings, permission card) and they show the real screens; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
 - Open items: part a (the one-command device script with screenshots and a recording) follows. The images are Compose renders on a JVM, not photos of the Galaxy A55 5G; fonts and system bars differ. The Tasks edit form and the reminder form are not in the list yet.
+
+## 2026-10-19 - Learnings (2026-10-19)
+
+- Issue and PR: none (user order through the coordinator: record what was learned). Covers PRs #259, #260, #262, #263, #264 (stress demo phone side and the phone walkthrough, 2026-10-18) and the standby before them.
+- Changed: this entry only. No code.
+- Validation: not applicable. Every statement below says where it comes from: "ran" (I ran it in the container), "source" (a document or page named here, read, not run on a device), or "guess".
+- Open items: see the last list of this entry (open questions and what is unproven on the Galaxy A55 5G).
+
+### Facts about the platform and the tools
+
+- Robolectric 4.17 with `@GraphicsMode(NATIVE)` and `captureToImage()` renders real Compose screens to PNG on a JVM, with no extra library and no build file change (ran: `PhoneScreensTest`, 14 images). `setContent` may be called once per test; to show several screens, switch a state and wrap the content in `key(id)` so `rememberSaveable` state does not carry over (ran: the first attempt failed with "has already set content").
+- Android lint `InlinedApi` fails a use of `Manifest.permission.POST_NOTIFICATIONS` while minSdk is 30 unless the code is guarded by an SDK check (ran). detekt `MatchingDeclarationName` fails a file whose only class is not named like the file, even when it also holds a composable (ran).
+- The history repository lists newest first, so observers of fresh rows see them newest first (ran: my own test expected the opposite).
+- Without `-g`, `adb install` does not grant runtime permissions; `pm grant <pkg> android.permission.POST_NOTIFICATIONS` and `appops set <pkg> USE_FULL_SCREEN_INTENT allow` are the standard commands for Android 13 and 14 (source: Android notification and full-screen-intent pages quoted in `docs/phone-alert.md` section 3; not run on a device).
+- Before #260 nothing in the app asked for the notification permission or the full-screen permission (ran: a search of the sources found only a test). On Android 13 and later the alert would not have appeared at all unless the user had granted it by hand in system settings. `docs/phone-alert.md` had listed the onboarding as step A-alert-2, not built.
+- The container has no PowerShell. PowerShell 7.4.6 from the GitHub releases page can be downloaded through the proxy and run from a scratch folder (ran). The existing demo and spike script tests need it.
+- `adb screencap -p`, `screenrecord --time-limit` (at most 180 s) and `pkill -l SIGINT screenrecord` are what the phone script uses (source: Android documentation and `adb` usage; not run on the A55).
+- The Android lint crash in `:phone:lintAnalyzeDebugUnitTest` happened once in this period and an identical rerun passed, as `docs/conventions.md` describes (ran).
+- Squash merges of earlier PRs leave stacked branches in conflict on the append-only files (`docs/test-plans/android.md`, `docs/test-reports/android-baseline.md`, `docs/work-log/android.md`): both sides add a section at the same end of the file. Keeping both sides resolves it (ran: five times).
+
+### My mistakes and what they cost
+
+- **`DISMISS_ALERT` does not end the episode on the watch.** In #263 I wrote the debug receiver to call `raiser.dismiss(null)`. With no episode id the raiser only stops the phone's own sound and vibration; it sends no `/episode-end` to the watch. The phone demo's Alert stage nevertheless reports "I'm OK sent" as PASS, which is wrong. I found it on 2026-10-19 while estimating scenario S20 of issue #258. It cost nothing in time so far, but a demo that relies on it would have shown an episode that never ended on the watch. Not fixed (hold). The real "I'm OK" button on the alert screen does pass the episode id and is not affected.
+- A test of mine (TC-A-140) expected the wrong order of observed rows; fixing it cost one extra full test run (about 3 minutes).
+- Two detekt line-length failures and one `MatchingDeclarationName` failure cost one extra check each (about 1 to 3 minutes each; guess).
+- I started the M0 screen images on a branch from `main` before #260 was merged, so the test file did not compile (missing `AlertPermissions`) and I had to merge main and rerun (about 3 minutes).
+- Three rounds of merge conflicts on #260, #263 and #264 in the three append-only documents (about 3 to 5 minutes each plus a check run).
+- The red evidence for the walkthrough script says "41 of 48 checks fail"; 7 of the 48 pass on an empty result (they check that nothing was published), so that count overstates the red.
+- My estimates of 60 to 75 minutes (images) and 2.5 to 3 hours (debug broadcasts plus script) were about 3 to 4 times too long: the three PRs were pushed within about 30 minutes of each other (guess from the push times).
+- I parked #260 (permission card) when asked to put the walkthrough first, but it was already finished; the stash and branch switching cost a few minutes and one wrongly based branch.
+
+### What I would do differently
+
+- Put every new catalogue section, baseline section and log entry in a place or a file that parallel PRs do not share, or open PRs one after the other, so docs conflicts do not recur.
+- Make the debug "I'm OK" take the episode id of the newest alert from the start and log whether the watch was told, instead of a label that says "sent".
+- Search the sources for the permission request before building the alert in A-alert-1: the alert could not appear on Android 13 and later without it.
+- Branch from the PR the new work depends on, or wait for its merge, before writing tests that use it.
+- Run the formatter and detekt before the first push of a new file, not after the check.
+
+### Open questions
+
+- Does `appops set <pkg> USE_FULL_SCREEN_INTENT allow` take effect on One UI 8 (Galaxy A55 5G)? If not, the alert shows as a heads-up notification only.
+- Does `pkill -l SIGINT screenrecord` exist on the A55's Android 14? If not, the recording ends only at its time limit or when the script kills the client, and the MP4 may be unfinished (guess: the script's 20 s wait then pull could yield a damaged file).
+- Do `screencap` and `screenrecord` work over adb on the A55 without a prompt, and is the alert screen recorded or black?
+- With the phone in use or locked, which of heads-up notification and full-screen alarm shows (source: `docs/phone-alert.md` section 3 says heads-up while in use; locked is untested).
+- Does the watch ignore an episode-end for an episode id it does not know (the seeded alert in the phone demo has a random id, not one from a real watch episode)?
+- Will the 3-per-second flashing, the alarm sound and the vibration be acceptable to the user in use (decided 2026-10-15, never seen on a device)?
+
+### Not proven on the Galaxy A55 5G (nothing of the following has run on the device)
+
+- The permission card and the system dialogs (TC-A-139), the grant commands, the alert notification, the full-screen alarm over the lock screen, its sound, vibration and flashing, "I'm OK" from the screen, and the order of the DEMO lines with real clocks.
+- `scripts/demo/run-phone-demo.ps1` end to end (TC-A-153): install with `-g`, the `tab` intent, `SEED_FIXTURES`, screenshots, the recording and the published branch. The simulated adb proves the script's logic only.
+- Earlier manual cases still waiting for the user: TC-A-009, 030, 038, 044, 052, 060, 061, 071, 072, 080, 088, 103, 109, 116.
