@@ -6,6 +6,12 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- The Monitoring service: a foreground service of type health that reads the heart rate (docs/plans/biometrics.md section 11). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" android:maxSdkVersion="35" />
+
     <!-- Exact alarms for reminders: granted with the install from API 33, a user grant before (docs/research/watch.md). -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission
@@ -81,7 +87,26 @@
                     android:pathPrefix="/hello/phone"
                     android:scheme="wear" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data
+                    android:host="*"
+                    android:pathPrefix="/episode-end/"
+                    android:scheme="wear" />
+            </intent-filter>
         </service>
+
+        <service
+            android:name=".monitor.MonitoringService"
+            android:exported="false"
+            android:foregroundServiceType="health" />
+
+        <!-- The Monitoring screen keeps the screen on; only `adb shell` (DUMP) can start it from outside the app. -->
+        <activity
+            android:name=".monitor.MonitoringActivity"
+            android:exported="true"
+            android:permission="android.permission.DUMP"
+            android:taskAffinity="" />
 
         <service
             android:name=".tile.ReminderTileService"

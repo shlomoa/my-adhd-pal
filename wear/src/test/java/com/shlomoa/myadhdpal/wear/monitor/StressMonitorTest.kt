@@ -10,10 +10,13 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** The continuous comparison of every reading with the baseline (the user's definition of stress detection, 2026-10-17). */
+/**
+ * The continuous comparison of every reading with the baseline (the user's definition of stress detection,
+ * 2026-10-17).
+ */
 class StressMonitorTest {
     private val ids = ArrayDeque((1..9).map { "00000000-0000-4000-8000-00000000000$it" })
-    private val monitor = StressMonitor(AlertSettings(), { ids.removeFirst() })
+    private val monitor = StressMonitor(AlertSettings(AlertRules.DEFAULT_COOLDOWN_SECONDS), { ids.removeFirst() })
     private val hour = 3_600_000L
     private val start = 1_000L * hour
 
@@ -25,7 +28,7 @@ class StressMonitorTest {
     }
 
     @Test
-    fun `TC-W-231 every reading is compared at once with the threshold, which is the initial value until a baseline exists`() {
+    fun `TC-W-231 every reading is compared at once with the threshold (the initial value until a baseline exists)`() {
         val calm = monitor.onReadings(listOf(hr(80.0, start)), now = start)
         assertNull(calm.baselineBpm)
         assertEquals(AlertRules.DEFAULT_INITIAL_BPM.toDouble(), calm.thresholdBpm, 0.0)
@@ -52,7 +55,7 @@ class StressMonitorTest {
     }
 
     @Test
-    fun `TC-W-233 readings one by one in a rising series raise one level 1 alert, none inside the cooldown, a new episode after a calm reading`() {
+    fun `TC-W-233 a rising series, one reading at a time, raises one level 1 alert, then a new episode`() {
         monitor.onReadings(history(60.0), now = start)
         val alerts = (0..30).flatMap { second ->
             val bpm = 60.0 + second * 2

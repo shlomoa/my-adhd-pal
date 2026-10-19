@@ -3,12 +3,21 @@ package com.shlomoa.myadhdpal.wear
 import android.app.Application
 import android.content.Context
 import androidx.wear.tiles.TileService
+import com.shlomoa.myadhdpal.protocol.AlertRules
+import com.shlomoa.myadhdpal.protocol.AlertSettings
 import com.shlomoa.myadhdpal.protocol.LinkState
 import com.shlomoa.myadhdpal.protocol.LinkTransport
+import com.shlomoa.myadhdpal.protocol.StoredItem
+import com.shlomoa.myadhdpal.protocol.TransportListener
 import com.shlomoa.myadhdpal.wear.datalayer.DataLayerTransport
 import com.shlomoa.myadhdpal.wear.link.FanOutListener
 import com.shlomoa.myadhdpal.wear.link.LinkClient
 import com.shlomoa.myadhdpal.wear.link.LinkView
+import com.shlomoa.myadhdpal.wear.log.Logger
+import com.shlomoa.myadhdpal.wear.monitor.HapticAlertResponder
+import com.shlomoa.myadhdpal.wear.monitor.MonitorHub
+import com.shlomoa.myadhdpal.wear.monitor.StressMonitor
+import com.shlomoa.myadhdpal.wear.monitor.TransportAlertSender
 import com.shlomoa.myadhdpal.wear.prompt.PromptInbox
 import com.shlomoa.myadhdpal.wear.reminder.AndroidTimerPort
 import com.shlomoa.myadhdpal.wear.reminder.HapticPlayer
@@ -42,6 +51,30 @@ class AppGraph(private val context: Context) {
     /** Asks the system for a new tile; the schedule receiver and the link client report here once they exist (1.5). */
     val tileTriggers = TileUpdateTriggers {
         TileService.getUpdater(context).requestUpdate(ReminderTileService::class.java)
+    }
+
+    /**
+     * Every heart-rate reading, from the Monitoring service or the debug injector, goes through this hub: evaluation,
+     * the local response (vibration) and the urgent alert to the phone. The alert settings are the defaults until the
+     * schedule carries them.
+     */
+    val monitorHub: MonitorHub by lazy {
+        MonitorHub(
+            monitor = StressMonitor(
+                scheduleStore.load()?.schedule?.alerts ?: AlertSettings(
+                    AlertRules.DEFAULT_COOLDOWN_SECONDS
+                ),
+                {
+                    UUID.randomUUID().toString()
+                }
+            ),
+            responder = HapticAlertResponder(haptics),
+            sender = TransportAlertSender({
+                transport
+            }, { UUID.randomUUID().toString() }, { System.currentTimeMillis() }),
+            now = { System.currentTimeMillis() },
+            log = { Logger.i("DEMO", "monitor $it") }
+        )
     }
 
     private val dataLayerHolder = lazy { buildDataLayer() }
@@ -91,7 +124,14 @@ class AppGraph(private val context: Context) {
         )
         linkClient.setOnChange(tileTriggers::onLinkChanged)
         promptInbox = PromptInbox(link, now = { Instant.now() })
-        link.setListener(FanOutListener(linkClient, scheduleReceiver, promptInbox))
+        val episodeEnds = object : TransportListener {
+            override fun onItemChanged(item: StoredItem) = monitorHub.onItem(item)
+
+            override fun onItemDeleted(path: String) = Unit
+
+            override fun onLinkStateChanged(state: LinkState) = Unit
+        }
+        link.setListener(FanOutListener(linkClient, scheduleReceiver, promptInbox, episodeEnds))
         linkClient.start()
         dataLayer.start {
             scheduleReceiver.start()

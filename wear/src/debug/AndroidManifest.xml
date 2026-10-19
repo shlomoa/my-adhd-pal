@@ -31,6 +31,12 @@
             android:exported="true"
             android:permission="android.permission.DUMP" />
 
+        <!-- The stress demo injector: feeds synthetic readings into the Monitoring hub. -->
+        <receiver
+            android:name=".debug.monitor.MonitorDemoReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
+
         <receiver
             android:name=".debug.DemoActionReceiver"
             android:exported="true"

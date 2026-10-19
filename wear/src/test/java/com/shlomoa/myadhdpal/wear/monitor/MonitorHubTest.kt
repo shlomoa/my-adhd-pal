@@ -16,7 +16,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** The path from a reading to the local response and the urgent alert; the service and the debug injector both call [MonitorHub.feed]. */
+/**
+ * The path from a reading to the local response and the urgent alert; the service and the debug injector both call
+ * [MonitorHub.feed].
+ */
 class MonitorHubTest {
     private val link = FakeLink().apply { connect(nearby = true) }
     private val events = mutableListOf<String>()
@@ -36,7 +39,10 @@ class MonitorHubTest {
         }
     }
     private val hub = MonitorHub(
-        monitor = StressMonitor(AlertSettings(), { "00000000-0000-4000-8000-0000000000f${ids.size}" }),
+        monitor = StressMonitor(
+            AlertSettings(AlertRules.DEFAULT_COOLDOWN_SECONDS),
+            { "00000000-0000-4000-8000-0000000000f${ids.size}" }
+        ),
         responder = responder,
         sender = sendingRecorder,
         now = { clock },
@@ -76,13 +82,13 @@ class MonitorHubTest {
     }
 
     @Test
-    fun `TC-W-084 the end of an episode from the phone stops the state and the next breach is level 1 of a new episode`() {
+    fun `TC-W-084 the end of an episode from the phone stops the state, the next breach is a new level 1 episode`() {
         hub.feed(listOf(hr(120.0, clock)))
         val id = hub.state.episodeId!!
         assertTrue(hub.endEpisode(id))
         assertFalse(hub.state.stress)
         hub.feed(listOf(hr(125.0, clock + 1_000)))
-        assertEquals(listOf(1, 1), events.filter { it.startsWith("respond") }.map { it.removePrefix("respond level=").toInt() })
+        assertEquals(2, events.count { it == "respond level=1" })
         assertFalse(hub.endEpisode(id))
     }
 
