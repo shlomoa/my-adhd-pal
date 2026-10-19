@@ -15,6 +15,7 @@
 #                                                  hang     `dumpsys notification` never returns (a hung adb)
 #                                                  novibrator  the vibrator service lists no new vibration after `vibrate`
 #                                                  hangdemo  `am start` of the Monitoring screen never returns
+#                                                  noexercise  an `am start` of the probe in an exercise mode logs `exercise start failed` and registers nothing
 #                                                  reportfail  the measure-report command fails and logs nothing
 # FAKE_AWAY_AFTER=N (+ FAKE_AWAY_CALLS=K): after the Nth report the watch goes away (Wi-Fi off): every adb call fails, and the first K
 #   `adb connect` calls fail too; the next one brings it back.
@@ -205,6 +206,11 @@ case "$cmd" in
           echo "Starting: Intent { cmp=com.shlomoa.myadhdpal/.wear.monitor.MonitoringActivity }"; exit 0
         fi
         if [ "$1" = start ]; then
+          mode=measure; prev=""
+          for a in "$@"; do [ "$prev" = mode ] && mode="$a"; prev="$a"; done
+          echo "$mode" > "$D/mode"
+          note "PROBE measure mode=$mode"
+          if fails noexercise && [ "${mode#exercise}" != "$mode" ]; then note "PROBE measure exercise start failed: refused"; exit 0; fi
           note "PROBE measure start registered"
           fails unavail && note "PROBE measure availability UNAVAILABLE"
           fails noavail || fails unavail || note "PROBE measure availability AVAILABLE"
@@ -235,6 +241,7 @@ case "$cmd" in
             if fails stalled; then r=$(cat "$D/readings"); [ "$r" -gt 0 ] || r=100; else r=$(( $(cat "$D/readings") + 100 )); fi
             echo "$r" > "$D/readings"
             note "PROBE measure screen=all readings=$r perMin=10.0 gapSec median=1 p95=1 max=2"
+            if [ "$(cat "$D/screen" 2>/dev/null)" = OFF ]; then note "PROBE measure samples screen=off readings=$r sampleGapSec max=1 delaySec median=2.0 p95=4.0 max=8.0"; fi
             note "PROBE measure battery start=68 now=67 dropPerHour=1.0";;
         esac
         echo "Broadcast completed: result=0"; exit 0;;

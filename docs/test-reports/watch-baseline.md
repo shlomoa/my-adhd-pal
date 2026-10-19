@@ -456,6 +456,12 @@ FAIL TC-W-246 a full demo run exits 0 (expected 0, got 64)
 FAIL TC-W-246 stage preflight is PASS (expected 0, got 2)
 ```
 
+## M2 probe: readings with the screen off (TC-W-253 to TC-W-261; `ProbeModeTest.kt`, `scripts/probe/test-run-m2.sh`)
+
+The plain live route delivers in bursts of hundreds up to about 10 minutes late with the screen dim or off (E1, E2). Milestone M2 needs a route that keeps readings arriving. Three variants are measured by adb alone, 6 minutes each, with the screen off: the live route with a partial wake lock (`wakelock`), the exercise client (`exercise`) and the exercise client with the 5 second heart-rate reporting (`exercise5s`).
+The coordinator's third variant, a passive threshold goal, is replaced: the passive goals of the library (`PassiveListenerConfig.setDailyGoals`) are daily goals, so they cannot repeat within a run; the 5 second mode is the documented way to get heart rate while the screen is off.
+Red commit: the first commit of branch `claude/watch-m2-probe` (tests, the simulated modes `noexercise` and the screen=off numbers). Commands: `./gradlew :wear:testDebugUnitTest` (the build fails: `Unresolved reference 'ProbeMode'`, `'probeModeOf'`) and `PWSH=pwsh scripts/probe/test-run-m2.sh` (15 checks FAIL, for example `FAIL TC-W-258 a full M2 run exits 0`).
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

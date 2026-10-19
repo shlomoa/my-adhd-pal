@@ -145,6 +145,15 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-250 | 6.8 | script | An alert the phone did not raise fails only the phone stage | stage lines |
 | TC-W-251 | 6.8 | script | With `-Real` nothing is injected (no baseline, no series): the demo waits for a real event | call log |
 | TC-W-252 | 6.8 | script | A hung adb call does not hang the demo (hard limit) | summary written |
+| TC-W-253 | 6.8 | unit (debug) | The M2 probe mode names parse; an unknown or missing name means the plain live route | enum |
+| TC-W-254 | 6.8 | unit (debug) | Only the wake lock mode holds a wake lock; only the two exercise modes use the exercise client | enum flags |
+| TC-W-255 | 6.8 | unit (debug) | Only exercise5s asks for the 5 second heart-rate reporting | enum flags |
+| TC-W-256 | 6.8 | unit (debug) | Each mode has a log line that names it (`PROBE measure mode=<name>`) | text |
+| TC-W-257 | 6.8 | script | `run-m2.ps1` parses without errors | parser |
+| TC-W-258 | 6.8 | script | One command with only `-Watch`: for each variant (wakelock, exercise, exercise5s) it starts the probe in that mode, turns the screen off by adb (Always On Display off first, restored at the end), waits `-PhaseSec` (default 360), takes the report and logs the screen=off delivery numbers as `m2 variant <name>: ...`; no prompt | call order, result file |
+| TC-W-259 | 6.8 | script | A variant that cannot start (the exercise client refuses) is `NOT AVAILABLE` in the file; the other variants still run; exit 0 | result file |
+| TC-W-260 | 6.8 | script | The screen must read OFF (`dumpsys power`) before the wait starts; the sleep key is repeated; a screen that never goes off is logged and the variant is marked `screen not off` | result file |
+| TC-W-261 | 6.8 | script | The summary lists the three variants with their screen=off numbers, publishes `m2-results/<stamp>`, and holds no ip address, serial, path or heart-rate value; pre-flight (charger, battery) and time limits apply | origin refs, text |
 | TC-W-121 | 6.5 | unit | Samples in any order within one hour give the same hourly low as sorted ones | equal results |
 | TC-W-122 | 6.5 | unit | The hourly lows (derived values only) can be saved and restored | restored baseline equals the original |
 | TC-W-132 | 6.4 | unit | The probe summary counts deliveries and samples and reports the min, median and max gap between deliveries | expected numbers |
