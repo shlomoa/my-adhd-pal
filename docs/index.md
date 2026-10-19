@@ -9,7 +9,8 @@ body of the GitHub issue of each step; the documents record what was decided and
 - [Plan](plan.md): architecture, decisions, milestones and step definitions (the authority).
 - [Execution plans and gates](plans/README.md): lanes, gates, stop rule, file ownership and schedule. Lane plans:
   [shared and data](plans/shared.md), [Android](plans/android.md), [watch](plans/watch.md),
-  [documentation](plans/docs.md), [validation](plans/validation.md), and the [biometric alert decisions](plans/biometrics.md).
+  [documentation](plans/docs.md), [validation](plans/validation.md), the [biometric alert decisions](plans/biometrics.md) and the
+  [execution structure](plans/execution-structure.md).
 - [Conventions](conventions.md): issues, labels, work log, debug code and checks every lane follows.
 - [Work log](work-log.md): the format and one log per lane:
   [shared](work-log/shared.md), [Android](work-log/android.md), [watch](work-log/watch.md),
