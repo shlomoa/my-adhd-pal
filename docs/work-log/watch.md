@@ -571,4 +571,3 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - All run scripts and their checks: `run-e1`, `run-e3`, `run-e4`, `run-e6` (adb-only answers), `run-screen`, `run-m2`, the pre-flight, the heartbeat, the port and mDNS rediscovery, the question timeouts, the hard adb time limit.
 - The Monitoring service as a foreground service of type health on Wear OS 6, the Monitoring screen, the vibration and the feel of the local response, the `/status/watch` item, the `/episode-end/<id>` handling, the debug injector, and the whole stress demo with the phone (`run-stress-demo.ps1`, including the phone grants by `appops`).
 - Not built yet: saving the hourly lows across restarts, an in-app way to open the Monitoring screen, delivery with the screen dim or off (M2 route), the C10 permission flow.
-
