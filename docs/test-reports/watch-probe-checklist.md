@@ -37,8 +37,8 @@ The user's budget (2026-10-18): at most 10 minutes of attended watch time per sc
 | `run-e1.ps1` | phases 600 s | `-PhaseSec` 120 (3 phases) | about 7 | wear the watch; check the Always On Display is on; later switch it off |
 | `run-screen.ps1` | phases 600 s | `-PhaseSec` 120 (2 phases) | about 5 | wear the watch |
 | `run-e3.ps1` | blocks 600 s, states 600 s | `-BlockSec` 120 (3 blocks), `-StateSec` 90 | about 10 | wear the watch; Sleep mode on and off; Power saving on and off |
-| `run-e4.ps1` | run 180 s | `-RunSec` 60 (2 runs) | about 4 | wear the watch, arm still; type short answers |
-| `run-e6.ps1` | alarm wait 25 s | `-AlarmWaitSec` 20 (the alarm fires after 15 s) | about 8 | wear the watch; say none, weak or strong after each buzz |
+| `run-e4.ps1` | run 180 s | `-RunSec` 60 (2 runs) | about 3 | wear the watch, arm still; nothing typed (adb decides) |
+| `run-e6.ps1` | alarm wait 25 s | `-AlarmWaitSec` 20 (the alarm fires after 15 s) | about 7 | wear the watch; Sleep and Theater mode on/off, vibration strength; nothing typed (adb decides) |
 
 All five together: about 34 minutes. The stress demo (M1) is separate (at most 10 minutes).
 

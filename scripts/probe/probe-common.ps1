@@ -435,6 +435,28 @@ function Ask-Answer([string]$question, [string]$Step = '') {
     return $answer
 }
 
+# The screen state from dumpsys power (Display Power: state=ON|OFF|DOZE), or unknown.
+function Get-ScreenState {
+    $text = (Invoke-Adb @('shell', 'dumpsys', 'power')) -join "`n"
+    $m = $text | Select-String -Pattern 'Display Power: state=(\w+)'
+    if ($m) { return $m.Matches[0].Groups[1].Value }
+    $m = $text | Select-String -Pattern 'mScreenState=(\w+)'
+    if ($m) { return $m.Matches[0].Groups[1].Value }
+    return 'unknown'
+}
+
+# The window that has the focus (dumpsys window), one line, or unknown.
+function Get-WindowFocus {
+    $line = (Invoke-Adb @('shell', 'dumpsys', 'window')) | Where-Object { $_ -match 'mCurrentFocus' } | Select-Object -First 1
+    if ($line) { return $line.Trim() }
+    return 'unknown'
+}
+
+# The vibrator service's lines (dumpsys vibrator_manager) that mention vibrations; a new line after a command means it vibrated.
+function Get-VibratorLines {
+    return @(Invoke-Adb @('shell', 'dumpsys', 'vibrator_manager') | Where-Object { $_ -match 'ibrat' } | ForEach-Object { $_.Trim() })
+}
+
 # Background permissions off, heart rate and notification on, a clean start of the service from the visible app.
 # Returns when the service reported AVAILABLE; throws when it did not.
 function Start-ProbeService {

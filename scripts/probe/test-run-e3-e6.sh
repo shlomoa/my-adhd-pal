@@ -141,7 +141,7 @@ check "TC-W-165 a full E6 run exits 0" 0 $rc
 [ "$(count 'cmd vibrate')" -ge 6 ]; check "TC-W-165 vibrate is run in each of the six states" 0 $?
 [ "$(count 'cmd notify-alarm')" -ge 3 ] && [ "$(count 'cmd alarm-clock')" -ge 3 ]; check "TC-W-165 both Do Not Disturb routes are tried under Do Not Disturb, Bedtime and Theater" 0 $?
 grep -q 'priority' "$tmp/state/dnd" && tail -1 "$tmp/state/dnd" | grep -q 'set_dnd off'; check "TC-W-165 Do Not Disturb is set to priority and switched off again at the end" 0 $?
-grep -q 'answer: strong' "$result"; check "TC-W-165 the user's answers are in the result file" 0 $?
+grep -q 'vibration seen by adb: yes' "$result"; check "TC-W-165 the adb judgement of the vibrations is in the result file" 0 $?
 grep -q 'PROBE vibrate amplitudeControl=true' "$result" && grep -q 'PROBE notify-alarm posted' "$result" && grep -q 'PROBE alarm-clock fired' "$result"; check "TC-W-165 the PROBE lines are in the result file" 0 $?
 [ "$(count 'pm grant .*POST_NOTIFICATIONS')" -ge 1 ]; check "TC-W-165 the notification permission is granted" 0 $?
 ! grep -q '192.168' "$result"; check "TC-W-165 the result file holds no ip address" 0 $?

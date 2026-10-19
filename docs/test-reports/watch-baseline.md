@@ -427,6 +427,15 @@ FAIL TC-W-227 E1 phase default is 120 s (expected 120, got 600)
 FAIL TC-W-227 E4 run default is 60 s (expected 60, got 180)
 ```
 
+E4 and E6 decide from adb alone (TC-W-228 to TC-W-230; `scripts/probe/test-adb-answers.sh`): the user types nothing; E4 samples the screen state and the window focus, E6 judges each vibration and alarm route from `dumpsys vibrator_manager` (new entries), the screen state and the window focus; only the physical actions are asked.
+Red commit: "Tests for adb-only answers in E4 and E6 (red)" on branch `claude/watch-adb-answers` (tests, simulated `dumpsys vibrator_manager` and `dumpsys window`, `novibrator`). Command: `PWSH=pwsh scripts/probe/test-adb-answers.sh`. 13 checks FAIL before the change, for example:
+
+```
+FAIL TC-W-228 E4 asks nothing (expected 0, got 1)
+FAIL TC-W-229 only the 7 physical actions are asked (Sleep, Theater, 3 vibration strengths) (expected 0, got 1)
+FAIL TC-W-230 a vibrator service that lists nothing is reported as no (expected 0, got 1)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
