@@ -434,6 +434,15 @@ Red commit: "Tests for adb-only answers in E4 and E6 (red)" on branch `claude/wa
 FAIL TC-W-228 E4 asks nothing (expected 0, got 1)
 FAIL TC-W-229 only the 7 physical actions are asked (Sleep, Theater, 3 vibration strengths) (expected 0, got 1)
 FAIL TC-W-230 a vibrator service that lists nothing is reported as no (expected 0, got 1)
+## Stress monitor, M1 (TC-W-231 to TC-W-244, with TC-W-077, 081, 084, 085; `wear/.../monitor/StressMonitorTest.kt`, `MonitorHubTest.kt`, `ManifestTest.kt`, `debug/monitor/InjectSeriesTest.kt`)
+
+The user's definition (2026-10-17): heart rate is measured continuously, compared with the baseline continuously, a stress event is reported at once and the local response is activated. The watch side of milestone M1 (issue #258): a health foreground service feeds every reading to the evaluator, the local response (vibration, visible state) and the urgent alert to the phone, and a debug injector feeds synthetic readings into the same code path.
+Red commit: the first commit of branch `claude/watch-stress-monitor` (tests only). Command: `./gradlew :wear:testDebugUnitTest`. The build fails before any test runs:
+
+```
+e: wear/src/test/.../monitor/MonitorHubTest.kt:26:38 Unresolved reference 'AlertResponder'.
+e: wear/src/test/.../monitor/MonitorHubTest.kt:38:23 Unresolved reference 'MonitorHub'.
+e: wear/src/test/.../monitor/MonitorHubTest.kt:39:19 Unresolved reference 'StressMonitor'.
 ```
 
 ## Not yet written (later steps)
