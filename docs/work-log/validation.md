@@ -51,7 +51,12 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 - Validation: TC-S-198 and TC-S-199 red in 65781a5, then green. Both are static checks of the script text; the interference itself is covered by the full post-merge runs.
 - Open items: the evidence that the fresh JVM avoids the lint crash of #205 is as thin as it was for `--stop`; #205 stays open.
 
-## Learnings (2026-10-19)
+## 2026-10-19 - Issue 258: Validation learnings
+
+- Issue and PR: #258; PR #272.
+- Changed: recorded lane V's validation learnings below.
+- Validation: `scripts/check-work-log.sh docs/work-log/validation.md`; `scripts/test/test-conventions.sh`.
+- Open items: see the open questions below.
 
 Written by the second lane V session (started 2026-10-17 about 14:35 UTC). Plain facts; no new scope.
 
