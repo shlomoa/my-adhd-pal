@@ -205,6 +205,18 @@ repositories exist (G3).
 | TC-A-144 | An empty dump logs only the end line; no line holds a health value | Unit | `DEMO alerts end count=0`; no bpm or metric text |
 | TC-A-145 | The alerts receiver is exported and needs the DUMP permission | Unit (Robolectric) | One receiver for the action, permission `android.permission.DUMP` |
 
+## Phone walkthrough script (M0)
+
+| ID | What | How | Pass criteria |
+|---|---|---|---|
+| TC-A-153 | `scripts/demo/run-phone-demo.ps1` parses and, against a simulated adb, every stage passes with exit 0 | Script test (`scripts/demo/test-run-phone-demo.sh`, needs `pwsh`) | Stages Ready, Install, Seed, Screens, Alert, Recording PASS; "ALL STAGES PASS"; on the real phone it is the user's run (manual) |
+| TC-A-154 | One screenshot per screen, the alert screen before and after "I'm OK", a recording, an index page; files removed from the phone after the pull | Script test | The seven PNG files and the MP4 exist and are not empty; the index lists them |
+| TC-A-155 | The results are published on `demo-results/phone-<stamp>` with only the results folder, without device serial, e-mail or token | Script test | Branch pushed; no other file; no identifier in results, index or log |
+| TC-A-156 | No seeded line fails Seed only; a locked phone (app not on top) fails Screens and says to unlock | Script test | Stage results and message |
+| TC-A-157 | The alert stage fails when the alert is not raised, no full-screen alert is on top, or "I'm OK" is not logged; it says why | Script test | Alert FAIL with the reason |
+| TC-A-158 | A missing recording fails only the Recording stage | Script test | Recording FAIL, other stages PASS, exit 1 |
+| TC-A-159 | The readiness gate: unauthorized, app not installed, unresponsive or unknown phone stop with exit 2 and change nothing | Script test | Exit 2, message, nothing installed |
+
 ## Demo seed and tab by intent (M0 phone walkthrough, debug and UI)
 
 | ID | What | How | Pass criteria |

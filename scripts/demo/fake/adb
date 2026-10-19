@@ -15,6 +15,9 @@
 #   nonotif     no notification is listed       noack      the ack never reaches the phone history
 #   noackdone   the watch logs 'ack not sent' (no transport)
 #   FAKE_TAP=ACTION:MS  a user taps ACTION on the watch MS milliseconds after the reminder fires (for -WaitForTap)
+# Phone walkthrough (run-phone-demo.ps1): screencap, pull, rm, screenrecord, pkill, dumpsys activity/power and the SEED_FIXTURES and
+# DISMISS_ALERT broadcasts are simulated too. Failure injection for it: noseed, locked (the app never gets on top),
+# noalertraise, noalertscreen (raised, but no full-screen alert on top), nodismiss, norecord, deadphone (every 'shell' call to the phone hangs).
 # FAKE_LEAK=1 adds a log line with an e-mail address, the watch ip:port and a token.
 set -u
 D="${FAKE_DIR:?FAKE_DIR must point at the simulation state folder}"
@@ -42,6 +45,8 @@ esac
 
 role="$(role_of "$serial")"
 if [ "$role" = watch ] && fails deadwatch && [ "$cmd" = shell ]; then sleep 120; exit 0; fi
+if [ "$role" = phone ] && fails deadphone && [ "$cmd" = shell ]; then sleep 120; exit 0; fi
+mkdir -p "$D/dev"
 
 case "$cmd" in
   install)
@@ -63,6 +68,10 @@ case "$cmd" in
     done < "$D/events"
     [ -n "${FAKE_LEAK:-}" ] && printf '%d.000  1234  1234 I DEMO    : signed in as test.user@example.com on %s serial %s token=abc123secret\n' $((t / 1000)) "$WATCH" "$PHONE"
     exit 0;;
+  pull)
+    f="$D/dev/$(basename "$1")"
+    if [ -s "$f" ]; then cp "$f" "$2"; echo "$1: 1 file pulled."; else echo "adb: error: failed to stat remote object '$1': No such file or directory" >&2; exit 1; fi
+    exit 0;;
   shell) ;;
   *) exit 0;;
 esac
@@ -77,6 +86,14 @@ case "$sub" in
   dumpsys)
     case "$1" in
       battery) echo "  level: 80";;
+      power) echo "  mWakefulness=Awake";;
+      activity)
+        top="$(cat "$D/top" 2>/dev/null || echo launcher)"
+        case "$top" in
+          Main*) echo "  ResumedActivity: ActivityRecord{1a2b3c u0 $PKG/.phone.MainActivity t12}";;
+          Alert*) echo "  ResumedActivity: ActivityRecord{1a2b3c u0 $PKG/.phone.alert.AlertActivity t13}";;
+          *) echo "  ResumedActivity: ActivityRecord{1a2b3c u0 com.android.systemui/.keyguard.KeyguardActivity t1}";;
+        esac;;
       notification)
         if [ "$role" = watch ] && ! fails nonotif && grep -q "|watch|reminder fired" "$D/events" 2>/dev/null; then
           echo "  NotificationRecord(0x1 pkg=$PKG user=UserHandle{0} id=1 tag=null)"
@@ -86,17 +103,40 @@ case "$sub" in
     if [ "$1" = list ]; then installed "$role" && echo "package:$PKG"; fi
     true;;
   date) date +%s;;
-  input) true;;
+  input|wm|appops|settings) true;;
+  screencap)
+    f="$D/dev/$(basename "${2:-x.png}")"; printf '\211PNG\r\n\032\nfake-screen-%s' "$(cat "$D/top" 2>/dev/null)" > "$f"; exit 0;;
+  rm) for a in "$@"; do case "$a" in -*) ;; *) rm -f "$D/dev/$(basename "$a")";; esac; done; exit 0;;
+  pkill|killall) touch "$D/recording.stop"; exit 0;;
+  screenrecord)
+    limit=180; out=""
+    while [ $# -gt 0 ]; do case "$1" in --time-limit) limit="$2"; shift 2;; *) out="$1"; shift;; esac; done
+    rm -f "$D/recording.stop"
+    fails norecord || printf 'fake-mp4' > "$D/dev/$(basename "$out")"
+    i=0; while [ ! -e "$D/recording.stop" ] && [ "$i" -lt $((limit * 5)) ]; do sleep 0.2; i=$((i + 1)); done
+    exit 0;;
   am)
     amcmd="${1:-}"; shift || true
     case "$amcmd" in
-      start) echo "Starting: Intent { cmp=$2 }";;
+      start)
+        comp=""; tab=""
+        while [ $# -gt 0 ]; do
+          case "$1" in
+            -n) comp="$2"; shift 2;;
+            --es) [ "$2" = tab ] && tab="$3"; shift 3;;
+            *) shift;;
+          esac
+        done
+        if fails locked; then echo launcher > "$D/top"
+        else case "$comp" in *MainActivity) echo "Main tab=${tab:-watch}" > "$D/top";; esac; fi
+        echo "Starting: Intent { cmp=$comp }";;
       broadcast)
-        action=""; comp=""; minutes=2; actionname=""
+        action=""; comp=""; minutes=2; actionname=""; alertflag=false
         while [ $# -gt 0 ]; do
           case "$1" in
             -a) action="$2"; shift 2;;
             -n) comp="$2"; shift 2;;
+            --ez) [ "$2" = alert ] && alertflag="$3"; shift 3;;
             --ei) [ "$2" = minutes_ahead ] && minutes="$3"; shift 3;;
             --es) [ "$2" = action ] && actionname="$3"; shift 3;;
             *) shift;;
@@ -132,6 +172,21 @@ case "$sub" in
               event "$t" phone "history ack id=00000000-0000-4000-8000-000000000001 action=$sentaction reminderId=demo occurrenceAt=$at at=$t"
             fi
             event "$t" phone "history end count=1"
+            echo "Broadcast completed: result=0";;
+          "$PKG.debug.SEED_FIXTURES")
+            if fails noseed; then echo "Broadcast completed: result=0"; exit 0; fi
+            if [ "$alertflag" = true ]; then
+              id="00000000-0000-4000-8000-0000000000a1"
+              event "$t" phone "seeded history=4 tasks=2 alert=$id"
+              fails noalertraise || {
+                event "$t" phone "alert stored id=$id watchAt=$t storedAt=$((t + 50))"
+                event "$t" phone "alert raised id=$id raisedAt=$((t + 120)) sound=1"
+                fails noalertscreen || echo Alert > "$D/top"
+              }
+            else event "$t" phone "seeded history=3 tasks=2 alert=none"; fi
+            echo "Broadcast completed: result=0";;
+          "$PKG.debug.DISMISS_ALERT")
+            fails nodismiss || event "$t" phone "alert dismissed"
             echo "Broadcast completed: result=0";;
           *) echo "Broadcast completed: result=0";;
         esac;;
