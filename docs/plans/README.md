@@ -5,6 +5,7 @@ authority for architecture, decisions and step definitions; these files only say
 order, and how parallel work is kept safe**. Step ids such as `0a.8` or `3.4` are `plan.md` step ids.
 
 Lane plans: [shared and data](shared.md), [Android](android.md), [watch](watch.md), [Documentation](docs.md), [Validation](validation.md).
+How the work is organised in practice: [execution structure](execution-structure.md).
 
 ## Lanes
 
