@@ -75,3 +75,14 @@ Entries by the planning threads and the orchestrator session. Index and entry fo
 - Changed: `docs/dev-setup-windows.md` has a new section 6.6 (running a spike from a script: keep the PC awake, console click pauses, starting emulators from PowerShell, permanent `adb` path, results are published as a branch, FAIL lines are results, delay numbers are skewed on emulators) and seven new troubleshooting rows (adb timeouts after sleep, stuck `adb` client, paused console, pairing spinner, direct `am start`, window insets, IDE exception pop-up). All from the user's runs of spike 0b.2a.
 - Validation: `scripts/docs-lint.sh` markdown and links green; not yet followed on a second machine.
 - Open items: update again from the first hardware run (0b.2b).
+
+## Coordinator learnings (2026-10-19)
+
+1. Order of work was wrong. The official pages (Health Services, Wear OS) already said what a week of probe runs measured: MeasureClient is "not intended for background capture"; ExerciseClient delivers data less often with the screen off unless HEART_RATE_5_SECONDS is set; passive data: "When you receive data in the background, it is delivered in batches." ([Google, passive data](https://developer.android.com/training/wearables/health-services/passive)); only one exercise at a time. Read the specifications first, measure second.
+2. A milestone must be the requirement, not a demo-able subset. The requirement is detection whenever the watch is on; M1 was screen-on only and was still called a milestone. The first milestone has to meet the user's three sentences or say plainly that it does not.
+3. Estimates: numbers were given as facts without asking the lane (2-3 h, 6 h). Ask the lane, mark guesses, and treat the user's budgets (10 minutes per step, 1 hour of validation, "immediately" = 0-2 s) as requirements, not as targets to negotiate.
+4. Verify before asking the user. Hours were lost to prompts that did not arrive, changed wireless-debugging ports and unattended runs that were not unattended. Automate with adb; the user does physical actions only.
+5. Additions to an approved plan (M3 "day of wear", extra probes) are not mine to make; propose, wait for approval.
+6. Do exactly the order given: "stop" is not "archive"; answers in at most 4 lines of 80 characters when asked.
+7. Sources: the page-fetch tool returns a summary by keyword, not the page. Map the whole documentation tree, fetch every relevant page, list what was not read (watch user guide, Samsung page, Wear OS ambient and doze pages), and never claim a route that no source or measurement supports.
+8. Tool scope: use only repository-scoped search; scheduled checks can fire hours late after a worker restart, so check state directly when it matters.
