@@ -371,7 +371,7 @@ Entries for this lane only. Format and index: [`../work-log.md`](../work-log.md)
 
 ## 2026-10-19 - Learnings (2026-10-19)
 
-- Issue and PR: user order relayed by the coordinator (no issue); PR linked from the coordinator message. Docs only, no new scope.
+- Issue and PR: user order relayed by the coordinator; PR linked from the coordinator message. Docs only, no new scope.
 - Changed: this entry. Sources: the handoff of the previous lane S session, the issues and PRs named below, and the repository on main (46471ee) on 2026-10-18. Times for the old mistakes were not recorded, so none are given.
 - Facts, protocol: protocol 1.3 on main. Items are DataItems only: `/schedule`, `/prompt/<id>`, `/ack/<id>`, `/selection/<id>`, `/alert/<id>`, `/episode-end/<id>`, `/status/watch`, `/hello/<side>`, `/debug/biometrics`. The writer owns cleanup. `Alert` has `metric`, `value`, `threshold`, `at`, `level` (1 or 2), `episodeId`. `EpisodeEnd` goes phone to watch. `WatchStatus` has `baselineBpm`, `thresholdBpm`, `heartRatePermission`. There is no item for "local response done" (the coordinator decided on 2026-10-18 that the demo needs none).
 - Facts, Data Layer and alert path: the hardware spike (PR #124, Galaxy Watch6 Classic and Galaxy A55 5G) showed round trips of about 0.2 s nearby, delivery within 1 to 4 s with the phone app closed, and items sent while away arriving 2 to 16 s after reconnect. The phone lists the alert in its history, then `markStored` deletes the watch-written item (PR #138); the phone deletes its own `/episode-end/*` items older than one hour.
