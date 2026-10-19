@@ -205,6 +205,13 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Validation: the script test red first (script missing: 41 of 48 checks fail), now 48 of 48 pass with PowerShell 7.4.6; breaking the alert-screen check on purpose makes it fail; `./gradlew lintDocs` green.
 - Open items: not run on the Galaxy A55 5G (the user's run, manual TC-A-153). Unknowns on the real phone: whether `screencap` and `screenrecord` over adb work on One UI without prompts, whether `appops set USE_FULL_SCREEN_INTENT allow` is honoured, and whether the lock screen is off (the script cannot unlock the phone and says so).
 
+## 2026-10-18 - M0 phone walkthrough, part a1: seed fixtures and tabs by intent
+
+- Issue and PR: user order through the coordinator (a phone demo); no plan step. PR linked from the coordinator message.
+- Changed: `HomeTab` (the tabs as an enum, `named(text)`), `HomeScreen(initialTab)` and `MainActivity` reading the intent extra `tab` (so a script opens a screen with `am start --es tab history`, no taps); debug only: `DemoFixtures` and the broadcasts `SEED_FIXTURES` (two tasks with reminders, an acknowledgement, a snooze and an answer in the history; `--ez alert true` also stores one new alert, which the running app raises like a watch alert) and `DISMISS_ALERT` ("I'm OK" without a tap). Catalogue TC-A-148 to 152.
+- Validation: tests red first (does not compile), now green; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
+- Open items: the one-command device script (part a2) uses these. The five link states cannot be forced on a real phone (the state comes from the real watch); they are in the images of part b. Not run on the Galaxy A55 5G.
+
 ## 2026-10-18 - M0 phone walkthrough, part b: screen images
 
 - Issue and PR: user order through the coordinator (a phone demo, images first); no plan step. PR linked from the coordinator message.

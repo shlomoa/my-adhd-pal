@@ -419,6 +419,14 @@ FAIL TC-W-225 the result is published (expected 0, got 1)
 FAIL TC-W-226 a hung git push ends and names the local result file (expected 0, got 1)
 ```
 
+Shorter default durations (TC-W-227; `scripts/probe/test-defaults.sh`): the user's budget of 2026-10-18 is at most 10 minutes of attended watch time per script and 60 minutes for all. Red commit: "Test for the default durations (red)" on branch `claude/watch-preflight-heartbeat`.
+Command: `PWSH=pwsh scripts/probe/test-defaults.sh`. 8 checks FAIL before the change, for example:
+
+```
+FAIL TC-W-227 E1 phase default is 120 s (expected 120, got 600)
+FAIL TC-W-227 E4 run default is 60 s (expected 60, got 180)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).

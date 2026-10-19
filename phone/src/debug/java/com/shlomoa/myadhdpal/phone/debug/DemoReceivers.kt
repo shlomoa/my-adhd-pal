@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.shlomoa.myadhdpal.phone.alert.AlertRaiser
 import com.shlomoa.myadhdpal.phone.data.HistoryEntry
 import com.shlomoa.myadhdpal.phone.data.HistoryRepository
 import com.shlomoa.myadhdpal.phone.data.HistoryType
@@ -90,5 +91,42 @@ class DemoAlertsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != DemoActions.DUMP_ALERTS) return
         async { trace.dump(history.history(HistoryType.ALERT).first().filterIsInstance<HistoryEntry.AlertRaised>()) }
+    }
+}
+
+/**
+ * `adb shell am broadcast -a com.shlomoa.myadhdpal.debug.SEED_FIXTURES
+ *   -n com.shlomoa.myadhdpal/.phone.debug.DemoSeedReceiver [--ez alert true]`
+ */
+@AndroidEntryPoint
+class DemoSeedReceiver : BroadcastReceiver() {
+    @Inject lateinit var tasks: TaskRepository
+
+    @Inject lateinit var history: HistoryRepository
+
+    @Inject lateinit var clock: Clock
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != DemoActions.SEED_FIXTURES) return
+        val withAlert = intent.getBooleanExtra(DemoActions.EXTRA_WITH_ALERT, false)
+        async { DemoFixtures(tasks, history, clock, ::logLine).seed(withAlert) }
+    }
+}
+
+/**
+ * `adb shell am broadcast -a com.shlomoa.myadhdpal.debug.DISMISS_ALERT
+ *   -n com.shlomoa.myadhdpal/.phone.debug.DemoDismissReceiver`: "I'm OK" without a tap; stops the phone's sound and
+ * vibration. The alert screen stays until the next screen is opened.
+ */
+@AndroidEntryPoint
+class DemoDismissReceiver : BroadcastReceiver() {
+    @Inject lateinit var raiser: AlertRaiser
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != DemoActions.DISMISS_ALERT) return
+        async {
+            raiser.dismiss(null)
+            logLine("DEMO alert dismissed")
+        }
     }
 }

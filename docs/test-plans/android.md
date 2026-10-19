@@ -217,6 +217,16 @@ repositories exist (G3).
 | TC-A-158 | A missing recording fails only the Recording stage | Script test | Recording FAIL, other stages PASS, exit 1 |
 | TC-A-159 | The readiness gate: unauthorized, app not installed, unresponsive or unknown phone stop with exit 2 and change nothing | Script test | Exit 2, message, nothing installed |
 
+## Demo seed and tab by intent (M0 phone walkthrough, debug and UI)
+
+| ID | What | How | Pass criteria |
+|---|---|---|---|
+| TC-A-148 | The home screen opens on the tab it is given | Unit (Compose) | Opened on History it shows the history, not the watch state |
+| TC-A-149 | A tab is named by text; unknown or missing opens the Watch tab | Unit | history, settings, ask, tasks map; null and unknown give Watch |
+| TC-A-150 | `SEED_FIXTURES` puts two tasks with reminders and three history rows, idempotent | Unit | Counts 2, 2, 3 after one or two runs; the `DEMO seeded` line |
+| TC-A-151 | With an alert it adds one new alert row per run and logs its id, no health value | Unit | Unique ids, episode id set, no bpm text in the lines |
+| TC-A-152 | The seed and dismiss receivers are exported and need the DUMP permission | Unit (Robolectric) | One receiver per action, permission `android.permission.DUMP` |
+
 ## Screen images (M0 phone walkthrough)
 
 | ID | What | How | Pass criteria |

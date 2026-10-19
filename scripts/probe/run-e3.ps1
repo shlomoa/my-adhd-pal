@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
   Experiment E3 (issue 230): the live heart-rate service started from the visible app WITHOUT the background permission, worn
-  for 30 minutes, then 10 minutes with Sleep mode (Bedtime) and 10 minutes with Power saving. One result file.
+  for 3 blocks of 2 minutes (-BlockSec), then 90 seconds (-StateSec) with Sleep mode (Bedtime) and 90 seconds with Power saving. One result file.
 
 .DESCRIPTION
   Works with Windows PowerShell 5.1 and PowerShell 7; needs adb on PATH and the watch connected for wireless debugging
@@ -13,7 +13,7 @@
     - enlarges the log buffer (logcat -G 4M); revokes the two background permissions, grants READ_HEART_RATE and
       POST_NOTIFICATIONS, logs the permission state from dumpsys package (the background one must show granted=false);
     - measure-stop, measure-clear, measure-capabilities, starts ProbeMeasureActivity, waits for AVAILABLE;
-    - 30 minutes worn in three blocks of -BlockSec (default 600) with a report after each (block-10, block-20, block-30);
+    - Three blocks of -BlockSec (default 120 s) worn with a report after each (block-10, block-20, block-30);
       after the last it logs "service running" (the measure service is listed by dumpsys) and "readings grew"
       (the last report has more readings than the one before); a service that is gone is a RESULT, not a failure;
     - Sleep mode (called Bedtime on older firmware): takes a report, asks you to turn Sleep mode ON, waits -StateSec (default 600),
@@ -39,8 +39,8 @@
 param(
     [string]$Watch = $env:ANDROID_SERIAL,
     [string]$OutDir = (Join-Path $HOME 'probe-results'),
-    [double]$BlockSec = 600,
-    [double]$StateSec = 600,
+    [double]$BlockSec = 120,
+    [double]$StateSec = 90,
     [double]$AvailableTimeoutSec = 120,
     [double]$ReportWaitSec = 3,
     # How long (and how often) to try to reach the watch again after a mode that turns Wi-Fi off.

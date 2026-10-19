@@ -28,6 +28,20 @@ the top of the watch face. Anything the scripts ask you to do on the watch that 
 
 The wireless-debugging port can change when Wi-Fi goes off and on. The run scripts look for the watch on another port by themselves; if they cannot find it they ask once for the new `ip:port` (Enter gives up and the run goes on without that report).
 
+## Time budget (defaults of the run scripts)
+
+The user's budget (2026-10-18): at most 10 minutes of attended watch time per script, 60 minutes for all. E2 measured the burst period of about 10 minutes with the screen dim or off, so it is not repeated: a window of 2 minutes cannot show a 10-minute burst, and "no arrival in 2 minutes" is then a valid result. Every duration is a parameter.
+
+| Script | Old default | New default | Minutes (wait + questions) | What you do |
+|---|---|---|---|---|
+| `run-e1.ps1` | phases 600 s | `-PhaseSec` 120 (3 phases) | about 7 | wear the watch; check the Always On Display is on; later switch it off |
+| `run-screen.ps1` | phases 600 s | `-PhaseSec` 120 (2 phases) | about 5 | wear the watch |
+| `run-e3.ps1` | blocks 600 s, states 600 s | `-BlockSec` 120 (3 blocks), `-StateSec` 90 | about 10 | wear the watch; Sleep mode on and off; Power saving on and off |
+| `run-e4.ps1` | run 180 s | `-RunSec` 60 (2 runs) | about 4 | wear the watch, arm still; type short answers |
+| `run-e6.ps1` | alarm wait 25 s | `-AlarmWaitSec` 20 (the alarm fires after 15 s) | about 8 | wear the watch; say none, weak or strong after each buzz |
+
+All five together: about 34 minutes. The stress demo (M1) is separate (at most 10 minutes).
+
 ## 0. Once: install the debug build and connect the watch
 
 1. Take the watch off the charger for the runs (a charger hides the battery drop). Keep the laptop plugged in and awake
@@ -61,11 +75,11 @@ adb shell am broadcast -n $P --es cmd measure-capabilities; Start-Sleep 2; adb l
 Expect `PROBE measure capabilities heartRateMeasure=true`. Report that line and any `pm grant` error text. On Wear OS 5 and
 earlier use `android.permission.BODY_SENSORS` instead of `READ_HEART_RATE`.
 
-## 2. E1: the live route worn, per screen state (30 minutes, issue #228)
+## 2. E1: the live route worn, per screen state (about 7 minutes, issue #228)
 
 **Run the script (recommended).** It does steps 1 and 2 below unattended: enlarges the log buffer, sets the screen timeout
 and restores it, revokes the background permissions, starts the service from the visible app, waits for `AVAILABLE`,
-runs the three phases (A screen on, B display dim, C screen off, 10 minutes each) with a report after each, reconnects
+runs the three phases (A screen on, B display dim, C screen off, 2 minutes each, `-PhaseSec`) with a report after each, reconnects
 adb before every report, reads the battery before and after, checks the notification, and writes one result file. Wear the
 watch, **off the charger**, keep the laptop awake, then:
 
@@ -94,7 +108,7 @@ Expect `PROBE measure start registered`. If it says `permission missing`, run st
 notification appears on the watch: swipe to the notification list now and say whether you see it (it should stay there for
 the whole run). Do not use the watch or start any other app during the run, and do not touch the screen in phases A and C.
 
-| Phase | 10 minutes | What you do |
+| Phase | 2 minutes | What you do |
 |---|---|---|
 | A | Screen on, untouched | Do not touch the watch; the screen stays on as long as it does. If it dims or goes off, note the minute |
 | B | Dim / always-on display | Leave the arm still so the screen goes to the always-on display (dim). If it will not, note what it did |
@@ -120,7 +134,7 @@ percentage on the watch (**after**), leave the service running for step 3 or sto
 Report: every `PROBE measure` line after phase C, the report after A and after B, the battery before and after, whether the
 notification stayed visible, the minute the screen dimmed or went off in phase A, and anything else you did on the watch.
 
-## 3. E3: without the background permission, 30 minutes, Sleep mode and Power saving (issue #230)
+## 3. E3: without the background permission, 30 minutes, Sleep mode and Power saving (about 10 minutes, issue #230)
 
 **Run the script (recommended).** Wear the watch, **off the charger**, keep the laptop awake, then:
 
@@ -129,8 +143,8 @@ notification stayed visible, the minute the screen dimmed or went off in phase A
 ```
 
 It revokes the background permissions, starts the service from the visible app, logs the permission state, takes reports
-for 30 minutes worn (use the watch normally; the script does not touch the screen), then takes a report, asks you to turn **Sleep mode ON**
-(10 minutes, a report in the mode, or after it if the watch cannot be reached) and **OFF**, then takes a report and asks you to turn
+for three blocks of 2 minutes worn (`-BlockSec`; use the watch normally; the script does not touch the screen), then takes a report, asks you to turn **Sleep mode ON**
+(90 seconds, `-StateSec`, a report in the mode, or after it if the watch cannot be reached) and **OFF**, then takes a report and asks you to turn
 **Power saving ON**. Power saving turns Wi-Fi off, so no report is possible during it: turn it OFF, wait for Wi-Fi, and the script
 reconnects for up to 2 minutes and takes a report. The file says when no report was possible; that is not an error. At the end the script publishes the result
 file as the branch `e3-results/<time>` (it prints `PUSHED e3-results/<time>`; `-SkipPush` keeps it local): tell the coordinator
@@ -151,9 +165,9 @@ Step 1 already left the background permission off, so step 2 is the first half o
 
 Stop with `measure-stop` at the end. State whether any permission prompt appeared on the watch during these runs.
 
-## 3b. Delivery with the screen kept on and with the screen really off (issue #228, about 23 minutes)
+## 3b. Delivery with the screen kept on and with the screen really off (issue #228, about 5 minutes)
 
-The two E1 runs could not control the screen state. This script does: 10 minutes with the screen kept on (the debug front screen), 10 minutes with the screen off. Wear the watch, **off the charger**, do not touch it, then:
+The two E1 runs could not control the screen state. This script does: 2 minutes (`-PhaseSec`) with the screen kept on (the debug front screen), 2 minutes with the screen off. Wear the watch, **off the charger**, do not touch it, then:
 
 ```powershell
 .\scripts\probe\run-screen.ps1 -Watch 192.168.1.16:41613

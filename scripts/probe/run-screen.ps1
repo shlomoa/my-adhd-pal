@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Heart-rate delivery in CONTROLLED screen states (issue 228): 10 minutes with the screen kept on, then 10 minutes with the
+  Heart-rate delivery in CONTROLLED screen states (issue 228): 2 minutes (-PhaseSec) with the screen kept on, then 2 minutes with the
   screen really off. One command, one result file published as a branch.
 
 .DESCRIPTION
@@ -29,7 +29,7 @@
 
   Untested on the watch: the script is tested only against a simulated adb (scripts/probe/test-run-screen.sh). Not proven: that any
   of the candidate keys is the Always On Display switch of the Galaxy Watch6 Classic (SM-R965F) or that writing it works, that the
-  sleep key turns the screen OFF, the dumpsys power output used for the screen state, and that keep-screen-on holds for 10 minutes.
+  sleep key turns the screen OFF, the dumpsys power output used for the screen state, and that keep-screen-on holds for the phase.
   Exit code: 0 done (also when the screen did not reach OFF), 1 the service did not start, 3 setup problem (no adb, watch not
   reachable, watch on its charger).
 
@@ -40,7 +40,7 @@
 param(
     [string]$Watch = $env:ANDROID_SERIAL,
     [string]$OutDir = (Join-Path $HOME 'probe-results'),
-    [double]$PhaseSec = 600,
+    [double]$PhaseSec = 120,
     [double]$OffTrySec = 120,
     [double]$OffRetrySec = 5,
     [double]$AvailableTimeoutSec = 120,
