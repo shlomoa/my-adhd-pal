@@ -217,6 +217,13 @@ repositories exist (G3).
 | TC-A-158 | A missing recording fails only the Recording stage | Script test | Recording FAIL, other stages PASS, exit 1 |
 | TC-A-159 | The readiness gate: unauthorized, app not installed, unresponsive or unknown phone stop with exit 2 and change nothing | Script test | Exit 2, message, nothing installed |
 
+## Screen images (M0 phone walkthrough)
+
+| ID | What | How | Pass criteria |
+|---|---|---|---|
+| TC-A-146 | Every phone screen of the catalogue renders from the real Compose code to a PNG | Unit (Robolectric native graphics) | A non-empty PNG per screen with more than one colour; unique ids |
+| TC-A-147 | The index page lists each screen with its title and image | Unit | A heading and an image line per screen |
+
 ## Final (A-final)
 
 | Id | Case | How | Pass criteria |

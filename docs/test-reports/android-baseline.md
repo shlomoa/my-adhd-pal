@@ -196,3 +196,13 @@ TC-A-140 to TC-A-145 are red until this step lands. TC-A-140 was then corrected 
 ## Phone walkthrough script (M0 part a2)
 
 Red commit: the first commit of the PR (script test and catalogue rows only). Command: `PWSH=<pwsh 7.4.6> scripts/demo/test-run-phone-demo.sh`. The script `run-phone-demo.ps1` does not exist: 41 of 48 checks FAIL (the 7 that pass check that nothing was produced, such as "no identifier in the published files" on an empty branch). TC-A-153 to TC-A-159 are red until this step lands; the real-phone run is the user's (manual).
+
+## Screen images (M0 phone walkthrough)
+
+Red commit: the first commit of the PR (test and catalogue rows only). Command: `./gradlew :phone:testDebugUnitTest --tests '*PhoneScreensTest*'`. Exit 1, the test sources do not compile:
+
+```
+e: PhoneScreensTest.kt:36:23 Unresolved reference 'PhoneScreens'.
+```
+
+TC-A-146 and TC-A-147 are red until this step lands.

@@ -16,6 +16,7 @@ $PathVibration = 'Settings > Sounds and vibration (strength Light/Strong, length
 $PathAod = 'Settings > Display > Always On Display'
 
 function Log([string]$text) {
+    if ($text -like '== *') { $script:CurrentStep = $text.Substring(3) }
     $line = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + ' ' + $text
     Write-Host $line
     Add-Content -Path $script:LogFile -Value $line
@@ -24,7 +25,7 @@ function Log([string]$text) {
 # Runs adb; when the connection dropped (device offline, not found) reconnects and tries again, up to 3 times.
 function Invoke-Adb([string[]]$AdbArgs) {
     for ($try = 1; $try -le 3; $try++) {
-        $text = @(& adb @AdbArgs 2>&1 | ForEach-Object { "$_" })
+        $text = @(Run-Adb $AdbArgs)
         if ($LASTEXITCODE -eq 0 -or ($text -join ' ') -notmatch 'offline|no devices|not found|cannot connect|closed|unauthorized') { return $text }
         Log "adb dropped ($($AdbArgs -join ' ')): reconnecting, try $try"
         Connect-Watch
@@ -39,7 +40,7 @@ function BatteryText { Invoke-Adb @('shell', 'dumpsys', 'battery') }
 
 function BatteryLevel([string[]]$text) {
     $m = ($text -join "`n") | Select-String -Pattern 'level:\s*(\d+)'
-    if ($m) { return [int]$m.Matches[0].Groups[1].Value }
+    if ($m) { $script:LastBattery = [int]$m.Matches[0].Groups[1].Value; return $script:LastBattery }
     return -1
 }
 
@@ -54,25 +55,164 @@ function Initialize-Probe([string]$Prefix) {
     Write-Host "result file: $script:LogFile"
     $script:UnreachableSec = 0
     $script:Steps = @()
+    $script:Prefix = $Prefix
+    $script:RunId = [IO.Path]::GetFileNameWithoutExtension($script:LogFile) -replace "^$Prefix-", ''
+    $script:CurrentStep = 'start'
+    $script:Waiting = $false
+    $script:LastReadings = -1
+    $script:LastBattery = -1
+    $script:LastReachable = $true
+    $script:LastHeartbeat = $null
     $script:Asked = 0
     $script:RunStart = Get-Date
     $script:RunDone = $false
     $script:PendingRead = $null
     $script:WatchIp = if (Test-MdnsName $Watch) { $null } else { ($Watch -split ':')[0] }
-    if (-not (Test-MdnsName $Watch)) { & adb connect $Watch 2>&1 | Out-Null }
+    if (-not (Test-MdnsName $Watch)) { Run-Adb @('connect', $Watch) | Out-Null }
     # the device serial number is in the mDNS name; it is kept in memory only (never written to the result file)
-    $sn = (& adb shell getprop ro.serialno 2>&1 | Out-String).Trim()
+    $sn = ((Run-Adb @('shell', 'getprop', 'ro.serialno')) -join '').Trim()
     $script:WatchSerialNo = if ($sn -match '^[A-Za-z0-9]{6,}$') { $sn } else { $null }
 }
 
-# Refuses a watch that is charging (the battery drop would be hidden); logs the battery level before. Exits 3 when refused.
-function Test-NotCharging {
-    $text = BatteryText
-    if (-not $AllowCharging -and (($text -join "`n") -match 'powered:\s*true')) {
-        Log 'The watch is on its charger. Take it off the charger (the battery drop would be hidden) or use -AllowCharging.'
+# Runs a program with a hard time limit, no terminal prompt and its output captured. Returns @{ Code; Text }; Code -1 means it timed out
+# and the process was killed. A hung adb.exe or git must never hang a run.
+function Invoke-Native([string]$Exe, [string[]]$NativeArgs, [double]$TimeoutSec) {
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $Exe
+    $psi.Arguments = ($NativeArgs | ForEach-Object { '"' + ($_ -replace '"', '\"') + '"' }) -join ' '
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.UseShellExecute = $false
+    $psi.EnvironmentVariables['GIT_TERMINAL_PROMPT'] = '0'
+    try { $p = [System.Diagnostics.Process]::Start($psi) } catch { return @{ Code = 127; Text = "$Exe could not be started: $_" } }
+    $out = $p.StandardOutput.ReadToEndAsync()
+    $err = $p.StandardError.ReadToEndAsync()
+    if (-not $p.WaitForExit([int]($TimeoutSec * 1000))) {
+        try { $p.Kill() } catch { }
+        return @{ Code = -1; Text = "timed out after $TimeoutSec s" }
+    }
+    $p.WaitForExit()
+    return @{ Code = $p.ExitCode; Text = ($out.Result + $err.Result) }
+}
+
+function Invoke-GitTimeout([string[]]$GitArgs, [int]$TimeoutSec = 0) {
+    if (-not $TimeoutSec) { $TimeoutSec = if ($env:PROBE_GIT_TIMEOUT_SEC) { [int]$env:PROBE_GIT_TIMEOUT_SEC } else { 30 } }
+    return (Invoke-Native 'git' $GitArgs $TimeoutSec)
+}
+
+# adb with a hard time limit (PROBE_ADB_TIMEOUT_SEC, default 30). Returns the output lines and sets $LASTEXITCODE (-1 = timed out; logged,
+# with the first words of the command only, so no address reaches the file).
+function Run-Adb([string[]]$AdbArgs) {
+    $sec = if ($env:PROBE_ADB_TIMEOUT_SEC) { [double]$env:PROBE_ADB_TIMEOUT_SEC } else { 30 }
+    $r = Invoke-Native 'adb' $AdbArgs $sec
+    $global:LASTEXITCODE = $r.Code
+    if ($r.Code -eq -1) { Log ("adb timed out after $sec s (" + (($AdbArgs | Where-Object { $_ -notmatch '[:.]\d' } | Select-Object -First 3) -join ' ') + ")") }
+    return @($r.Text -split "`r?`n" | Where-Object { $_ -ne '' })
+}
+
+# One commit without a parent that holds only $file (entry name $entry), built with git plumbing and a temporary index, so the working
+# tree, the index and HEAD of the checkout are not touched. Returns the commit id.
+function New-FileCommit([string]$repo, [string]$file, [string]$entry, [string]$message) {
+    if (-not (& git -C $repo config user.name)) {
+        $env:GIT_AUTHOR_NAME = 'probe'; $env:GIT_AUTHOR_EMAIL = 'probe@invalid'
+        $env:GIT_COMMITTER_NAME = 'probe'; $env:GIT_COMMITTER_EMAIL = 'probe@invalid'
+    }
+    $index = Join-Path ([IO.Path]::GetTempPath()) ("probe-" + [Guid]::NewGuid().ToString('N') + '.idx')
+    $env:GIT_INDEX_FILE = $index
+    try {
+        $blob = (& git -C $repo hash-object -w $file | Out-String).Trim()
+        & git -C $repo update-index --add --cacheinfo "100644,$blob,$entry" | Out-Null
+        $tree = (& git -C $repo write-tree | Out-String).Trim()
+    } finally {
+        Remove-Item Env:GIT_INDEX_FILE -ErrorAction SilentlyContinue
+        Remove-Item $index -ErrorAction SilentlyContinue
+    }
+    return (& git -C $repo commit-tree $tree -m $message | Out-String).Trim()
+}
+
+function Get-RepoRoot { return (& git -C $PSScriptRoot rev-parse --show-toplevel 2>$null | Out-String).Trim() }
+
+# Before a long run, everything that must be true is checked and ALL problems are reported in ONE message (exit 3, no step ran):
+# watch reachable, not on the charger, battery at least PROBE_MIN_BATTERY (default 40) percent, the debug probe build installed,
+# adb stable for PROBE_STABLE_SEC (default 30) seconds, the log buffer set to 4 MiB, a git push possible (dry run; not with -SkipPush).
+function Test-Preflight {
+    $problems = @()
+    if (-not (Wait-Adb -NoAsk)) {
+        $problems += 'the watch cannot be reached over adb (wireless debugging on? same Wi-Fi? port changed?)'
+    } else {
+        $text = BatteryText
+        $level = BatteryLevel $text
+        Log "battery before: $level"
+        if (-not $AllowCharging -and (($text -join "`n") -match 'powered:\s*true')) {
+            $problems += 'the watch is on its charger (take it off, the battery drop would be hidden, or use -AllowCharging)'
+        }
+        $min = if ($env:PROBE_MIN_BATTERY) { [int]$env:PROBE_MIN_BATTERY } else { 40 }
+        if ($level -ge 0 -and $level -lt $min) { $problems += "the battery is $level % (this run needs $min % or more)" }
+        $installed = (Invoke-Adb @('shell', 'dumpsys', 'package', $pkg)) -join "`n"
+        $missing = @('ProbeReceiver', 'ProbeMeasureService', 'ProbeFrontActivity') | Where-Object { $installed -notmatch $_ }
+        if ($missing) { $problems += ('the debug build of the probe is not installed or is older than this script (missing: ' + ($missing -join ', ') + ')') }
+        $stable = if ($env:PROBE_STABLE_SEC) { [double]$env:PROBE_STABLE_SEC } else { 30 }
+        $every = if ($env:PROBE_STABLE_EVERY_SEC) { [double]$env:PROBE_STABLE_EVERY_SEC } else { 5 }
+        $until = (Get-Date).AddSeconds($stable)
+        $checks = 0; $bad = 0
+        do {
+            $checks++
+            $answer = (Run-Adb @('shell', 'echo', 'ok')) -join ' '
+            if ($LASTEXITCODE -ne 0 -or $answer -notmatch 'ok') { $bad++ }
+            if ((Get-Date) -lt $until) { Start-Sleep -Seconds $every }
+        } while ((Get-Date) -lt $until)
+        if ($bad -gt 0) { $problems += "adb is not stable ($bad of $checks checks failed in $stable s)" }
+        Invoke-Adb @('logcat', '-G', '4M') | Out-Null
+        $buffer = (Invoke-Adb @('logcat', '-g')) -join ' '
+        if ($buffer -match '(\d+) MiB') { Log ("log buffer: " + $Matches[1] + " MiB") } else { $problems += 'the log buffer could not be set to 4 MiB' }
+    }
+    if (-not $SkipPush) {
+        $repo = Get-RepoRoot
+        if (-not $repo) { $problems += 'git push is not possible (the scripts are not inside a git checkout)' }
+        else {
+            $push = Invoke-GitTimeout @('-C', $repo, 'push', '--dry-run', 'origin', 'HEAD:refs/heads/probe-status/preflight')
+            if ($push.Code -ne 0) { $problems += ('git push is not possible: ' + (($push.Text -split "`n" | Where-Object { $_ } | Select-Object -First 1))) }
+        }
+    }
+    if ($problems.Count -gt 0) {
+        Log ('PREFLIGHT FAILED: ' + ($problems -join '; '))
         exit 3
     }
-    Log ("battery before: " + (BatteryLevel $text))
+    Log 'preflight: ok'
+}
+
+# --- Heartbeat: a tiny status file for remote monitoring -------------------------------------------------------------------------------
+# Every PROBE_HEARTBEAT_SEC (default 300) seconds, and at the end with state finished, the file status.txt is pushed (force-updated, one
+# commit, no history) to the branch probe-status/<script>-<run-id> with git plumbing, so the checkout is not touched. Never fails the run.
+function Send-Heartbeat([string]$state = 'running') {
+    if ($SkipPush -or -not $script:RunId) { return }
+    $every = if ($env:PROBE_HEARTBEAT_SEC) { [double]$env:PROBE_HEARTBEAT_SEC } else { 300 }
+    if ($state -eq 'running' -and $script:LastHeartbeat -and ((Get-Date) - $script:LastHeartbeat).TotalSeconds -lt $every) { return }
+    $script:LastHeartbeat = Get-Date
+    try {
+        if ($state -eq 'running') {
+            $script:LastReachable = (Test-Watch $script:Watch)
+            if ($script:LastReachable) { BatteryLevel (BatteryText) | Out-Null }
+        }
+        $prompt = if ($script:Waiting) { 'yes' } else { 'no' }
+        $reach = if ($script:LastReachable) { 'yes' } else { 'no' }
+        $elapsed = [int]((Get-Date) - $script:RunStart).TotalSeconds
+        $file = Join-Path ([IO.Path]::GetTempPath()) ("probe-status-$($script:Prefix)-$($script:RunId).txt")
+        $lines = @("script=$($script:Prefix)", "run=$($script:RunId)", "step=$($script:CurrentStep)", "elapsed_sec=$elapsed",
+            "waiting_on_prompt=$prompt", "watch_reachable=$reach", "last_reading_count=$($script:LastReadings)",
+            "battery=$($script:LastBattery)", "state=$state", ("updated=" + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')))
+        Set-Content -Path $file -Value $lines
+        $repo = Get-RepoRoot
+        if (-not $repo) { throw 'the script is not inside a git checkout' }
+        $commit = New-FileCommit $repo $file 'status.txt' "probe status $($script:Prefix)-$($script:RunId) $state"
+        Remove-Item $file -ErrorAction SilentlyContinue
+        $branch = "probe-status/$($script:Prefix)-$($script:RunId)"
+        $push = Invoke-GitTimeout @('-C', $repo, 'push', '--force', 'origin', "${commit}:refs/heads/$branch")
+        if ($push.Code -ne 0) { throw ($push.Text -split "`n" | Where-Object { $_ } | Select-Object -First 1) }
+        Log "heartbeat pushed: state=$state step=$($script:CurrentStep) waiting_on_prompt=$prompt watch_reachable=$reach readings=$($script:LastReadings) battery=$($script:LastBattery)"
+    } catch {
+        Log "heartbeat push failed: $_"
+    }
 }
 
 # --- Questions to the user: a time limit, a banner and a beep; a step that is not confirmed is marked UNCONFIRMED -------------------
@@ -108,18 +248,28 @@ function Read-Answer {
     Write-Host ''
     Write-Host ("==== ACTION NEEDED: answer or press Enter within " + [int][Math]::Round($timeout) + " s, then the run continues without you ====")
     Beep
-    if (-not $script:PendingRead) { $script:PendingRead = [Console]::In.ReadLineAsync() }
+    $script:Waiting = $true
+    # Console.In.ReadLineAsync blocks the caller on a redirected input, so the read runs in its own runspace.
+    if (-not $script:PendingRead) {
+        $script:PendingRead = [powershell]::Create()
+        $null = $script:PendingRead.AddScript('[Console]::In.ReadLine()')
+        $script:PendingAsync = $script:PendingRead.BeginInvoke()
+    }
     $started = Get-Date
     $nextBeep = $started.AddSeconds($beepEvery)
-    while (-not $script:PendingRead.IsCompleted) {
+    while (-not $script:PendingAsync.IsCompleted) {
         Start-Sleep -Milliseconds 200
         Test-Limits
         $now = Get-Date
-        if ($now -ge $started.AddSeconds($timeout)) { return $null }
+        if ($now -ge $started.AddSeconds($timeout)) { $script:Waiting = $false; return $null }
+        Send-Heartbeat
         if ($now -ge $nextBeep) { Beep; Write-Host '==== still waiting for you (see the question above) ===='; $nextBeep = $now.AddSeconds($beepEvery) }
     }
-    $line = $script:PendingRead.Result
+    $result = $script:PendingRead.EndInvoke($script:PendingAsync)
+    $script:PendingRead.Dispose()
     $script:PendingRead = $null
+    $line = if ($result.Count -gt 0) { [string]$result[0] } else { $null }
+    $script:Waiting = $false
     return $line
 }
 
@@ -155,6 +305,7 @@ function Finish-Run([string]$Prefix, [bool]$failed) {
     if (-not $script:RunDone -and -not $failed) { Log 'the run was interrupted (Ctrl+C) before it was complete' }
     Write-Summary $failed
     Publish-Result $Prefix
+    Send-Heartbeat 'finished'
 }
 
 
@@ -162,12 +313,12 @@ function Finish-Run([string]$Prefix, [bool]$failed) {
 function Test-MdnsName([string]$address) { return ($address -match '^adb-.+_adb-tls-connect\._tcp$') }
 
 # adb connect to the current watch address (not for an mDNS name: that is not connectable).
-function Connect-Watch { if (-not (Test-MdnsName $script:Watch)) { & adb connect $script:Watch 2>&1 | Out-Null } }
+function Connect-Watch { if (-not (Test-MdnsName $script:Watch)) { Run-Adb @('connect', $script:Watch) | Out-Null } }
 
 # One try to reach the watch at $address: adb connect (not for an mDNS name) and a trivial shell command. True when the watch answered.
 function Test-Watch([string]$address) {
-    if (-not (Test-MdnsName $address)) { & adb connect $address 2>&1 | Out-Null }
-    $answer = (& adb -s $address shell echo ok 2>&1 | Out-String)
+    if (-not (Test-MdnsName $address)) { Run-Adb @('connect', $address) | Out-Null }
+    $answer = (Run-Adb @('-s', $address, 'shell', 'echo', 'ok')) -join ' '
     return ($LASTEXITCODE -eq 0 -and $answer -match 'ok')
 }
 
@@ -185,7 +336,7 @@ function Use-Watch([string]$address) {
 # and `adb devices`, then for the mDNS name of this watch (its serial number) in `adb devices`, and tries each. Returns true when the
 # watch answered (it is then used for the rest of the run).
 function Find-Watch {
-    $seen = (& adb mdns services 2>&1 | Out-String) + (& adb devices 2>&1 | Out-String)
+    $seen = ((Run-Adb @('mdns', 'services')) -join "`n") + "`n" + ((Run-Adb @('devices')) -join "`n")
     if ($script:WatchIp) {
         $ports = [regex]::Matches($seen, [regex]::Escape($script:WatchIp) + ':(\d+)') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique
         foreach ($port in $ports) {
@@ -256,6 +407,7 @@ function Wait-Phase([double]$sec) {
         Start-Sleep -Seconds ([Math]::Min($left, $slice))
         Test-Limits
         Test-StepLimit $since
+        Send-Heartbeat
         if (((Get-Date) -ge $end)) { break }
         if (-not (Test-Watch $script:Watch)) {
             if (-not (Find-Watch)) { $script:UnreachableSec += ((Get-Date) - $began).TotalSeconds }
@@ -336,7 +488,7 @@ function Report([string]$phase) {
     $listed = (Invoke-Adb @('shell', 'dumpsys', 'notification', '--noredact')) -join "`n"
     Log ("notification visible: " + ($listed -match [regex]::Escape($title)))
     $m = ($lines -join "`n") | Select-String -Pattern 'screen=all readings=(\d+)'
-    if ($m) { return [int]$m.Matches[0].Groups[1].Value }
+    if ($m) { $script:LastReadings = [int]$m.Matches[0].Groups[1].Value; return $script:LastReadings }
     Log "report $phase failed: no reading count in the report"
     return -1
 }
@@ -363,27 +515,13 @@ function Publish-Result([string]$Prefix) {
     $name = Split-Path -Leaf $script:LogFile
     $stamp = $name -replace "^$Prefix-", '' -replace '\.txt$', ''
     $branch = "$Prefix-results/$stamp"
-    $index = Join-Path ([IO.Path]::GetTempPath()) "$Prefix-$stamp.idx"
     $commit = ''
     try {
-        $repo = (& git -C $PSScriptRoot rev-parse --show-toplevel 2>$null | Out-String).Trim()
+        $repo = Get-RepoRoot
         if (-not $repo) { throw 'the script is not inside a git checkout' }
-        if (-not (& git -C $repo config user.name)) {
-            $env:GIT_AUTHOR_NAME = 'probe'; $env:GIT_AUTHOR_EMAIL = 'probe@invalid'
-            $env:GIT_COMMITTER_NAME = 'probe'; $env:GIT_COMMITTER_EMAIL = 'probe@invalid'
-        }
-        $env:GIT_INDEX_FILE = $index
-        try {
-            $blob = (& git -C $repo hash-object -w $script:LogFile | Out-String).Trim()
-            & git -C $repo update-index --add --cacheinfo "100644,$blob,$name" | Out-Null
-            $tree = (& git -C $repo write-tree | Out-String).Trim()
-        } finally {
-            Remove-Item Env:GIT_INDEX_FILE -ErrorAction SilentlyContinue
-            Remove-Item $index -ErrorAction SilentlyContinue
-        }
-        $commit = (& git -C $repo commit-tree $tree -m "$Prefix result $stamp" | Out-String).Trim()
-        $pushOutput = (& git -C $repo push origin "${commit}:refs/heads/$branch" 2>&1 | Out-String)
-        if ($LASTEXITCODE -ne 0) { throw "git push said: $pushOutput" }
+        $commit = New-FileCommit $repo $script:LogFile $name "$Prefix result $stamp"
+        $push = Invoke-GitTimeout @('-C', $repo, 'push', 'origin', "${commit}:refs/heads/$branch")
+        if ($push.Code -ne 0) { throw "git push said: $($push.Text)" }
         Write-Host "PUSHED $branch"
     } catch {
         Write-Host "Push failed ($_). The result file is $script:LogFile (branch $branch)."

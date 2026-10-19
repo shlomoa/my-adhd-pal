@@ -50,6 +50,18 @@ needs the notification permission and the full-screen permission (the script gra
 the full-screen alert the stage fails and says where to switch it on). `scripts/demo/test-run-phone-demo.sh` runs the script
 against a simulated `adb` (needs PowerShell 7 as `pwsh`); it does not prove how the real phone behaves.
 
+## Phone screens without a device
+
+[`demo/phone/index.md`](demo/phone/index.md) shows every screen of the phone app as an image: the five watch link states,
+the alert permission card, history (full, empty, failed), settings, the Ask form, tasks (full, empty) and the alert screen.
+They are rendered from the real Compose code with fixed example data, on a JVM with no phone. To refresh them:
+
+```text
+./gradlew :phone:testDebugUnitTest --tests "*PhoneScreensTest*"
+```
+
+then copy `phone/build/screens/*` to `docs/demo/phone/`.
+
 ## Stages
 
 | Stage | What is checked | Where it is read from |

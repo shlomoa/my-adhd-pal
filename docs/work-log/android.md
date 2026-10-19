@@ -204,3 +204,10 @@ BLOCKED: A-alert-1b waits for the phone data layer (lane S issue)
 - Changed: `scripts/demo/run-phone-demo.ps1` (one command, no taps: install with permissions, seed, screenshots of the five tabs, the full-screen alert and the screen after "I'm OK", a screen recording, results with an index page published on `demo-results/phone-<stamp>`, hard timeout on every adb call), `scripts/demo/test-run-phone-demo.sh` and the simulated `scripts/demo/fake/adb` extended for it, `docs/demo.md`. Catalogue TC-A-153 to 159.
 - Validation: the script test red first (script missing: 41 of 48 checks fail), now 48 of 48 pass with PowerShell 7.4.6; breaking the alert-screen check on purpose makes it fail; `./gradlew lintDocs` green.
 - Open items: not run on the Galaxy A55 5G (the user's run, manual TC-A-153). Unknowns on the real phone: whether `screencap` and `screenrecord` over adb work on One UI without prompts, whether `appops set USE_FULL_SCREEN_INTENT allow` is honoured, and whether the lock screen is off (the script cannot unlock the phone and says so).
+
+## 2026-10-18 - M0 phone walkthrough, part b: screen images
+
+- Issue and PR: user order through the coordinator (a phone demo, images first); no plan step. PR linked from the coordinator message.
+- Changed: test-side `PhoneScreens` (14 screens, fixed example data, the real composables) and `PhoneScreensTest` (Robolectric native graphics, `captureToImage`, no new library); the rendered PNGs and an index page in `docs/demo/phone/`, linked from `docs/demo.md`. Catalogue TC-A-146 and 147.
+- Validation: tests red first (does not compile), now green; I looked at three of the images (history, settings, permission card) and they show the real screens; `./gradlew detekt spotlessCheck check lintDocs assembleDebug` green.
+- Open items: part a (the one-command device script with screenshots and a recording) follows. The images are Compose renders on a JVM, not photos of the Galaxy A55 5G; fonts and system bars differ. The Tasks edit form and the reminder form are not in the list yet.
