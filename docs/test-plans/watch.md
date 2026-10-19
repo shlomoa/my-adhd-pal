@@ -137,6 +137,14 @@ Note (retirement, docs only): TC-W-132 to 136 and TC-W-139 to 143 belong to the 
 | TC-W-242 | 6.8 | unit (debug) | A list of values parses; a bad list is refused | list or null |
 | TC-W-243 | 6.4 | unit | The monitoring service is a health foreground service, not exported; the foreground-service and heart-rate permissions are declared | manifest |
 | TC-W-244 | 6.4 | unit | The Monitoring screen is declared and only the debug shell (DUMP) can start it by intent | manifest |
+| TC-W-245 | 6.8 | script | `run-stress-demo.ps1` parses without errors | parser |
+| TC-W-246 | 6.8 | script | One command with only `-Phone` and `-Watch`: stages preflight, grants, monitoring, baseline, reading, event, response, watch-alert, phone-alert, episode-end, each with PASS/FAIL, its time and the time since the previous stage; the timeline gives the latencies (reading to response, phone latency) | result file |
+| TC-W-247 | 6.8 | script | The demo asks nothing and needs no tap (stdin closed) | no banner |
+| TC-W-248 | 6.8 | script | The result is published as `demo-results/<stamp>`; the file holds no ip address, no serial and no local path | origin refs, text |
+| TC-W-249 | 6.8 | script | No stress event: the event stage fails, the later stages say so, exit 1, the file still ends with a summary and is published | exit code, file |
+| TC-W-250 | 6.8 | script | An alert the phone did not raise fails only the phone stage | stage lines |
+| TC-W-251 | 6.8 | script | With `-Real` nothing is injected (no baseline, no series): the demo waits for a real event | call log |
+| TC-W-252 | 6.8 | script | A hung adb call does not hang the demo (hard limit) | summary written |
 | TC-W-121 | 6.5 | unit | Samples in any order within one hour give the same hourly low as sorted ones | equal results |
 | TC-W-122 | 6.5 | unit | The hourly lows (derived values only) can be saved and restored | restored baseline equals the original |
 | TC-W-132 | 6.4 | unit | The probe summary counts deliveries and samples and reports the min, median and max gap between deliveries | expected numbers |

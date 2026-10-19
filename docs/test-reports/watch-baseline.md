@@ -445,6 +445,15 @@ e: wear/src/test/.../monitor/MonitorHubTest.kt:38:23 Unresolved reference 'Monit
 e: wear/src/test/.../monitor/MonitorHubTest.kt:39:19 Unresolved reference 'StressMonitor'.
 ```
 
+Stress demo script (TC-W-245 to TC-W-252; `scripts/demo/test-stress-demo.sh`): `run-stress-demo.ps1` runs the stages preflight, grants, monitoring, baseline, reading, event, response, watch-alert, phone-alert and episode-end with one command and no prompts, as a PASS/FAIL timeline, and publishes `demo-results/<stamp>`.
+Red evidence: the tests were run with the script absent (commit "Tests for the stress demo script (red)" on branch `claude/watch-stress-monitor`): 22 checks FAIL, for example:
+
+```
+FAIL TC-W-245 run-stress-demo.ps1 parses without errors (expected 0, got 1)
+FAIL TC-W-246 a full demo run exits 0 (expected 0, got 64)
+FAIL TC-W-246 stage preflight is PASS (expected 0, got 2)
+```
+
 ## Not yet written (later steps)
 
 Cases for biometrics (TC-W-077 to TC-W-083; TC-W-070 to TC-W-076 are done).
