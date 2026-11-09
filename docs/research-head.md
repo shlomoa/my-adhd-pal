@@ -18,7 +18,3 @@ Here is how specific smartwatch metrics map to day-to-day symptom management for
 
 • Medication Response & Wear-Off (ADHD): If you take stimulant medication, tracking your resting heart rate and HRV trends throughout the day can show when the medication is peaking and when a "rebound" or crash is occurring, which often mimics anxiety or irritability.
 • Activity Slumps & Crash Detection: Prolonged drops in daily step counts or flattened movement curves can serve as an objective flag for PTSD avoidance/shutdown or ADHD burnout, helping you distinguish physical exhaustion from executive dysfunction.
-If you want to set up specific alerts or workflows, let me know:
-• Which smartwatch brand you wear
-• Which symptoms you find hardest to catch early (like hyperarousal, burnout, or sleep disruption)
-I can walk you through the exact built-in settings or third-party apps to track them.
