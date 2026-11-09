@@ -60,6 +60,10 @@ expect A-success "$d" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVE
   "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED" "Goal 2 (control of power, sensor enabling, modes): ACHIEVED" \
   "Goal 3 (live pulse to the phone over Bluetooth, under 1 s): ACHIEVED"
 
+# A3. The full report carries the sample counts and latency of this run's data.
+expect A3-fullreport "$d" "FULL REPORT" "Watch readings judged for goal 1: 180" "Phone, Bluetooth: 180 received" "typical (p50) about 82 ms" "typical (p50) about 302 ms" \
+  "Screen states with enough readings: on,doze,off"
+
 # A2. Only the screen-on state was reached: still judged, but the limitation is stated.
 d="$tmp/a2"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 300

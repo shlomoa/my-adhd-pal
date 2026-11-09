@@ -146,14 +146,14 @@ collect() {
   done
   say ""
   scripts/verdict.sh "$out" | tee -a "$report" >/dev/null
-  cat "$out/verdict.txt"
+  sed '/^######/,$d' "$out/verdict.txt" # the details; the full report is printed last
   say ""
   say "total time: $(( $(date +%s) - started )) s"
   if [ "$push" = 1 ]; then
     git add "$out" && git commit -q -m "POC run $stamp" -- "$out" && git push origin HEAD
     say "results committed and pushed: $out"
   fi
-  sed -n '/^=* RESULT =*$/,$p' "$out/verdict.txt"
+  sed -n '/^# *FULL REPORT/,$p' "$out/verdict.txt" | sed '1s/^/######################################################################\n/'
 }
 
 # ---- 1. latency matrix -------------------------------------------------------------------------------------------------

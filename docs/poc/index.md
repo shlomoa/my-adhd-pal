@@ -10,6 +10,7 @@ Status: built and tested against simulated devices; waiting for a run on the rea
 
 - [Setup checklist](setup.md)
 - [Requirements, tests and pass rules](requirements.md)
+- [Research, findings and issues](findings.md)
 - [Watch commands and how latency is measured](commands.md)
 
 Run with one command: `scripts/run-poc.sh` (about 7 minutes; `--smoke` for a 2-minute first check). Prepare the phone first: unlocked, screen on.

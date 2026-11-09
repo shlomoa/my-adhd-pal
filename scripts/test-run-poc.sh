@@ -27,11 +27,17 @@ run_case() {
   for pat in "${pats[@]}"; do
     grep -qF -- "$pat" "$log" || { ok=0; echo "FAIL [$name]: output lacks '$pat'"; }
   done
+  if grep -q "FULL REPORT" "$log"; then
+    [ "$(grep -c "FULL REPORT" "$log")" = 1 ] || { ok=0; echo "FAIL [$name]: the full report is printed more than once"; }
+    # the report must be the last thing printed: nothing but the report and the result block after its header
+    after="$(sed -n '/FULL REPORT/,$p' "$log" | grep -c "total time")"
+    [ "$after" = 0 ] || { ok=0; echo "FAIL [$name]: output continues after the full report"; }
+  fi
   if [ $ok = 1 ]; then echo "ok   [$name]"; else fail=1; sed 's/^/    /' "$log" | tail -40; fi
 }
 
 run_case good 0 -- "phone Bluetooth server: listening" "CHECK C1 PASS" "CHECK C2 PASS" "CHECK C3 PASS" "CHECK C4 PASS" \
-  "CHECK C5 PASS" "CHECK C6 PASS" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVERALL: SUCCESS" \
+  "CHECK C5 PASS" "CHECK C6 PASS" "FULL REPORT" "1. WHAT IS REQUIRED, AND WHAT WAS COVERED" "2. WHAT REMAINS UNKNOWN" "3. DECISIONS MADE" "4. CONSIDERATIONS NOT TAKEN" "5. WHAT WAS MEASURED WITH REAL DATA" "6. THE LATENCY, IN SHORT" "7. HOW MANY SAMPLES" "Watch readings judged for goal 1: 150 (in 6 phases)" "Phone, Bluetooth: 150 received" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVERALL: SUCCESS" \
   "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (screen on only" "modes): ACHIEVED" "under 1 s): ACHIEVED (screen on only"
 run_case slow 0 -- "GOAL 1: NOT MET" "OVERALL: FAILURE"
 run_case zero 4 -- "STOP: no readings at all" "OFF-BODY" "GOAL 1: NO DATA" "OVERALL: INCOMPLETE"
