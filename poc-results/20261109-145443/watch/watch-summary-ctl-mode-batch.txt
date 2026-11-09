@@ -1,0 +1,4 @@
+label=ctl-mode-batch route=r2 rateUs=0 batchUs=5000000 wakeUpSensor=true
+readings=0 error=none
+sensor_to_app (recorded -> watch app): no data
+gap_between_arrivals: no data

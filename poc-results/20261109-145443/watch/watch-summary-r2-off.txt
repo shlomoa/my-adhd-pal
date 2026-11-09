@@ -1,0 +1,4 @@
+label=r2-off route=r2 rateUs=0 batchUs=0 wakeUpSensor=true
+readings=0 error=none
+sensor_to_app (recorded -> watch app): no data
+gap_between_arrivals: no data
