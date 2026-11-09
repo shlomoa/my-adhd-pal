@@ -1,0 +1,5 @@
+ADHD Pal POC run 20261109-144800
+watch: 192.168.0.68:43717 SM-R965F Android 16 (API 36)
+phone: adb-R5CX50ZSC4J-5K3OwS._adb-tls-connect._tcp SM-A556E Android 16 (API 36)
+watch install: Performing Streamed Install Success 
+watch: package com.shlomoa.myadhdpal.poc is not installed after the install above; stopping

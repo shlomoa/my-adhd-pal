@@ -365,3 +365,4 @@ Goal 3 (live pulse to the phone over Bluetooth, under 1 s): ACHIEVED
 =======================================
 
 total time: 507 s
+results committed and pushed: poc-results/20261109-163104

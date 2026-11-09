@@ -119,3 +119,4 @@ Readings reached the watch app, but none arrived over Bluetooth with a clock off
 OVERALL: INCOMPLETE: at least one goal has no data (see the causes above)
 
 total time: 116 s
+results committed and pushed: poc-results/20261109-155340

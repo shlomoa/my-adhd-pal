@@ -1,0 +1,9 @@
+ADHD Pal POC run 20261109-144120
+watch: 192.168.0.68:43717 SM-R965F Android 16 (API 36)
+phone: adb-R5CX50ZSC4J-5K3OwS._adb-tls-connect._tcp SM-A556E Android 16 (API 36)
+not granted (may not apply on this Android version): android.permission.BODY_SENSORS
+not granted (may not apply on this Android version): android.permission.health.READ_HEART_RATE
+not granted (may not apply on this Android version): android.permission.BODY_SENSORS_BACKGROUND
+not granted (may not apply on this Android version): android.permission.POST_NOTIFICATIONS
+
+== 1. latency matrix (60s per phase)
