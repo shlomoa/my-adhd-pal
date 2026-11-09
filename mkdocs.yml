@@ -1,4 +1,4 @@
-# Documentation site (issue #156). Source of truth: the markdown files in docs/; docs/index.md is the entry point.
+# Documentation site. Source of truth: the markdown files in docs/; docs/index.md is the entry point.
 # Build: scripts/docs-site.sh (mkdocs build --strict, output in build/docs-site, not committed, not published).
 site_name: ADHD Pal documentation
 repo_url: https://github.com/shlomoa/my-adhd-pal

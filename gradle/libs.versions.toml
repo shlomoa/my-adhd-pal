@@ -1,6 +1,6 @@
 [versions]
 # S: shared app configuration (applied to both apps by the root build.gradle.kts)
-applicationId = "com.shlomoa.myadhdpal"
+applicationId = "com.shlomoa.myadhdpal.poc"
 compileSdk = "37"
 minSdk = "30"
 targetSdk = "36"

@@ -1,0 +1,41 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin
+.kotlin/
+
+# Android
+local.properties
+*.apk
+*.aab
+captures/
+.cxx/
+.externalNativeBuild/
+
+# Signing keys and secrets
+*.jks
+*.keystore
+keystore.properties
+.env
+
+# Logs and crash dumps
+*.log
+# the raw per-case logs of the hardware spikes are evidence (docs/spikes/README.md)
+!docs/spikes/results/**/*.log
+*.hprof
+hs_err_pid*
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db

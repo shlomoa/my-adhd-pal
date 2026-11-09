@@ -20,7 +20,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "my-adhd-pal"
+// The pulse-sensor POC. The previous implementation lives in archive/ and is not part of this build.
+rootProject.name = "my-adhd-pal-poc"
 include(":wear")
-include(":protocol")
 include(":phone")
+include(":core")
