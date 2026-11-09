@@ -1,0 +1,1 @@
+running=false route=r2 label=r2-on count=27 msSinceLastReading=332 wakeLockHeld=false wakeUpSensor=true rateUs=0 batchUs=0 offsetDlNanos=500316164364246 offsetBtNanos=-9223372036854775808 phoneNodeFound=true btConnected=false btDevice=none error=none

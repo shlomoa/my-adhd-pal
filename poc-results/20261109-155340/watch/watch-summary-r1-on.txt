@@ -1,0 +1,5 @@
+label=r1-on route=r1 rateUs=0 batchUs=0 wakeUpSensor=false
+readings=26 error=none
+sensor_to_app (recorded -> watch app): n=26 min=9.2ms p50=15.8ms p95=39.7ms max=117.7ms
+gap_between_arrivals: n=25 min=985.8ms p50=1004.1ms p95=1033.4ms max=1913.6ms
+sensor_to_app while screen=on: n=26 min=9.2ms p50=15.8ms p95=39.7ms max=117.7ms

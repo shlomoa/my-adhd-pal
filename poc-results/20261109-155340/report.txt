@@ -1,0 +1,121 @@
+ADHD Pal POC run 20261109-155340
+watch: 192.168.0.68:43717 SM-R965F Android 16 (API 36)
+phone: adb-R5CX50ZSC4J-5K3OwS._adb-tls-connect._tcp SM-A556E Android 16 (API 36)
+building APKs (incremental)
+watch install: Performing Streamed Install Success 
+phone install: Performing Streamed Install Success 
+watch granted android.permission.BODY_SENSORS
+watch granted android.permission.health.READ_HEART_RATE
+watch granted android.permission.BODY_SENSORS_BACKGROUND
+watch granted android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND
+watch granted android.permission.POST_NOTIFICATIONS
+watch granted android.permission.BLUETOOTH_CONNECT
+phone granted android.permission.BLUETOOTH_CONNECT
+phone granted android.permission.POST_NOTIFICATIONS
+phone Bluetooth server: listening
+
+== 1. latency matrix (20s per phase; the screen state is requested, but what the watch reached is recorded per reading)
+r1-on: requested screen=on, observed mid-phase: mWakefulness=Awake Display State=ON; end status: count=25 error=none
+r2-on: requested screen=on, observed mid-phase: mWakefulness=Awake Display State=ON; end status: count=26 error=none
+
+== results
+-- watch-summary-ctl-enable.txt
+   label=ctl-enable route=r2 rateUs=0 batchUs=0 wakeUpSensor=true
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-ctl-mode-batch.txt
+   label=ctl-mode-batch route=r2 rateUs=0 batchUs=5000000 wakeUpSensor=true
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-ctl-mode-live.txt
+   label=ctl-mode-live route=r2 rateUs=0 batchUs=0 wakeUpSensor=true
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-ctl-mode-r1.txt
+   label=ctl-mode-r1 route=r1 rateUs=0 batchUs=0 wakeUpSensor=false
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-ctl-wakelock.txt
+   label=ctl-wakelock route=r2 rateUs=0 batchUs=0 wakeUpSensor=true
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-r1-dim.txt
+   label=r1-dim route=r1 rateUs=0 batchUs=0 wakeUpSensor=false
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-r1-off.txt
+   label=r1-off route=r1 rateUs=0 batchUs=0 wakeUpSensor=false
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-r1-on.txt
+   label=r1-on route=r1 rateUs=0 batchUs=0 wakeUpSensor=false
+   readings=26 error=none
+   sensor_to_app (recorded -> watch app): n=26 min=9.2ms p50=15.8ms p95=39.7ms max=117.7ms
+   gap_between_arrivals: n=25 min=985.8ms p50=1004.1ms p95=1033.4ms max=1913.6ms
+   sensor_to_app while screen=on: n=26 min=9.2ms p50=15.8ms p95=39.7ms max=117.7ms
+-- watch-summary-r2-dim.txt
+   label=r2-dim route=r2 rateUs=0 batchUs=0 wakeUpSensor=true
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-r2-off.txt
+   label=r2-off route=r2 rateUs=0 batchUs=0 wakeUpSensor=true
+   readings=0 error=none
+   sensor_to_app (recorded -> watch app): no data
+   gap_between_arrivals: no data
+-- watch-summary-r2-on.txt
+   label=r2-on route=r2 rateUs=0 batchUs=0 wakeUpSensor=true
+   readings=27 error=none
+   sensor_to_app (recorded -> watch app): n=27 min=-0.1ms p50=3.0ms p95=10.2ms max=13.2ms
+   gap_between_arrivals: n=26 min=997.9ms p50=1005.2ms p95=1013.4ms max=1015.3ms
+   sensor_to_app while screen=on: n=27 min=-0.1ms p50=3.0ms p95=10.2ms max=13.2ms
+-- phone-summary-r1-on-dl.txt
+   label=r1-on path=dl received=26 withClockOffset=25
+   end_to_end (recorded -> phone): n=25 min=50.9ms p50=83.4ms p95=240.2ms max=274.6ms
+   watch_send_to_phone: n=25 min=30.5ms p50=67.2ms p95=226.8ms max=260.1ms
+   gap_between_phone_arrivals: n=25 min=822.0ms p50=1021.6ms p95=1158.4ms max=1469.3ms
+   end_to_end while watch screen=on: n=25 min=50.9ms p50=83.4ms p95=240.2ms max=274.6ms
+-- phone-summary-r2-on-dl.txt
+   label=r2-on path=dl received=27 withClockOffset=27
+   end_to_end (recorded -> phone): n=27 min=-237.6ms p50=61.5ms p95=147.0ms max=163.2ms
+   watch_send_to_phone: n=27 min=-241.3ms p50=55.3ms p95=145.5ms max=149.0ms
+   gap_between_phone_arrivals: n=26 min=920.1ms p50=995.5ms p95=1093.4ms max=1113.4ms
+   end_to_end while watch screen=on: n=27 min=-237.6ms p50=61.5ms p95=147.0ms max=163.2ms
+
+== Verdict for poc-results/20261109-155340
+
+Goal 1: pulse data at most 500 ms from recording (recorded -> watch app, p95)
+  r1 screen=on   n=26   min=     9.2 p50=    15.8 p95=    39.7 max=   117.7 ms   ok
+  r2 screen=on   n=27   min=    -0.1 p50=     3.0 p95=    10.2 max=    13.2 ms   ok
+  screen states judged: on
+  NOTE: the dim and off states were not reached (or had too few readings): this holds for the screen-on state only
+  => GOAL 1: MET
+
+Goal 2: control of power, sensor enabling and modes
+  => GOAL 2: NO DATA
+
+Goal 3: live pulse over Bluetooth to the phone in under 1000 ms (recorded -> phone, p95)
+ Direct Bluetooth path (RFCOMM):
+ Data Layer path (reported for comparison; Google says it prefers Bluetooth but may use Wi-Fi):
+  r1 screen=on   n=25   min=    50.9 p50=    83.4 p95=   240.2 max=   274.6 ms   ok
+  r2 screen=on   n=27   min=  -237.6 p50=    61.5 p95=   147.0 max=   163.2 ms   INVALID CLOCK BASE
+  screen states judged: on
+  NOTE: the dim and off states were not reached (or had too few readings): this holds for the screen-on state only
+  => GOAL 3 (Bluetooth): NO DATA   [Data Layer: INVALID CLOCK BASE]
+
+Readings reached the watch app, but none arrived over Bluetooth with a clock offset. From the logs:
+  - watch: 9807s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+  - watch: 9809s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+  - watch: 9811s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+  - phone: 510061s listening
+
+OVERALL: INCOMPLETE: at least one goal has no data (see the causes above)
+
+total time: 116 s
