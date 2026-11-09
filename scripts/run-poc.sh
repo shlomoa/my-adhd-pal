@@ -200,6 +200,15 @@ say "== 2. control checks (each is PASS, FAIL or INCONCLUSIVE; rules in docs/poc
 screen_on; nap 1
 chk() { say "CHECK $1 $2: $3"; }
 sensor_conns() { w shell dumpsys sensorservice | tr -d '\r' | grep -c "Operating Mode:.*$PKG"; }
+capture() { # capture <name> <dumpsys service> <regex>: the raw lines (with context) the checks rely on, kept in the results
+  local text
+  text=$(w shell dumpsys "$2" 2>&1 | tr -d '\r' | grep -n -i -B2 -A4 -E "$3" | head -150)
+  if [ -z "$text" ]; then
+    { echo "no line matched /$3/ in dumpsys $2; first 60 lines of the dump, to show its format:"; w shell dumpsys "$2" 2>&1 | tr -d '\r' | head -60; } >"$out/dumpsys-$1.txt"
+  else
+    echo "$text" >"$out/dumpsys-$1.txt"
+  fi
+}
 wl_count() { w shell dumpsys power | tr -d '\r' | grep -c "poc:pulse"; }
 summary_field() { # summary_field <label> <sed-expression>
   w shell run-as $PKG cat "files/watch-summary-$1.txt" 2>/dev/null | tr -d '\r' | sed -n "$2" | head -1
@@ -208,30 +217,34 @@ summary_field() { # summary_field <label> <sed-expression>
 # C1 enable and C3 system-level evidence that the sensor is switched on
 wcmd --es cmd start --es route r2 --es label ctl-enable --ez hold true; nap 6
 st=$(status); n1=$(field "$st" count); running=$(field "$st" running); conn_run=$(sensor_conns)
+capture sensorservice-running sensorservice "heart|$PKG"
 if [ "$running" = true ] && [ "${n1:-0}" -gt 0 ] 2>/dev/null; then r=PASS; else r=FAIL; fi
 chk C1 $r "enable: readings arrive after the start command (running=$running, count=$n1, error=$(field "$st" error))"
 
 # C2 disable, and C3 the system no longer shows our sensor connection
 wcmd --es cmd stop; nap 4
 st=$(status); running=$(field "$st" running); k1=$(field "$st" count); conn_stop=$(sensor_conns)
+capture sensorservice-stopped sensorservice "heart|$PKG"
 nap 5; k2=$(field "$(status)" count)
 if [ "$running" = false ] && [ "$k1" = "$k2" ]; then r=PASS; else r=FAIL; fi
 chk C2 $r "disable: sensor stops on command and no reading arrives afterwards (running=$running, count $k1 -> $k2)"
 if [ "${conn_run:-0}" -ge 1 ] && [ "${conn_stop:-0}" -eq 0 ]; then r=PASS
 elif [ "${conn_run:-0}" -eq 0 ]; then r=INCONCLUSIVE
 else r=FAIL; fi
-chk C3 $r "sensor power at system level: our heart-rate sensor connection in dumpsys sensorservice while running=$conn_run, after stop=$conn_stop (INCONCLUSIVE = not visible, the format may differ)"
+chk C3 $r "sensor power at system level: our heart-rate sensor connection in dumpsys sensorservice while running=$conn_run, after stop=$conn_stop (INCONCLUSIVE = not visible; raw text saved in dumpsys-sensorservice-running.txt and -stopped.txt)"
 
 # C4 wake lock (power): our status and the system's wake lock list must agree
 wcmd --es cmd start --es route r2 --es label ctl-wakelock --ez hold true; nap 3
 held1=$(field "$(status)" wakeLockHeld); wl1=$(wl_count)
+capture power-held power "wake ?lock|poc:pulse"
 wcmd --es cmd wakelock --ez hold false; nap 3
 held2=$(field "$(status)" wakeLockHeld); wl2=$(wl_count)
+capture power-released power "wake ?lock|poc:pulse"
 if [ "$held1" != true ] || [ "$held2" != false ]; then r=FAIL
 elif [ "${wl1:-0}" -ge 1 ] && [ "${wl2:-0}" -eq 0 ]; then r=PASS
 elif [ "${wl1:-0}" -eq 0 ]; then r=INCONCLUSIVE
 else r=FAIL; fi
-chk C4 $r "power: wake lock held then released (status $held1 -> $held2; system wake locks $wl1 -> $wl2; INCONCLUSIVE = not visible in dumpsys power)"
+chk C4 $r "power: wake lock held then released (status $held1 -> $held2; system wake locks $wl1 -> $wl2; INCONCLUSIVE = not visible; raw text saved in dumpsys-power-held.txt and -released.txt)"
 wcmd --es cmd stop; nap 3
 
 # C5 batching mode: with a 5 s report latency the readings must arrive in bursts (longer gaps) than with 0

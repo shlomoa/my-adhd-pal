@@ -27,6 +27,12 @@ run_case() {
   for pat in "${pats[@]}"; do
     grep -qF -- "$pat" "$log" || { ok=0; echo "FAIL [$name]: output lacks '$pat'"; }
   done
+  if [ "$name" = good ]; then
+    for f in dumpsys-sensorservice-running dumpsys-sensorservice-stopped dumpsys-power-held dumpsys-power-released; do
+      ls "$tmp/$name-results"/*/"$f.txt" >/dev/null 2>&1 || { ok=0; echo "FAIL [$name]: results lack $f.txt"; }
+    done
+    grep -q "poc:pulse" "$tmp/$name-results"/*/dumpsys-power-held.txt 2>/dev/null || { ok=0; echo "FAIL [$name]: dumpsys-power-held.txt lacks the wake lock line"; }
+  fi
   if grep -q "FULL REPORT" "$log"; then
     [ "$(grep -c "FULL REPORT" "$log")" = 1 ] || { ok=0; echo "FAIL [$name]: the full report is printed more than once"; }
     # the report must be the last thing printed: nothing but the report and the result block after its header
