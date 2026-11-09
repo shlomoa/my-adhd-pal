@@ -424,3 +424,4 @@ Goal 3 (live pulse to the phone over Bluetooth, under 1 s): ACHIEVED (routes: r1
 =======================================
 
 total time: 560 s
+results committed and pushed: poc-results/20261109-174743
