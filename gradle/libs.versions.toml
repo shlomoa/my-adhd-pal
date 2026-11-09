@@ -30,6 +30,7 @@ androidxTestCore = "1.7.0"
 # W: watch
 playServicesWearable = "20.0.1"
 healthServices = "1.1.0"
+guava = "33.4.0-android"
 # play-services pulls in androidx.fragment 1.1.0, too old for the ActivityResult API (lint InvalidFragmentVersionForActivityResult)
 fragment = "1.9.1"
 tiles = "1.6.2"
@@ -66,6 +67,7 @@ androidx-wear-protolayout-material3 = { group = "androidx.wear.protolayout", nam
 androidx-wear-protolayout-expression = { group = "androidx.wear.protolayout", name = "protolayout-expression", version.ref = "protolayout" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 androidx-health-services = { group = "androidx.health", name = "health-services-client", version.ref = "healthServices" }
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 
 [plugins]

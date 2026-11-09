@@ -3,8 +3,44 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <!-- Heart rate: BODY_SENSORS up to API 35, the health permission from API 36 (Android Sensor reference). -->
+    <uses-permission android:name="android.permission.BODY_SENSORS" android:maxSdkVersion="35" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+    <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="false"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.DeviceDefault" />
+        android:theme="@android:style/Theme.DeviceDefault">
+
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="true" />
+
+        <!-- Test entry point: `adb shell am start -n ...` with string extras cmd, route, label (see docs/poc/commands.md).
+             An activity start is what lets the health foreground service start. Exported for adb only; POC build. -->
+        <activity
+            android:name=".ControlActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <service
+            android:name=".PocService"
+            android:exported="false"
+            android:foregroundServiceType="health" />
+
+        <service
+            android:name=".PongListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/poc/" />
+            </intent-filter>
+        </service>
+    </application>
 </manifest>
