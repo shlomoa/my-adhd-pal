@@ -94,6 +94,15 @@ class LiveStats(private val windowNanos: Long = DEFAULT_WINDOW_NANOS) {
         )
     }
 
+    /** The pulse readings of the window for the graph, with their age at [nowNanos]. */
+    @Synchronized
+    fun graphPoints(nowNanos: Long): List<GraphPoint> {
+        trim(nowNanos)
+        return series.filter {
+            plausible(it.bpm)
+        }.map { GraphPoint((nowNanos - it.arrivalNanos) / NANOS_PER_S, it.bpm) }
+    }
+
     private fun plausible(bpm: Float): Boolean = bpm > 0f && bpm <= MAX_BPM
 
     private fun fresh(path: String, nowNanos: Long): Double? =

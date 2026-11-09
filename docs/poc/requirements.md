@@ -45,7 +45,11 @@ amber stale: under 10 s; red no signal), the pulse in beats per minute, the age 
 the watch reports, the route and the watch's screen state, the latency on each path (Bluetooth, Data Layer), the minimum,
 average and maximum over the last minute, the trend, the mean beat interval derived from the pulse (labelled as an average,
 not a true beat-to-beat interval), a variability proxy (labelled "not HRV"), the Bluetooth link state and the reading counts.
-The statistics and the texts live in `:core` (`LiveStats`, `LiveFormat`) with unit tests; the phone logs what the indicator
+Below the pulse is a graph of the last minute (`PulseGraphView`): bpm grid at the left, time running left to right with "now" at
+the right, a line in the status colour, a dot on the newest reading, and a break in the line wherever readings are more than
+3 s apart. The status light swells once per beat at the reported pulse rate while the pulse is live (labelled on screen as not
+synchronised with real heartbeats, which the data cannot provide).
+The statistics, the graph layout and the texts live in `:core` (`LiveStats`, `LiveFormat`) with unit tests; the phone logs what the indicator
 showed every 5 s to `live-log.txt`, and the test report prints a sample of it. The screen layout itself is not
 unit-tested (no emulator in the build), only compiled and linted; the log shows the same numbers the screen is given.
 
