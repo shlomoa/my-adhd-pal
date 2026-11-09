@@ -26,8 +26,10 @@ class SummaryReceiver : BroadcastReceiver() {
     private fun summarize(label: String, lines: List<String>): String {
         val rows = lines.mapNotNull { line ->
             val f = line.split(',')
-            if (f.size != 7) return@mapNotNull null
-            runCatching { Row(f[1].toLong(), f[3].toLong(), f[4].toLong(), f[5].toLong(), f[6].toLong()) }.getOrNull()
+            if (f.size != FIELDS) return@mapNotNull null
+            runCatching {
+                Row(f[1].toLong(), f[3].toLong(), f[4].toLong(), f[5].toLong(), f[6].toLong(), f[IDX_SCREEN])
+            }.getOrNull()
         }
         val withOffset = rows.filter { it.offset != Sample.NO_OFFSET }
         val endToEnd = withOffset.map { it.phoneArrival - (it.source + it.offset) }
@@ -38,8 +40,24 @@ class SummaryReceiver : BroadcastReceiver() {
             appendLine(Stats.line("end_to_end (recorded -> phone)", Stats.summarize(endToEnd)))
             appendLine(Stats.line("watch_send_to_phone", Stats.summarize(linkOnly)))
             appendLine(Stats.line("gap_between_phone_arrivals", Stats.summarize(gaps)))
+            for ((screen, group) in withOffset.groupBy { it.screen }.toSortedMap()) {
+                val values = group.map { it.phoneArrival - (it.source + it.offset) }
+                appendLine(Stats.line("end_to_end while watch screen=$screen", Stats.summarize(values)))
+            }
         }
     }
 
-    private data class Row(val seq: Long, val source: Long, val send: Long, val offset: Long, val phoneArrival: Long)
+    private data class Row(
+        val seq: Long,
+        val source: Long,
+        val send: Long,
+        val offset: Long,
+        val phoneArrival: Long,
+        val screen: String
+    )
+
+    private companion object {
+        const val FIELDS = 8
+        const val IDX_SCREEN = 7
+    }
 }

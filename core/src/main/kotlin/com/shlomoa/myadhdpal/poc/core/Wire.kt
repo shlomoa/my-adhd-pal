@@ -21,7 +21,9 @@ data class Sample(
     val bpm: Float,
     val sourceNanos: Long,
     val sendNanos: Long,
-    val offsetNanos: Long
+    val offsetNanos: Long,
+    /** Display state of the watch when the reading arrived: `on`, `doze` (always-on/dim), `off` or `?`. */
+    val screen: String = "?"
 ) {
     companion object {
         const val NO_OFFSET = Long.MIN_VALUE
@@ -31,16 +33,18 @@ data class Sample(
 /** Compact text wire format; fields never contain the separator. */
 object Wire {
     private const val SEP = ','
-    private const val SAMPLE_FIELDS = 7
+    private const val SAMPLE_FIELDS = 8
     private const val IDX_SEQ = 2
     private const val IDX_BPM = 3
     private const val IDX_SOURCE = 4
     private const val IDX_SEND = 5
     private const val IDX_OFFSET = 6
+    private const val IDX_SCREEN = 7
 
-    fun encode(s: Sample): ByteArray = listOf(s.label, s.route, s.seq, s.bpm, s.sourceNanos, s.sendNanos, s.offsetNanos)
-        .joinToString(SEP.toString())
-        .toByteArray(Charsets.UTF_8)
+    fun encode(s: Sample): ByteArray =
+        listOf(s.label, s.route, s.seq, s.bpm, s.sourceNanos, s.sendNanos, s.offsetNanos, s.screen)
+            .joinToString(SEP.toString())
+            .toByteArray(Charsets.UTF_8)
 
     fun decodeSample(bytes: ByteArray): Sample? {
         val f = String(bytes, Charsets.UTF_8).split(SEP)
@@ -53,7 +57,8 @@ object Wire {
                 f[IDX_BPM].toFloat(),
                 f[IDX_SOURCE].toLong(),
                 f[IDX_SEND].toLong(),
-                f[IDX_OFFSET].toLong()
+                f[IDX_OFFSET].toLong(),
+                f[IDX_SCREEN]
             )
         }.getOrNull()
     }

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# One-command POC run, about 9 minutes. Run on the computer the watch and phone are connected to over adb.
+# One-command POC run, about 7 minutes (the limit is 10). Run on the computer the watch and phone are connected to over adb.
 #
 #   scripts/run-poc.sh            run everything, commit and push the results to the current branch
 #   scripts/run-poc.sh --no-push  run everything, keep the results local
+#   scripts/run-poc.sh --smoke    about 2 minutes: only the screen-on phase of each route, with diagnostics
 #
 # What it does: builds the APKs, installs them, grants the watch permissions, then
 #   1. latency matrix: routes r1 (MeasureClient) and r2 (wake-up sensor) x screen states on / dim / off,
-#      PHASE_SECONDS each (default 60), pulse sent to the phone live;
+#      PHASE_SECONDS each (default 40), pulse sent to the phone live;
 #   2. control checks (goal 2): enable, disable, wake lock hold/release, route and batching modes;
 #   3. pulls the logs and summaries from both devices into poc-results/<timestamp>/ and writes report.txt.
 # Screen states are driven through adb; the state the watch actually reached is recorded, never assumed.
@@ -16,13 +17,19 @@ export MSYS_NO_PATHCONV=1
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 ADB="${ADB:-adb}"
-PHASE_SECONDS="${PHASE_SECONDS:-60}"
+PHASE_SECONDS="${PHASE_SECONDS:-40}"
+smoke=0
 PKG=com.shlomoa.myadhdpal.poc
 WACT="$PKG/$PKG.wear.ControlActivity"
 PACT="$PKG/$PKG.phone.MainActivity"
 PREC="$PKG/$PKG.phone.SummaryReceiver"
 push=1
-[ "${1:-}" = "--no-push" ] && push=0
+for arg in "$@"; do
+  case "$arg" in
+    --no-push) push=0 ;;
+    --smoke) smoke=1; PHASE_SECONDS=20 ;;
+  esac
+done
 
 started=$(date +%s)
 stamp=$(date +%Y%m%d-%H%M%S)
@@ -67,7 +74,8 @@ install_app "$P" "$PAPK" phone
 w shell run-as $PKG sh -c 'rm -f files/*' >/dev/null 2>&1
 p shell run-as $PKG sh -c 'rm -f files/*' >/dev/null 2>&1
 for perm in android.permission.BODY_SENSORS android.permission.health.READ_HEART_RATE \
-  android.permission.BODY_SENSORS_BACKGROUND android.permission.POST_NOTIFICATIONS; do
+  android.permission.BODY_SENSORS_BACKGROUND android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND \
+  android.permission.POST_NOTIFICATIONS; do
   if res=$(w shell pm grant $PKG "$perm" 2>&1 | tr -d '\r'); [ -z "$res" ]; then
     say "granted $perm"
   else
@@ -91,14 +99,55 @@ observe() {
 }
 screen_on() { w shell settings put system screen_off_timeout 600000 >/dev/null 2>&1; w shell input keyevent KEYCODE_WAKEUP; }
 
+# ---- collect (also used for an early stop) --------------------------------------------------------------------------------
+diag() { # diag <name>: what the system says about our app and the heart-rate sensor, saved in the results
+  {
+    echo "## dumpsys package (permissions)"
+    w shell dumpsys package $PKG | tr -d '\r' | grep -E "READ_HEART|BODY_SENSORS|READ_HEALTH|POST_NOTIF" | head -20
+    echo "## dumpsys sensorservice (heart rate, our package)"
+    w shell dumpsys sensorservice | tr -d '\r' | grep -i -E "heart|$PKG" | head -30
+    echo "## dumpsys activity services (our service)"
+    w shell dumpsys activity services $PKG | tr -d '\r' | grep -i -E "ServiceRecord|isForeground|foregroundServiceType|app=" | head -10
+    echo "## display / power"
+    observe
+  } >"$out/diag-$1.txt" 2>&1
+}
+collect() {
+  say ""
+  say "== results"
+  p shell am broadcast -n "$PREC" -a com.shlomoa.myadhdpal.poc.SUMMARIZE >/dev/null 2>&1
+  sleep 3
+  w logcat -d -s POC 2>/dev/null | tr -d '\r' | tail -300 >"$out/watch/logcat-poc.txt"
+  for side in watch phone; do
+    if [ "$side" = watch ]; then dev=$W; else dev=$P; fi
+    for f in $("$ADB" -s "$dev" shell run-as $PKG ls files 2>/dev/null | tr -d '\r'); do
+      "$ADB" -s "$dev" shell run-as $PKG cat "files/$f" 2>/dev/null | tr -d '\r' >"$out/$side/$f"
+    done
+  done
+  for f in "$out"/watch/watch-summary-*.txt "$out"/phone/phone-summary-*.txt; do
+    [ -f "$f" ] && { say "-- $(basename "$f")"; sed 's/^/   /' "$f" | tee -a "$report"; }
+  done
+  say ""
+  say "total time: $(( $(date +%s) - started )) s"
+  if [ "$push" = 1 ]; then
+    git add "$out" && git commit -q -m "POC run $stamp" -- "$out" && git push origin HEAD
+    say "results committed and pushed: $out"
+  fi
+}
+
 # ---- 1. latency matrix -------------------------------------------------------------------------------------------------
 say ""
-say "== 1. latency matrix (${PHASE_SECONDS}s per phase)"
+say "== 1. latency matrix (${PHASE_SECONDS}s per phase; the screen state is requested, but what the watch reached is recorded per reading)"
 for route in r1 r2; do
   for state in on dim off; do
+    [ "$smoke" = 1 ] && [ "$state" != on ] && continue
     label="$route-$state"
     screen_on; sleep 1
-    wcmd --es cmd start --es route "$route" --es label "$label"
+    if [ "$state" = on ]; then
+      wcmd --es cmd start --es route "$route" --es label "$label" --ez keep_screen true
+    else
+      wcmd --es cmd start --es route "$route" --es label "$label"
+    fi
     sleep 3
     case "$state" in
       dim) w shell settings put system screen_off_timeout 15000 >/dev/null 2>&1 ;;
@@ -106,14 +155,23 @@ for route in r1 r2; do
     esac
     sleep $((PHASE_SECONDS / 2))
     observed=$(observe)
+    [ "$label" = r1-on ] && diag "$label"
     sleep $((PHASE_SECONDS - PHASE_SECONDS / 2))
     screen_on; sleep 2
     st=$(status)
     wcmd --es cmd stop
     sleep 3
     say "$label: requested screen=$state, observed mid-phase: $observed; end status: count=$(field "$st" count) error=$(field "$st" error)"
+    if [ "$label" = r1-on ] && [ "$(field "$st" count)" = 0 ]; then
+      say "STOP: no readings at all in the first phase (screen on, route r1). Further phases would only repeat that."
+      say "Diagnostics are in diag-r1-on.txt and watch/events.txt. Is the watch worn and the strap snug?"
+      collect
+      exit 4
+    fi
   done
 done
+
+[ "$smoke" = 1 ] && { collect; exit 0; }
 
 # ---- 2. control checks (goal 2) ----------------------------------------------------------------------------------------
 say ""
@@ -145,24 +203,4 @@ st=$(status); n=$(field "$st" count); wcmd --es cmd stop; sleep 3
 check "mode: route r1 delivers readings (count=$n route=$(field "$st" route))" \
   "$([ "$(field "$st" route)" = r1 ] && [ "${n:-0}" -gt 0 ] 2>/dev/null && echo 1 || echo 0)"
 
-# ---- 3. collect ------------------------------------------------------------------------------------------------------------
-say ""
-say "== 3. results"
-p shell am broadcast -n "$PREC" -a com.shlomoa.myadhdpal.poc.SUMMARIZE >/dev/null 2>&1
-sleep 3
-for side in watch phone; do
-  if [ "$side" = watch ]; then dev=$W; else dev=$P; fi
-  for f in $("$ADB" -s "$dev" shell run-as $PKG ls files 2>/dev/null | tr -d '\r'); do
-    "$ADB" -s "$dev" shell run-as $PKG cat "files/$f" 2>/dev/null | tr -d '\r' >"$out/$side/$f"
-  done
-done
-for f in "$out"/watch/watch-summary-*.txt "$out"/phone/phone-summary-*.txt; do
-  [ -f "$f" ] && { say "-- $(basename "$f")"; sed 's/^/   /' "$f" | tee -a "$report"; }
-done
-say ""
-say "total time: $(( $(date +%s) - started )) s"
-
-if [ "$push" = 1 ]; then
-  git add "$out" && git commit -q -m "POC run $stamp" -- "$out" && git push origin HEAD
-  say "results committed and pushed: $out"
-fi
+collect

@@ -6,17 +6,21 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
+import android.util.Log
+import android.view.Display
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.data.Availability
@@ -55,6 +59,7 @@ class PocService : Service() {
     private var error = ""
     private val sensorLatencies = mutableListOf<Long>()
     private val arrivals = mutableListOf<Long>()
+    private val latenciesByScreen = mutableMapOf<String, MutableList<Long>>()
 
     private val sensorListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
@@ -62,11 +67,12 @@ class PocService : Service() {
             onReading(event.values[0], event.timestamp, arrival, event.accuracy)
         }
 
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = event("accuracy changed to $accuracy")
     }
 
     private val measureCallback = object : MeasureCallback {
-        override fun onAvailabilityChanged(dataType: DeltaDataType<*, *>, availability: Availability) = Unit
+        override fun onAvailabilityChanged(dataType: DeltaDataType<*, *>, availability: Availability) =
+            event("availability $availability")
 
         override fun onDataReceived(data: DataPointContainer) {
             val arrival = SystemClock.elapsedRealtimeNanos()
@@ -135,6 +141,8 @@ class PocService : Service() {
         error = ""
         sensorLatencies.clear()
         arrivals.clear()
+        latenciesByScreen.clear()
+        logPermissions()
         Link.reset()
         Link.refreshNode(this)
         setWakeLock(intent.getBooleanExtra("hold", true))
@@ -155,8 +163,10 @@ class PocService : Service() {
             return false
         }
         wakeUpSensor = sensor.isWakeUpSensor
+        event("sensor ${sensor.name} vendor=${sensor.vendor} wakeUp=$wakeUpSensor minDelayUs=${sensor.minDelay}")
         return try {
             val ok = manager.registerListener(sensorListener, sensor, rateUs, batchUs)
+            event("registerListener rateUs=$rateUs batchUs=$batchUs -> $ok")
             if (!ok) error = "registerListener returned false"
             ok
         } catch (e: SecurityException) {
@@ -168,9 +178,13 @@ class PocService : Service() {
     private fun registerMeasure(): Boolean {
         wakeUpSensor = false
         return try {
-            HealthServices.getClient(
-                this
-            ).measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
+            val client = HealthServices.getClient(this).measureClient
+            val capabilities = client.getCapabilitiesAsync()
+            capabilities.addListener({
+                val supported = runCatching { DataType.HEART_RATE_BPM in capabilities.get().supportedDataTypesMeasure }
+                event("measure capability HEART_RATE_BPM supported=${supported.getOrNull()}")
+            }, mainExecutor)
+            client.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
             true
         } catch (e: SecurityException) {
             error = "registerMeasureCallback: ${e.javaClass.simpleName} ${e.message}"
@@ -210,10 +224,17 @@ class PocService : Service() {
         count++
         lastSourceNanos = sourceNanos
         lastArrivalNanos = arrivalNanos
+        val screen = screenState()
         sensorLatencies += arrivalNanos - sourceNanos
+        latenciesByScreen.getOrPut(screen) { mutableListOf() } += arrivalNanos - sourceNanos
         arrivals += arrivalNanos
-        PocFiles.append(this, "watch-$label.csv", "$label,$route,$count,$bpm,$accuracy,$sourceNanos,$arrivalNanos")
-        val sample = Sample(label, route, count, bpm, sourceNanos, SystemClock.elapsedRealtimeNanos(), Link.offsetNanos)
+        PocFiles.append(
+            this,
+            "watch-$label.csv",
+            "$label,$route,$count,$bpm,$accuracy,$sourceNanos,$arrivalNanos,$screen"
+        )
+        val sample =
+            Sample(label, route, count, bpm, sourceNanos, SystemClock.elapsedRealtimeNanos(), Link.offsetNanos, screen)
         Link.send(this, Paths.SAMPLE, Wire.encode(sample))
     }
 
@@ -223,8 +244,40 @@ class PocService : Service() {
             appendLine("readings=$count error=${error.ifEmpty { "none" }}")
             appendLine(Stats.line("sensor_to_app (recorded -> watch app)", Stats.summarize(sensorLatencies)))
             appendLine(Stats.line("gap_between_arrivals", Stats.summarize(Stats.gaps(arrivals))))
+            for ((screen, values) in latenciesByScreen.toSortedMap()) {
+                appendLine(Stats.line("sensor_to_app while screen=$screen", Stats.summarize(values)))
+            }
         }
         PocFiles.write(this, "watch-summary-$label.txt", text)
+    }
+
+    /** Display state as the system reports it right now; adb cannot reliably force a state, so it is recorded. */
+    private fun screenState(): String =
+        when (getSystemService(DisplayManager::class.java).getDisplay(Display.DEFAULT_DISPLAY)?.state) {
+            Display.STATE_ON -> "on"
+            Display.STATE_DOZE, Display.STATE_DOZE_SUSPEND -> "doze"
+            Display.STATE_OFF -> "off"
+            else -> "?"
+        }
+
+    private fun logPermissions() {
+        val names = listOf(
+            "android.permission.BODY_SENSORS",
+            "android.permission.health.READ_HEART_RATE",
+            "android.permission.BODY_SENSORS_BACKGROUND",
+            "android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND"
+        )
+        event(
+            names.joinToString("; ") {
+                it.substringAfterLast('.') + "=" +
+                    (checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED)
+            }
+        )
+    }
+
+    private fun event(text: String) {
+        Log.i("POC", text)
+        PocFiles.append(this, "events.txt", "${SystemClock.elapsedRealtime() / MS_PER_S}s $text")
     }
 
     private fun writeStatus() {
@@ -244,5 +297,6 @@ class PocService : Service() {
         const val NOTIFICATION_ID = 5001
         const val TICK_MS = 1000L
         const val NANOS_PER_MS = 1_000_000L
+        const val MS_PER_S = 1000L
     }
 }

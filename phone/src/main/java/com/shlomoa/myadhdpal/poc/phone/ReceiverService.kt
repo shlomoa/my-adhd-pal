@@ -22,11 +22,11 @@ class ReceiverService : WearableListenerService() {
                 val s = Wire.decodeSample(event.data) ?: return
                 PhoneState.received++
                 PhoneState.lastText = "${s.bpm.toInt()} bpm (${s.label} #${s.seq})"
-                // label,seq,bpm,sourceNanos,sendNanos,offsetNanos,phoneArrivalNanos
+                // label,seq,bpm,sourceNanos,sendNanos,offsetNanos,phoneArrivalNanos,screen
                 PhoneState.append(
                     this,
                     "phone-${s.label}.csv",
-                    "${s.label},${s.seq},${s.bpm},${s.sourceNanos},${s.sendNanos},${s.offsetNanos},$arrival"
+                    "${s.label},${s.seq},${s.bpm},${s.sourceNanos},${s.sendNanos},${s.offsetNanos},$arrival,${s.screen}"
                 )
             }
         }

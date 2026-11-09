@@ -7,14 +7,14 @@ import kotlin.test.assertNull
 class CoreTest {
     @Test
     fun sampleRoundTripsThroughWire() {
-        val s = Sample("r2-on", "r2", 7, 71.5f, 1_000, 2_000, -5)
+        val s = Sample("r2-on", "r2", 7, 71.5f, 1_000, 2_000, -5, "doze")
         assertEquals(s, Wire.decodeSample(Wire.encode(s)))
     }
 
     @Test
     fun badSampleIsRejected() {
         assertNull(Wire.decodeSample("x,y".toByteArray()))
-        assertNull(Wire.decodeSample("a,b,notanumber,1,2,3,4".toByteArray()))
+        assertNull(Wire.decodeSample("a,b,notanumber,1,2,3,4,on".toByteArray()))
     }
 
     @Test
