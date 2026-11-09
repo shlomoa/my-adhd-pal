@@ -1,0 +1,8 @@
+This run's verdict.txt was regenerated after the run, from the run's own files, with
+  MIN_SOURCE_NANOS=11500000000000 scripts/verdict.sh poc-results/20261109-163104
+to leave out 53 readings that were left on the devices by the previous run (20261109-155340): the script of that time
+did not clear the old result files (adb dropped the quotes of its delete command). Those 53 rows were recorded before
+11500 s of watch uptime; this run's readings were recorded after 12000 s. The original output is in verdict-original.txt.
+The C3 check (sensor power at system level) read INCONCLUSIVE in this run because its search pattern did not match the
+real dumpsys format. The format is now known (see scripts/run-poc.sh, function sensor_state); the raw lines of this run
+are in diag-r1-on.txt.

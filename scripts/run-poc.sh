@@ -72,8 +72,16 @@ install_app() { # install_app <serial> <apk> <name>
 install_app "$W" "$WAPK" watch
 install_app "$P" "$PAPK" phone
 # Fresh logs for this run.
-w shell run-as $PKG sh -c 'rm -f files/*' >/dev/null 2>&1
-p shell run-as $PKG sh -c 'rm -f files/*' >/dev/null 2>&1
+clear_files() { # clear_files <serial> <name>: remove the app's old result files one by one (a glob would be lost in adb's quoting)
+  local f left
+  for f in $("$ADB" -s "$1" shell run-as $PKG ls files 2>/dev/null | tr -d '\r'); do
+    "$ADB" -s "$1" shell run-as $PKG rm -f "files/$f" >/dev/null 2>&1
+  done
+  left=$("$ADB" -s "$1" shell run-as $PKG ls files 2>/dev/null | tr -d '\r' | grep -c .)
+  if [ "${left:-0}" = 0 ]; then say "$2 old result files: cleared"; else say "WARNING: $2 still has $left old result files; this run's numbers may include old data"; fi
+}
+clear_files "$W" watch
+clear_files "$P" phone
 grant() { # grant <name> <serial> <permission>...
   local name=$1 serial=$2 res perm
   shift 2
@@ -199,7 +207,10 @@ say ""
 say "== 2. control checks (each is PASS, FAIL or INCONCLUSIVE; rules in docs/poc/requirements.md)"
 screen_on; nap 1
 chk() { say "CHECK $1 $2: $3"; }
-sensor_conns() { w shell dumpsys sensorservice | tr -d '\r' | grep -c "Operating Mode:.*$PKG"; }
+# Newest registration line of our app in `dumpsys sensorservice`, seen on the real watch as
+#   15:54:46 + 0x0000004d pid=14498 uid=10004 samplingPeriod= 1000000us batchingPeriod= 0us result=OK (sensor, package): (Samsung HR Batch Sensor , <pkg>)
+# "+" = sensor activated by our app, "-" = deactivated. The log lists the newest line first.
+sensor_state() { w shell dumpsys sensorservice | tr -d '\r' | grep -E "^[0-9]{2}:[0-9]{2}:[0-9]{2} [+-] 0x[0-9a-fA-F]+ .*$PKG" | head -1 | awk '{ print $2 }'; }
 capture() { # capture <name> <dumpsys service> <regex>: the raw lines (with context) the checks rely on, kept in the results
   local text
   text=$(w shell dumpsys "$2" 2>&1 | tr -d '\r' | grep -n -i -B2 -A4 -E "$3" | head -150)
@@ -216,22 +227,22 @@ summary_field() { # summary_field <label> <sed-expression>
 
 # C1 enable and C3 system-level evidence that the sensor is switched on
 wcmd --es cmd start --es route r2 --es label ctl-enable --ez hold true; nap 6
-st=$(status); n1=$(field "$st" count); running=$(field "$st" running); conn_run=$(sensor_conns)
+st=$(status); n1=$(field "$st" count); running=$(field "$st" running); conn_run=$(sensor_state)
 capture sensorservice-running sensorservice "heart|$PKG"
 if [ "$running" = true ] && [ "${n1:-0}" -gt 0 ] 2>/dev/null; then r=PASS; else r=FAIL; fi
 chk C1 $r "enable: readings arrive after the start command (running=$running, count=$n1, error=$(field "$st" error))"
 
 # C2 disable, and C3 the system no longer shows our sensor connection
 wcmd --es cmd stop; nap 4
-st=$(status); running=$(field "$st" running); k1=$(field "$st" count); conn_stop=$(sensor_conns)
+st=$(status); running=$(field "$st" running); k1=$(field "$st" count); conn_stop=$(sensor_state)
 capture sensorservice-stopped sensorservice "heart|$PKG"
 nap 5; k2=$(field "$(status)" count)
 if [ "$running" = false ] && [ "$k1" = "$k2" ]; then r=PASS; else r=FAIL; fi
 chk C2 $r "disable: sensor stops on command and no reading arrives afterwards (running=$running, count $k1 -> $k2)"
-if [ "${conn_run:-0}" -ge 1 ] && [ "${conn_stop:-0}" -eq 0 ]; then r=PASS
-elif [ "${conn_run:-0}" -eq 0 ]; then r=INCONCLUSIVE
+if [ "$conn_run" = "+" ] && [ "$conn_stop" = "-" ]; then r=PASS
+elif [ -z "$conn_run" ]; then r=INCONCLUSIVE
 else r=FAIL; fi
-chk C3 $r "sensor power at system level: our heart-rate sensor connection in dumpsys sensorservice while running=$conn_run, after stop=$conn_stop (INCONCLUSIVE = not visible; raw text saved in dumpsys-sensorservice-running.txt and -stopped.txt)"
+chk C3 $r "sensor power at system level: newest dumpsys sensorservice registration of our app while running='${conn_run:-none}' (+ = activated), after stop='${conn_stop:-none}' (- = deactivated); raw text in dumpsys-sensorservice-running.txt and -stopped.txt"
 
 # C4 wake lock (power): our status and the system's wake lock list must agree
 wcmd --es cmd start --es route r2 --es label ctl-wakelock --ez hold true; nap 3

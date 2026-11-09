@@ -64,6 +64,7 @@ def write_results(s):
 
 
 def start(s, extra):
+    s["ever_r2"] = s.get("ever_r2", False) or extra.get("route", "r2") == "r2"
     s.update(running=True, route=extra.get("route", "r2"), label=extra.get("label", ""), count=0,
              hold=extra.get("hold", "true") == "true", batch=int(extra.get("batch_us", 0)))
     if SC == "zero":
@@ -111,8 +112,11 @@ def main():
         out("  mScreenState=ON")
     elif "dumpsys sensorservice" in cmd:
         out("Sensor List: heart rate")
-        if s["running"] and s["route"] == "r2":
-            out(f"  Operating Mode: NORMAL | {PKG} | WakeLockRefCount 0 | uid 10200")
+        reg = "samplingPeriod= 1000000us batchingPeriod=       0us result=OK (sensor, package): (Samsung HR Batch Sensor    , " + PKG + ".wear.PocService)"
+        if s["running"] and s["route"] == "r2":  # newest registration first, as on the real watch
+            out(f"15:54:46 + 0x0000004d pid=14498 uid=10004 {reg}")
+        elif s.get("ever_r2"):
+            out(f"15:55:14 - 0x0000004d pid=14498 uid=10004 {reg}")
     elif "dumpsys package" in cmd:
         out("  android.permission.health.READ_HEART_RATE: granted=true")
     elif "dumpsys activity services" in cmd:
@@ -136,8 +140,10 @@ def main():
     elif "run-as" in cmd:
         d = files(serial)
         if "rm -f" in cmd:
-            for name in os.listdir(d):
-                os.remove(os.path.join(d, name))
+            # adb drops the quotes of `sh -c 'rm -f files/*'`, so a glob deletes nothing; a single named file is deleted
+            m = re.search(r"rm -f files/(\S+)", cmd)
+            if m and m.group(1) != "*" and os.path.exists(os.path.join(d, m.group(1))):
+                os.remove(os.path.join(d, m.group(1)))
         elif "ls files" in cmd:
             out("\n".join(sorted(os.listdir(d))))
         elif "cat files/status.txt" in cmd:

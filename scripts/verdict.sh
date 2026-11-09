@@ -21,6 +21,7 @@ set -u
 export LC_ALL=C
 dir="${1:?usage: verdict.sh <results-dir>}"
 MIN_N="${MIN_N:-20}"
+MIN_SOURCE_NANOS="${MIN_SOURCE_NANOS:-0}" # ignore readings recorded before this elapsed-realtime (rows left over from an earlier run)
 out="$dir/verdict.txt"
 : >"$out"
 say() { echo "$*" | tee -a "$out"; }
@@ -42,7 +43,7 @@ groups() {
 
 watch_rows() {
   for f in "$dir"/watch/watch-r[12]-*.csv; do [ -f "$f" ] && cat "$f"; done |
-    awk -F, 'NF >= 8 { printf "%s|%s %.3f\n", $2, $8, ($7 - $6) / 1000000.0 }'
+    awk -F, -v min="$MIN_SOURCE_NANOS" 'NF >= 8 && $6 >= min { printf "%s|%s %.3f\n", $2, $8, ($7 - $6) / 1000000.0 }'
 }
 
 # $1 = path (dl or bt); keys become route|screen.
@@ -55,7 +56,7 @@ phone_rows() {
     [ -f "$f" ] || continue
     ex="$dir/watch/exchanges-$(basename "${f%-"$1".csv}" | sed 's/^phone-//')-$1.csv"
     [ -f "$ex" ] || ex=""
-    awk -F, -v ex="$ex" '
+    awk -F, -v ex="$ex" -v min="$MIN_SOURCE_NANOS" '
       BEGIN {
         if (ex != "") {
           while ((getline line < ex) > 0) {
@@ -65,7 +66,7 @@ phone_rows() {
           }
         }
       }
-      NF >= 8 {
+      NF >= 8 && $4 >= min {
         if (best != "") off = best; else if ($6 > -9.0e18) off = $6; else next
         printf "%s|%s %.3f\n", substr($1, 1, 2), $8, ($7 - ($4 + off)) / 1000000.0
       }' "$f"
@@ -96,11 +97,13 @@ judge() {
     }
     END {
       for (r in total) { if (good[r] == total[r]) met = 1; else if (onok[r]) partial = 1 }
-      n = split("on doze off ?", order, " ")
-      for (i = 1; i <= n; i++) if (order[i] in judged) states = states (states == "" ? "" : ",") order[i]
+      n = split("on doze off", order, " ")
+      for (i = 1; i <= n; i++) if (order[i] in judged) states = states (states == "" ? "" : ",") order[i]; else missing = missing (missing == "" ? "" : ",") order[i]
       if (usable) print "  screen states judged: " states
-      if (usable && !("doze" in judged) && !("off" in judged))
-        print "  NOTE: the dim and off states were not reached (or had too few readings): this holds for the screen-on state only"
+      if (usable && missing != "") print "  NOTE: screen states not reached (or too few readings): " missing "; the result holds for the states judged only"
+      m = split("r1 r2", rts, " ")
+      for (i = 1; i <= m; i++) { r = rts[i]; if (total[r] > 0) routes = routes " " r "=" (good[r] == total[r] ? "ok" : "missed") }
+      if (usable) print "  ROUTES:" routes
       if (invalid) v = "INVALID CLOCK BASE"
       else if (!usable) v = "NO DATA"
       else if (met) v = "MET"
@@ -202,10 +205,15 @@ say "OVERALL: $overall"
 # MET is ACHIEVED. Everything else is FAILED with the short reason. When the dim/off states were not reached the
 # ACHIEVED line says it holds for the screen-on state only.
 verdict_line() { # verdict_line <verdict> <detail-file>
+  local extra="" routes missing
+  routes="$(sed -n 's/^  ROUTES://p' "$2" 2>/dev/null | head -1)"
+  missing="$(sed -n 's/^  NOTE: screen states not reached (or too few readings): \([a-z,]*\);.*/\1/p' "$2" 2>/dev/null | head -1 | sed 's/doze/dim/')"
+  [ -n "$routes" ] && extra="routes:$routes"
+  [ -n "$missing" ] && extra="${extra:+$extra; }not reached: $missing"
   case "$1" in
-    MET*) if grep -q 'screen-on state only' "$2" 2>/dev/null; then echo "ACHIEVED (screen on only; dim/off not reached)"; else echo "ACHIEVED"; fi ;;
-    PARTIAL*) echo "FAILED (only with the screen on)" ;;
-    "NOT MET"*) echo "FAILED (limit missed)" ;;
+    MET*) if [ -n "$extra" ]; then echo "ACHIEVED ($extra)"; else echo "ACHIEVED"; fi ;;
+    PARTIAL*) echo "FAILED (only with the screen on${extra:+; $extra})" ;;
+    "NOT MET"*) echo "FAILED (limit missed${extra:+; $extra})" ;;
     "NO DATA"*) echo "FAILED (no data)" ;;
     INVALID*) echo "FAILED (clock base invalid)" ;;
     *) echo "FAILED" ;;
@@ -303,17 +311,20 @@ if [ -s "$tmp/bt.tbl" ]; then table "$tmp/bt.tbl" | saylines; else say "    no r
 say "   Recorded -> phone over the Data Layer (comparison), clock uncertainty +-${unc_dl:-?} ms:"
 if [ -s "$tmp/dl.tbl" ]; then table "$tmp/dl.tbl" | saylines; else say "    no readings arrived over the Data Layer"; fi
 say ""
-say "6. THE LATENCY, IN SHORT"
-for spec in "w:Recorded -> watch app (limit 500 ms):$tmp/w.tbl" "bt:Recorded -> phone, Bluetooth (limit 1000 ms):$tmp/bt.tbl" "dl:Recorded -> phone, Data Layer (no limit):$tmp/dl.tbl"; do
-  name="${spec#*:}"; name="${name%%:*}"; file="${spec##*:}"
+say "6. THE LATENCY, IN SHORT (per route; typical = reading-weighted p50 over the states judged, worst = highest p95 / single reading)"
+for spec in "Recorded -> watch app (limit 500 ms):$tmp/w.tbl" "Recorded -> phone, Bluetooth (limit 1000 ms):$tmp/bt.tbl" "Recorded -> phone, Data Layer (no limit):$tmp/dl.tbl"; do
+  name="${spec%%:*}"; file="${spec##*:}"
+  say "   $name"
   if [ -s "$file" ]; then
-    awk -v name="$name" 'BEGIN { FS = "[| ]"; mx = 0; worst = 0; lo = 1e12 }
-      { if ($6 > worst) worst = $6; if ($7 > mx) mx = $7; if ($5 > 0 && $5 < lo) lo = $5; ws += $5 * $3; n += $3 }
-      END { printf "   %-42s typical (p50) about %.0f ms, worst p95 %.0f ms, worst single reading %.0f ms\n", name, ws / n, worst, mx }' "$file" | saylines
+    awk 'BEGIN { FS = "[| ]" }
+      { r = $1; n[r] += $3; ws[r] += $5 * $3; if ($6 > p95[r]) p95[r] = $6; if ($7 > mx[r]) mx[r] = $7 }
+      END { for (r in n) printf "     route %s: typical %.0f ms, worst p95 %.0f ms, worst single reading %.0f ms (%d readings)\n", r, ws[r] / n[r], p95[r], mx[r], n[r] }' "$file" | sort | saylines
   else
-    say "   $name: no data"
+    say "     no data"
   fi
 done
+say "   The screen state in these tables is the state when the reading reached the app: a reading recorded while the display"
+say "   was dim or off but delivered after it woke counts under 'on' (this is how route r1's late deliveries show up)."
 [ -n "$interval" ] && say "   Readings arrive about every $interval ms (median interval between readings on the watch)."
 say ""
 say "7. HOW MANY SAMPLES"

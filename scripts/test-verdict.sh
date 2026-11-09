@@ -61,26 +61,26 @@ expect A-success "$d" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVE
   "Goal 3 (live pulse to the phone over Bluetooth, under 1 s): ACHIEVED"
 
 # A3. The full report carries the sample counts and latency of this run's data.
-expect A3-fullreport "$d" "FULL REPORT" "Watch readings judged for goal 1: 180" "Phone, Bluetooth: 180 received" "typical (p50) about 82 ms" "typical (p50) about 302 ms" \
+expect A3-fullreport "$d" "FULL REPORT" "Watch readings judged for goal 1: 180" "Phone, Bluetooth: 180 received" "route r2: typical 82 ms" "route r2: typical 302 ms" \
   "Screen states with enough readings: on,doze,off"
 
 # A2. Only the screen-on state was reached: still judged, but the limitation is stated.
 d="$tmp/a2"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 300
-expect A2-onlyon "$d" "GOAL 1: MET" "holds for the screen-on state only" "screen states judged: on" \
-  "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (screen on only; dim/off not reached)"
+expect A2-onlyon "$d" "GOAL 1: MET" "the result holds for the states judged only" "screen states judged: on" \
+  "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (routes: r2=ok; not reached: dim,off)"
 
 # B. Slow when the display dozes: only screen-on meets goal 1 -> PARTIAL, not success.
 d="$tmp/b"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; watch "$d" r2-dim r2 doze 30 3000
 phone "$d" r2-on bt on 30 300; phone "$d" r2-dim bt doze 30 300
-expect B-partial "$d" "GOAL 1: PARTIAL" "misses 500 ms" "OVERALL: PARTIAL" "recording): FAILED (only with the screen on)"
+expect B-partial "$d" "GOAL 1: PARTIAL" "misses 500 ms" "OVERALL: PARTIAL" "recording): FAILED (only with the screen on"
 
 # C. Too slow everywhere: goal 1 NOT MET -> FAILURE with data.
 d="$tmp/c"; allpass "$d"
 watch "$d" r1-on r1 on 30 2000; watch "$d" r2-on r2 on 30 2500
 phone "$d" r2-on bt on 30 300
-expect C-failure "$d" "GOAL 1: NOT MET" "OVERALL: FAILURE" "recording): FAILED (limit missed)"
+expect C-failure "$d" "GOAL 1: NOT MET" "OVERALL: FAILURE" "recording): FAILED (limit missed"
 
 # D. No readings at all, watch says off-body.
 d="$tmp/d"; checks "$d" FAIL PASS INCONCLUSIVE PASS FAIL FAIL
@@ -104,7 +104,7 @@ expect G-clock "$d" "INVALID CLOCK BASE" "OVERALL: INCOMPLETE"
 # H. Bluetooth too slow while the Data Layer is fast: goal 3 uses Bluetooth only.
 d="$tmp/h"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 1500; phone "$d" r2-on dl on 30 200
-expect H-bt-slow "$d" "GOAL 3 (Bluetooth): NOT MET" "Data Layer: MET" "OVERALL: FAILURE" "under 1 s): FAILED (limit missed)"
+expect H-bt-slow "$d" "GOAL 3 (Bluetooth): NOT MET" "Data Layer: MET" "OVERALL: FAILURE" "under 1 s): FAILED (limit missed"
 
 # I. Bluetooth never connected: watch readings exist, no Bluetooth rows; cause printed.
 d="$tmp/i"; allpass "$d"
@@ -151,6 +151,16 @@ expect Q-no-power-evidence "$d" "GOAL 2: NOT MET" "C3=INCONCLUSIVE C4=INCONCLUSI
 d="$tmp/r"; checks "$d" PASS PASS PASS INCONCLUSIVE PASS PASS
 for r in r1 r2; do watch "$d" "$r-on" "$r" on 30 80; phone "$d" "$r-on" bt on 30 300; done
 expect R-wakelock-inconclusive "$d" "GOAL 2: MET"
+
+# S. Rows left over from an earlier run (recorded before MIN_SOURCE_NANOS) are ignored: slow old rows, fast new rows.
+d="$tmp/s"; allpass "$d"; mkdir -p "$d/watch"
+for ((i = 1; i <= 40; i++)); do
+  src=$((1000000000 * i)); lat=$((80 * 1000000)); [ $i -lt 15 ] && lat=$((9000 * 1000000))
+  echo "r2-on,r2,$i,70,3,$src,$((src + lat)),on" >>"$d/watch/watch-r2-on.csv"
+done
+phone "$d" r2-on bt on 40 300
+out_all="$("$here/verdict.sh" "$d" 2>&1)"; out_min="$(MIN_SOURCE_NANOS=15000000000 "$here/verdict.sh" "$d" 2>&1)"
+if echo "$out_all" | grep -qF "GOAL 1: NOT MET" && echo "$out_min" | grep -qF "GOAL 1: MET" && echo "$out_min" | grep -qF "n=26"; then echo "ok   [S-stale-rows]"; else echo "FAIL [S-stale-rows]"; fail=1; fi
 
 # M. System-level check inconclusive (dumpsys format unknown) does not block goal 2.
 d="$tmp/m"; checks "$d" PASS PASS INCONCLUSIVE PASS FAIL PASS

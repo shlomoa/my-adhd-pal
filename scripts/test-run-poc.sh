@@ -18,6 +18,12 @@ run_case() {
   done
   export FAKE_DIR="$tmp/$name-state" FAKE_SCENARIO="$name"
   mkdir -p "$FAKE_DIR"
+  if [ "$name" = stale ]; then # result files left on both devices by an earlier run: the script must clear them
+    mkdir -p "$FAKE_DIR/WATCH1/files" "$FAKE_DIR/PHONE1/files"
+    echo "r1-on,r1,1,70,3,1000,9000000000000,on" >"$FAKE_DIR/WATCH1/files/watch-r1-on.csv"
+    echo "old event" >"$FAKE_DIR/WATCH1/files/events.txt"
+    echo "r1-on,1,70,1000,1000,0,9000000000000,on" >"$FAKE_DIR/PHONE1/files/phone-r1-on-dl.csv"
+  fi
   log="$tmp/$name.log"
   (cd "$root" && ADB="$here/testdata/fake-adb.py" SKIP_BUILD=1 TIME_SCALE=0.002 PHASE_SECONDS=40 RESULTS_ROOT="$tmp/$name-results" \
     scripts/run-poc.sh --no-push "${extra[@]}") >"$log" 2>&1
@@ -44,7 +50,8 @@ run_case() {
 
 run_case good 0 -- "phone Bluetooth server: listening" "CHECK C1 PASS" "CHECK C2 PASS" "CHECK C3 PASS" "CHECK C4 PASS" \
   "CHECK C5 PASS" "CHECK C6 PASS" "FULL REPORT" "1. WHAT IS REQUIRED, AND WHAT WAS COVERED" "2. WHAT REMAINS UNKNOWN" "3. DECISIONS MADE" "4. CONSIDERATIONS NOT TAKEN" "5. WHAT WAS MEASURED WITH REAL DATA" "6. THE LATENCY, IN SHORT" "7. HOW MANY SAMPLES" "Watch readings judged for goal 1: 150 (in 6 phases)" "Phone, Bluetooth: 150 received" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVERALL: SUCCESS" \
-  "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (screen on only" "modes): ACHIEVED" "under 1 s): ACHIEVED (screen on only"
+  "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (routes: r1=ok r2=ok; not reached: dim,off)" "modes): ACHIEVED" "under 1 s): ACHIEVED (routes: r1=ok r2=ok; not reached: dim,off)"
+run_case stale 0 -- "watch old result files: cleared" "phone old result files: cleared" "Watch readings judged for goal 1: 150 (in 6 phases)" "GOAL 1: MET"
 run_case slow 0 -- "GOAL 1: NOT MET" "OVERALL: FAILURE"
 run_case zero 4 -- "STOP: no readings at all" "OFF-BODY" "GOAL 1: NO DATA" "OVERALL: INCOMPLETE"
 run_case nobt 0 -- "GOAL 3 (Bluetooth): NO DATA" "Data Layer: MET" "OVERALL: INCOMPLETE"
