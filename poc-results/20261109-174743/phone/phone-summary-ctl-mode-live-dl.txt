@@ -1,0 +1,5 @@
+label=ctl-mode-live path=dl received=10 withClockOffset=10
+end_to_end (recorded -> phone): n=10 min=-88.3ms p50=45.8ms p95=64.4ms max=64.4ms
+watch_send_to_phone: n=10 min=-104.9ms p50=39.3ms p95=55.4ms max=55.4ms
+gap_between_phone_arrivals: n=9 min=978.9ms p50=1008.3ms p95=1036.7ms max=1036.7ms
+end_to_end while watch screen=on: n=10 min=-88.3ms p50=45.8ms p95=64.4ms max=64.4ms

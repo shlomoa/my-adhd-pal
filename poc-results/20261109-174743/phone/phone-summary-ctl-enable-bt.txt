@@ -1,0 +1,5 @@
+label=ctl-enable path=bt received=7 withClockOffset=6
+end_to_end (recorded -> phone): n=6 min=13.8ms p50=18.6ms p95=35.2ms max=35.2ms
+watch_send_to_phone: n=6 min=3.5ms p50=9.9ms p95=30.4ms max=30.4ms
+gap_between_phone_arrivals: n=6 min=996.6ms p50=999.9ms p95=1019.7ms max=1019.7ms
+end_to_end while watch screen=on: n=6 min=13.8ms p50=18.6ms p95=35.2ms max=35.2ms

@@ -1,0 +1,55 @@
+516943s LIVE 60 bpm age 0.0 s acc not reported min 60 avg 60 max 60 bt - dl -
+516949s LIVE 55 bpm age 0.0 s acc not reported min 55 avg 57 max 60 bt 51 ms dl 89 ms
+516954s LIVE 57 bpm age 0.0 s acc not reported min 55 avg 57 max 60 bt 37 ms dl 57 ms
+516959s LIVE 62 bpm age 0.0 s acc not reported min 55 avg 58 max 62 bt 42 ms dl 79 ms
+516964s LIVE 61 bpm age 0.0 s acc not reported min 55 avg 59 max 62 bt 14 ms dl 61 ms
+516969s LIVE 61 bpm age 0.0 s acc not reported min 55 avg 59 max 62 bt 67 ms dl 73 ms
+516974s LIVE 58 bpm age 0.0 s acc not reported min 55 avg 59 max 62 bt 40 ms dl 70 ms
+516979s LIVE 60 bpm age 0.0 s acc not reported min 55 avg 59 max 62 bt 61 ms dl 73 ms
+516984s LIVE 61 bpm age 0.0 s acc not reported min 55 avg 59 max 62 bt 48 ms dl 74 ms
+516995s LIVE 60 bpm age 0.0 s acc not reported min 55 avg 59 max 62 bt 37 ms dl 84 ms
+517001s LIVE 60 bpm age 0.0 s acc not reported min 55 avg 60 max 62 bt 42 ms dl 70 ms
+517040s LIVE 60 bpm age 0.0 s acc not reported min 60 avg 60 max 62 bt 35194 ms dl -
+517048s LIVE 59 bpm age 0.0 s acc not reported min 57 avg 59 max 61 bt 27 ms dl 66 ms
+517094s LIVE 61 bpm age 0.0 s acc not reported min 57 avg 59 max 62 bt 41237 ms dl -
+517102s LIVE 60 bpm age 0.0 s acc high min 54 avg 59 max 63 bt 50 ms dl 54 ms
+517107s LIVE 59 bpm age 0.0 s acc high min 54 avg 59 max 63 bt 25 ms dl 65 ms
+517112s LIVE 58 bpm age 0.0 s acc high min 54 avg 58 max 63 bt 11 ms dl 40 ms
+517117s LIVE 58 bpm age 0.0 s acc high min 54 avg 58 max 63 bt 12 ms dl 89 ms
+517122s LIVE 58 bpm age 0.0 s acc high min 54 avg 58 max 63 bt 31 ms dl 28 ms
+517127s LIVE 56 bpm age 0.0 s acc high min 54 avg 58 max 63 bt 14 ms dl 66 ms
+517133s LIVE 57 bpm age 0.0 s acc high min 54 avg 58 max 63 bt 10 ms dl 51 ms
+517138s LIVE 57 bpm age 0.0 s acc high min 53 avg 58 max 63 bt 28 ms dl 34 ms
+517143s LIVE 57 bpm age 0.0 s acc high min 53 avg 58 max 63 bt 17 ms dl 69 ms
+517148s LIVE 57 bpm age 0.0 s acc high min 53 avg 58 max 63 bt 20 ms dl 58 ms
+517155s LIVE 57 bpm age 0.0 s acc high min 53 avg 57 max 60 bt 20 ms dl 29 ms
+517160s LIVE 61 bpm age 0.0 s acc high min 53 avg 58 max 61 bt 44 ms dl 64 ms
+517165s LIVE 59 bpm age 0.0 s acc high min 53 avg 58 max 61 bt 63 ms dl 38 ms
+517170s LIVE 60 bpm age 0.0 s acc high min 53 avg 58 max 61 bt 41 ms dl 78 ms
+517175s LIVE 59 bpm age 0.0 s acc high min 53 avg 58 max 61 bt 51 ms dl 77 ms
+517180s LIVE 61 bpm age 0.0 s acc high min 53 avg 58 max 61 bt 44 ms dl 88 ms
+517185s LIVE 61 bpm age 0.0 s acc high min 53 avg 58 max 61 bt 48 ms dl 88 ms
+517190s LIVE 63 bpm age 0.0 s acc high min 53 avg 59 max 63 bt 48 ms dl 103 ms
+517195s LIVE 60 bpm age 0.0 s acc high min 53 avg 59 max 63 bt 40 ms dl 120 ms
+517200s LIVE 57 bpm age 0.0 s acc high min 57 avg 59 max 63 bt 23 ms dl 41 ms
+517208s LIVE 57 bpm age 0.0 s acc high min 57 avg 60 max 63 bt 44 ms dl 52 ms
+517213s LIVE 60 bpm age 0.0 s acc high min 57 avg 60 max 63 bt 49 ms dl 100 ms
+517218s LIVE 57 bpm age 0.0 s acc high min 57 avg 60 max 63 bt 55 ms dl 100 ms
+517223s LIVE 54 bpm age 0.0 s acc high min 53 avg 59 max 63 bt 69 ms dl 69 ms
+517228s LIVE 53 bpm age 0.0 s acc high min 53 avg 58 max 63 bt 54 ms dl 87 ms
+517233s LIVE 54 bpm age 0.0 s acc high min 53 avg 58 max 63 bt 48 ms dl 67 ms
+517238s LIVE 53 bpm age 0.0 s acc high min 53 avg 57 max 63 bt 48 ms dl 93 ms
+517243s LIVE 60 bpm age 0.0 s acc high min 53 avg 57 max 63 bt 54 ms dl 96 ms
+517248s LIVE 57 bpm age 0.0 s acc high min 53 avg 57 max 63 bt 62 ms dl 94 ms
+517254s LIVE 55 bpm age 0.0 s acc high min 53 avg 56 max 61 bt 32 ms dl 61 ms
+517262s LIVE 55 bpm age 0.0 s acc high min 53 avg 56 max 60 bt 21 ms dl -363 ms
+517268s LIVE 56 bpm age 0.0 s acc high min 53 avg 56 max 60 bt 35 ms dl 32 ms
+517282s LIVE 57 bpm age 0.0 s acc high min 53 avg 55 max 60 bt - dl -
+517287s LIVE 61 bpm age 0.0 s acc high min 53 avg 56 max 61 bt 25 ms dl 40 ms
+517295s LIVE 61 bpm age 0.0 s acc high min 53 avg 58 max 63 bt 29 ms dl 99 ms
+517300s LIVE 58 bpm age 0.0 s acc high min 55 avg 58 max 63 bt 38 ms dl 42 ms
+517309s LIVE 56 bpm age 0.0 s acc high min 55 avg 58 max 63 bt 37 ms dl 64 ms
+517314s LIVE 55 bpm age 0.0 s acc high min 55 avg 58 max 63 bt 31 ms dl 41 ms
+517319s LIVE 56 bpm age 0.0 s acc high min 55 avg 57 max 63 bt 41 ms dl 37 ms
+517329s LIVE 58 bpm age 0.0 s acc not reported min 55 avg 58 max 63 bt 46 ms dl 64 ms
+517334s LIVE 58 bpm age 0.0 s acc not reported min 55 avg 58 max 63 bt 41 ms dl 51 ms

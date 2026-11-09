@@ -1,0 +1,61 @@
+24-  SEC_PRODUCT_FEATURE_SYSTEM_SUPPORT_SYSINPUT_HAL=true
+25-  mTspInteractiveModeEnabled=true
+26:  mWakeLockSummary=0x1
+27-  mNotifyLongScheduled=+30s268ms
+28-  mNotifyLongDispatched=-23s257ms
+29-  mNotifyLongNextCheck=+30s268ms
+30-  mRequestWaitForNegativeProximity=false
+--
+45-  mLastScreenBrightnessBoostTime=0 (8496503 ms ago)
+46-  mScreenBrightnessBoostInProgress=false
+47:  mHoldingWakeLockSuspendBlocker=true
+48-  mHoldingDisplaySuspendBlocker=true
+49-  mLastFlipTime=0
+50-  mIsFaceDown=false
+51-
+--
+85-  mUserInactiveOverrideFromWindowManager=false
+86-  mDozeScreenStateOverrideFromDreamManager=1
+87:  mDrawWakeLockOverrideFromSidekick=false
+88-  mDozeScreenBrightnessOverrideFromDreamManager=64
+89-  mUseNormalBrightnessForDoze=false
+90-  mScreenBrightnessMinimum=0.0
+91-  mScreenBrightnessMaximum=1.0
+--
+159-  mTargetBrightnessForLimit : 0
+160-
+161:Wake Locks: size=1
+162-  PARTIAL_WAKE_LOCK                 'Wear_Transport' ACQ=-2s77ms (uid=10138 pid=1379 pkg=com.google.android.gms ws=WorkSource{10138 com.google.android.gms} displayId=0 lock=3eded12)
+163-
+164-Suspend Blockers: size=5
+165-  PowerManagerService.Booting: ref count=0 []
+166:  PowerManagerService.WakeLocks: ref count=1 [unknown: (11-09 17:54:33.798)]
+167-  PowerManagerService.Display: ref count=1 [holding display: (11-09 17:53:57.584)]
+168-  PowerManagerService.Broadcasts: ref count=0 []
+169-  PowerManagerService.WirelessChargerDetector: ref count=0 []
+170-
+--
+172-
+173-PowerHistorian:
+174:  WakeLock Release History:
+175-
+176-  WakeUp History:
+177-  [1]   10-24 05:20:42.723 1000  OFF sleep_button                             com.samsung.android.wearable.sysui
+178-  [2]   10-24 05:20:46.379 1000  OFF sleep_button                             com.samsung.android.wearable.sysui
+--
+577-  lastUserActivityTime=8458186 (38370 ms ago)
+578-  lastUserActivityTimeNoChangeLights=8355007 (141549 ms ago)
+579:  mWakeLockSummary=0x1
+580-
+581-Wireless Charger Detector State:
+582-  mGravitySensor={Sensor name="Gravity Sensor", vendor="AOSP", version=3, type=9, maxRange=19.6133, resolution=0.0023942017, power=0.9, minDelay=10000}
+583-  mPoweredWirelessly=false
+--
+624-PowerManagerFlags:
+625- enable_early_screen_timeout_detector:                 true (def:true)
+626: improve_wakelock_latency:                             true (def:true)
+627- per_display_wake_by_touch:                            true (def:true)
+628: framework_wakelock_info:                              false (def:false)
+629- move_wsc_logging_to_notifier:                         true (def:true)
+630: wakelock_attribution_via_workchain:                   true (def:true)
+631: disable_frozen_process_wakelocks:                     false (def:false)

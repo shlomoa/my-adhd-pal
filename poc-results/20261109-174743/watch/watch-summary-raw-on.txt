@@ -1,0 +1,10 @@
+label=raw-on route=raw rateUs=0 batchUs=0 wakeUpSensor=false
+readings=627 error=none
+raw sensor: Samsung HR Raw Sensor type=com.samsung.sensor.hr_raw(69682) vendor=Samsung Inc. minDelayUs=40000 reporting=1 resolution=1.0 maxRange=1000.0 wakeUp=false
+raw events=627 duration=25.2 s rate=24.8 Hz channels=16
+raw channel 0: min=0.0 max=0.0 distinct=1 beatsFound=0 intervalsKept=0 HRV: not computable (too few usable beat-to-beat intervals)
+raw channel 1: min=0.0 max=0.0 distinct=475 beatsFound=23 intervalsKept=22 meanIbi=1096.7 ms meanBpm=54.7 sdnn=75.7 ms rmssd=72.3 ms pnn50=52.4 %
+raw channel 2: min=0.0 max=0.0 distinct=1 beatsFound=0 intervalsKept=0 HRV: not computable (too few usable beat-to-beat intervals)
+raw channel 3: min=0.0 max=0.0 distinct=1 beatsFound=0 intervalsKept=0 HRV: not computable (too few usable beat-to-beat intervals)
+sensor_to_app (recorded -> watch app): no data
+gap_between_arrivals: no data

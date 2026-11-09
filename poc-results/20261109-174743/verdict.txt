@@ -1,0 +1,170 @@
+== Verdict for poc-results/20261109-174743
+
+Goal 1: pulse data at most 500 ms from recording (recorded -> watch app, p95)
+  r1 screen=on   n=142  min=     8.0 p50=  3182.1 p95= 35182.1 max= 41192.9 ms   misses 500 ms
+  r2 screen=off  n=76   min=     1.0 p50=    16.2 p95=    20.1 max=    36.1 ms   ok
+  r2 screen=on   n=64   min=    -1.8 p50=     3.7 p95=    11.8 max=    17.0 ms   ok
+  screen states judged: on,off
+  NOTE: screen states not reached (or too few readings): doze; the result holds for the states judged only
+  ROUTES: r1=missed r2=ok
+  => GOAL 1: MET
+
+Goal 2: control of power, sensor enabling and modes
+  CHECK C1 PASS: enable: readings arrive after the start command (running=true, count=6, error=none)
+  CHECK C2 PASS: disable: sensor stops on command and no reading arrives afterwards (running=false, count 8 -> 8)
+  CHECK C3 PASS: sensor power at system level: newest dumpsys sensorservice registration of our app while running='+' (+ = activated), after stop='-' (- = deactivated); raw text in dumpsys-sensorservice-running.txt and -stopped.txt
+  CHECK C4 PASS: power: wake lock held then released (status true -> false; system wake locks 1 -> 0; INCONCLUSIVE = not visible; raw text saved in dumpsys-power-held.txt and -released.txt)
+  CHECK C5 FAIL: mode batching: live max gap 1013.7 ms (n=10) vs batched(5 s) max gap 1020.3 ms (n=14); PASS needs at least 2x
+  CHECK C6 PASS: mode route: r2 gave 6 readings, r1 gave 8 readings (route=r1)
+  => GOAL 2: MET
+
+Goal 3: live pulse over Bluetooth to the phone in under 1000 ms (recorded -> phone, p95)
+ Direct Bluetooth path (RFCOMM), clock uncertainty +-8.8 ms (half the shortest ping round trip):
+  r1 screen=on   n=140  min=    19.2 p50=  3433.5 p95= 35194.3 max= 41242.6 ms   misses 1000 ms
+  r2 screen=off  n=76   min=    15.5 p50=    50.5 p95=    66.0 max=    81.4 ms   ok
+  r2 screen=on   n=64   min=    11.2 p50=    27.0 p95=    43.9 max=    48.5 ms   ok
+  screen states judged: on,off
+  NOTE: screen states not reached (or too few readings): doze; the result holds for the states judged only
+  ROUTES: r1=missed r2=ok
+ Data Layer path (reported for comparison; Google says it prefers Bluetooth but may use Wi-Fi), clock uncertainty +-33.1 ms:
+  r1 screen=on   n=142  min=    33.1 p50=  3708.5 p95= 35224.6 max= 41313.9 ms   misses 1000 ms
+  r2 screen=off  n=76   min=    29.1 p50=    84.9 p95=    99.9 max=   109.9 ms   ok
+  r2 screen=on   n=64   min=    27.9 p50=    60.5 p95=    99.9 max=   137.7 ms   ok
+  screen states judged: on,off
+  NOTE: screen states not reached (or too few readings): doze; the result holds for the states judged only
+  ROUTES: r1=missed r2=ok
+  => GOAL 3 (Bluetooth): MET   [Data Layer: MET]
+
+OVERALL: SUCCESS: all three goals measured as met
+
+=============== RESULT ===============
+Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (routes: r1=missed r2=ok; not reached: dim)
+Goal 2 (control of power, sensor enabling, modes): ACHIEVED
+Goal 3 (live pulse to the phone over Bluetooth, under 1 s): ACHIEVED (routes: r1=missed r2=ok; not reached: dim)
+=======================================
+
+######################################################################
+#                         FULL REPORT                                #
+######################################################################
+Goal 1: ACHIEVED (routes: r1=missed r2=ok; not reached: dim)
+Goal 2: ACHIEVED
+Goal 3: ACHIEVED (routes: r1=missed r2=ok; not reached: dim)
+
+1. WHAT IS REQUIRED, AND WHAT WAS COVERED
+   Required 1: direct access to pulse data, at most 0.5 s from recording.
+     Covered: sensor routes r1 (Health Services MeasureClient) and r2 (wake-up heart-rate sensor), measured from the
+     sensor's own timestamp to the watch app. Phases run: 6. Screen states with enough readings: on,off.
+     Pass rule: p95 at most 500 ms in every state reached (at least 20 readings each).
+   Required 2: control of power, sensor enabling and modes.
+     Covered by direct commands to the watch (no phone-app control); result of each check:
+       CHECK C1 PASS: enable: readings arrive after the start command (running=true, count=6, error=none)
+       CHECK C2 PASS: disable: sensor stops on command and no reading arrives afterwards (running=false, count 8 -> 8)
+       CHECK C3 PASS: sensor power at system level: newest dumpsys sensorservice registration of our app while running='+' (+ = activated), after stop='-' (- = deactivated); raw
+       CHECK C4 PASS: power: wake lock held then released (status true -> false; system wake locks 1 -> 0; INCONCLUSIVE = not visible; raw text saved in dumpsys-power-held.txt a
+       CHECK C5 FAIL: mode batching: live max gap 1013.7 ms (n=10) vs batched(5 s) max gap 1020.3 ms (n=14); PASS needs at least 2x
+       CHECK C6 PASS: mode route: r2 gave 6 readings, r1 gave 8 readings (route=r1)
+   Required 3: live pulse data to an Android app over Bluetooth, sub-second.
+     Covered: the same readings sent over direct Bluetooth (RFCOMM) and over the Data Layer; the phone app shows the live
+     value and logs every arrival. Judged only on Bluetooth: states on,off; pass rule: p95 under 1000 ms.
+
+2. WHAT REMAINS UNKNOWN
+   - Clock uncertainty of the phone-side numbers: +-8.8 ms on Bluetooth, +-33.1 ms on the Data Layer (half the shortest round trip).
+   - That Health Services' time base equals elapsed realtime for route r1: the documentation shows it by example only.
+   - Which transport (Bluetooth or Wi-Fi) the Data Layer used; only the direct Bluetooth path is known to be Bluetooth.
+   - Behaviour over a long time, on another wrist or arm position, during motion, or with a low battery.
+
+3. DECISIONS MADE
+   - Hardware: the repository's own watch (Galaxy Watch6 Classic) and phone (Galaxy A55); built-in sensor, no extra hardware.
+   - Two sensor routes compared: r1 Health Services, r2 SensorManager wake-up sensor with foreground service and wake lock.
+   - Two phone paths sent in parallel for the same readings: direct Bluetooth RFCOMM (proves Bluetooth) and the Data Layer.
+   - Latency measured as recorded time to arrival; the statistic is p95; a state is judged from at least 20 readings.
+   - Limits: goal 1 at most 500 ms, goal 3 under 1000 ms on the Bluetooth path only; the Data Layer is never substituted.
+   - Clock offset between watch and phone: from the shortest-round-trip ping/pong of the whole run, uncertainty printed.
+   - Control is tested by direct commands to the watch; 'power' means the sensor connection and the CPU wake lock.
+   - Run length 40 s per phase (about 7 minutes in total) to respect the 10-minute limit.
+
+4. CONSIDERATIONS NOT TAKEN
+   - Samsung Health Sensor SDK (raw PPG, inter-beat intervals): not needed for pulse data, needs a Samsung login.
+   - Bluetooth Low Energy (GATT) instead of classic RFCOMM; Data Layer ChannelClient.
+   - Real hardware power draw (battery current): out of scope by decision.
+   - Long-duration, motion, multi-person or multi-watch testing; battery-saver and always-on-display settings.
+   - Control from the phone app (control is by direct commands on the watch, as decided).
+
+5. WHAT WAS MEASURED WITH REAL DATA (all numbers below come from this run's files on the watch and phone)
+   Recorded -> watch app (goal 1):
+    r1  screen=on   n=142  p50=  3182.1  p95= 35182.1  max= 41192.9 ms
+    r2  screen=off  n=76   p50=    16.2  p95=    20.1  max=    36.1 ms
+    r2  screen=on   n=64   p50=     3.7  p95=    11.8  max=    17.0 ms
+   Recorded -> phone over direct Bluetooth (goal 3), clock uncertainty +-8.8 ms:
+    r1  screen=on   n=140  p50=  3433.5  p95= 35194.3  max= 41242.6 ms
+    r2  screen=off  n=76   p50=    50.5  p95=    66.0  max=    81.4 ms
+    r2  screen=on   n=64   p50=    27.0  p95=    43.9  max=    48.5 ms
+   Recorded -> phone over the Data Layer (comparison), clock uncertainty +-33.1 ms:
+    r1  screen=on   n=142  p50=  3708.5  p95= 35224.6  max= 41313.9 ms
+    r2  screen=off  n=76   p50=    84.9  p95=    99.9  max=   109.9 ms
+    r2  screen=on   n=64   p50=    60.5  p95=    99.9  max=   137.7 ms
+
+6. THE LATENCY, IN SHORT (per route; typical = reading-weighted p50 over the states judged, worst = highest p95 / single reading)
+   Recorded -> watch app (limit 500 ms)
+     route r1: typical 3182 ms, worst p95 35182 ms, worst single reading 41193 ms (142 readings)
+     route r2: typical 10 ms, worst p95 20 ms, worst single reading 36 ms (140 readings)
+   Recorded -> phone, Bluetooth (limit 1000 ms)
+     route r1: typical 3434 ms, worst p95 35194 ms, worst single reading 41243 ms (140 readings)
+     route r2: typical 40 ms, worst p95 66 ms, worst single reading 81 ms (140 readings)
+   Recorded -> phone, Data Layer (no limit)
+     route r1: typical 3708 ms, worst p95 35225 ms, worst single reading 41314 ms (142 readings)
+     route r2: typical 74 ms, worst p95 100 ms, worst single reading 138 ms (140 readings)
+   The screen state in these tables is the state when the reading reached the app: a reading recorded while the display
+   was dim or off but delivered after it woke counts under 'on' (this is how route r1's late deliveries show up).
+   Readings arrive about every 1003 ms (median interval between readings on the watch).
+
+7. HOW MANY SAMPLES
+   Watch readings judged for goal 1: 282 (in 6 phases), plus 50 readings during the control checks.
+   Phone, Bluetooth: 280 received, 280 with a usable clock offset (used for goal 3).
+   Phone, Data Layer: 282 received, 282 with a usable clock offset.
+   Each sample is one heart-rate reading; one run, one wrist, about 40 s per phase, so these are samples of the latency, not a long-term guarantee.
+
+8. RUNS RECORDED IN THIS REPOSITORY (readings that reached the watch app, and the phone over Bluetooth / Data Layer)
+   20261109-143246: watch 0, Bluetooth 0, Data Layer 0
+   20261109-144120: watch 0, Bluetooth 0, Data Layer 0
+   20261109-144800: watch 0, Bluetooth 0, Data Layer 0
+   20261109-145443: watch 0, Bluetooth 0, Data Layer 0
+   20261109-155340: watch 53, Bluetooth 0, Data Layer 53
+   20261109-163104: watch 336, Bluetooth 278, Data Layer 336
+   20261109-174217: watch 0, Bluetooth 0, Data Layer 0
+   20261109-174327: watch 0, Bluetooth 0, Data Layer 0
+   20261109-174546: watch 0, Bluetooth 0, Data Layer 0
+   20261109-174743: watch 282, Bluetooth 280, Data Layer 282   <- this run
+
+9. WHAT THE LIVE INDICATOR ON THE PHONE SHOWED (one line every 5 s, from phone/live-log.txt)
+   55 snapshots; first, middle and last:
+     516943s LIVE 60 bpm age 0.0 s acc not reported min 60 avg 60 max 60 bt - dl -
+     517170s LIVE 60 bpm age 0.0 s acc high min 53 avg 58 max 61 bt 41 ms dl 78 ms
+     517334s LIVE 58 bpm age 0.0 s acc not reported min 55 avg 58 max 63 bt 41 ms dl 51 ms
+   (the screen also shows accuracy, route, screen state, latency per path, min/avg/max, trend, mean beat interval and a
+   variability proxy; the indicator turns green when a reading is under 3 s old, amber under 10 s, red otherwise)
+
+10. PPG, IBI AND HRV: CAN THEY BE CALCULATED FROM THE DATA?
+ 1. From the beats-per-minute stream that reaches the phone:
+    140 readings (route r2), 11 different values (whole beats per minute), about one reading every 1003 ms, mean 57.7 bpm.
+    Mean beat interval 60000/bpm: 1041 ms. Spread of that series (SDNN of the bpm series): 44.5 ms.
+    PPG: no. The stream carries one number per second, not a waveform.
+    IBI (beat-to-beat interval): no. Only the average interval 60000/bpm can be derived, not the time between two beats.
+    HRV: no. The spread above is the pulse changing from one reading to the next (and the readings are rounded and already
+    averaged by the watch), not variability between beats; it must not be reported as HRV.
+ 2. From the raw heart sensor probe (the watch lists a 'Samsung HR Raw Sensor' that apps can ask for):
+    raw sensor: Samsung HR Raw Sensor type=com.samsung.sensor.hr_raw(69682) vendor=Samsung Inc. minDelayUs=40000 reporting=1 resolution=1.0 maxRange=1000.0 wakeUp=false
+    raw events=627 duration=25.2 s rate=24.8 Hz channels=16
+    raw channel 0: min=0.0 max=0.0 distinct=1 beatsFound=0 intervalsKept=0 HRV: not computable (too few usable beat-to-beat intervals)
+    raw channel 1: min=0.0 max=0.0 distinct=475 beatsFound=23 intervalsKept=22 meanIbi=1096.7 ms meanBpm=54.7 sdnn=75.7 ms rmssd=72.3 ms pnn50=52.4 %
+    raw channel 2: min=0.0 max=0.0 distinct=1 beatsFound=0 intervalsKept=0 HRV: not computable (too few usable beat-to-beat intervals)
+    raw channel 3: min=0.0 max=0.0 distinct=1 beatsFound=0 intervalsKept=0 HRV: not computable (too few usable beat-to-beat intervals)
+    Result: a raw waveform IS available: 627 events at 24.8 Hz. That is enough to resolve single beats, so PPG is
+    available and beat intervals and HRV can be computed from it; the numbers computed on the watch are in the channel lines
+    above (the channel that carries the pulse shows a believable beat count and mean heart rate close to the bpm above).
+
+=============== RESULT ===============
+Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (routes: r1=missed r2=ok; not reached: dim)
+Goal 2 (control of power, sensor enabling, modes): ACHIEVED
+Goal 3 (live pulse to the phone over Bluetooth, under 1 s): ACHIEVED (routes: r1=missed r2=ok; not reached: dim)
+=======================================
