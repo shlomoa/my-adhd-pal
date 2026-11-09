@@ -34,9 +34,9 @@ Goal 2 is MET when C1, C2, C4 pass, C3 is not FAIL, and C5 or C6 passes.
 |---|---|
 | Provided by | Two paths at once, for the same readings: (1) direct Bluetooth, an RFCOMM socket from the watch to a `BluetoothServerSocket` service in the phone app; (2) the Wearable Data Layer `MessageClient`. The phone app shows the live value and logs every arrival |
 | Why two | Google documents that the Data Layer is "Bluetooth preferred, but can use Wi-Fi", so it cannot prove "via Bluetooth". The RFCOMM path is Bluetooth by construction |
-| Measured as | Recorded time to the phone's receive callback. The watch and phone clocks differ, so the watch pings the phone every second over each path; the offset (phone minus watch) is taken from the exchange with the shortest round trip, assuming equal travel time each way. Each path has its own offset |
+| Measured as | Recorded time to the phone's receive callback. The watch and phone clocks differ, so the watch pings the phone every second over each path and logs every exchange (`exchanges-<label>-<path>.csv`). After the run the offset (phone minus watch) is taken from the exchange with the shortest round trip of the whole run, assuming equal travel time each way. Each path has its own offset |
 | Pass rule | Bluetooth path only: per route and screen state with at least 20 readings, p95 recorded-to-phone under 1000 ms. The Data Layer result is printed next to it and is never substituted. Same MET / PARTIAL / NOT MET rules as goal 1 |
-| Limit | The clock offset has an error of up to half the round trip; readings sent before the first clock exchange have no offset and are left out |
+| Limit | The clock offset has an error of up to half the shortest round trip; the verdict prints it as the clock uncertainty and allows an end-to-end value that much below zero before calling the clock base invalid |
 
 ## Outcome
 
