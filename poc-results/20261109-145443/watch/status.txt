@@ -1,0 +1,1 @@
+running=false route= label= count=0 msSinceLastReading=-1 wakeLockHeld=false wakeUpSensor=false rateUs=0 batchUs=0 offsetNanos=-9223372036854775808 phoneNodeFound=false error=none
