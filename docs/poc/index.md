@@ -6,9 +6,10 @@ Goals:
 2. Control of power, sensor enabling and modes.
 3. Live pulse data over Bluetooth to an Android app, sub-second delay.
 
-Status: built and tested against simulated devices; waiting for a run on the real watch and phone. No result yet.
+Status: **done**. All three goals achieved on the real watch and phone: see [the summary](summary.md).
 
 - [Setup checklist](setup.md)
+- [Summary: the POC is done](summary.md)
 - [Requirements, tests and pass rules](requirements.md)
 - [Research, findings and issues](findings.md)
 - [Watch commands and how latency is measured](commands.md)
