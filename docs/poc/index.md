@@ -10,6 +10,7 @@ Status: **done**. All three goals achieved on the real watch and phone: see [the
 
 - [Setup checklist](setup.md)
 - [Summary: the POC is done](summary.md)
+- [Release notes for v0.2.0-poc](release-notes.md)
 - [Requirements, tests and pass rules](requirements.md)
 - [Research, findings and issues](findings.md)
 - [Watch commands and how latency is measured](commands.md)
