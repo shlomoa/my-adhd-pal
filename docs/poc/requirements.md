@@ -38,6 +38,33 @@ Goal 2 is MET when C1 and C2 pass, C3 and C4 are not FAIL with at least one of t
 | Pass rule | Bluetooth path only: per route and screen state with at least 20 readings, p95 recorded-to-phone under 1000 ms. The Data Layer result is printed next to it and is never substituted. Same MET / PARTIAL / NOT MET rules as goal 1 |
 | Limit | The clock offset has an error of up to half the shortest round trip; the verdict prints it as the clock uncertainty and allows an end-to-end value that much below zero before calling the clock base invalid |
 
+## Extra 1: live indicator on the phone
+
+The phone app (`MainActivity`) shows, refreshed four times a second: a status light (green live: last reading under 3 s old;
+amber stale: under 10 s; red no signal), the pulse in beats per minute, the age of the last reading, the signal accuracy
+the watch reports, the route and the watch's screen state, the latency on each path (Bluetooth, Data Layer), the minimum,
+average and maximum over the last minute, the trend, the mean beat interval derived from the pulse (labelled as an average,
+not a true beat-to-beat interval), a variability proxy (labelled "not HRV"), the Bluetooth link state and the reading counts.
+The statistics and the texts live in `:core` (`LiveStats`, `LiveFormat`) with unit tests; the phone logs what the indicator
+showed every 5 s to `live-log.txt`, and the test report prints a sample of it. The screen layout itself is not
+unit-tested (no emulator in the build), only compiled and linted; the log shows the same numbers the screen is given.
+
+## Extra 2: can PPG, IBI and HRV be calculated?
+
+Definitions: PPG is the raw optical pulse waveform; IBI is the time between two heartbeats; HRV is the variability of those
+intervals (for example RMSSD, SDNN).
+
+- From the pulse stream the phone receives (one whole number of beats per minute per second): no. There is no waveform, the
+  interval between single beats is not in the data, and the watch already averages and rounds the value. The test reports
+  what can be derived (the mean interval 60000/bpm) and states that the spread of the bpm series is not HRV.
+- From the watch's own raw heart sensor (listed on this watch as `Samsung HR Raw Sensor`, type `com.samsung.sensor.hr_raw`,
+  protected by the heart-rate permission the app already holds): unknown until probed. The test registers it for 25 s, counts
+  the events and the real sample rate, and, if it delivers a waveform of at least 20 Hz, finds the beats and computes the mean
+  interval, SDNN, RMSSD and pNN50. The beat detector and the HRV maths are in `:core` (`BeatDetector`, `Hrv`) with unit tests on
+  synthetic waveforms with known intervals (both polarities, noise, baseline drift).
+- Pass rule: none; this is an investigation. The report states the finding: available (with the rate and the computed
+  numbers), delivered no events, or too slow.
+
 ## Outcome
 
 - SUCCESS: goals 1, 2 and 3 all MET.

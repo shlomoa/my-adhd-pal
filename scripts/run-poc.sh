@@ -9,6 +9,7 @@
 #   1. latency matrix: routes r1 (MeasureClient) and r2 (wake-up sensor) x screen states on / dim / off,
 #      PHASE_SECONDS each (default 40), pulse sent to the phone live;
 #   2. control checks (goal 2): enable, disable, wake lock hold/release, route and batching modes;
+#      then a 25 s probe of the raw heart sensor (PPG / beat intervals / HRV);
 #   3. pulls the logs and summaries from both devices into poc-results/<timestamp>/ and writes report.txt.
 # Screen states are driven through adb; the state the watch actually reached is recorded, never assumed.
 # Environment: WATCH=<serial> PHONE=<serial> to choose devices, PHASE_SECONDS, ADB (adb binary).
@@ -278,5 +279,13 @@ st=$(status); n6=$(field "$st" count); route6=$(field "$st" route)
 wcmd --es cmd stop; nap 3
 if [ "$route6" = r1 ] && [ "${n6:-0}" -gt 0 ] && [ "${n1:-0}" -gt 0 ] 2>/dev/null; then r=PASS; else r=FAIL; fi
 chk C6 $r "mode route: r2 gave $n1 readings, r1 gave $n6 readings (route=$route6)"
+
+# ---- 3. raw heart sensor probe: can PPG, beat-to-beat intervals (IBI) and HRV be obtained? ---------------------------------
+say ""
+say "== 3. raw sensor probe (25 s, screen on): is a raw pulse waveform available, and can beat intervals / HRV be computed?"
+screen_on; nap 1
+wcmd --es cmd start --es route raw --es label raw-on --ez keep_screen true
+nap 25
+wcmd --es cmd stop; nap 3
 
 collect

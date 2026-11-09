@@ -29,7 +29,7 @@ class SummaryReceiver : BroadcastReceiver() {
     private fun summarize(label: String, path: String, lines: List<String>): String {
         val rows = lines.mapNotNull { line ->
             val f = line.split(',')
-            if (f.size != FIELDS) return@mapNotNull null
+            if (f.size < FIELDS) return@mapNotNull null
             runCatching {
                 Row(f[1].toLong(), f[3].toLong(), f[4].toLong(), f[5].toLong(), f[6].toLong(), f[IDX_SCREEN])
             }.getOrNull()

@@ -12,7 +12,7 @@ adb -s <watch> shell am start -n com.shlomoa.myadhdpal.poc/com.shlomoa.myadhdpal
 | Extra | Values | Meaning |
 |---|---|---|
 | `cmd` | `start`, `stop`, `wakelock`, `status` | the command |
-| `route` | `r1` (Health Services `MeasureClient`), `r2` (wake-up `TYPE_HEART_RATE` sensor) | sensor route for `start` |
+| `route` | `r1` (Health Services `MeasureClient`), `r2` (wake-up `TYPE_HEART_RATE` sensor), `raw` (probe of the raw heart sensor: records its events to `watch-raw-<label>.csv` and reports rate, beats and HRV; nothing is sent to the phone) | sensor route for `start` |
 | `label` | text without commas | names the result files of this run |
 | `rate_us` | integer | sensor sampling period in microseconds (`r2`), default 0 (fastest) |
 | `batch_us` | integer | maximum report latency in microseconds (`r2`), default 0 (deliver at once) |

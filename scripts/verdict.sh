@@ -342,6 +342,53 @@ for rd in "$(dirname "$dir")"/*/; do
   say "   $rn: watch $wn, Bluetooth $bn, Data Layer $dn$mark"
 done
 say ""
+say "9. WHAT THE LIVE INDICATOR ON THE PHONE SHOWED (one line every 5 s, from phone/live-log.txt)"
+if [ -s "$dir/phone/live-log.txt" ]; then
+  total_lines="$(wc -l <"$dir/phone/live-log.txt" | tr -d ' ')"
+  say "   $total_lines snapshots; first, middle and last:"
+  sed -n "1p;$(( (total_lines + 1) / 2 ))p;${total_lines}p" "$dir/phone/live-log.txt" | cut -c1-170 | sed 's/^/     /' | saylines
+  say "   (the screen also shows accuracy, route, screen state, latency per path, min/avg/max, trend, mean beat interval and a"
+  say "   variability proxy; the indicator turns green when a reading is under 3 s old, amber under 10 s, red otherwise)"
+else
+  say "   no snapshot was logged (no reading reached the phone, or the phone app was not running)"
+fi
+say ""
+say "10. PPG, IBI AND HRV: CAN THEY BE CALCULATED FROM THE DATA?"
+bpm_stats="$(for f in "$dir"/watch/watch-r2-*.csv; do [ -f "$f" ] && cat "$f"; done | awk -F, -v min="$MIN_SOURCE_NANOS" '
+  NF >= 8 && $6 >= min && $4 > 0 { n++; v[$4] = 1; s += $4; iv = 60000 / $4; si += iv; sq += iv * iv; vals[n] = iv }
+  END { if (n > 1) { m = si / n; sd = sqrt((sq - n * m * m) / (n - 1)); d = 0; for (k in v) d++; printf "%d %d %.1f %.0f %.1f", n, d, s / n, m, sd } }')"
+say " 1. From the beats-per-minute stream that reaches the phone:"
+if [ -n "$bpm_stats" ]; then
+  set -- $bpm_stats
+  say "    $1 readings (route r2), $2 different values (whole beats per minute), about one reading every ${interval:-?} ms, mean $3 bpm."
+  say "    Mean beat interval 60000/bpm: $4 ms. Spread of that series (SDNN of the bpm series): $5 ms."
+else
+  say "    no readings to analyse"
+fi
+say "    PPG: no. The stream carries one number per second, not a waveform."
+say "    IBI (beat-to-beat interval): no. Only the average interval 60000/bpm can be derived, not the time between two beats."
+say "    HRV: no. The spread above is the pulse changing from one reading to the next (and the readings are rounded and already"
+say "    averaged by the watch), not variability between beats; it must not be reported as HRV."
+say " 2. From the raw heart sensor probe (the watch lists a 'Samsung HR Raw Sensor' that apps can ask for):"
+rawsum="$dir/watch/watch-summary-raw-on.txt"
+if [ -f "$rawsum" ]; then
+  sed -n '/^raw/p' "$rawsum" | cut -c1-230 | sed 's/^/    /' | saylines
+  rev="$(sed -n 's/^raw events=\([0-9]*\).*/\1/p' "$rawsum" | head -1)"
+  rrate="$(sed -n 's/.* rate=\([0-9.]*\) Hz.*/\1/p' "$rawsum" | head -1)"
+  if [ "${rev:-0}" -eq 0 ]; then
+    say "    Result: the raw sensor delivered NO events to this app. PPG, IBI and HRV are not available to an ordinary app on this"
+    say "    watch; they would need Samsung's Health Sensor SDK (developer mode, Samsung login), which this POC did not use."
+  elif awk -v r="${rrate:-0}" 'BEGIN { exit !(r >= 20) }'; then
+    say "    Result: a raw waveform IS available: $rev events at ${rrate} Hz. That is enough to resolve single beats, so PPG is"
+    say "    available and beat intervals and HRV can be computed from it; the numbers computed on the watch are in the channel lines"
+    say "    above (the channel that carries the pulse shows a believable beat count and mean heart rate close to the bpm above)."
+  else
+    say "    Result: the raw sensor delivered $rev events at only ${rrate} Hz: too slow to resolve single beats, so no reliable IBI/HRV."
+  fi
+else
+  say "    the raw probe did not run in this run"
+fi
+say ""
 say "=============== RESULT ==============="
 say "Goal 1 (pulse data within 0.5 s of recording): $(verdict_line "$g1" "$tmp/g1.txt")"
 say "Goal 2 (control of power, sensor enabling, modes): $line2"

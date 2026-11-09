@@ -14,7 +14,7 @@ class CoreTest {
     @Test
     fun badSampleIsRejected() {
         assertNull(Wire.decodeSample("x,y".toByteArray()))
-        assertNull(Wire.decodeSample("a,b,notanumber,1,2,3,4,on".toByteArray()))
+        assertNull(Wire.decodeSample("a,b,notanumber,1,2,3,4,on,3".toByteArray()))
     }
 
     @Test

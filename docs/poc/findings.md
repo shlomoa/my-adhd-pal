@@ -16,6 +16,13 @@ What was researched, and what was found (sources: Android and Samsung documentat
 - A web search for a known Wear OS 6 bug where heart rate delivers nothing found none.
 - The archived project's probe on this same watch started its service the same way as this POC and got about 2 readings per second, which ruled out one of my theories (that the starting screen must stay visible).
 
+## What the real run showed (run 20261109-163104, corrected)
+
+- Route r2 (wake-up sensor with a wake lock) delivered readings within about 13 ms (screen on) and 20 ms (screen off) of recording; route r1 (Health Services) was fine with the screen on but delivered readings up to 43 s late when the display was dim or off.
+- Direct Bluetooth to the phone: p95 end to end 98 ms (screen on) and 121 ms (screen off); the Data Layer was a little slower (128 and 173 ms).
+- The OS accepted a 5 s report-latency request for the heart-rate sensor but readings still arrived once per second, so the batching mode has no effect on this sensor; route choice, enable/disable and the wake lock do work.
+- The pulse arrives as whole beats per minute once per second, so PPG, beat intervals and HRV cannot be calculated from it. The watch also lists a raw heart sensor (`Samsung HR Raw Sensor`) that the next run probes.
+
 ## Why several runs were needed
 
 I cannot reach your watch or phone from where I work. My own tests use simulated devices, so they check my logic, not Android. Only a run on your devices shows how they really behave, and each real run showed something the simulation could not:

@@ -64,6 +64,21 @@ expect A-success "$d" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVE
 expect A3-fullreport "$d" "FULL REPORT" "Watch readings judged for goal 1: 180" "Phone, Bluetooth: 180 received" "route r2: typical 82 ms" "route r2: typical 302 ms" \
   "Screen states with enough readings: on,doze,off"
 
+# A4. No raw probe and no live log: both sections say so; the bpm-only analysis still runs.
+expect A4-noraw "$d" "the raw probe did not run" "no snapshot was logged" "PPG: no" "IBI (beat-to-beat interval): no" "HRV: no"
+
+# A5. Raw sensor with a usable rate: the report says a waveform is available, and prints the watch's HRV line.
+d="$tmp/a5"; allpass "$d"; mkdir -p "$d/watch" "$d/phone"
+watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 300
+printf 'label=raw-on route=raw\nraw sensor: Samsung HR Raw Sensor type=x\nraw events=1500 duration=25.0 s rate=60.0 Hz channels=1\nraw channel 0: beatsFound=31 rmssd=38.0 ms\n' >"$d/watch/watch-summary-raw-on.txt"
+printf '1s LIVE 70 bpm age 0.5 s acc high min 68 avg 70 max 72 bt 80 ms dl 120 ms\n2s LIVE 71 bpm age 0.4 s acc high min 68 avg 70 max 72 bt 80 ms dl 120 ms\n' >"$d/phone/live-log.txt"
+expect A5-raw "$d" "a raw waveform IS available: 1500 events at 60.0 Hz" "raw channel 0: beatsFound=31" "2 snapshots" "LIVE 71 bpm"
+
+# A6. Raw sensor too slow: no reliable intervals.
+d="$tmp/a6"; allpass "$d"; mkdir -p "$d/watch"; watch "$d" r2-on r2 on 30 80
+printf 'raw events=25 duration=25.0 s rate=1.0 Hz channels=1\n' >"$d/watch/watch-summary-raw-on.txt"
+expect A6-slowraw "$d" "only 1.0 Hz" "no reliable IBI/HRV"
+
 # A2. Only the screen-on state was reached: still judged, but the limitation is stated.
 d="$tmp/a2"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 300

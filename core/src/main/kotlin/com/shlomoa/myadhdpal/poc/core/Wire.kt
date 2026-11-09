@@ -23,7 +23,9 @@ data class Sample(
     val sendNanos: Long,
     val offsetNanos: Long,
     /** Display state of the watch when the reading arrived: `on`, `doze` (always-on/dim), `off` or `?`. */
-    val screen: String = "?"
+    val screen: String = "?",
+    /** Sensor accuracy: 3 high, 2 medium, 1 low, 0 unreliable, -1 not reported (Health Services). */
+    val accuracy: Int = -1
 ) {
     companion object {
         const val NO_OFFSET = Long.MIN_VALUE
@@ -33,16 +35,17 @@ data class Sample(
 /** Compact text wire format; fields never contain the separator. */
 object Wire {
     private const val SEP = ','
-    private const val SAMPLE_FIELDS = 8
+    private const val SAMPLE_FIELDS = 9
     private const val IDX_SEQ = 2
     private const val IDX_BPM = 3
     private const val IDX_SOURCE = 4
     private const val IDX_SEND = 5
     private const val IDX_OFFSET = 6
     private const val IDX_SCREEN = 7
+    private const val IDX_ACCURACY = 8
 
     fun encode(s: Sample): ByteArray =
-        listOf(s.label, s.route, s.seq, s.bpm, s.sourceNanos, s.sendNanos, s.offsetNanos, s.screen)
+        listOf(s.label, s.route, s.seq, s.bpm, s.sourceNanos, s.sendNanos, s.offsetNanos, s.screen, s.accuracy)
             .joinToString(SEP.toString())
             .toByteArray(Charsets.UTF_8)
 
@@ -58,7 +61,8 @@ object Wire {
                 f[IDX_SOURCE].toLong(),
                 f[IDX_SEND].toLong(),
                 f[IDX_OFFSET].toLong(),
-                f[IDX_SCREEN]
+                f[IDX_SCREEN],
+                f[IDX_ACCURACY].toInt()
             )
         }.getOrNull()
     }

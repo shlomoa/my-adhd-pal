@@ -40,6 +40,16 @@ def write_results(s):
     """Called at stop: write the watch and phone files for the run that just ended."""
     label = s["label"]
     wf, pf = files("WATCH1"), files("PHONE1")
+    if s["route"] == "raw":
+        with open(os.path.join(wf, f"watch-summary-{label}.txt"), "w") as f:
+            f.write(f"label={label} route=raw\nreadings=0 error=none\n")
+            if SC == "rawnone":
+                f.write("raw sensor: Samsung HR Raw Sensor type=com.samsung.sensor.hr_raw(69682)\nraw events=0: the raw sensor delivered no events to this app (registered, but nothing arrived)\n")
+            else:
+                f.write("raw sensor: Samsung HR Raw Sensor type=com.samsung.sensor.hr_raw(69682) vendor=Samsung Inc.\n")
+                f.write("raw events=1500 duration=25.0 s rate=60.0 Hz channels=1\n")
+                f.write("raw channel 0: min=100.0 max=900.0 distinct=700 beatsFound=31 intervalsKept=29 meanIbi=806.0 ms meanBpm=74.4 sdnn=41.0 ms rmssd=38.0 ms pnn50=22.0 %\n")
+        return
     matrix = label[:3] in ("r1-", "r2-")
     n = 0 if SC == "zero" else (25 if matrix else max(s["count"], 5))
     watch_ms = 2000 if SC == "slow" else 80
@@ -58,6 +68,9 @@ def write_results(s):
                         f.write(f"{src},{src + 20_000_000},{src + 40_000_000}\n")
                 with open(os.path.join(pf, f"phone-{label}-{path}.csv"), "a") as f:
                     f.write(f"{label},{i},70,{src},{src},0,{src + (ms + i % 5) * 1_000_000},on\n")
+    if matrix and n:
+        with open(os.path.join(pf, "live-log.txt"), "a") as f:
+            f.write(f"{label[:2]}s LIVE 72 bpm age 0.4 s acc high min 68 avg 72 max 77 bt 85 ms dl 120 ms\n")
     with open(os.path.join(wf, f"watch-summary-{label}.txt"), "w") as f:
         f.write(f"label={label} route={s['route']}\nreadings={n}\n")
         f.write(f"gap_between_arrivals: n={max(n - 1, 0)} min=1.0ms p50=1.0ms p95={gap}ms max={gap}ms\n")

@@ -47,6 +47,8 @@ import com.shlomoa.myadhdpal.poc.core.Wire
 class PocService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var wakeLock: PowerManager.WakeLock? = null
+    private var rawProbe: RawProbe? = null
+    private var rawReport = ""
 
     private var running = false
     private var route = ""
@@ -152,6 +154,7 @@ class PocService : Service() {
         setWakeLock(intent.getBooleanExtra("hold", true))
         val registered = when (route) {
             "r1" -> registerMeasure()
+            "raw" -> RawProbe(this) { event(it) }.also { rawProbe = it }.start()
             else -> registerSensor()
         }
         running = registered
@@ -200,7 +203,10 @@ class PocService : Service() {
         if (!running) return
         running = false
         handler.removeCallbacks(ticker)
-        if (route == "r1") {
+        if (route == "raw") {
+            rawReport = rawProbe?.stop(label).orEmpty()
+            count = (rawProbe?.count ?: 0).toLong()
+        } else if (route == "r1") {
             HealthServices.getClient(this).measureClient.unregisterMeasureCallbackAsync(
                 DataType.HEART_RATE_BPM,
                 measureCallback
@@ -240,7 +246,7 @@ class PocService : Service() {
         )
         // The same reading goes out on both paths; each carries its own clock offset.
         val sendNanos = SystemClock.elapsedRealtimeNanos()
-        val sample = Sample(label, route, count, bpm, sourceNanos, sendNanos, Link.offsetNanos, screen)
+        val sample = Sample(label, route, count, bpm, sourceNanos, sendNanos, Link.offsetNanos, screen, accuracy)
         Link.send(this, Paths.SAMPLE, Wire.encode(sample))
         BtLink.send(Frames.sample(sample.copy(offsetNanos = BtLink.offsetNanos)))
     }
@@ -248,7 +254,8 @@ class PocService : Service() {
     private fun writeSummary() {
         val text = buildString {
             appendLine("label=$label route=$route rateUs=$rateUs batchUs=$batchUs wakeUpSensor=$wakeUpSensor")
-            appendLine("readings=$count error=${error.ifEmpty { "none" }}")
+            appendLine("readings=$count error=${error.ifEmpty { rawProbe?.error.orEmpty().ifEmpty { "none" } }}")
+            if (route == "raw") append(rawReport)
             appendLine(Stats.line("sensor_to_app (recorded -> watch app)", Stats.summarize(sensorLatencies)))
             appendLine(Stats.line("gap_between_arrivals", Stats.summarize(Stats.gaps(arrivals))))
             for ((screen, values) in latenciesByScreen.toSortedMap()) {
@@ -290,11 +297,12 @@ class PocService : Service() {
 
     private fun writeStatus() {
         val now = SystemClock.elapsedRealtimeNanos()
+        val shownCount = if (route == "raw") rawProbe?.count ?: 0 else count
         val sinceLast = if (lastArrivalNanos == 0L) -1 else (now - lastArrivalNanos) / NANOS_PER_MS
         PocFiles.write(
             this,
             "status.txt",
-            "running=$running route=$route label=$label count=$count msSinceLastReading=$sinceLast " +
+            "running=$running route=$route label=$label count=$shownCount msSinceLastReading=$sinceLast " +
                 "wakeLockHeld=${wakeLock?.isHeld == true} wakeUpSensor=$wakeUpSensor rateUs=$rateUs batchUs=$batchUs " +
                 "offsetDlNanos=${Link.offsetNanos} offsetBtNanos=${BtLink.offsetNanos} " +
                 "phoneNodeFound=${Link.nodeFound} btConnected=${BtLink.connected} " +
