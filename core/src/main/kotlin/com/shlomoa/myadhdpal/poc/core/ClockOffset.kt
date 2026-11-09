@@ -13,5 +13,6 @@ data class Exchange(val t0: Long, val phoneNanos: Long, val t3: Long) {
 
 object ClockOffset {
     /** The offset of the exchange with the smallest round trip (least queueing error), or null if none. */
-    fun best(exchanges: List<Exchange>): Long? = exchanges.filter { it.roundTrip >= 0 }.minByOrNull { it.roundTrip }?.offset
+    fun best(exchanges: List<Exchange>): Long? =
+        exchanges.filter { it.roundTrip >= 0 }.minByOrNull { it.roundTrip }?.offset
 }

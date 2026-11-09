@@ -21,7 +21,7 @@ data class Sample(
     val bpm: Float,
     val sourceNanos: Long,
     val sendNanos: Long,
-    val offsetNanos: Long,
+    val offsetNanos: Long
 ) {
     companion object {
         const val NO_OFFSET = Long.MIN_VALUE
@@ -31,17 +31,30 @@ data class Sample(
 /** Compact text wire format; fields never contain the separator. */
 object Wire {
     private const val SEP = ','
+    private const val SAMPLE_FIELDS = 7
+    private const val IDX_SEQ = 2
+    private const val IDX_BPM = 3
+    private const val IDX_SOURCE = 4
+    private const val IDX_SEND = 5
+    private const val IDX_OFFSET = 6
 
-    fun encode(s: Sample): ByteArray =
-        listOf(s.label, s.route, s.seq, s.bpm, s.sourceNanos, s.sendNanos, s.offsetNanos)
-            .joinToString(SEP.toString())
-            .toByteArray(Charsets.UTF_8)
+    fun encode(s: Sample): ByteArray = listOf(s.label, s.route, s.seq, s.bpm, s.sourceNanos, s.sendNanos, s.offsetNanos)
+        .joinToString(SEP.toString())
+        .toByteArray(Charsets.UTF_8)
 
     fun decodeSample(bytes: ByteArray): Sample? {
         val f = String(bytes, Charsets.UTF_8).split(SEP)
-        if (f.size != 7) return null
+        if (f.size != SAMPLE_FIELDS) return null
         return runCatching {
-            Sample(f[0], f[1], f[2].toLong(), f[3].toFloat(), f[4].toLong(), f[5].toLong(), f[6].toLong())
+            Sample(
+                f[0],
+                f[1],
+                f[IDX_SEQ].toLong(),
+                f[IDX_BPM].toFloat(),
+                f[IDX_SOURCE].toLong(),
+                f[IDX_SEND].toLong(),
+                f[IDX_OFFSET].toLong()
+            )
         }.getOrNull()
     }
 
@@ -55,9 +68,8 @@ object Wire {
 
     fun decodePong(bytes: ByteArray): Pair<Long, Long>? {
         val f = String(bytes, Charsets.UTF_8).split(SEP)
-        if (f.size != 2) return null
-        val a = f[0].toLongOrNull() ?: return null
-        val b = f[1].toLongOrNull() ?: return null
-        return a to b
+        val a = f.getOrNull(0)?.toLongOrNull()
+        val b = f.getOrNull(1)?.toLongOrNull()
+        return if (f.size == 2 && a != null && b != null) a to b else null
     }
 }

@@ -17,6 +17,7 @@ class ReceiverService : WearableListenerService() {
                 val pong = Wire.encodePong(t0, SystemClock.elapsedRealtimeNanos())
                 Wearable.getMessageClient(this).sendMessage(event.sourceNodeId, Paths.PONG, pong)
             }
+
             Paths.SAMPLE -> {
                 val s = Wire.decodeSample(event.data) ?: return
                 PhoneState.received++
@@ -25,10 +26,9 @@ class ReceiverService : WearableListenerService() {
                 PhoneState.append(
                     this,
                     "phone-${s.label}.csv",
-                    "${s.label},${s.seq},${s.bpm},${s.sourceNanos},${s.sendNanos},${s.offsetNanos},$arrival",
+                    "${s.label},${s.seq},${s.bpm},${s.sourceNanos},${s.sendNanos},${s.offsetNanos},$arrival"
                 )
             }
         }
     }
-
 }

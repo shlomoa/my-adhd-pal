@@ -38,6 +38,7 @@ import com.shlomoa.myadhdpal.poc.core.Wire
  * Commands arrive as intent extras from [ControlActivity]: `cmd` = start | stop | wakelock | status.
  * Everything measured is written to files (see [PocFiles]); the service itself decides nothing about pass or fail.
  */
+@Suppress("TooManyFunctions") // one small service keeps the POC readable in a single file
 class PocService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var wakeLock: PowerManager.WakeLock? = null
@@ -167,7 +168,9 @@ class PocService : Service() {
     private fun registerMeasure(): Boolean {
         wakeUpSensor = false
         return try {
-            HealthServices.getClient(this).measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
+            HealthServices.getClient(
+                this
+            ).measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
             true
         } catch (e: SecurityException) {
             error = "registerMeasureCallback: ${e.javaClass.simpleName} ${e.message}"
@@ -182,7 +185,7 @@ class PocService : Service() {
         if (route == "r1") {
             HealthServices.getClient(this).measureClient.unregisterMeasureCallbackAsync(
                 DataType.HEART_RATE_BPM,
-                measureCallback,
+                measureCallback
             )
         } else {
             getSystemService(SensorManager::class.java).unregisterListener(sensorListener)
@@ -232,7 +235,7 @@ class PocService : Service() {
             "status.txt",
             "running=$running route=$route label=$label count=$count msSinceLastReading=$sinceLast " +
                 "wakeLockHeld=${wakeLock?.isHeld == true} wakeUpSensor=$wakeUpSensor rateUs=$rateUs batchUs=$batchUs " +
-                "offsetNanos=${Link.offsetNanos} phoneNodeFound=${Link.nodeFound} error=${error.ifEmpty { "none" }}\n",
+                "offsetNanos=${Link.offsetNanos} phoneNodeFound=${Link.nodeFound} error=${error.ifEmpty { "none" }}\n"
         )
     }
 
