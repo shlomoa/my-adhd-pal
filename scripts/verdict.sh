@@ -194,3 +194,28 @@ case "$g1|$g2|$g3" in
   *) overall="PARTIAL: $g1 | $g2 | $g3" ;;
 esac
 say "OVERALL: $overall"
+
+# ---- The three lines the user reads ----
+# MET is ACHIEVED. Everything else is FAILED with the short reason. When the dim/off states were not reached the
+# ACHIEVED line says it holds for the screen-on state only.
+verdict_line() { # verdict_line <verdict> <detail-file>
+  case "$1" in
+    MET*) if grep -q 'screen-on state only' "$2" 2>/dev/null; then echo "ACHIEVED (screen on only; dim/off not reached)"; else echo "ACHIEVED"; fi ;;
+    PARTIAL*) echo "FAILED (only with the screen on)" ;;
+    "NOT MET"*) echo "FAILED (limit missed)" ;;
+    "NO DATA"*) echo "FAILED (no data)" ;;
+    INVALID*) echo "FAILED (clock base invalid)" ;;
+    *) echo "FAILED" ;;
+  esac
+}
+case "$g2" in
+  MET) line2="ACHIEVED" ;;
+  "NOT MET"*) line2="FAILED ${g2#NOT MET }" ;;
+  *) line2="FAILED (no data)" ;;
+esac
+say ""
+say "=============== RESULT ==============="
+say "Goal 1 (pulse data within 0.5 s of recording): $(verdict_line "$g1" "$tmp/g1.txt")"
+say "Goal 2 (control of power, sensor enabling, modes): $line2"
+say "Goal 3 (live pulse to the phone over Bluetooth, under 1 s): $(verdict_line "$g3" "$tmp/g3.txt")"
+say "======================================="

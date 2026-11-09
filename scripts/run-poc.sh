@@ -153,6 +153,7 @@ collect() {
     git add "$out" && git commit -q -m "POC run $stamp" -- "$out" && git push origin HEAD
     say "results committed and pushed: $out"
   fi
+  sed -n '/^=* RESULT =*$/,$p' "$out/verdict.txt"
 }
 
 # ---- 1. latency matrix -------------------------------------------------------------------------------------------------

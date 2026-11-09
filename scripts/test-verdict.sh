@@ -56,29 +56,32 @@ d="$tmp/a"; allpass "$d"
 for r in r1 r2; do for s in on doze off; do
   watch "$d" "$r-$s" "$r" "$s" 30 80; phone "$d" "$r-$s" bt "$s" 30 300; phone "$d" "$r-$s" dl "$s" 30 200
 done; done
-expect A-success "$d" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVERALL: SUCCESS"
+expect A-success "$d" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVERALL: SUCCESS" \
+  "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED" "Goal 2 (control of power, sensor enabling, modes): ACHIEVED" \
+  "Goal 3 (live pulse to the phone over Bluetooth, under 1 s): ACHIEVED"
 
 # A2. Only the screen-on state was reached: still judged, but the limitation is stated.
 d="$tmp/a2"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 300
-expect A2-onlyon "$d" "GOAL 1: MET" "holds for the screen-on state only" "screen states judged: on"
+expect A2-onlyon "$d" "GOAL 1: MET" "holds for the screen-on state only" "screen states judged: on" \
+  "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (screen on only; dim/off not reached)"
 
 # B. Slow when the display dozes: only screen-on meets goal 1 -> PARTIAL, not success.
 d="$tmp/b"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; watch "$d" r2-dim r2 doze 30 3000
 phone "$d" r2-on bt on 30 300; phone "$d" r2-dim bt doze 30 300
-expect B-partial "$d" "GOAL 1: PARTIAL" "misses 500 ms" "OVERALL: PARTIAL"
+expect B-partial "$d" "GOAL 1: PARTIAL" "misses 500 ms" "OVERALL: PARTIAL" "recording): FAILED (only with the screen on)"
 
 # C. Too slow everywhere: goal 1 NOT MET -> FAILURE with data.
 d="$tmp/c"; allpass "$d"
 watch "$d" r1-on r1 on 30 2000; watch "$d" r2-on r2 on 30 2500
 phone "$d" r2-on bt on 30 300
-expect C-failure "$d" "GOAL 1: NOT MET" "OVERALL: FAILURE"
+expect C-failure "$d" "GOAL 1: NOT MET" "OVERALL: FAILURE" "recording): FAILED (limit missed)"
 
 # D. No readings at all, watch says off-body.
 d="$tmp/d"; checks "$d" FAIL PASS INCONCLUSIVE PASS FAIL FAIL
 mkdir -p "$d/watch"; echo "12s availability UNAVAILABLE_DEVICE_OFF_BODY" >"$d/watch/events.txt"
-expect D-offbody "$d" "GOAL 1: NO DATA" "GOAL 2: NO DATA" "OFF-BODY" "OVERALL: INCOMPLETE"
+expect D-offbody "$d" "GOAL 1: NO DATA" "GOAL 2: NO DATA" "OFF-BODY" "OVERALL: INCOMPLETE" "recording): FAILED (no data)" "modes): FAILED (no data)"
 
 # E. No readings, permission false.
 d="$tmp/e"; checks "$d" FAIL PASS INCONCLUSIVE PASS FAIL FAIL
@@ -97,7 +100,7 @@ expect G-clock "$d" "INVALID CLOCK BASE" "OVERALL: INCOMPLETE"
 # H. Bluetooth too slow while the Data Layer is fast: goal 3 uses Bluetooth only.
 d="$tmp/h"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 1500; phone "$d" r2-on dl on 30 200
-expect H-bt-slow "$d" "GOAL 3 (Bluetooth): NOT MET" "Data Layer: MET" "OVERALL: FAILURE"
+expect H-bt-slow "$d" "GOAL 3 (Bluetooth): NOT MET" "Data Layer: MET" "OVERALL: FAILURE" "under 1 s): FAILED (limit missed)"
 
 # I. Bluetooth never connected: watch readings exist, no Bluetooth rows; cause printed.
 d="$tmp/i"; allpass "$d"
@@ -113,7 +116,7 @@ expect J-few "$d" "too few readings" "GOAL 1: NO DATA"
 # K. Control checks failing -> goal 2 NOT MET even when latency is good.
 d="$tmp/k"; checks "$d" PASS FAIL PASS PASS PASS PASS
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 300
-expect K-control "$d" "GOAL 2: NOT MET" "C2=FAIL" "OVERALL: FAILURE"
+expect K-control "$d" "GOAL 2: NOT MET" "C2=FAIL" "OVERALL: FAILURE" "modes): FAILED (C1=PASS C2=FAIL"
 
 # L. Readings without a clock offset are left out of the end-to-end numbers.
 d="$tmp/l"; allpass "$d"

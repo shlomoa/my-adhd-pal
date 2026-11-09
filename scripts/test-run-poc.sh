@@ -31,7 +31,8 @@ run_case() {
 }
 
 run_case good 0 -- "phone Bluetooth server: listening" "CHECK C1 PASS" "CHECK C2 PASS" "CHECK C3 PASS" "CHECK C4 PASS" \
-  "CHECK C5 PASS" "CHECK C6 PASS" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVERALL: SUCCESS"
+  "CHECK C5 PASS" "CHECK C6 PASS" "GOAL 1: MET" "GOAL 2: MET" "GOAL 3 (Bluetooth): MET" "OVERALL: SUCCESS" \
+  "Goal 1 (pulse data within 0.5 s of recording): ACHIEVED (screen on only" "modes): ACHIEVED" "under 1 s): ACHIEVED (screen on only"
 run_case slow 0 -- "GOAL 1: NOT MET" "OVERALL: FAILURE"
 run_case zero 4 -- "STOP: no readings at all" "OFF-BODY" "GOAL 1: NO DATA" "OVERALL: INCOMPLETE"
 run_case nobt 0 -- "GOAL 3 (Bluetooth): NO DATA" "Data Layer: MET" "OVERALL: INCOMPLETE"
