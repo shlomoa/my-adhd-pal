@@ -18,12 +18,15 @@ class SummaryReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         File(context.filesDir.path).listFiles { f -> f.name.startsWith("phone-") && f.name.endsWith(".csv") }
             ?.forEach { csv ->
-                val label = csv.name.removePrefix("phone-").removeSuffix(".csv")
-                PhoneState.write(context, "phone-summary-$label.txt", summarize(label, csv.readLines()))
+                // phone-<label>-<path>.csv; a label may contain '-', the path (dl or bt) is the last part.
+                val core = csv.name.removePrefix("phone-").removeSuffix(".csv")
+                val label = core.substringBeforeLast('-')
+                val path = core.substringAfterLast('-')
+                PhoneState.write(context, "phone-summary-$core.txt", summarize(label, path, csv.readLines()))
             }
     }
 
-    private fun summarize(label: String, lines: List<String>): String {
+    private fun summarize(label: String, path: String, lines: List<String>): String {
         val rows = lines.mapNotNull { line ->
             val f = line.split(',')
             if (f.size != FIELDS) return@mapNotNull null
@@ -36,7 +39,7 @@ class SummaryReceiver : BroadcastReceiver() {
         val linkOnly = withOffset.map { it.phoneArrival - (it.send + it.offset) }
         val gaps = Stats.gaps(rows.map { it.phoneArrival }.sorted())
         return buildString {
-            appendLine("label=$label received=${rows.size} withClockOffset=${withOffset.size}")
+            appendLine("label=$label path=$path received=${rows.size} withClockOffset=${withOffset.size}")
             appendLine(Stats.line("end_to_end (recorded -> phone)", Stats.summarize(endToEnd)))
             appendLine(Stats.line("watch_send_to_phone", Stats.summarize(linkOnly)))
             appendLine(Stats.line("gap_between_phone_arrivals", Stats.summarize(gaps)))

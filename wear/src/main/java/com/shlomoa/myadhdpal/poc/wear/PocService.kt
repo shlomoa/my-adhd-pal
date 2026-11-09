@@ -27,6 +27,7 @@ import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.DeltaDataType
+import com.shlomoa.myadhdpal.poc.core.Frames
 import com.shlomoa.myadhdpal.poc.core.Paths
 import com.shlomoa.myadhdpal.poc.core.Sample
 import com.shlomoa.myadhdpal.poc.core.Stats
@@ -86,6 +87,7 @@ class PocService : Service() {
         override fun run() {
             if (!running) return
             Link.send(this@PocService, Paths.PING, Wire.encodePing(SystemClock.elapsedRealtimeNanos()))
+            BtLink.send(Frames.ping(SystemClock.elapsedRealtimeNanos()))
             writeStatus()
             handler.postDelayed(this, TICK_MS)
         }
@@ -117,7 +119,7 @@ class PocService : Service() {
         manager.createNotificationChannel(NotificationChannel(CHANNEL, "POC", NotificationManager.IMPORTANCE_LOW))
         val notification = Notification.Builder(this, CHANNEL)
             .setContentTitle("Pulse POC")
-            .setSmallIcon(applicationInfo.icon)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setOngoing(true)
             .build()
         try {
@@ -145,6 +147,7 @@ class PocService : Service() {
         logPermissions()
         Link.reset()
         Link.refreshNode(this)
+        BtLink.start(this) { event(it) }
         setWakeLock(intent.getBooleanExtra("hold", true))
         val registered = when (route) {
             "r1" -> registerMeasure()
@@ -205,6 +208,7 @@ class PocService : Service() {
             getSystemService(SensorManager::class.java).unregisterListener(sensorListener)
         }
         writeSummary()
+        BtLink.stop()
         setWakeLock(false)
         stopForeground(STOP_FOREGROUND_REMOVE)
     }
@@ -233,9 +237,11 @@ class PocService : Service() {
             "watch-$label.csv",
             "$label,$route,$count,$bpm,$accuracy,$sourceNanos,$arrivalNanos,$screen"
         )
-        val sample =
-            Sample(label, route, count, bpm, sourceNanos, SystemClock.elapsedRealtimeNanos(), Link.offsetNanos, screen)
+        // The same reading goes out on both paths; each carries its own clock offset.
+        val sendNanos = SystemClock.elapsedRealtimeNanos()
+        val sample = Sample(label, route, count, bpm, sourceNanos, sendNanos, Link.offsetNanos, screen)
         Link.send(this, Paths.SAMPLE, Wire.encode(sample))
+        BtLink.send(Frames.sample(sample.copy(offsetNanos = BtLink.offsetNanos)))
     }
 
     private fun writeSummary() {
@@ -265,7 +271,8 @@ class PocService : Service() {
             "android.permission.BODY_SENSORS",
             "android.permission.health.READ_HEART_RATE",
             "android.permission.BODY_SENSORS_BACKGROUND",
-            "android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND"
+            "android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND",
+            "android.permission.BLUETOOTH_CONNECT"
         )
         event(
             names.joinToString("; ") {
@@ -288,7 +295,10 @@ class PocService : Service() {
             "status.txt",
             "running=$running route=$route label=$label count=$count msSinceLastReading=$sinceLast " +
                 "wakeLockHeld=${wakeLock?.isHeld == true} wakeUpSensor=$wakeUpSensor rateUs=$rateUs batchUs=$batchUs " +
-                "offsetNanos=${Link.offsetNanos} phoneNodeFound=${Link.nodeFound} error=${error.ifEmpty { "none" }}\n"
+                "offsetDlNanos=${Link.offsetNanos} offsetBtNanos=${BtLink.offsetNanos} " +
+                "phoneNodeFound=${Link.nodeFound} btConnected=${BtLink.connected} " +
+                "btDevice=${BtLink.connectedTo.replace(' ', '_').ifEmpty { "none" }} " +
+                "error=${error.ifEmpty { "none" }}\n"
         )
     }
 

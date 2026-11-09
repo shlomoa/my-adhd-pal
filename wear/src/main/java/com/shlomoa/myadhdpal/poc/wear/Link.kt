@@ -2,17 +2,18 @@ package com.shlomoa.myadhdpal.poc.wear
 
 import android.content.Context
 import com.google.android.gms.wearable.Wearable
-import com.shlomoa.myadhdpal.poc.core.ClockOffset
 import com.shlomoa.myadhdpal.poc.core.Exchange
+import com.shlomoa.myadhdpal.poc.core.OffsetTracker
 import com.shlomoa.myadhdpal.poc.core.Sample
 
-/** Watch side of the link to the phone: message sending over the Wearable Data Layer and the clock offset. */
+/**
+ * Watch side of the Wearable Data Layer path to the phone: message sending and this path's clock offset.
+ * The Data Layer prefers Bluetooth but may use Wi-Fi, so it is compared with the direct Bluetooth path ([BtLink]).
+ */
 object Link {
-    private val exchanges = ArrayDeque<Exchange>()
+    private val tracker = OffsetTracker()
 
-    @Volatile
-    var offsetNanos: Long = Sample.NO_OFFSET
-        private set
+    val offsetNanos: Long get() = tracker.offset()
 
     @Volatile
     var nodeFound: Boolean = false
@@ -40,18 +41,9 @@ object Link {
         return true
     }
 
-    @Synchronized
-    fun onPong(t0: Long, phoneNanos: Long, t3: Long) {
-        exchanges.addLast(Exchange(t0, phoneNanos, t3))
-        while (exchanges.size > MAX_EXCHANGES) exchanges.removeFirst()
-        ClockOffset.best(exchanges.toList())?.let { offsetNanos = it }
-    }
+    fun onPong(t0: Long, phoneNanos: Long, t3: Long) = tracker.add(Exchange(t0, phoneNanos, t3))
 
-    @Synchronized
-    fun reset() {
-        exchanges.clear()
-        offsetNanos = Sample.NO_OFFSET
-    }
+    fun reset() = tracker.clear()
 
-    private const val MAX_EXCHANGES = 10
+    fun noOffset(): Boolean = tracker.offset() == Sample.NO_OFFSET
 }

@@ -1,6 +1,7 @@
 package com.shlomoa.myadhdpal.poc.phone
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,7 +14,7 @@ class MainActivity : Activity() {
 
     private val refresh = object : Runnable {
         override fun run() {
-            text.text = "${PhoneState.lastText}\nreceived: ${PhoneState.received}"
+            text.text = "${PhoneState.lastText}\nreceived: ${PhoneState.received}\n${PhoneState.bluetoothText}"
             handler.postDelayed(this, REFRESH_MS)
         }
     }
@@ -25,6 +26,7 @@ class MainActivity : Activity() {
             setPadding(PAD, PAD, PAD, PAD)
         }
         setContentView(text)
+        startForegroundService(Intent(this, BtServerService::class.java))
     }
 
     override fun onResume() {

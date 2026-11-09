@@ -24,8 +24,8 @@ Files written in the watch app's private storage (read with `adb shell run-as co
 - `watch-<label>.csv`: one line per reading (`label,route,seq,bpm,accuracy,recordedNanos,arrivalNanos`).
 - `watch-summary-<label>.txt`: written at `stop`; recorded-to-watch-app latency and gaps between readings.
 
-The phone writes `phone-<label>.csv` and, after the broadcast `com.shlomoa.myadhdpal.poc.SUMMARIZE`,
-`phone-summary-<label>.txt` with the end-to-end latency.
+The phone writes `phone-<label>-dl.csv` (Data Layer) and `phone-<label>-bt.csv` (direct Bluetooth) and, after the
+broadcast `com.shlomoa.myadhdpal.poc.SUMMARIZE`, `phone-summary-<label>-<path>.txt` with the end-to-end latency.
 
 ## How latency is measured
 
@@ -33,5 +33,5 @@ The phone writes `phone-<label>.csv` and, after the broadcast `com.shlomoa.myadh
   watch's elapsed-realtime clock. That the Health Services value is on the same clock is assumed, not verified.
 - Watch app arrival: elapsed realtime when the callback runs.
 - Phone arrival: the phone's elapsed realtime when the message callback runs.
-- Clock offset: the watch pings the phone every second; the phone answers with its clock. The offset (phone minus
+- Clock offset: the watch pings the phone every second over each path; the phone answers with its clock. The offset (phone minus
   watch) is taken from the exchange with the shortest round trip, assuming equal travel time each way.

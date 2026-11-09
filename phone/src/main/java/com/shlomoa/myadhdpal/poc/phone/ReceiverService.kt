@@ -7,7 +7,7 @@ import com.google.android.gms.wearable.WearableListenerService
 import com.shlomoa.myadhdpal.poc.core.Paths
 import com.shlomoa.myadhdpal.poc.core.Wire
 
-/** Receives readings and pings from the watch. The arrival time is taken first thing in the callback. */
+/** Data Layer path: receives readings and pings from the watch. The arrival time is taken first in the callback. */
 class ReceiverService : WearableListenerService() {
     override fun onMessageReceived(event: MessageEvent) {
         val arrival = SystemClock.elapsedRealtimeNanos()
@@ -19,15 +19,8 @@ class ReceiverService : WearableListenerService() {
             }
 
             Paths.SAMPLE -> {
-                val s = Wire.decodeSample(event.data) ?: return
-                PhoneState.received++
-                PhoneState.lastText = "${s.bpm.toInt()} bpm (${s.label} #${s.seq})"
-                // label,seq,bpm,sourceNanos,sendNanos,offsetNanos,phoneArrivalNanos,screen
-                PhoneState.append(
-                    this,
-                    "phone-${s.label}.csv",
-                    "${s.label},${s.seq},${s.bpm},${s.sourceNanos},${s.sendNanos},${s.offsetNanos},$arrival,${s.screen}"
-                )
+                val sample = Wire.decodeSample(event.data) ?: return
+                PhoneState.record(this, "dl", sample, arrival)
             }
         }
     }

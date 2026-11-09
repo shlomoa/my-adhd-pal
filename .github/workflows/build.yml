@@ -20,6 +20,11 @@ jobs:
       - name: Check and build
         run: ./gradlew check assembleDebug
 
+      - name: Test the verdict rules and the run script (fake adb)
+        run: |
+          scripts/test-verdict.sh
+          scripts/test-run-poc.sh
+
       - uses: actions/upload-artifact@v4
         with:
           name: apks-debug

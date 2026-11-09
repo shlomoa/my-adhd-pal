@@ -6,9 +6,10 @@ Goals:
 2. Control of power, sensor enabling and modes.
 3. Live pulse data over Bluetooth to an Android app, sub-second delay.
 
-Status: built, waiting for the first run on the devices. No result yet.
+Status: built and tested against simulated devices; waiting for a run on the real watch and phone. No result yet.
 
 - [Setup checklist](setup.md)
+- [Requirements, tests and pass rules](requirements.md)
 - [Watch commands and how latency is measured](commands.md)
 
-Run everything with one command: `scripts/run-poc.sh` (about 9 minutes).
+Run with one command: `scripts/run-poc.sh` (about 7 minutes; `--smoke` for a 2-minute first check). Prepare the phone first: unlocked, screen on.
