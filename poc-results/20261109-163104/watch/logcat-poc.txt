@@ -1,0 +1,67 @@
+--------- beginning of main
+11-09 16:31:52.828 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:31:54.079 16777 16777 I POC     : availability ACQUIRING
+11-09 16:31:54.101 16777 16777 I POC     : measure capability HEART_RATE_BPM supported=true
+11-09 16:31:54.182 16777 16777 I POC     : availability AVAILABLE
+11-09 16:31:54.412 16777 16803 I POC     : bt: connected to Shlomo's A55
+11-09 16:32:41.220 16777 16803 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:32:46.447 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:32:46.551 16777 16777 I POC     : measure capability HEART_RATE_BPM supported=true
+11-09 16:32:46.726 16777 16777 I POC     : availability ACQUIRING
+11-09 16:32:47.102 16777 16777 I POC     : availability AVAILABLE
+11-09 16:32:47.135 16777 16951 I POC     : bt: connected to Shlomo's A55
+11-09 16:33:34.679 16777 16951 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:33:40.854 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:33:41.011 16777 16777 I POC     : measure capability HEART_RATE_BPM supported=true
+11-09 16:33:41.088 16777 16777 I POC     : availability ACQUIRING
+11-09 16:33:41.450 16777 16777 I POC     : availability AVAILABLE
+11-09 16:33:42.055 16777 17038 I POC     : bt: connected to Shlomo's A55
+11-09 16:34:29.967 16777 17038 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:34:35.452 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:34:35.476 16777 16777 I POC     : sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+11-09 16:34:35.481 16777 16777 I POC     : registerListener rateUs=0 batchUs=0 -> true
+11-09 16:34:36.496 16777 16777 I POC     : accuracy changed to 3
+11-09 16:34:36.685 16777 17111 I POC     : bt: connected to Shlomo's A55
+11-09 16:35:23.281 16777 17111 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:35:28.824 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:35:28.837 16777 16777 I POC     : sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+11-09 16:35:28.842 16777 16777 I POC     : registerListener rateUs=0 batchUs=0 -> true
+11-09 16:35:29.524 16777 17176 I POC     : bt: connected to Shlomo's A55
+11-09 16:35:29.853 16777 16777 I POC     : accuracy changed to 3
+11-09 16:36:17.100 16777 17176 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:36:22.656 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:36:22.668 16777 16777 I POC     : sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+11-09 16:36:22.673 16777 16777 I POC     : registerListener rateUs=0 batchUs=0 -> true
+11-09 16:36:23.682 16777 16777 I POC     : accuracy changed to 3
+11-09 16:36:23.731 16777 17257 I POC     : bt: connected to Shlomo's A55
+11-09 16:37:11.702 16777 17257 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:37:17.333 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:37:17.344 16777 16777 I POC     : sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+11-09 16:37:17.349 16777 16777 I POC     : registerListener rateUs=0 batchUs=0 -> true
+11-09 16:37:18.363 16777 16777 I POC     : accuracy changed to 3
+11-09 16:37:18.502 16777 17369 I POC     : bt: connected to Shlomo's A55
+11-09 16:37:25.675 16777 17369 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:37:38.814 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:37:38.825 16777 16777 I POC     : sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+11-09 16:37:38.830 16777 16777 I POC     : registerListener rateUs=0 batchUs=0 -> true
+11-09 16:37:39.837 16777 16777 I POC     : accuracy changed to 3
+11-09 16:37:39.927 16777 17405 I POC     : bt: connected to Shlomo's A55
+11-09 16:37:48.440 16777 17405 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:37:51.682 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:37:51.695 16777 16777 I POC     : sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+11-09 16:37:51.699 16777 16777 I POC     : registerListener rateUs=0 batchUs=0 -> true
+11-09 16:37:52.429 16777 17451 I POC     : bt: connected to Shlomo's A55
+11-09 16:37:52.708 16777 16777 I POC     : accuracy changed to 3
+11-09 16:38:02.209 16777 17451 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:38:05.611 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:38:05.623 16777 16777 I POC     : sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+11-09 16:38:05.627 16777 16777 I POC     : registerListener rateUs=0 batchUs=5000000 -> true
+11-09 16:38:06.331 16777 17477 I POC     : bt: connected to Shlomo's A55
+11-09 16:38:06.641 16777 16777 I POC     : accuracy changed to 3
+11-09 16:38:20.075 16777 17477 I POC     : bt: link closed (read: bt socket closed, read return: -1)
+11-09 16:38:25.530 16777 16777 I POC     : BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+11-09 16:38:25.726 16777 16777 I POC     : measure capability HEART_RATE_BPM supported=true
+11-09 16:38:25.777 16777 16777 I POC     : availability ACQUIRING
+11-09 16:38:26.211 16777 16777 I POC     : availability AVAILABLE
+11-09 16:38:26.471 16777 17511 I POC     : bt: connected to Shlomo's A55
+11-09 16:38:34.992 16777 17511 I POC     : bt: link closed (read: bt socket closed, read return: -1)

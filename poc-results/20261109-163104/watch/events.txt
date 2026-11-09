@@ -1,0 +1,102 @@
+9750s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+9751s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9752s availability ACQUIRING
+9752s measure capability HEART_RATE_BPM supported=true
+9752s availability AVAILABLE
+9753s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9755s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9757s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9759s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9761s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9763s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9765s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9767s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9769s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9771s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9773s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9775s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9777s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9784s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+9784s sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+9784s registerListener rateUs=0 batchUs=0 -> true
+9785s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9785s accuracy changed to 3
+9787s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9789s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9791s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9793s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9795s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9797s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9799s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9801s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9803s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9805s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9807s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9809s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+9811s bt: connect Shlomo's A55: Need android.permission.BLUETOOTH_SCAN permission for AttributionSource { uid = 1002, packageName = com.android.bluetooth, attributionTag = null, token = android.os.Binder@c08a8b9, deviceId = 0, next = AttributionSource { uid = 10004, packageName = com.shlomoa.myadhdpal.poc, attributionTag = null, token = android.os.BinderProxy@cf3fb0e, deviceId = 0, next = null } }: BluetoothAdapterServiceBinder.cancelDiscovery()
+12011s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12012s availability ACQUIRING
+12012s measure capability HEART_RATE_BPM supported=true
+12012s availability AVAILABLE
+12012s bt: connected to Shlomo's A55
+12059s bt: link closed (read: bt socket closed, read return: -1)
+12064s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12064s measure capability HEART_RATE_BPM supported=true
+12064s availability ACQUIRING
+12065s availability AVAILABLE
+12065s bt: connected to Shlomo's A55
+12112s bt: link closed (read: bt socket closed, read return: -1)
+12119s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12119s measure capability HEART_RATE_BPM supported=true
+12119s availability ACQUIRING
+12119s availability AVAILABLE
+12120s bt: connected to Shlomo's A55
+12168s bt: link closed (read: bt socket closed, read return: -1)
+12173s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12173s sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+12173s registerListener rateUs=0 batchUs=0 -> true
+12174s accuracy changed to 3
+12174s bt: connected to Shlomo's A55
+12221s bt: link closed (read: bt socket closed, read return: -1)
+12227s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12227s sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+12227s registerListener rateUs=0 batchUs=0 -> true
+12227s bt: connected to Shlomo's A55
+12228s accuracy changed to 3
+12275s bt: link closed (read: bt socket closed, read return: -1)
+12280s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12280s sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+12280s registerListener rateUs=0 batchUs=0 -> true
+12281s accuracy changed to 3
+12281s bt: connected to Shlomo's A55
+12329s bt: link closed (read: bt socket closed, read return: -1)
+12335s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12335s sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+12335s registerListener rateUs=0 batchUs=0 -> true
+12336s accuracy changed to 3
+12336s bt: connected to Shlomo's A55
+12343s bt: link closed (read: bt socket closed, read return: -1)
+12357s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12357s sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+12357s registerListener rateUs=0 batchUs=0 -> true
+12358s accuracy changed to 3
+12358s bt: connected to Shlomo's A55
+12366s bt: link closed (read: bt socket closed, read return: -1)
+12369s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12369s sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+12369s registerListener rateUs=0 batchUs=0 -> true
+12370s bt: connected to Shlomo's A55
+12370s accuracy changed to 3
+12380s bt: link closed (read: bt socket closed, read return: -1)
+12383s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12383s sensor Samsung HR Batch Sensor vendor=Samsung Inc. wakeUp=true minDelayUs=1000000
+12383s registerListener rateUs=0 batchUs=5000000 -> true
+12384s bt: connected to Shlomo's A55
+12384s accuracy changed to 3
+12398s bt: link closed (read: bt socket closed, read return: -1)
+12403s BODY_SENSORS=false; READ_HEART_RATE=true; BODY_SENSORS_BACKGROUND=true; READ_HEALTH_DATA_IN_BACKGROUND=true; BLUETOOTH_CONNECT=true
+12403s measure capability HEART_RATE_BPM supported=true
+12403s availability ACQUIRING
+12404s availability AVAILABLE
+12404s bt: connected to Shlomo's A55
+12413s bt: link closed (read: bt socket closed, read return: -1)

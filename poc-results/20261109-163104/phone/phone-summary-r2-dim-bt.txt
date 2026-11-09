@@ -1,0 +1,6 @@
+label=r2-dim path=bt received=47 withClockOffset=46
+end_to_end (recorded -> phone): n=46 min=4.3ms p50=55.4ms p95=120.0ms max=131.0ms
+watch_send_to_phone: n=46 min=1.1ms p50=35.1ms p95=106.5ms max=128.8ms
+gap_between_phone_arrivals: n=46 min=914.5ms p50=1009.0ms p95=1079.9ms max=1086.5ms
+end_to_end while watch screen=off: n=35 min=38.4ms p50=57.0ms p95=120.0ms max=127.5ms
+end_to_end while watch screen=on: n=11 min=4.3ms p50=36.1ms p95=131.0ms max=131.0ms

@@ -1,0 +1,1 @@
+running=false route=r1 label=ctl-mode-r1 count=9 msSinceLastReading=632 wakeLockHeld=false wakeUpSensor=false rateUs=0 batchUs=0 offsetDlNanos=500316604544313 offsetBtNanos=500316595241134 phoneNodeFound=true btConnected=false btDevice=none error=none

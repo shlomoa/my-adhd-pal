@@ -1,0 +1,5 @@
+label=ctl-mode-batch path=bt received=14 withClockOffset=13
+end_to_end (recorded -> phone): n=13 min=17.1ms p50=37.3ms p95=133.8ms max=133.8ms
+watch_send_to_phone: n=13 min=13.4ms p50=31.9ms p95=124.6ms max=124.6ms
+gap_between_phone_arrivals: n=13 min=908.1ms p50=998.2ms p95=1123.7ms max=1123.7ms
+end_to_end while watch screen=on: n=13 min=17.1ms p50=37.3ms p95=133.8ms max=133.8ms

@@ -1,0 +1,46 @@
+510061s listening
+512323s listening
+512328s watch connected: 54:10:4F:AC:16:95
+512375s read ended: bt socket closed, read return: -1
+512375s watch disconnected
+512375s listening
+512381s watch connected: 54:10:4F:AC:16:95
+512429s read ended: bt socket closed, read return: -1
+512429s watch disconnected
+512429s listening
+512436s watch connected: 54:10:4F:AC:16:95
+512484s read ended: bt socket closed, read return: -1
+512484s watch disconnected
+512484s listening
+512491s watch connected: 54:10:4F:AC:16:95
+512538s read ended: bt socket closed, read return: -1
+512538s watch disconnected
+512538s listening
+512544s watch connected: 54:10:4F:AC:16:95
+512591s read ended: bt socket closed, read return: -1
+512591s watch disconnected
+512591s listening
+512598s watch connected: 54:10:4F:AC:16:95
+512646s read ended: bt socket closed, read return: -1
+512646s watch disconnected
+512646s listening
+512653s watch connected: 54:10:4F:AC:16:95
+512660s read ended: bt socket closed, read return: -1
+512660s watch disconnected
+512660s listening
+512674s watch connected: 54:10:4F:AC:16:95
+512683s read ended: bt socket closed, read return: -1
+512683s watch disconnected
+512683s listening
+512687s watch connected: 54:10:4F:AC:16:95
+512697s read ended: bt socket closed, read return: -1
+512697s watch disconnected
+512697s listening
+512701s watch connected: 54:10:4F:AC:16:95
+512714s read ended: bt socket closed, read return: -1
+512714s watch disconnected
+512714s listening
+512721s watch connected: 54:10:4F:AC:16:95
+512729s read ended: bt socket closed, read return: -1
+512729s watch disconnected
+512729s listening

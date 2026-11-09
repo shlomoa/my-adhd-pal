@@ -1,0 +1,5 @@
+label=ctl-mode-r1 route=r1 rateUs=0 batchUs=0 wakeUpSensor=false
+readings=9 error=none
+sensor_to_app (recorded -> watch app): n=9 min=12.5ms p50=20.4ms p95=49.5ms max=49.5ms
+gap_between_arrivals: n=8 min=985.9ms p50=1006.8ms p95=1040.4ms max=1040.4ms
+sensor_to_app while screen=on: n=9 min=12.5ms p50=20.4ms p95=49.5ms max=49.5ms

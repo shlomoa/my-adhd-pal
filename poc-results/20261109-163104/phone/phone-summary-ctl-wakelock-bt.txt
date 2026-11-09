@@ -1,0 +1,5 @@
+label=ctl-wakelock path=bt received=8 withClockOffset=7
+end_to_end (recorded -> phone): n=7 min=24.0ms p50=56.6ms p95=150.9ms max=150.9ms
+watch_send_to_phone: n=7 min=15.3ms p50=48.7ms p95=143.9ms max=143.9ms
+gap_between_phone_arrivals: n=7 min=932.1ms p50=1020.0ms p95=1111.2ms max=1111.2ms
+end_to_end while watch screen=on: n=7 min=24.0ms p50=56.6ms p95=150.9ms max=150.9ms

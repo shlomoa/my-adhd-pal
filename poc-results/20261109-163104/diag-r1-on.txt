@@ -1,0 +1,31 @@
+## dumpsys package (permissions)
+      android.permission.POST_NOTIFICATIONS
+      android.permission.BODY_SENSORS_BACKGROUND
+      android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND
+      android.permission.health.READ_HEART_RATE
+        android.permission.POST_NOTIFICATIONS: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.BODY_SENSORS_BACKGROUND: granted=true, flags=[ RESTRICTION_INSTALLER_EXEMPT]
+        android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.health.READ_HEART_RATE: granted=true, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+## dumpsys sensorservice (heart rate, our package)
+0x00000012) Samsung HR Raw Sensor     | Samsung Inc.    | ver: 1 | type: com.samsung.sensor.hr_raw(69682) | perm: android.permission.health.READ_HEART_RATE | flags: 0x00000002
+0x0000004d) Samsung HR Batch Sensor   | Samsung Inc.    | ver: 1 | type: android.sensor.heart_rate(21) | perm: android.permission.health.READ_HEART_RATE | flags: 0x00000003
+0x00000050) Samsung HR None Wakeup Sensor | Samsung Inc.    | ver: 1 | type: android.sensor.heart_rate(21) | perm: android.permission.health.READ_HEART_RATE | flags: 0x00000002
+15:55:14 - 0x0000004d pid=14498 uid=10004 samplingPeriod=   N/A  us batchingPeriod=   N/A  us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:54:46 + 0x0000004d pid=14498 uid=10004 samplingPeriod= 1000000us batchingPeriod=       0us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:04:45 - 0x0000004d pid=11612 uid=10004 samplingPeriod=   N/A  us batchingPeriod=   N/A  us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:04:45 + 0x0000004d pid=11612 uid=10004 samplingPeriod= 1000000us batchingPeriod= 5000000us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:04:28 - 0x0000004d pid=11533 uid=10004 samplingPeriod=   N/A  us batchingPeriod=   N/A  us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:04:28 + 0x0000004d pid=11533 uid=10004 samplingPeriod= 1000000us batchingPeriod=       0us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:04:16 - 0x0000004d pid=11431 uid=10004 samplingPeriod=   N/A  us batchingPeriod=   N/A  us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:04:16 + 0x0000004d pid=11431 uid=10004 samplingPeriod= 1000000us batchingPeriod=       0us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:03:56 - 0x0000004d pid=11348 uid=10004 samplingPeriod=   N/A  us batchingPeriod=   N/A  us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+15:03:56 + 0x0000004d pid=11348 uid=10004 samplingPeriod= 1000000us batchingPeriod=       0us result=OK (sensor, package): (Samsung HR Batch Sensor    , com.shlomoa.myadhdpal.poc.wear.PocService)
+## dumpsys activity services (our service)
+  * ServiceRecord{588a435 u0 com.shlomoa.myadhdpal.poc/.wear.PocService c:com.shlomoa.myadhdpal.poc}
+    app=ProcessRecord{99400ae 16777:com.shlomoa.myadhdpal.poc/u0a4}
+    isForeground=true foregroundId=5001 types=0x00000100 foregroundNoti=Notification(channel=poc shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|NO_CLEAR|FOREGROUND_SERVICE color=0x00000000 vis=PRIVATE)
+  * ServiceRecord{da6bde2 u0 com.shlomoa.myadhdpal.poc/.wear.PongListenerService c:com.google.android.gms}
+    app=ProcessRecord{99400ae 16777:com.shlomoa.myadhdpal.poc/u0a4}
+## display / power
+mWakefulness=Awake Display State=ON
