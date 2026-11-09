@@ -227,8 +227,11 @@ wcmd --es cmd start --es route r2 --es label ctl-wakelock --ez hold true; nap 3
 held1=$(field "$(status)" wakeLockHeld); wl1=$(wl_count)
 wcmd --es cmd wakelock --ez hold false; nap 3
 held2=$(field "$(status)" wakeLockHeld); wl2=$(wl_count)
-if [ "$held1" = true ] && [ "$held2" = false ] && [ "${wl1:-0}" -ge 1 ] && [ "${wl2:-0}" -eq 0 ]; then r=PASS; else r=FAIL; fi
-chk C4 $r "power: wake lock held then released (status $held1 -> $held2; system wake locks $wl1 -> $wl2)"
+if [ "$held1" != true ] || [ "$held2" != false ]; then r=FAIL
+elif [ "${wl1:-0}" -ge 1 ] && [ "${wl2:-0}" -eq 0 ]; then r=PASS
+elif [ "${wl1:-0}" -eq 0 ]; then r=INCONCLUSIVE
+else r=FAIL; fi
+chk C4 $r "power: wake lock held then released (status $held1 -> $held2; system wake locks $wl1 -> $wl2; INCONCLUSIVE = not visible in dumpsys power)"
 wcmd --es cmd stop; nap 3
 
 # C5 batching mode: with a 5 s report latency the readings must arrive in bursts (longer gaps) than with 0

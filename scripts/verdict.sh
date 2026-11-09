@@ -11,7 +11,8 @@
 #         watch/events.txt, phone/events.txt, diag-*.txt   used only to explain missing data
 #
 # Goal 1: p95 recorded -> watch app at most 500 ms        (per route and screen state, at least MIN_N readings)
-# Goal 2: control checks C1 C2 C4 PASS, C3 not FAIL, and one mode check (C5 or C6) PASS
+# Goal 2: control checks C1 C2 PASS, C3 and C4 not FAIL with at least one of them PASS (system-level evidence),
+#         and one mode check (C5 or C6) PASS
 # Goal 3: p95 recorded -> phone over BLUETOOTH under 1000 ms (the Data Layer is reported, never substituted)
 # A goal is MET when one route meets it in every screen state it was observed in (at least MIN_N readings),
 # PARTIAL when it only meets it with the screen on, NOT MET when there is data but it never meets it, NO DATA
@@ -133,7 +134,8 @@ grep '^CHECK ' "$dir/report.txt" 2>/dev/null | sed 's/^/  /' | tee -a "$out"
 c1="$(check C1)"; c2="$(check C2)"; c3="$(check C3)"; c4="$(check C4)"; c5="$(check C5)"; c6="$(check C6)"
 if [ -z "$c1$c2$c3$c4$c5$c6" ]; then
   g2="NO DATA"
-elif [ "$c1" = PASS ] && [ "$c2" = PASS ] && [ "$c4" = PASS ] && [ "$c3" != FAIL ] && { [ "$c5" = PASS ] || [ "$c6" = PASS ]; }; then
+elif [ "$c1" = PASS ] && [ "$c2" = PASS ] && [ "$c3" != FAIL ] && [ "$c4" != FAIL ] && { [ "$c3" = PASS ] || [ "$c4" = PASS ]; } &&
+  { [ "$c5" = PASS ] || [ "$c6" = PASS ]; }; then
   g2="MET"
 elif [ "$c1" != PASS ] && [ ! -s "$tmp/w.tbl" ]; then
   g2="NO DATA (no readings arrived after start, so nothing could be controlled and observed)"

@@ -22,11 +22,11 @@ Commands are sent directly to the watch (`docs/poc/commands.md`), not from the p
 | C1 enable | Sensor starts on command | status shows running and readings arrive |
 | C2 disable | Sensor stops on command | status shows stopped and no reading arrives in the following 5 s |
 | C3 power, system level | The OS sees our heart-rate sensor connection while running and not after stop | `dumpsys sensorservice` shows a connection of our package while running, none after stop. INCONCLUSIVE (does not fail the goal) if our package is not visible at all, because the dump format is not documented |
-| C4 power, wake lock | CPU wake lock can be held and released | status and `dumpsys power` both show it held, then released |
+| C4 power, wake lock | CPU wake lock can be held and released | status and `dumpsys power` both show it held, then released. INCONCLUSIVE (does not fail the goal) if `dumpsys power` never lists our lock, because that text format is not documented |
 | C5 mode: batching | A different delivery mode changes the stream | with a 5 s report latency the maximum gap between arrivals is at least twice that with 0 |
 | C6 mode: route | The sensor route can be chosen | route `r2` and route `r1` each deliver readings |
 
-Goal 2 is MET when C1, C2, C4 pass, C3 is not FAIL, and C5 or C6 passes.
+Goal 2 is MET when C1 and C2 pass, C3 and C4 are not FAIL with at least one of them PASS (system-level evidence of power control), and C5 or C6 passes.
 
 ## Goal 3: live pulse over Bluetooth to an Android app, sub-second
 

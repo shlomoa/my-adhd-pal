@@ -138,6 +138,16 @@ d="$tmp/p"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 -500
 expect P-invalid-noexchange "$d" "INVALID CLOCK BASE"
 
+# Q. Both system-level power checks inconclusive: not enough evidence, goal 2 is not claimed.
+d="$tmp/q"; checks "$d" PASS PASS INCONCLUSIVE INCONCLUSIVE PASS PASS
+for r in r1 r2; do watch "$d" "$r-on" "$r" on 30 80; phone "$d" "$r-on" bt on 30 300; done
+expect Q-no-power-evidence "$d" "GOAL 2: NOT MET" "C3=INCONCLUSIVE C4=INCONCLUSIVE"
+
+# R. Wake lock check inconclusive but the sensor connection is seen: goal 2 still met.
+d="$tmp/r"; checks "$d" PASS PASS PASS INCONCLUSIVE PASS PASS
+for r in r1 r2; do watch "$d" "$r-on" "$r" on 30 80; phone "$d" "$r-on" bt on 30 300; done
+expect R-wakelock-inconclusive "$d" "GOAL 2: MET"
+
 # M. System-level check inconclusive (dumpsys format unknown) does not block goal 2.
 d="$tmp/m"; checks "$d" PASS PASS INCONCLUSIVE PASS FAIL PASS
 for r in r1 r2; do watch "$d" "$r-on" "$r" on 30 80; phone "$d" "$r-on" bt on 30 300; done
