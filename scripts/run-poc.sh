@@ -4,7 +4,7 @@
 #   scripts/run-poc.sh            run everything, commit and push the results to the current branch
 #   scripts/run-poc.sh --no-push  run everything, keep the results local
 #
-# What it does: builds the APKs if missing, installs them, grants the watch permissions, then
+# What it does: builds the APKs, installs them, grants the watch permissions, then
 #   1. latency matrix: routes r1 (MeasureClient) and r2 (wake-up sensor) x screen states on / dim / off,
 #      PHASE_SECONDS each (default 60), pulse sent to the phone live;
 #   2. control checks (goal 2): enable, disable, wake lock hold/release, route and batching modes;
@@ -51,10 +51,9 @@ say "phone: $P $(p shell getprop ro.product.model | tr -d '\r') Android $(p shel
 # ---- build, install, permissions -----------------------------------------------------------------------------------
 WAPK=wear/build/outputs/apk/debug/wear-debug.apk
 PAPK=phone/build/outputs/apk/debug/phone-debug.apk
-if [ ! -f "$WAPK" ] || [ ! -f "$PAPK" ]; then
-  say "building APKs"
-  ./gradlew :wear:assembleDebug :phone:assembleDebug -q || { say "BUILD FAILED"; exit 3; }
-fi
+# Always build: a stale APK from an earlier project in the same folders has a different package name.
+say "building APKs (incremental)"
+./gradlew :wear:assembleDebug :phone:assembleDebug -q || { say "BUILD FAILED"; exit 3; }
 install_app() { # install_app <serial> <apk> <name>
   local result
   result=$("$ADB" -s "$1" install -r -t "$2" 2>&1 | tr -d '\r' | tail -3)
