@@ -140,6 +140,7 @@ class PocService : Service() {
         rateUs = intent.getIntExtra("rate_us", SensorManager.SENSOR_DELAY_FASTEST)
         batchUs = intent.getIntExtra("batch_us", 0)
         count = 0
+        Exchanges.label = label
         error = ""
         sensorLatencies.clear()
         arrivals.clear()

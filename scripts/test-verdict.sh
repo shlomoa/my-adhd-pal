@@ -25,6 +25,13 @@ phone() {
     echo "$2,$i,70,$src,$src,$off,$((src + off + e2e)),$4" >>"$1/phone/phone-$2-$3.csv"
   done
 }
+# exchange <dir> <label> <path> <rtt_ms> <offset_ns>: one ping/pong exchange file with the given round trip and offset
+exchange() {
+  mkdir -p "$1/watch"
+  t0=1000000000; rtt=$(($4 * 1000000))
+  echo "$t0,$((t0 + rtt / 2 + $5)),$((t0 + rtt))" >>"$1/watch/exchanges-$2-$3.csv"
+  echo "$((t0 * 2)),$((t0 * 2 + rtt + $5 + 7000000)),$((t0 * 2 + rtt * 2 + 9000000))" >>"$1/watch/exchanges-$2-$3.csv" # a worse one
+}
 checks() { # checks <dir> C1 C2 C3 C4 C5 C6 results
   shift 0
   d="$1"; shift
@@ -112,6 +119,21 @@ expect K-control "$d" "GOAL 2: NOT MET" "C2=FAIL" "OVERALL: FAILURE"
 d="$tmp/l"; allpass "$d"
 watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 300 "$NOOFF"
 expect L-nooffset "$d" "GOAL 3 (Bluetooth): NO DATA"
+
+# N. The offset that was current when each reading was sent is wrong; the whole-run exchange file corrects it.
+d="$tmp/n"; allpass "$d"
+watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 0 300000000; exchange "$d" r2-on bt 40 0
+expect N-wholerun-offset "$d" "GOAL 3 (Bluetooth): MET" "p50=   302.0" "clock uncertainty +-20.0 ms"
+
+# O. A long round trip widens the clock uncertainty: a slightly negative end-to-end value is then not "invalid".
+d="$tmp/o"; allpass "$d"
+watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 -150; exchange "$d" r2-on bt 400 0
+expect O-uncertainty "$d" "clock uncertainty +-200.0 ms" "GOAL 3 (Bluetooth): MET"
+
+# P. Without an exchange file a hugely negative end-to-end value is still an invalid clock base.
+d="$tmp/p"; allpass "$d"
+watch "$d" r2-on r2 on 30 80; phone "$d" r2-on bt on 30 -500
+expect P-invalid-noexchange "$d" "INVALID CLOCK BASE"
 
 # M. System-level check inconclusive (dumpsys format unknown) does not block goal 2.
 d="$tmp/m"; checks "$d" PASS PASS INCONCLUSIVE PASS FAIL PASS

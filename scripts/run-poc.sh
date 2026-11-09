@@ -87,7 +87,7 @@ grant() { # grant <name> <serial> <permission>...
 }
 grant watch "$W" android.permission.BODY_SENSORS android.permission.health.READ_HEART_RATE \
   android.permission.BODY_SENSORS_BACKGROUND android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND \
-  android.permission.POST_NOTIFICATIONS android.permission.BLUETOOTH_CONNECT
+  android.permission.POST_NOTIFICATIONS android.permission.BLUETOOTH_CONNECT android.permission.BLUETOOTH_SCAN
 grant phone "$P" android.permission.BLUETOOTH_CONNECT android.permission.POST_NOTIFICATIONS
 
 # The phone app starts its Bluetooth server from its screen, so the phone must be awake and unlocked.

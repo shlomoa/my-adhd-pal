@@ -13,5 +13,6 @@ class PongListenerService : WearableListenerService() {
         val t3 = SystemClock.elapsedRealtimeNanos()
         val (t0, phoneNanos) = Wire.decodePong(event.data) ?: return
         Link.onPong(t0, phoneNanos, t3)
+        Exchanges.log(this, "dl", t0, phoneNanos, t3)
     }
 }

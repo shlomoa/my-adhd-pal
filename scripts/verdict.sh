@@ -44,12 +44,39 @@ watch_rows() {
     awk -F, 'NF >= 8 { printf "%s|%s %.3f\n", $2, $8, ($7 - $6) / 1000000.0 }'
 }
 
-# $1 = path (dl or bt); keys become route|screen. Readings sent before the first clock exchange have no offset.
+# $1 = path (dl or bt); keys become route|screen.
+# The clock offset (phone minus watch) is taken from the exchange with the shortest round trip of the whole run
+# (watch/exchanges-<label>-<path>.csv: t0,phoneNanos,t3), which is more accurate than the offset that was current
+# when each reading was sent. Without an exchange file the offset carried in the reading is used; readings sent
+# before the first exchange have none and are left out.
 phone_rows() {
   for f in "$dir"/phone/phone-r[12]-*-"$1".csv; do
     [ -f "$f" ] || continue
-    awk -F, 'NF >= 8 && $6 > -9.0e18 { printf "%s|%s %.3f\n", substr($1, 1, 2), $8, ($7 - ($4 + $6)) / 1000000.0 }' "$f"
+    ex="$dir/watch/exchanges-$(basename "${f%-"$1".csv}" | sed 's/^phone-//')-$1.csv"
+    [ -f "$ex" ] || ex=""
+    awk -F, -v ex="$ex" '
+      BEGIN {
+        if (ex != "") {
+          while ((getline line < ex) > 0) {
+            split(line, a, ",")
+            rtt = a[3] - a[1]
+            if (rtt >= 0 && (best == "" || rtt < bestrtt)) { bestrtt = rtt; best = a[2] - (a[1] + a[3]) / 2 }
+          }
+        }
+      }
+      NF >= 8 {
+        if (best != "") off = best; else if ($6 > -9.0e18) off = $6; else next
+        printf "%s|%s %.3f\n", substr($1, 1, 2), $8, ($7 - ($4 + off)) / 1000000.0
+      }' "$f"
   done
+}
+
+# Clock uncertainty of a path in ms: half the shortest round trip, worst over the run's labels (the offset assumes
+# equal travel time each way, so it can be wrong by up to half the round trip). 100 when there are no exchange files.
+uncertainty() {
+  for f in "$dir"/watch/exchanges-r[12]-*-"$1".csv; do
+    [ -f "$f" ] && awk -F, 'NR == 1 || $3 - $1 < m { m = $3 - $1 } END { printf "%.1f\n", m / 2000000.0 }' "$f"
+  done | sort -n | tail -1
 }
 
 # judge <table-file> <threshold-ms> <strict 0|1> <clock-min-ms>; prints detail lines, then "VERDICT: <x>".
@@ -119,13 +146,16 @@ say ""
 # ---- Goal 3 ----
 phone_rows bt | groups >"$tmp/bt.tbl"
 phone_rows dl | groups >"$tmp/dl.tbl"
+unc_bt="$(uncertainty bt)"; unc_dl="$(uncertainty dl)"
 say "Goal 3: live pulse over Bluetooth to the phone in under 1000 ms (recorded -> phone, p95)"
-say " Direct Bluetooth path (RFCOMM):"
-judge "$tmp/bt.tbl" 1000 1 -100 >"$tmp/g3.txt"
+say " Direct Bluetooth path (RFCOMM), clock uncertainty +-${unc_bt:-?} ms (half the shortest ping round trip):"
+clock_bt=$(awk -v u="${unc_bt:-100}" 'BEGIN { printf "%.1f", -(u + 20) }')
+clock_dl=$(awk -v u="${unc_dl:-100}" 'BEGIN { printf "%.1f", -(u + 20) }')
+judge "$tmp/bt.tbl" 1000 1 "$clock_bt" >"$tmp/g3.txt"
 detail_of <"$tmp/g3.txt" | tee -a "$out"
 g3="$(verdict_of <"$tmp/g3.txt")"
-say " Data Layer path (reported for comparison; Google says it prefers Bluetooth but may use Wi-Fi):"
-judge "$tmp/dl.tbl" 1000 1 -100 >"$tmp/g3dl.txt"
+say " Data Layer path (reported for comparison; Google says it prefers Bluetooth but may use Wi-Fi), clock uncertainty +-${unc_dl:-?} ms:"
+judge "$tmp/dl.tbl" 1000 1 "$clock_dl" >"$tmp/g3dl.txt"
 detail_of <"$tmp/g3dl.txt" | tee -a "$out"
 say "  => GOAL 3 (Bluetooth): $g3   [Data Layer: $(verdict_of <"$tmp/g3dl.txt")]"
 say ""

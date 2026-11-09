@@ -53,6 +53,9 @@ def write_results(s):
             for path, ms in (("dl", 200), ("bt", 300)):
                 if path == "bt" and SC == "nobt":
                     continue
+                if i == 1:  # one ping/pong exchange per path and run: 40 ms round trip, offset 0
+                    with open(os.path.join(wf, f"exchanges-{label}-{path}.csv"), "a") as f:
+                        f.write(f"{src},{src + 20_000_000},{src + 40_000_000}\n")
                 with open(os.path.join(pf, f"phone-{label}-{path}.csv"), "a") as f:
                     f.write(f"{label},{i},70,{src},{src},0,{src + (ms + i % 5) * 1_000_000},on\n")
     with open(os.path.join(wf, f"watch-summary-{label}.txt"), "w") as f:

@@ -90,17 +90,17 @@ object BtLink {
             }
             for (device in candidates) {
                 if (!running) break
-                if (connect(adapter, device, log)) readLoop(log)
+                if (connect(device, log)) readLoop(context, log)
             }
             if (running) Thread.sleep(RETRY_MS)
         }
     }
 
     @SuppressLint("MissingPermission")
-    private fun connect(adapter: BluetoothAdapter, device: BluetoothDevice, log: (String) -> Unit): Boolean {
+    // No cancelDiscovery(): this app never starts discovery, and the call would need BLUETOOTH_SCAN.
+    private fun connect(device: BluetoothDevice, log: (String) -> Unit): Boolean {
         val name = runCatching { device.name }.getOrNull() ?: device.address
         return try {
-            adapter.cancelDiscovery()
             val s = device.createRfcommSocketToServiceRecord(uuid)
             s.connect()
             socket = s
@@ -119,7 +119,7 @@ object BtLink {
         }
     }
 
-    private fun readLoop(log: (String) -> Unit) {
+    private fun readLoop(context: Context, log: (String) -> Unit) {
         val s = socket ?: return
         val buffer = LineBuffer()
         val bytes = ByteArray(READ_BUFFER)
@@ -129,7 +129,10 @@ object BtLink {
                 if (n < 0) break
                 val arrival = SystemClock.elapsedRealtimeNanos()
                 for (frame in buffer.feed(bytes, n)) {
-                    if (frame is Frame.PongFrame) tracker.add(Exchange(frame.pingWatchNanos, frame.phoneNanos, arrival))
+                    if (frame is Frame.PongFrame) {
+                        tracker.add(Exchange(frame.pingWatchNanos, frame.phoneNanos, arrival))
+                        Exchanges.log(context, "bt", frame.pingWatchNanos, frame.phoneNanos, arrival)
+                    }
                 }
             }
         } catch (e: IOException) {
