@@ -55,14 +55,25 @@ if [ ! -f "$WAPK" ] || [ ! -f "$PAPK" ]; then
   say "building APKs"
   ./gradlew :wear:assembleDebug :phone:assembleDebug -q || { say "BUILD FAILED"; exit 3; }
 fi
-w install -r -t "$WAPK" >/dev/null 2>&1 || { say "watch install FAILED"; exit 3; }
-p install -r -t "$PAPK" >/dev/null 2>&1 || { say "phone install FAILED"; exit 3; }
+install_app() { # install_app <serial> <apk> <name>
+  local result
+  result=$("$ADB" -s "$1" install -r -t "$2" 2>&1 | tr -d '\r' | tail -3)
+  say "$3 install: $(echo "$result" | tr '\n' ' ')"
+  "$ADB" -s "$1" shell pm list packages "$PKG" 2>/dev/null | tr -d '\r' | grep -q "package:$PKG" \
+    || { say "$3: package $PKG is not installed after the install above; stopping"; exit 3; }
+}
+install_app "$W" "$WAPK" watch
+install_app "$P" "$PAPK" phone
 # Fresh logs for this run.
 w shell run-as $PKG sh -c 'rm -f files/*' >/dev/null 2>&1
 p shell run-as $PKG sh -c 'rm -f files/*' >/dev/null 2>&1
 for perm in android.permission.BODY_SENSORS android.permission.health.READ_HEART_RATE \
   android.permission.BODY_SENSORS_BACKGROUND android.permission.POST_NOTIFICATIONS; do
-  if w shell pm grant $PKG "$perm" >/dev/null 2>&1; then say "granted $perm"; else say "not granted (may not apply on this Android version): $perm"; fi
+  if res=$(w shell pm grant $PKG "$perm" 2>&1 | tr -d '\r'); [ -z "$res" ]; then
+    say "granted $perm"
+  else
+    say "not granted: $perm: $(echo "$res" | head -1)"
+  fi
 done
 p shell am start -n "$PACT" >/dev/null 2>&1 # the phone receiver process must exist
 
